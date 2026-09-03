@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>METRO-CHECK | Field Inspector Portal</title>
+  
+  <!-- Security check: Ensure only inspectors or admins can access -->
+  <script src="js/auth.js"></script>
+  <script>checkLogin("inspector");</script>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- jsPDF Library for In-Browser PDF Compliance Report Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex text-slate-800 antialiased" onload="initInspectorApp()">
+
+  <!-- Mobile Drawer Backdrop -->
+  <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden transition-opacity"></div>
+
+  <!-- Left Navigation Sidebar (Responsive Drawer on Mobile, 280px Fixed on Desktop) -->
+  <aside class="fixed inset-y-0 left-0 z-40 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-200 ease-in-out w-[280px] bg-[#1a1f36] text-slate-300 flex flex-col justify-between flex-shrink-0 min-h-screen p-5 shadow-2xl md:shadow-none">
+    <div>
+      <!-- Brand Identity Header -->
+      <div class="flex items-center justify-between pb-5 border-b border-slate-700/60">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 text-xl font-black">
+            ⚖️
+          </div>
+          <div>
+            <h1 class="text-white font-black text-base tracking-wider">METRO-CHECK</h1>
+            <p class="text-[10px] text-amber-400 font-semibold uppercase tracking-wider">Legal Metrology Portal</p>
+          </div>
+        </div>
+        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800" title="Close Menu">✕</button>
+      </div>
+
+      <!-- Inspector Role Badge -->
+      <div class="mt-4 px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-slate-300 font-semibold text-[11px]">Field Unit Active</span>
+        </div>
+        <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold text-[10px] border border-amber-500/30">MOBILE-FIRST</span>
+      </div>
+
+      <!-- Navigation Menu: 5 Role Modules + AI OCR -->
+      <nav class="mt-5 space-y-1 text-sm font-medium">
+        <!-- 1. Dashboard -->
+        <button type="button" onclick="switchInspectorTab('dashboard')" id="navBtn-dashboard" class="inspector-nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-amber-500 text-white shadow font-semibold transition text-left">
+          <span>📊</span> <span>Dashboard</span>
+        </button>
+
+        <!-- 2. My Inspections -->
+        <button type="button" onclick="switchInspectorTab('inspections')" id="navBtn-inspections" class="inspector-nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+          <span>📝</span> <span>My Inspections</span>
+        </button>
+
+        <!-- 3. Commodity Lookup -->
+        <button type="button" onclick="switchInspectorTab('lookup')" id="navBtn-lookup" class="inspector-nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+          <span>🔍</span> <span>Commodity Lookup</span>
+        </button>
+
+        <!-- 4. My Reports -->
+        <button type="button" onclick="switchInspectorTab('reports')" id="navBtn-reports" class="inspector-nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+          <span>📑</span> <span>My Reports</span>
+        </button>
+
+        <!-- 5. Help & Guide -->
+        <button type="button" onclick="switchInspectorTab('help')" id="navBtn-help" class="inspector-nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+          <span>❓</span> <span>Help & Guide</span>
+        </button>
+
+        <div class="pt-3 border-t border-slate-700/50 mt-3">
+          <a href="scanner.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-white border border-amber-500/20 font-bold transition">
+            <span>📸</span> <span>AI OCR Camera</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Bottom Sidebar: User Info & Logout Button -->
+    <div class="pt-4 border-t border-slate-700/60">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-xs text-amber-400">
+            👮
+          </div>
+          <div>
+            <p id="sidebarUserName" class="text-xs font-bold text-white leading-tight">Field Inspector</p>
+            <span id="sidebarUserRole" class="inline-block px-1.5 py-0.2 text-[9px] font-bold rounded bg-amber-500/20 text-amber-400">
+              INSPECTOR
+            </span>
+          </div>
+        </div>
+      </div>
+      <button type="button" onclick="logout()" class="w-full py-2 px-3 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
+        <span>🚪</span> <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Right Main Viewport -->
+  <div class="flex-1 flex flex-col min-w-0">
+    
+    <!-- Top Header Bar -->
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-20 shadow-sm">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-xl hover:bg-slate-100 text-slate-700 border border-slate-200" title="Toggle Navigation">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div>
+          <div class="text-[11px] font-semibold text-slate-400">
+            <span>Inspector Portal</span> <span class="mx-1 text-slate-300">&gt;</span> <span id="currentViewBreadcrumb" class="text-slate-800 font-bold">Dashboard</span>
+          </div>
+          <h2 id="currentViewHeaderTitle" class="text-sm font-extrabold text-slate-900 leading-tight">Daily Inspection Overview</h2>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a href="scanner.html" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f59e0b] hover:bg-[#d97706] text-white text-xs font-bold rounded-xl shadow transition btn-hover-effect">
+          <span>⚡ Start Scan</span>
+        </a>
+        <button onclick="showToast('Inspector notifications up to date', 'success')" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 border border-slate-200 relative" title="Notifications">
+          <span>🔔</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 absolute top-1.5 right-1.5"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Container with 5 Switchable Module Views -->
+    <main class="p-4 sm:p-6 space-y-6 overflow-y-auto max-w-6xl w-full mx-auto">
+      
+      <!-- ===================================================================
+           VIEW 1: 📊 DASHBOARD (Mobile-Friendly Overview + 4 Stat Cards + Amber Button)
+           =================================================================== -->
+      <section id="view-dashboard" class="inspector-module-view space-y-6">
+        
+        <!-- Welcome Banner -->
+        <div class="bg-gradient-to-r from-[#1a1f36] to-slate-800 rounded-2xl p-5 sm:p-6 text-white shadow-md relative overflow-hidden">
+          <div class="relative z-10">
+            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/30 text-amber-300 text-[10px] font-bold border border-amber-500/40 uppercase tracking-wider">Legal Metrology Packaged Commodities Rules, 2011</span>
+            <h3 class="text-lg sm:text-xl font-black mt-2 tracking-tight">Today's Inspection Readiness</h3>
+            <p class="text-xs text-slate-300 mt-1 max-w-xl">Scan packaged goods, detect mandatory declaration omissions, and verify Maximum Permissible Errors (tolerances) on-site.</p>
+          </div>
+          <div class="absolute -right-6 -bottom-6 text-7xl opacity-15 pointer-events-none">⚖️</div>
+        </div>
+
+        <!-- 4 Stat Cards: Total Scans, Compliant, Violations, Pending (reading localStorage) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <!-- Total Scans -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm card-hover-effect">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Scans</span>
+              <span class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-sm">📦</span>
+            </div>
+            <h2 id="statTotalScans" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">0</h2>
+            <p class="text-[10px] text-slate-400 mt-1 font-medium">All logged inspections</p>
+          </div>
+
+          <!-- Compliant -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm card-hover-effect">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Compliant</span>
+              <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">✅</span>
+            </div>
+            <h2 id="statCompliant" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-2">0</h2>
+            <p class="text-[10px] text-emerald-600 mt-1 font-medium">Zero rule defects</p>
+          </div>
+
+          <!-- Violations -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm card-hover-effect">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Violations</span>
+              <span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-sm">⚠️</span>
+            </div>
+            <h2 id="statViolations" class="text-2xl sm:text-3xl font-extrabold text-red-600 mt-2">0</h2>
+            <p class="text-[10px] text-red-600 mt-1 font-medium">Non-compliant packages</p>
+          </div>
+
+          <!-- Pending Review -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm card-hover-effect">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending</span>
+              <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm">⏳</span>
+            </div>
+            <h2 id="statPending" class="text-2xl sm:text-3xl font-extrabold text-amber-500 mt-2">0</h2>
+            <p class="text-[10px] text-amber-600 mt-1 font-medium">Awaiting legal docket</p>
+          </div>
+        </div>
+
+        <!-- Recent Inspections Live Feed -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">Today's Inspection Log</h3>
+              <p class="text-xs text-slate-400">Live feed of package compliance verification records</p>
+            </div>
+            <button onclick="switchInspectorTab('inspections')" class="text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline">
+              View All Inspections →
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase font-bold border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-3">Case ID</th>
+                  <th class="px-4 py-3">Product Name</th>
+                  <th class="px-4 py-3">Date</th>
+                  <th class="px-4 py-3">Compliance</th>
+                  <th class="px-4 py-3">Status</th>
+                  <th class="px-4 py-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="inspectionsTableBody">
+                <!-- Dynamically populated from storage.js via js/dashboard.js -->
+              </tbody>
+            </table>
+
+            <!-- Empty State -->
+            <div id="emptyStateBanner" class="hidden p-8 text-center">
+              <div class="text-3xl mb-2">📦</div>
+              <p class="text-sm font-semibold text-slate-700">No inspections recorded yet.</p>
+              <p class="text-xs text-slate-400 mt-1">Start your first scan to begin verification!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Scan Quick Callout + Large Amber "Start New Scan" Button at the bottom -->
+        <div class="pt-2">
+          <button 
+            type="button" 
+            onclick="window.location.href='scanner.html'" 
+            class="w-full py-4 px-6 bg-[#f59e0b] hover:bg-[#d97706] text-white font-black text-base sm:text-lg rounded-2xl shadow-xl hover:shadow-2xl transition duration-200 flex items-center justify-center gap-3 btn-hover-effect border-2 border-amber-400/40"
+          >
+            <span class="text-2xl">📸</span>
+            <span>Start New Scan (AI Vision Scanner)</span>
+            <span class="text-xl font-mono">➔</span>
+          </button>
+          <p class="text-center text-[11px] text-slate-400 mt-2 font-medium">Automatic label OCR & statutory Rule 6 compliance check in seconds</p>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 2: 📝 MY INSPECTIONS (Tabbed: Drafts, Submitted, History + Cards + Search)
+           =================================================================== -->
+      <section id="view-inspections" class="inspector-module-view hidden space-y-5">
+        
+        <!-- Header & Search Bar -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h3 class="font-extrabold text-slate-900 text-base">My Inspections</h3>
+              <p class="text-xs text-slate-500">Filter, review, or resume draft field inspections</p>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative w-full sm:w-72">
+              <input 
+                type="text" 
+                id="inspectionsSearchInput" 
+                oninput="filterMyInspections()" 
+                placeholder="Search by product, ID, or location..." 
+                class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
+              >
+              <span class="absolute left-3 top-2.5 text-xs text-slate-400">🔍</span>
+            </div>
+          </div>
+
+          <!-- Filter Tabs: All | Drafts | Submitted | History -->
+          <div class="flex flex-wrap gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
+            <button type="button" data-inspection-tab="all" onclick="setInspectionTab('all')" class="inspection-filter-tab px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-white shadow transition">
+              All (<span id="countTabAll">0</span>)
+            </button>
+            <button type="button" data-inspection-tab="draft" onclick="setInspectionTab('draft')" class="inspection-filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-200 transition">
+              Drafts (<span id="countTabDraft">0</span>)
+            </button>
+            <button type="button" data-inspection-tab="submitted" onclick="setInspectionTab('submitted')" class="inspection-filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-200 transition">
+              Submitted (<span id="countTabSubmitted">0</span>)
+            </button>
+            <button type="button" data-inspection-tab="history" onclick="setInspectionTab('history')" class="inspection-filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-200 transition">
+              History / Completed (<span id="countTabHistory">0</span>)
+            </button>
+          </div>
+        </div>
+
+        <!-- Cards Container (Mobile-first responsive card layout) -->
+        <div id="myInspectionsCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated from dashboard.js -->
+        </div>
+
+        <!-- Empty State for My Inspections -->
+        <div id="myInspectionsEmptyState" class="hidden bg-white rounded-2xl p-10 text-center border border-slate-200">
+          <div class="text-4xl mb-2">🔍</div>
+          <h4 class="font-bold text-slate-800 text-sm">No inspections found</h4>
+          <p class="text-xs text-slate-400 mt-1">Try changing the active tab or clearing the search query.</p>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 3: 🔍 COMMODITY LOOKUP (Real-Time Search + Product Cards Grid + Tolerances)
+           =================================================================== -->
+      <section id="view-lookup" class="inspector-module-view hidden space-y-5">
+        
+        <!-- Search & Category Filters -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <div>
+            <h3 class="font-extrabold text-slate-900 text-base">Legal Metrology Commodity Reference</h3>
+            <p class="text-xs text-slate-500">Instant lookup for Maximum Allowable Variations (MAV), weight tolerances, and mandatory Rule 6 declarations</p>
+          </div>
+
+          <!-- Real-Time Search Bar -->
+          <div class="relative">
+            <input 
+              type="text" 
+              id="commoditySearchInput" 
+              oninput="filterCommodityLookup()" 
+              placeholder="Type to filter commodities (e.g., 'Rice', 'Edible Oil', 'Flour', '1kg', 'tolerance')..." 
+              class="w-full pl-10 pr-4 py-3 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
+            >
+            <span class="absolute left-3.5 top-3.5 text-slate-400 text-sm">🔍</span>
+          </div>
+
+          <!-- Category Quick Pills -->
+          <div class="flex flex-wrap gap-2 text-xs font-semibold" id="commodityCategoryPills">
+            <button type="button" onclick="setCommodityCategoryFilter('All')" class="commodity-cat-pill px-3 py-1.5 rounded-lg bg-amber-500 text-white font-bold shadow">All Commodities</button>
+            <button type="button" onclick="setCommodityCategoryFilter('Food')" class="commodity-cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">🌾 Food & Grains</button>
+            <button type="button" onclick="setCommodityCategoryFilter('FMCG')" class="commodity-cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">🧼 FMCG & Household</button>
+            <button type="button" onclick="setCommodityCategoryFilter('Electronics')" class="commodity-cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">📱 Electronics</button>
+            <button type="button" onclick="setCommodityCategoryFilter('Textiles')" class="commodity-cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">👕 Textiles & Apparel</button>
+          </div>
+        </div>
+
+        <!-- Commodity Cards Grid -->
+        <div id="commodityCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamically populated from dashboard.js -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="commodityEmptyState" class="hidden bg-white rounded-2xl p-10 text-center border border-slate-200">
+          <div class="text-4xl mb-2">🔎</div>
+          <h4 class="font-bold text-slate-800 text-sm">No commodities matched your search</h4>
+          <p class="text-xs text-slate-400 mt-1">Try another keyword or category pill.</p>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 4: 📑 MY REPORTS (Approved/Rejected List + jsPDF Compliance Report Download)
+           =================================================================== -->
+      <section id="view-reports" class="inspector-module-view hidden space-y-5">
+        
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h3 class="font-extrabold text-slate-900 text-base">Generated Compliance Reports</h3>
+            <p class="text-xs text-slate-500">Download official PDF audit reports for adjudicated or completed inspections</p>
+          </div>
+          <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+            Official Adjudications
+          </span>
+        </div>
+
+        <!-- Completed Reports Grid -->
+        <div id="completedReportsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamically populated from dashboard.js -->
+        </div>
+
+        <!-- Empty State for Reports -->
+        <div id="completedReportsEmptyState" class="hidden bg-white rounded-2xl p-10 text-center border border-slate-200">
+          <div class="text-4xl mb-2">📑</div>
+          <h4 class="font-bold text-slate-800 text-sm">No completed reports yet</h4>
+          <p class="text-xs text-slate-400 mt-1">Reports will appear here once submitted inspections are reviewed and marked 'Approved' or 'Rejected' by the Metrology Officer.</p>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 5: ❓ HELP & GUIDE (Pure HTML/CSS Accordion + 5 Field Questions)
+           =================================================================== -->
+      <section id="view-help" class="inspector-module-view hidden space-y-5">
+        
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <h3 class="font-extrabold text-slate-900 text-base">Inspector Field Guide & FAQs</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Procedural instructions for standard package inspections and Legal Metrology Rule 2011 compliance.</p>
+        </div>
+
+        <!-- Pure HTML/CSS Accordion Sections (5 Common Questions) -->
+        <div class="space-y-3">
+          
+          <!-- Q1 -->
+          <details class="faq-accordion bg-white rounded-2xl border border-slate-200 shadow-sm p-4 cursor-pointer" open>
+            <summary class="flex items-center justify-between font-bold text-slate-900 text-sm select-none">
+              <span class="flex items-center gap-2.5">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center">1</span>
+                <span>How do I capture a compliant, clear label photo for AI scanning?</span>
+              </span>
+              <span class="faq-icon text-slate-400 text-xs">▼</span>
+            </summary>
+            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed space-y-2">
+              <p>To ensure high AI OCR accuracy (above 95%):</p>
+              <ul class="list-disc list-inside space-y-1 pl-1 text-slate-600">
+                <li>Capture the <strong>Principal Display Panel (PDP)</strong> directly front-facing, avoiding glare and reflections.</li>
+                <li>Ensure all mandatory text (MRP, Net Quantity, Mfg Date, and Customer Helpline) is clearly within frame.</li>
+                <li>Hold the device steady in adequate lighting. Blurry or skewed photos can cause false OCR rejections.</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- Q2 -->
+          <details class="faq-accordion bg-white rounded-2xl border border-slate-200 shadow-sm p-4 cursor-pointer">
+            <summary class="flex items-center justify-between font-bold text-slate-900 text-sm select-none">
+              <span class="flex items-center gap-2.5">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center">2</span>
+                <span>What are the 6 mandatory declarations required under Rule 6?</span>
+              </span>
+              <span class="faq-icon text-slate-400 text-xs">▼</span>
+            </summary>
+            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed space-y-2">
+              <p>Under the Legal Metrology (Packaged Commodities) Rules, 2011, every pre-packaged commodity must display:</p>
+              <ol class="list-decimal list-inside space-y-1 pl-1 text-slate-700 font-medium">
+                <li><strong>Generic / Commodity Name:</strong> Clear commercial description.</li>
+                <li><strong>Net Quantity:</strong> In standard metric units (g, kg, ml, L, or piece count).</li>
+                <li><strong>Retail Sale Price (MRP):</strong> Inclusive of all taxes with currency symbol (₹ or Rs.).</li>
+                <li><strong>Manufacturer / Packer / Importer Details:</strong> Complete registered name and geographic address.</li>
+                <li><strong>Month & Year:</strong> Manufacturing, packaging, or import date.</li>
+                <li><strong>Consumer Care Details:</strong> Contact number, email address, or grievance redressal address.</li>
+              </ol>
+            </div>
+          </details>
+
+          <!-- Q3 -->
+          <details class="faq-accordion bg-white rounded-2xl border border-slate-200 shadow-sm p-4 cursor-pointer">
+            <summary class="flex items-center justify-between font-bold text-slate-900 text-sm select-none">
+              <span class="flex items-center gap-2.5">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center">3</span>
+                <span>What is the difference between 'Save as Draft' and 'Submit for Review'?</span>
+              </span>
+              <span class="faq-icon text-slate-400 text-xs">▼</span>
+            </summary>
+            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed space-y-2">
+              <p><strong>Save as Draft:</strong> Keeps the inspection saved on your local device. You can re-open it, upload another photo, or edit extracted details anytime. It does not appear in the legal docket.</p>
+              <p><strong>Submit for Review:</strong> Transmits the case directly to the <strong>Metrology Officer's Review Docket</strong> for legal scrutiny, notice issuance, and final approval/rejection under the Act.</p>
+            </div>
+          </details>
+
+          <!-- Q4 -->
+          <details class="faq-accordion bg-white rounded-2xl border border-slate-200 shadow-sm p-4 cursor-pointer">
+            <summary class="flex items-center justify-between font-bold text-slate-900 text-sm select-none">
+              <span class="flex items-center gap-2.5">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center">4</span>
+                <span>How are weight tolerances (Maximum Permissible Errors) calculated?</span>
+              </span>
+              <span class="faq-icon text-slate-400 text-xs">▼</span>
+            </summary>
+            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed space-y-2">
+              <p>Tolerances (Maximum Allowable Variation - MAV) follow the <strong>Second Schedule</strong> of the Rules:</p>
+              <ul class="list-disc list-inside space-y-1 pl-1">
+                <li>Packages up to 500g: Typically ± 2% or 9g.</li>
+                <li>Packages between 1kg and 5kg: ± 1.5% maximum allowable variation.</li>
+                <li>Packages exceeding 5kg: ± 1.0% maximum allowable variation.</li>
+                <li><em>Important Rule:</em> The average net quantity of a sample batch must equal or exceed the declared net quantity, and no individual package may deviate by more than twice the MAV.</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- Q5 -->
+          <details class="faq-accordion bg-white rounded-2xl border border-slate-200 shadow-sm p-4 cursor-pointer">
+            <summary class="flex items-center justify-between font-bold text-slate-900 text-sm select-none">
+              <span class="flex items-center gap-2.5">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center">5</span>
+                <span>What should I do if the AI OCR misidentifies a date, price, or font size?</span>
+              </span>
+              <span class="faq-icon text-slate-400 text-xs">▼</span>
+            </summary>
+            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed space-y-2">
+              <p>The AI OCR acts as an assistive inspection tool. If optical recognition misreads an unusual stylized typeface:</p>
+              <ul class="list-disc list-inside space-y-1 pl-1">
+                <li>You can save the scan as a <strong>Draft</strong> and capture another photo under better lighting.</li>
+                <li>Submit the case with your field remarks; the Metrology Officer has full judicial override capabilities in the Case Evidence workspace.</li>
+                <li>If the manufacturer used a font below the statutory minimum height (per Rule 7), this constitutes a defect and should be flagged as an 'Incorrect Font Size' violation.</li>
+              </ul>
+            </div>
+          </details>
+
+        </div>
+
+      </section>
+
+      <!-- Shared Footer Information -->
+      <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 mt-6">
+        <p>© 2025 METRO-CHECK | Department of Consumer Affairs, Govt. of India</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">Built for Smart India Hackathon 2025 • Field Inspector Mode</p>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Detail Modal for Single Inspection -->
+  <div id="inspectorDetailModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div>
+          <h3 id="modalInspectionId" class="text-base font-extrabold text-slate-900">INS-0000</h3>
+          <p id="modalInspectionDate" class="text-xs text-slate-400">-</p>
+        </div>
+        <span id="modalInspectionBadge" class="px-2.5 py-1 text-xs rounded-full font-bold">STATUS</span>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <div><span class="text-slate-500 font-semibold">Commodity:</span> <strong id="modalInspectionProduct" class="text-slate-800">-</strong></div>
+        <div><span class="text-slate-500 font-semibold">Inspector:</span> <span id="modalInspectionInspector" class="text-slate-700">-</span></div>
+        <div><span class="text-slate-500 font-semibold">Location:</span> <span id="modalInspectionLocation" class="text-slate-700">-</span></div>
+      </div>
+
+      <div class="border border-slate-200 rounded-xl p-3 bg-slate-50">
+        <h4 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Mandatory Declarations</h4>
+        <div id="modalInspectionFields" class="space-y-1 text-xs"></div>
+      </div>
+
+      <div id="modalViolationsSection" class="p-3 bg-red-50 border border-red-200 rounded-xl text-xs space-y-1">
+        <strong class="text-red-800 font-bold uppercase tracking-wider text-[11px]">Flagged Violations:</strong>
+        <ul id="modalViolationsList" class="list-disc list-inside text-red-700"></ul>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
+        <button type="button" onclick="closeInspectorDetailModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Close</button>
+        <button type="button" id="modalDownloadPdfBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow">Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
