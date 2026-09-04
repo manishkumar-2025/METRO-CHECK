@@ -41,20 +41,30 @@ function initReportView() {
   const extracted = record.extractedData || {};
   document.getElementById("reportProductName").textContent = record.product || extracted.commodity_name || "Packaged Product";
   document.getElementById("reportProductCategory").textContent = "Packaged Commodity (Food / FMCG)";
-  if (record.image) {
-    document.getElementById("reportProductThumbnail").src = record.image;
+  const thumbImg = document.getElementById("reportProductThumbnail");
+  const thumbFallback = document.getElementById("reportProductThumbnailFallback");
+  if (thumbImg) {
+    if (record.image && record.image.trim() !== "") {
+      thumbImg.src = record.image;
+      thumbImg.classList.remove("hidden");
+      if (thumbFallback) thumbFallback.classList.add("hidden");
+    } else {
+      thumbImg.classList.add("hidden");
+      if (thumbFallback) thumbFallback.classList.remove("hidden");
+    }
   }
 
   // 3. AI Extracted Declarations Table
   const tbody = document.getElementById("reportDeclarationsTableBody");
   if (tbody) {
     const fields = [
-      { name: "Commodity Name", value: extracted.commodity_name, rule: "Rule 6(1)(a)" },
-      { name: "Net Quantity", value: extracted.net_quantity, rule: "Rule 6(1)(b)" },
-      { name: "Retail Sale Price (MRP)", value: extracted.mrp, rule: "Rule 6(1)(c)" },
-      { name: "Manufacturer Details", value: extracted.manufacturer || [extracted.manufacturer_name, extracted.manufacturer_address].filter(Boolean).join(", "), rule: "Rule 6(1)(d)" },
-      { name: "Month & Year of Mfg", value: extracted.mfg_date, rule: "Rule 6(1)(e)" },
-      { name: "Consumer Care Contact", value: extracted.consumer_care, rule: "Rule 6(1)(f)" }
+      { name: "Manufacturer Name & Address", value: extracted.manufacturer_name_address || extracted.manufacturer || [extracted.manufacturer_name, extracted.manufacturer_address].filter(Boolean).join(", "), rule: "Rule 6(1)(a)" },
+      { name: "Commodity / Generic Name", value: extracted.generic_name || extracted.commodity_name, rule: "Rule 6(1)(b)" },
+      { name: "Net Quantity & Metric Unit", value: extracted.net_quantity, rule: "Rule 6(1)(c)" },
+      { name: "Month & Year of Mfg", value: extracted.mfg_month_year || extracted.mfg_date, rule: "Rule 6(1)(d)" },
+      { name: "Unit Sale Price (USP)", value: extracted.unit_sale_price || "N/A", rule: "Rule 6(1)(da)" },
+      { name: "Retail Sale Price (MRP)", value: extracted.mrp_tax_inclusive || extracted.mrp, rule: "Rule 6(1)(e)" },
+      { name: "Consumer Care Contact", value: extracted.consumer_care_contact || extracted.consumer_care, rule: "Rule 6(1)(n)" }
     ];
 
     tbody.innerHTML = fields.map(function(item) {
@@ -122,33 +132,21 @@ function addWatermark(doc) {
 }
 
 /**
- * Generates and downloads an official PDF using html2canvas and jsPDF.
+ * Generates and downloads an official PDF using the unified generateStatutoryNoticePDF helper.
  */
-async function generatePDF() {
-  const reportElement = document.getElementById("printableReportArea");
-  if (!reportElement) { alert("Report template not found."); return; }
-
+function generatePDF() {
   const downloadBtn = document.getElementById("downloadPdfButton");
   if (downloadBtn) { downloadBtn.disabled = true; downloadBtn.textContent = "Generating PDF..."; }
-  if (typeof showToast === "function") showToast("Generating official PDF report...", "warning");
 
   try {
-    const canvas = await html2canvas(reportElement, { scale: 2, useCORS: true, logging: false });
-    const imgData = canvas.toDataURL("image/png");
-    const { jsPDF } = window.jspdf;
-    const pdfDocument = new jsPDF("p", "mm", "a4");
-    const pdfWidth = 210;
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-    pdfDocument.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    addWatermark(pdfDocument);
-
-    const fileName = "METRO-CHECK-Report-" + activeReportId + ".pdf";
-    pdfDocument.save(fileName);
-    if (typeof showToast === "function") showToast("Report PDF downloaded successfully!", "success");
+    if (typeof generateStatutoryNoticePDF === "function") {
+      generateStatutoryNoticePDF(activeReportId);
+    } else {
+      throw new Error("generateStatutoryNoticePDF helper is not defined.");
+    }
   } catch (error) {
     console.error("PDF generation failed:", error);
-    if (typeof showToast === "function") showToast("Failed to generate PDF.", "error");
+    if (typeof showToast === "function") showToast("Failed to generate PDF: " + (error.message || ""), "error");
   } finally {
     if (downloadBtn) { downloadBtn.disabled = false; downloadBtn.textContent = "📥 Download PDF"; }
   }

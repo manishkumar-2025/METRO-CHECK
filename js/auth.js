@@ -129,6 +129,23 @@ function quickLogin(u, p) {
   performLogin(u, p);
 }
 
+function switchRole(targetRole) {
+  const users = getUsers();
+  const matched = users[targetRole];
+  if (!matched) return;
+  const data = {
+    username: targetRole,
+    role: matched.role,
+    name: matched.name,
+    designation: matched.designation || "Enforcement Officer",
+    loginTime: new Date().toISOString()
+  };
+  localStorage.setItem("currentUser", JSON.stringify(data));
+  if (targetRole === "admin") window.location.href = "admin.html";
+  else if (targetRole === "officer") window.location.href = "officer.html";
+  else window.location.href = "inspector.html";
+}
+
 function checkLogin(requiredRole) {
   const raw = localStorage.getItem("currentUser");
   if (!raw) { window.location.href = "index.html"; return null; }

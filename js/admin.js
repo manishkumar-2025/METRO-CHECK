@@ -11,7 +11,7 @@ let ledgerSortAsc = false;
  * Initializes the Admin app on page load.
  */
 function initAdminApp() {
-  seedDemoData();
+  initStorage();
 
   const user = getCurrentUser();
   if (user) {
@@ -30,6 +30,7 @@ function initAdminApp() {
   renderAnalytics();
   renderAdminCommodities();
   renderAdminUsers();
+  initAdminSettings();
 }
 
 /**
@@ -92,8 +93,14 @@ function switchAdminTab(tabId) {
 function initCommandCenter() {
   const inspections = getInspections();
   const users = Object.keys(getUsers()).length;
-  const pending = inspections.filter(i => i.status === "submitted" || i.status === "pending").length;
-  const compliant = inspections.filter(i => i.isCompliant === true).length;
+  const pending = inspections.filter(i => {
+    const s = String(i.status || "").toUpperCase();
+    return s === "NON_COMPLIANT_PENDING" || s === "SUBMITTED" || s === "PENDING";
+  }).length;
+  const compliant = inspections.filter(i => {
+    const s = String(i.status || "").toUpperCase();
+    return i.isCompliant === true || s === "COMPLIANT_LOGGED" || s === "APPROVED";
+  }).length;
   const total = inspections.length;
   const complianceRate = total > 0 ? Math.round((compliant / total) * 100) : 0;
 
@@ -189,14 +196,20 @@ function renderMasterLedgerTable() {
   tbody.innerHTML = all.map(item => {
     const ext = item.extractedData || {};
     const violCount = (item.violations || []).length;
-    const isApproved = item.status === "approved";
-    const isRejected = item.status === "rejected";
+    const s = String(item.status || "").toUpperCase();
+    const isCompliant = s === "COMPLIANT_LOGGED" || s === "APPROVED" || item.isCompliant === true;
+    const isNotice = s === "NOTICE_ISSUED" || s === "OFFICER_APPROVED";
+    const isDismissed = s === "OFFICER_DISMISSED" || s === "REJECTED";
 
-    const badgeClass = isApproved 
-      ? "bg-emerald-100 text-emerald-800" 
-      : isRejected 
-        ? "bg-red-100 text-red-800" 
-        : "bg-amber-100 text-amber-800";
+    const badgeClass = isCompliant 
+      ? "bg-emerald-100 text-emerald-800 border border-emerald-300" 
+      : isNotice
+        ? "bg-amber-100 text-amber-800 border border-amber-300"
+        : isDismissed
+          ? "bg-slate-100 text-slate-700 border border-slate-300"
+          : "bg-red-100 text-red-800 border border-red-300";
+
+    const label = typeof formatStatusLabel === "function" ? formatStatusLabel(item.status) : (item.status || "Submitted");
 
     return `
       <tr class="hover:bg-slate-50 border-b border-slate-100 text-xs">
@@ -207,7 +220,7 @@ function renderMasterLedgerTable() {
         <td class="px-3 py-3 text-slate-600">${ext.net_quantity || "-"}</td>
         <td class="px-3 py-3 font-mono text-slate-700">${ext.mrp || "-"}</td>
         <td class="px-3 py-3">${violCount > 0 ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">${violCount} Defect${violCount > 1 ? 's' : ''}</span>` : `<span class="text-emerald-600 font-medium">None</span>`}</td>
-        <td class="px-3 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${badgeClass}">${item.status}</span></td>
+        <td class="px-3 py-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${badgeClass}">${label}</span></td>
         <td class="px-3 py-3 text-slate-500 italic max-w-xs truncate" title="${item.reviewComments || ''}">${item.reviewComments || "-"}</td>
       </tr>
     `;
@@ -247,11 +260,22 @@ function renderAdminCommodities() {
       <td class="px-4 py-3 text-slate-600 max-w-xs truncate">${c.standardPacks}</td>
       <td class="px-4 py-3 text-slate-500 font-mono text-[11px]">${c.ruleReference}</td>
       <td class="px-4 py-3 text-right space-x-1 whitespace-nowrap">
-        <button onclick="editCommodity('${c.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-amber-500 hover:text-white rounded text-[11px] font-bold transition">Edit</button>
+        <button onclick="scanCommodityWithStandard('${c.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-[11px] font-bold transition shadow-sm inline-flex items-center gap-1">
+          <span>⚡</span> <span>Scan With Rule</span>
+        </button>
+        <button onclick="editCommodity('${c.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold transition">Edit</button>
         <button onclick="deleteCommodityAction('${c.id}')" class="px-2.5 py-1 bg-red-50 hover:bg-red-600 hover:text-white text-red-600 rounded text-[11px] font-bold transition">Delete</button>
       </td>
     </tr>
   `).join("");
+}
+
+function scanCommodityWithStandard(commodityId) {
+  const commodities = getCommodities();
+  const target = commodities.find(c => c.id === commodityId);
+  if (!target) return;
+  const url = `inspector.html?view=ocr&commodity=${encodeURIComponent(target.name)}&category=${encodeURIComponent(target.category || target.name)}&tolerance=${encodeURIComponent(target.tolerance || "")}&sizes=${encodeURIComponent(target.standardPacks || "")}`;
+  window.location.href = url;
 }
 
 function openCommodityModal(editingId = null) {
@@ -430,12 +454,19 @@ function deleteUserAction(uname) {
    ========================================================================== */
 
 function resetDemoData() {
-  if (confirm("Reset all system data (inspections, commodities, users) to factory defaults?")) {
+  if (confirm("Reset all system data (inspections, commodities, users) to clean state?")) {
     localStorage.clear();
-    seedDemoData();
-    getCommodities();
+    initStorage();
     getUsers();
-    alert("Factory demo data restored successfully!");
+    alert("System storage cleared successfully!");
+    window.location.reload();
+  }
+}
+
+function triggerLoadSampleData() {
+  if (confirm("Load official sample inspection records for testing and demonstration?")) {
+    loadSampleDemoData();
+    alert("Sample inspection records loaded successfully!");
     window.location.reload();
   }
 }
@@ -458,4 +489,27 @@ function exportAllData() {
   link.click();
   link.remove();
   showToast("Full system snapshot JSON downloaded.", "success");
+}
+
+/* ==========================================================================
+   SYSTEM POLICIES & CONFIGURATION MANAGEMENT
+   ========================================================================== */
+
+function initAdminSettings() {
+  const strictEl = document.getElementById("settingStrictMode");
+  if (strictEl) {
+    const saved = localStorage.getItem("metro_strict_mode");
+    strictEl.checked = saved === null ? true : saved === "true";
+  }
+  const fallbackEl = document.getElementById("settingOcrFallback");
+  if (fallbackEl) {
+    const saved = localStorage.getItem("metro_ocr_fallback");
+    fallbackEl.checked = saved === null ? true : saved === "true";
+  }
+}
+
+function updatePolicySetting(key, val) {
+  localStorage.setItem(key, val ? "true" : "false");
+  const label = key === "metro_strict_mode" ? "Strict Tolerance Enforcement" : "AI Vision OCR Fallback";
+  showToast(`${label} is now ${val ? "ENABLED" : "DISABLED"}.`, "info");
 }

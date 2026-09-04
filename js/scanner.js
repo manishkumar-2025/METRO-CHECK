@@ -6,16 +6,221 @@
 let activeCameraStream = null;
 let currentCameraFacingMode = "environment"; // Default to back camera for package scanning
 let currentUploadedImageDataUrl = null;
+let currentFrontImageDataUrl = null;
+let currentBackImageDataUrl = null;
+let activeCaptureSlot = "front"; // 'front' or 'back'
 let currentInspectionResult = null;
 let currentCaseId = null;
+
+/* ==========================================================================
+   SERVER HEALTH BANNER & CONNECTIVITY MONITOR
+   ========================================================================== */
+const SERVER_BASE_URL = "http://localhost:3000";
+let isBackendServerOnline = false;
+
+/**
+ * Pings /api/health to verify connectivity with Node.js backend.
+ * Displays persistent top banner if server is unreachable.
+ */
+async function checkServerHealth() {
+  const bannerId = "serverDisconnectedBanner";
+  let banner = document.getElementById(bannerId);
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch(`${SERVER_BASE_URL}/api/health`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      isBackendServerOnline = true;
+      if (banner) {
+        banner.remove();
+      }
+      const badge = document.getElementById("aiEngineReadyBadge");
+      if (badge) {
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Gemini Vision Connected`;
+        badge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-50 text-emerald-700 border border-emerald-300 flex items-center gap-1.5";
+      }
+      return true;
+    } else {
+      throw new Error(`Server returned status ${res.status}`);
+    }
+  } catch (err) {
+    isBackendServerOnline = false;
+    showServerDisconnectedBanner();
+    const badge = document.getElementById("aiEngineReadyBadge");
+    if (badge) {
+      badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> Backend Disconnected`;
+      badge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-red-50 text-red-700 border border-red-300 flex items-center gap-1.5";
+    }
+    return false;
+  }
+}
+
+/**
+ * Displays persistent top banner informing user that the backend server is disconnected.
+ */
+function showServerDisconnectedBanner() {
+  const bannerId = "serverDisconnectedBanner";
+  let banner = document.getElementById(bannerId);
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = bannerId;
+    banner.className = "w-full bg-red-600 text-white px-4 py-2.5 shadow-md flex items-center justify-between text-xs font-bold sticky top-0 z-50 border-b border-red-700 transition-all";
+    banner.innerHTML = `
+      <div class="flex items-center gap-2 max-w-7xl mx-auto w-full justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="text-base animate-pulse">⚠️</span>
+          <span>Backend Server Disconnected — Check terminal running 'node server.js'</span>
+        </div>
+        <button type="button" onclick="checkServerHealth()" class="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-bold transition flex items-center gap-1">
+          <span>🔄</span> Retry Connection
+        </button>
+      </div>
+    `;
+    document.body.prepend(banner);
+  }
+}
+
+// Ping /api/health on page load
+if (typeof window !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", checkServerHealth);
+  } else {
+    checkServerHealth();
+  }
+}
+
+function setActiveCaptureSlot(slot) {
+  activeCaptureSlot = slot;
+  const slotFrontBtn = document.getElementById("slotBtnFront");
+  const slotBackBtn = document.getElementById("slotBtnBack");
+  const targetLabel = document.getElementById("cameraTargetLabel");
+  const slotCardFront = document.getElementById("slotCardFront");
+  const slotCardBack = document.getElementById("slotCardBack");
+  
+  if (slotFrontBtn && slotBackBtn) {
+    if (slot === "front") {
+      slotFrontBtn.className = "py-1 px-3 rounded-lg font-bold text-xs bg-amber-500 text-white shadow transition";
+      slotBackBtn.className = "py-1 px-3 rounded-lg font-semibold text-xs bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+      if (targetLabel) targetLabel.textContent = "[TARGET: PANEL 1 - FRONT FACING]";
+      if (slotCardFront) slotCardFront.classList.add("border-amber-400", "ring-1", "ring-amber-400");
+      if (slotCardBack) slotCardBack.classList.remove("border-amber-400", "ring-1", "ring-amber-400");
+    } else {
+      slotFrontBtn.className = "py-1 px-3 rounded-lg font-semibold text-xs bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+      slotBackBtn.className = "py-1 px-3 rounded-lg font-bold text-xs bg-amber-500 text-white shadow transition";
+      if (targetLabel) targetLabel.textContent = "[TARGET: PANEL 2 - BACK/SIDE DECLARATIONS]";
+      if (slotCardBack) slotCardBack.classList.add("border-amber-400", "ring-1", "ring-amber-400");
+      if (slotCardFront) slotCardFront.classList.remove("border-amber-400", "ring-1", "ring-amber-400");
+    }
+  }
+}
+
+function setSlotImage(slot, dataUrl) {
+  if (slot === "front") {
+    currentFrontImageDataUrl = dataUrl;
+    const imgEl = document.getElementById("slotPreviewImgFront");
+    const container = document.getElementById("slotPreviewFront");
+    const emptyBox = document.getElementById("slotEmptyFront");
+    if (imgEl) imgEl.src = dataUrl;
+    if (container) container.classList.remove("hidden");
+    if (emptyBox) emptyBox.classList.add("hidden");
+  } else {
+    currentBackImageDataUrl = dataUrl;
+    const imgEl = document.getElementById("slotPreviewImgBack");
+    const container = document.getElementById("slotPreviewBack");
+    const emptyBox = document.getElementById("slotEmptyBack");
+    if (imgEl) imgEl.src = dataUrl;
+    if (container) container.classList.remove("hidden");
+    if (emptyBox) emptyBox.classList.add("hidden");
+  }
+
+  currentUploadedImageDataUrl = currentFrontImageDataUrl || currentBackImageDataUrl;
+
+  const analyzeBtn = document.getElementById("btnRunAiAnalysis");
+  if (analyzeBtn) {
+    analyzeBtn.disabled = false;
+    analyzeBtn.classList.remove("opacity-50", "cursor-not-allowed");
+    analyzeBtn.classList.add("btn-hover-effect");
+  }
+}
+
+function clearSlotImage(slot) {
+  if (slot === "front") {
+    currentFrontImageDataUrl = null;
+    const container = document.getElementById("slotPreviewFront");
+    const emptyBox = document.getElementById("slotEmptyFront");
+    if (container) container.classList.add("hidden");
+    if (emptyBox) emptyBox.classList.remove("hidden");
+  } else {
+    currentBackImageDataUrl = null;
+    const container = document.getElementById("slotPreviewBack");
+    const emptyBox = document.getElementById("slotEmptyBack");
+    if (container) container.classList.add("hidden");
+    if (emptyBox) emptyBox.classList.remove("hidden");
+  }
+
+  currentUploadedImageDataUrl = currentFrontImageDataUrl || currentBackImageDataUrl;
+
+  const analyzeBtn = document.getElementById("btnRunAiAnalysis");
+  if (analyzeBtn && !currentUploadedImageDataUrl) {
+    analyzeBtn.disabled = true;
+    analyzeBtn.classList.add("opacity-50", "cursor-not-allowed");
+  }
+}
+
+function handleSlotFileChange(slot, event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    alert("Please upload a valid image file (JPG, PNG, or WEBP).");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    setSlotImage(slot, e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
 
 /**
  * Initializes the AI OCR workspace on tab or page load.
  */
 function initAiScanner() {
+  checkServerHealth();
   currentCaseId = generateId("INS-");
   const caseIdEl = document.getElementById("ocrCaseIdDisplay");
   if (caseIdEl) caseIdEl.textContent = currentCaseId;
+
+  // Initialize max date for manual form to prevent future dates
+  const mfgDateInput = document.getElementById("manualMfgDate");
+  if (mfgDateInput) {
+    mfgDateInput.max = new Date().toISOString().split("T")[0];
+  }
+
+  // Populate Schedule 2 Commodity Category dropdown from Admin commodities
+  const commoditySelect = document.getElementById("ocrCommodityCategorySelect");
+  if (commoditySelect && typeof getCommodities === "function") {
+    const commodities = getCommodities();
+    commoditySelect.innerHTML = `<option value="">-- General Packaged Commodity --</option>` + commodities.map(c => `
+      <option value="${c.name}" data-category="${c.category}" data-sizes="${c.standardPacks || ''}" data-tolerance="${c.tolerance || ''}">${c.name} (${c.category})</option>
+    `).join("");
+
+    // Check URL parameters for pre-selection (e.g., from Admin or Lookup)
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetCategory = urlParams.get("category") || urlParams.get("commodity");
+    if (targetCategory) {
+      for (let i = 0; i < commoditySelect.options.length; i++) {
+        const opt = commoditySelect.options[i];
+        if (opt.value.toLowerCase().includes(targetCategory.toLowerCase()) || (opt.getAttribute("data-category") || "").toLowerCase() === targetCategory.toLowerCase()) {
+          commoditySelect.selectedIndex = i;
+          break;
+        }
+      }
+      handleOcrCommodityChange();
+    }
+  }
 
   // Setup drag & drop listeners if dropzone exists
   const dropzone = document.getElementById("ocrDropzone");
@@ -46,6 +251,27 @@ function initAiScanner() {
   }
 }
 
+/**
+ * Updates UI badge when a Schedule 2 commodity standard is selected.
+ */
+function handleOcrCommodityChange() {
+  const select = document.getElementById("ocrCommodityCategorySelect");
+  const badge = document.getElementById("ocrCommodityStandardBadge");
+  const tolText = document.getElementById("ocrCommodityToleranceText");
+  const sizesText = document.getElementById("ocrCommoditySizesText");
+  if (!select || !badge) return;
+
+  const opt = select.options[select.selectedIndex];
+  if (!select.value || !opt) {
+    badge.classList.add("hidden");
+    return;
+  }
+
+  badge.classList.remove("hidden");
+  if (tolText) tolText.textContent = `MAV: ${opt.getAttribute("data-tolerance") || "Standard"}`;
+  if (sizesText) sizesText.textContent = `Sizes: ${opt.getAttribute("data-sizes") || "Prescribed Schedule 2"}`;
+}
+
 /* ==========================================================================
    1. LIVE CAMERA WORKFLOW (WebRTC getUserMedia)
    ========================================================================== */
@@ -55,7 +281,7 @@ function initAiScanner() {
  */
 async function startLiveCamera() {
   try {
-    if (activeCameraStream) stopLiveCamera();
+    if (activeCameraStream || window.cameraStream) stopLiveCamera();
 
     const videoEl = document.getElementById("cameraVideoFeed");
     const placeholder = document.getElementById("cameraPlaceholder");
@@ -72,6 +298,8 @@ async function startLiveCamera() {
     };
 
     activeCameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    window.cameraStream = activeCameraStream;
+
     if (videoEl) {
       videoEl.srcObject = activeCameraStream;
       videoEl.play();
@@ -90,12 +318,24 @@ async function startLiveCamera() {
 }
 
 /**
- * Stops live video feed.
+ * Stops live video feed, stops all tracks, cancels active intervals/frames, and cleans up memory.
  */
 function stopLiveCamera() {
   if (activeCameraStream) {
-    activeCameraStream.getTracks().forEach(track => track.stop());
+    try { activeCameraStream.getTracks().forEach(track => track.stop()); } catch (e) {}
     activeCameraStream = null;
+  }
+  if (window.cameraStream) {
+    try { window.cameraStream.getTracks().forEach(track => track.stop()); } catch (e) {}
+    window.cameraStream = null;
+  }
+  if (window._scannerInterval) {
+    clearInterval(window._scannerInterval);
+    window._scannerInterval = null;
+  }
+  if (window._scannerAnimFrame) {
+    cancelAnimationFrame(window._scannerAnimFrame);
+    window._scannerAnimFrame = null;
   }
 
   const videoEl = document.getElementById("cameraVideoFeed");
@@ -104,7 +344,7 @@ function stopLiveCamera() {
   const startBtn = document.getElementById("btnStartCamera");
 
   if (videoEl) {
-    videoEl.pause();
+    try { videoEl.pause(); } catch (e) {}
     videoEl.srcObject = null;
     videoEl.classList.add("hidden");
   }
@@ -136,10 +376,20 @@ function captureCameraSnapshot() {
   ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
 
   const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-  stopLiveCamera();
+  setSlotImage(activeCaptureSlot, dataUrl);
   setSpecimenImage(dataUrl);
 
-  if (typeof showToast === "function") showToast("Snapshot captured! Ready for Gemini Vision AI analysis.", "success");
+  if (activeCaptureSlot === "front") {
+    setActiveCaptureSlot("back");
+    if (typeof showToast === "function") {
+      showToast("Front panel captured! Now frame the Back/Side panel or click Run Audit.", "success");
+    }
+  } else {
+    stopLiveCamera();
+    if (typeof showToast === "function") {
+      showToast("Dual panels captured! Ready for comprehensive AI audit.", "success");
+    }
+  }
 }
 
 /* ==========================================================================
@@ -208,9 +458,13 @@ function loadDemoSpecimen(type) {
     ctx.drawImage(img, 0, 0);
     try {
       const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+      setSlotImage("front", dataUrl);
+      setSlotImage("back", dataUrl);
       setSpecimenImage(dataUrl);
       if (typeof showToast === "function") showToast(`Loaded label specimen: ${target.name}`, "info");
     } catch (e) {
+      setSlotImage("front", target.url);
+      setSlotImage("back", target.url);
       setSpecimenImage(target.url);
     }
   };
@@ -273,7 +527,8 @@ function clearSpecimenImage() {
  * Keeps secret API keys securely inside server/.env on the backend server.
  */
 function performDirectBrowserScan() {
-  const msg = "Backend server is offline. Please ensure 'npm start' is running in the /server directory.";
+  const msg = "Backend Server Disconnected — Check terminal running 'node server.js'";
+  showServerDisconnectedBanner();
   if (typeof showToast === "function") {
     showToast(msg, "error");
   }
@@ -288,14 +543,34 @@ const executeDirectBrowserGeminiInspection = performDirectBrowserScan;
  * STRICT REAL-TIME INSPECTION: Never falls back to mock demo data.
  */
 async function executeGeminiVisionInspection(imageDataUrl) {
-  let cleanBase64 = imageDataUrl;
-  let mimeType = "image/jpeg";
+  const payload = {};
 
-  if (imageDataUrl.includes("base64,")) {
-    const parts = imageDataUrl.split("base64,");
-    cleanBase64 = parts[1];
-    const matchMime = parts[0].match(/data:(.*?);/);
-    if (matchMime) mimeType = matchMime[1];
+  if (currentFrontImageDataUrl && currentBackImageDataUrl) {
+    payload.imageFront = currentFrontImageDataUrl;
+    payload.imageBack = currentBackImageDataUrl;
+  } else {
+    const targetUrl = currentFrontImageDataUrl || currentBackImageDataUrl || imageDataUrl || currentUploadedImageDataUrl;
+    let cleanBase64 = targetUrl;
+    let mimeType = "image/jpeg";
+    if (targetUrl && targetUrl.includes("base64,")) {
+      const parts = targetUrl.split("base64,");
+      cleanBase64 = parts[1];
+      const matchMime = parts[0].match(/data:(.*?);/);
+      if (matchMime) mimeType = matchMime[1];
+    }
+    payload.imageBase64 = cleanBase64;
+    payload.mimeType = mimeType;
+  }
+
+  // Attach Admin Commodity Category & Schedule 2 Tolerances if selected
+  const commoditySelect = document.getElementById("ocrCommodityCategorySelect");
+  if (commoditySelect && commoditySelect.value) {
+    payload.commodityCategory = commoditySelect.value;
+    const opt = commoditySelect.options[commoditySelect.selectedIndex];
+    if (opt) {
+      payload.standardPacks = opt.getAttribute("data-sizes") || "";
+      payload.tolerance = opt.getAttribute("data-tolerance") || "";
+    }
   }
 
   // Backend Express proxy server (port 3000)
@@ -303,10 +578,7 @@ async function executeGeminiVisionInspection(imageDataUrl) {
     const res = await fetch("http://localhost:3000/api/scan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        imageBase64: cleanBase64,
-        mimeType: mimeType
-      })
+      body: JSON.stringify(payload)
     });
 
     const data = await res.json();
@@ -327,10 +599,23 @@ async function executeGeminiVisionInspection(imageDataUrl) {
 
 /**
  * Main Trigger: Initiates AI OCR & Compliance Verification.
+ * Step A: Inspector takes/uploads photo(s) of a product label → clicks "Scan Label".
+ * Step B: Gemini returns structured JSON via /api/scan → live result renders with color-coded Rule 6 checklist.
+ * Step C: If compliant → auto-saved to localStorage under "Compliant Logs".
+ * Step D: If non-compliant → flagged for officer review.
  */
 async function startAiOcrInspection() {
   if (!currentUploadedImageDataUrl) {
     alert("Please capture or upload a package label image first.");
+    return;
+  }
+
+  // Server health preflight check
+  const isHealthy = await checkServerHealth();
+  if (!isHealthy) {
+    const msg = "Backend Server Disconnected — Check terminal running 'node server.js'";
+    if (typeof showToast === "function") showToast(msg, "error");
+    alert(msg);
     return;
   }
 
@@ -361,13 +646,72 @@ async function startAiOcrInspection() {
     if (loadingSection) loadingSection.classList.add("hidden");
     if (resultsSection) resultsSection.classList.remove("hidden");
 
+    // Step B: Live result renders with color-coded Rule 6 checklist
     renderAutoFilledComplianceReport(analysis);
 
+    // Evaluate compliance status
+    const verdict = analysis.overall_status || analysis.overall_verdict;
+    const isCompliant = verdict === "Pass" || verdict === "Compliant";
+    const fields = analysis.categorized_fields || analysis.fields || {};
+
+    const violations = (analysis.compliance_tests || analysis.compliance || [])
+      .filter(t => (t.status || "").toLowerCase() === "fail" || t.compliant === false)
+      .map(t => `${t.parameter_name || t.rule || "Statutory Rule"}: ${t.observations || t.violation_reason || t.reason || "Non-compliant"}`);
+
+    // Step C: If compliant → auto-saved to localStorage under "Compliant Logs" (COMPLIANT_LOGGED)
+    // Step D: If non-compliant → flagged for officer review (NON_COMPLIANT_PENDING)
+    const autoStatus = isCompliant
+      ? (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.COMPLIANT_LOGGED : "COMPLIANT_LOGGED")
+      : (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.NON_COMPLIANT_PENDING : "NON_COMPLIANT_PENDING");
+
+    const record = {
+      id: currentCaseId,
+      date: new Date().toISOString().split("T")[0],
+      product: fields.generic_name || fields.commodity_name || fields.brand_name || "Packaged Commodity",
+      status: autoStatus,
+      priority: isCompliant ? "Low" : (violations.length > 1 ? "Urgent" : "Standard"),
+      location: "Field Inspection Unit",
+      image: currentFrontImageDataUrl || currentUploadedImageDataUrl || currentBackImageDataUrl,
+      imageFront: currentFrontImageDataUrl || null,
+      imageBack: currentBackImageDataUrl || null,
+      extractedData: {
+        commodity_name: fields.generic_name || fields.commodity_name || "Packaged Commodity",
+        net_quantity: fields.net_quantity,
+        mrp: fields.mrp_tax_inclusive || fields.mrp,
+        manufacturer: fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || fields.manufacturer,
+        mfg_date: fields.mfg_month_year || fields.mfg_date,
+        consumer_care: fields.consumer_care_contact || fields.consumer_care,
+        unit_sale_price: fields.unit_sale_price,
+        country_of_origin: fields.country_of_origin
+      },
+      compliance: analysis.compliance,
+      complianceTests: analysis.compliance_tests,
+      confidence: analysis.confidence,
+      overallStatus: isCompliant ? "Compliant" : "Non-Compliant",
+      violations: violations,
+      isCompliant: isCompliant,
+      inspectorName: (typeof getCurrentUser === "function" && getCurrentUser()?.name) || "Field Inspector",
+      rawOcrText: analysis.extracted_text || analysis.raw_ocr_text,
+      executiveSummary: analysis.executive_summary,
+      recommendedAction: analysis.recommended_action
+    };
+
+    if (typeof saveInspection === "function") {
+      saveInspection(record);
+    }
+    if (typeof updateDashboardStats === "function") updateDashboardStats();
+    if (typeof loadRecentInspectionsTable === "function") loadRecentInspectionsTable();
+    if (typeof loadMyInspectionsCards === "function") loadMyInspectionsCards();
+    if (typeof renderMyInspections === "function") renderMyInspections();
+    if (typeof renderStats === "function") renderStats();
+    if (typeof renderRecentDashboardTable === "function") renderRecentDashboardTable();
+
     if (typeof showToast === "function") {
-      const verdict = analysis.overall_status || analysis.overall_verdict;
-      if (verdict === "Pass" || verdict === "Compliant") showToast("AI Inspection Complete: Package is fully COMPLIANT!", "success");
-      else if (verdict === "Fail" || verdict === "Non-Compliant") showToast("AI Inspection Complete: VIOLATIONS detected!", "error");
-      else showToast("AI Inspection Complete: Case REQUIRES REVIEW.", "warning");
+      if (isCompliant) {
+        showToast(`AI Inspection Complete: Package COMPLIANT — Auto-saved to Compliant Logs (${record.id})`, "success");
+      } else {
+        showToast(`AI Inspection Complete: VIOLATIONS DETECTED — Flagged for Officer Review (${record.id})`, "error");
+      }
     }
 
     // Scroll to results
@@ -447,24 +791,62 @@ function renderAutoFilledComplianceReport(data) {
       : "px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-300 flex items-center gap-1.5 self-start sm:self-auto";
   }
 
-  // 3. Extracted Statutory Declarations Grid
+  // 3. Extracted Statutory Declarations Grid (Harmonized Rule 6 Keys)
   const fieldsGrid = document.getElementById("reportExtractedFieldsGrid");
   if (fieldsGrid) {
     const fieldDefinitions = [
-      { label: "Commodity Name", key: "commodity_name", val: fields.commodity_name, rule: "Rule 6(1)(a)" },
-      { label: "Net Quantity", key: "net_quantity", val: fields.net_quantity, rule: "Rule 6(1)(b)" },
-      { label: "Maximum Retail Price", key: "mrp", val: fields.mrp, rule: "Rule 6(1)(c)" },
-      { label: "Manufacturer Name", key: "manufacturer_name", val: fields.manufacturer_name, rule: "Rule 6(1)(d)" },
-      { label: "Manufacturer Address", key: "manufacturer_address", val: fields.manufacturer_address, rule: "Rule 6(1)(d)" },
-      { label: "Date of Mfg / Packing", key: "mfg_date", val: fields.mfg_date, rule: "Rule 6(1)(e)" },
-      { label: "Best Before / Expiry", key: "best_before", val: fields.best_before || fields.expiry_date, rule: "PCR 2011" },
-      { label: "Consumer Care Contact", key: "consumer_care", val: fields.consumer_care, rule: "Rule 6(1)(f)" },
-      { label: "Country of Origin", key: "country_of_origin", val: fields.country_of_origin, rule: "Rule 6(1)(aa)" },
-      { label: "FSSAI License / BIS", key: "fssai_license", val: fields.fssai_license, rule: "FSSAI / BIS" }
+      { 
+        label: "Commodity / Generic Name", 
+        key: "generic_name", 
+        val: fields.generic_name || fields.commodity_name, 
+        rule: "Rule 6(1)(b)" 
+      },
+      { 
+        label: "Net Quantity & Metric Unit", 
+        key: "net_quantity", 
+        val: fields.net_quantity, 
+        rule: "Rule 6(1)(c)" 
+      },
+      { 
+        label: "Maximum Retail Price (MRP)", 
+        key: "mrp_tax_inclusive", 
+        val: fields.mrp_tax_inclusive || fields.mrp, 
+        rule: "Rule 6(1)(e)" 
+      },
+      { 
+        label: "Manufacturer / Packer Details", 
+        key: "manufacturer_name_address", 
+        val: fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || fields.manufacturer, 
+        rule: "Rule 6(1)(a)" 
+      },
+      { 
+        label: "Month & Year of Manufacture", 
+        key: "mfg_month_year", 
+        val: fields.mfg_month_year || fields.mfg_date, 
+        rule: "Rule 6(1)(d)" 
+      },
+      { 
+        label: "Unit Sale Price (USP)", 
+        key: "unit_sale_price", 
+        val: fields.unit_sale_price, 
+        rule: "Rule 6(1)(da)" 
+      },
+      { 
+        label: "Consumer Care & Helpline", 
+        key: "consumer_care_contact", 
+        val: fields.consumer_care_contact || fields.consumer_care, 
+        rule: "Rule 6(1)(n)" 
+      },
+      { 
+        label: "Country of Origin", 
+        key: "country_of_origin", 
+        val: fields.country_of_origin, 
+        rule: "Rule 6(1)(aa)" 
+      }
     ];
 
     fieldsGrid.innerHTML = fieldDefinitions.map(f => {
-      const isPresent = Boolean(f.val && f.val !== "null" && f.val !== "MISSING");
+      const isPresent = Boolean(f.val && f.val !== "null" && f.val !== "MISSING" && f.val !== "N/A");
       return `
         <div class="p-3 rounded-xl border ${isPresent ? 'bg-slate-50 border-slate-200' : 'bg-red-50/60 border-red-200'}">
           <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono mb-1">
@@ -584,14 +966,21 @@ function handleSaveOcrInspection(statusType) {
     .filter(t => t.status === "Fail")
     .map(t => `${t.parameter_name}: ${t.observations}`);
 
+  const statusState = statusType === "draft"
+    ? "draft"
+    : (isCompliant ? (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.COMPLIANT_LOGGED : "COMPLIANT_LOGGED")
+                   : (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.NON_COMPLIANT_PENDING : "NON_COMPLIANT_PENDING"));
+
   const record = {
     id: currentCaseId,
     date: new Date().toISOString().split("T")[0],
     product: fields.commodity_name || fields.brand_name || "Packaged Commodity",
-    status: statusType,
+    status: statusState,
     priority: isCompliant ? "Low" : (violations.length > 1 ? "Urgent" : "Standard"),
     location: "Field Inspection Unit",
-    image: currentUploadedImageDataUrl,
+    image: currentFrontImageDataUrl || currentUploadedImageDataUrl || currentBackImageDataUrl,
+    imageFront: currentFrontImageDataUrl,
+    imageBack: currentBackImageDataUrl,
     extractedData: currentInspectionResult.fields || fields,
     compliance: currentInspectionResult.compliance,
     complianceTests: currentInspectionResult.compliance_tests,
@@ -607,9 +996,9 @@ function handleSaveOcrInspection(statusType) {
 
   saveInspection(record);
 
-  const msg = statusType === "submitted"
-    ? `Case ${record.id} submitted directly to Metrology Officer Docket!`
-    : `Case ${record.id} saved to your Inspection Drafts!`;
+  const msg = isCompliant
+    ? `Case ${record.id} logged as COMPLIANT & archived!`
+    : `Case ${record.id} submitted to Officer Docket for review!`;
 
   if (typeof showToast === "function") showToast(msg, "success");
 
@@ -618,188 +1007,183 @@ function handleSaveOcrInspection(statusType) {
   }, 1200);
 }
 
+/* ==========================================================================
+   4. MANUAL INSPECTION ENTRY FORM VALIDATION (Fallback Workflow)
+   ========================================================================== */
+
+function handleManualInspectionSubmit(event) {
+  if (event) event.preventDefault();
+
+  const commodity = (document.getElementById("manualCommodity")?.value || "").trim();
+  const brand = (document.getElementById("manualBrand")?.value || "").trim();
+  const netQty = (document.getElementById("manualNetQty")?.value || "").trim();
+  const mrpInput = (document.getElementById("manualMrp")?.value || "").trim();
+  const mfgDateInput = document.getElementById("manualMfgDate")?.value;
+  const batch = (document.getElementById("manualBatch")?.value || "").trim();
+  const mfgDetails = (document.getElementById("manualManufacturer") || document.getElementById("manualMfgDetails"))?.value?.trim() || "";
+  const consumerCare = (document.getElementById("manualConsumerCare")?.value || "").trim();
+
+  // 1. Mandatory commodity check
+  if (!commodity) {
+    const msg = "Please enter the Commodity / Generic Name.";
+    if (typeof showToast === "function") showToast(msg, "error");
+    else alert(msg);
+    document.getElementById("manualCommodity")?.focus();
+    return;
+  }
+
+  // 2. Net quantity validation: must include recognized metric unit
+  const unitRegex = /^\s*([0-9]+(\.[0-9]+)?)\s*(g|kg|ml|l|m|cm|mm|n|pcs|pieces|units?)\s*$/i;
+  if (!netQty || !unitRegex.test(netQty)) {
+    const msg = "Net quantity must include recognized metric units: g, kg, ml, l, m, or N (e.g. '500 g', '1 kg', '750 ml', '1 L', '1 N').";
+    if (typeof showToast === "function") showToast(msg, "error");
+    else alert(msg);
+    document.getElementById("manualNetQty")?.focus();
+    return;
+  }
+
+  // 3. MRP Validation: Must be a positive number > 0
+  const mrpNum = parseFloat(mrpInput);
+  if (isNaN(mrpNum) || mrpNum <= 0) {
+    const msg = "Retail Sale Price (MRP) must be a positive amount greater than ₹0.00";
+    if (typeof showToast === "function") showToast(msg, "error");
+    else alert(msg);
+    document.getElementById("manualMrp")?.focus();
+    return;
+  }
+
+  // 4. Date Validation: Cannot be a future date
+  if (!mfgDateInput) {
+    const msg = "Please select a packaging/manufacturing date.";
+    if (typeof showToast === "function") showToast(msg, "error");
+    else alert(msg);
+    document.getElementById("manualMfgDate")?.focus();
+    return;
+  }
+  const selectedDate = new Date(mfgDateInput);
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  if (selectedDate > today) {
+    const msg = "Manufacturing date cannot be in the future per statutory requirements.";
+    if (typeof showToast === "function") showToast(msg, "error");
+    else alert(msg);
+    document.getElementById("manualMfgDate")?.focus();
+    return;
+  }
+
+  // 5. Manufacturer validation
+  if (!mfgDetails) {
+    const msg = "Please enter Manufacturer / Packer Name and Address.";
+    if (typeof showToast === "function") showToast(msg, "error");
+    else alert(msg);
+    document.getElementById("manualManufacturer")?.focus();
+    return;
+  }
+
+  // 6. Consumer care validation
+  if (!consumerCare) {
+    const msg = "Please enter Consumer Care helpline or email.";
+    if (typeof showToast === "function") showToast(msg, "error");
+    else alert(msg);
+    document.getElementById("manualConsumerCare")?.focus();
+    return;
+  }
+
+  const user = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { name: "Field Inspector" };
+  const caseId = (typeof generateId === "function" ? generateId("INS-") : "INS-MANUAL");
+
+  const record = {
+    id: caseId,
+    date: new Date().toISOString().split("T")[0],
+    product: commodity,
+    brand: brand || commodity,
+    batch: batch || "-",
+    status: typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.COMPLIANT_LOGGED : "COMPLIANT_LOGGED",
+    priority: "Standard",
+    location: "Field Inspection (Manual Entry)",
+    image: null,
+    imageFront: null,
+    imageBack: null,
+    extractedData: {
+      commodity_name: commodity,
+      generic_name: commodity,
+      net_quantity: netQty,
+      mrp: `₹${mrpNum.toFixed(2)}`,
+      mrp_tax_inclusive: `₹${mrpNum.toFixed(2)}`,
+      manufacturer: mfgDetails,
+      manufacturer_name_address: mfgDetails,
+      mfg_date: mfgDateInput,
+      mfg_month_year: mfgDateInput,
+      consumer_care: consumerCare,
+      consumer_care_contact: consumerCare
+    },
+    compliance: [
+      { rule: "Rule 6(1)(a) - Manufacturer Details", status: "Pass", reason: "Registered manufacturer/packer details verified" },
+      { rule: "Rule 6(1)(b) - Generic/Commodity Name", status: "Pass", reason: "Generic commercial nomenclature declared" },
+      { rule: "Rule 6(1)(c) - Net Quantity", status: "Pass", reason: "Standard metric unit verified" },
+      { rule: "Rule 6(1)(d) - Month & Year of Mfg", status: "Pass", reason: "Valid non-future date declared" },
+      { rule: "Rule 6(1)(e) - Retail Sale Price (MRP)", status: "Pass", reason: "Valid positive MRP declared" },
+      { rule: "Rule 6(1)(n) - Consumer Care Helpline", status: "Pass", reason: "Grievance redressal channel declared" }
+    ],
+    complianceTests: [
+      { parameter_name: "Manufacturer Name & Address", rule_reference: "Rule 6(1)(a)", detected_value: mfgDetails, required_standard: "Rule 6(1)(a)", status: "Pass", observations: "Verified." },
+      { parameter_name: "Generic or Commodity Name", rule_reference: "Rule 6(1)(b)", detected_value: commodity, required_standard: "Rule 6(1)(b)", status: "Pass", observations: "Verified." },
+      { parameter_name: "Net Quantity & Metric Unit", rule_reference: "Rule 6(1)(c)", detected_value: netQty, required_standard: "Rule 6(1)(c)", status: "Pass", observations: "Verified." },
+      { parameter_name: "Month & Year of Manufacture", rule_reference: "Rule 6(1)(d)", detected_value: mfgDateInput, required_standard: "Rule 6(1)(d)", status: "Pass", observations: "Verified." },
+      { parameter_name: "Retail Sale Price (MRP)", rule_reference: "Rule 6(1)(e)", detected_value: `₹${mrpNum.toFixed(2)}`, required_standard: "Rule 6(1)(e)", status: "Pass", observations: "Verified." },
+      { parameter_name: "Consumer Care Contact", rule_reference: "Rule 6(1)(n)", detected_value: consumerCare, required_standard: "Rule 6(1)(n)", status: "Pass", observations: "Verified." }
+    ],
+    violations: [],
+    isCompliant: true,
+    inspectorName: user.name || "Field Inspector",
+    executiveSummary: `Manual inspection recorded for ${commodity}. All mandatory declarations verified compliant under Legal Metrology Rules, 2011.`,
+    recommendedAction: "Package compliant. Record in audit registry."
+  };
+
+  saveInspection(record);
+  if (typeof showToast === "function") {
+    showToast(`Manual inspection ${record.id} verified and saved!`, "success");
+  } else {
+    alert(`Manual inspection ${record.id} verified and saved!`);
+  }
+
+  const form = document.getElementById("manualInspectionForm");
+  if (form) form.reset();
+  const accordion = document.getElementById("manualEntryAccordion");
+  if (accordion) accordion.open = false;
+
+  if (typeof updateDashboardStats === "function") updateDashboardStats();
+  if (typeof loadRecentInspectionsTable === "function") loadRecentInspectionsTable();
+  if (typeof loadMyInspectionsCards === "function") loadMyInspectionsCards();
+  if (typeof renderMyInspections === "function") renderMyInspections();
+  if (typeof renderStats === "function") renderStats();
+
+  if (typeof switchInspectorTab === "function") {
+    switchInspectorTab("inspections");
+  }
+}
+
 /**
  * Generates an official, comprehensive compliance report PDF using jsPDF.
- * Fully resilient against missing statutory declarations, null fields, and varied data structures.
+ * Delegates directly to unified pdfService.
  */
 function downloadOcrReportPdf() {
   if (!currentInspectionResult) {
     if (typeof showToast === "function") showToast("No inspection results available to export.", "warning");
     return;
   }
-  const data = currentInspectionResult;
-  const user = getCurrentUser() || { name: "Field Inspector" };
-  const caseId = currentCaseId || data.id || generateId("INS-");
 
-  // Safely extract and normalize fields
-  const rawFields = data.categorized_fields || data.fields || {};
-  const commodityName = String(rawFields.commodity_name || rawFields.brand_name || data.product || "Pre-Packed Commodity");
-  const netQuantity = String(rawFields.net_quantity != null && rawFields.net_quantity !== "" ? rawFields.net_quantity : "N/A");
-  const mrpVal = String(rawFields.mrp != null && rawFields.mrp !== "" ? rawFields.mrp : "N/A");
-
-  const mfgRaw = rawFields.manufacturer || [rawFields.manufacturer_name, rawFields.manufacturer_address].filter(Boolean).join(", ");
-  const mfgText = typeof mfgRaw === "string"
-    ? mfgRaw
-    : (mfgRaw && typeof mfgRaw === "object" ? (mfgRaw.name || Object.values(mfgRaw).filter(v => typeof v === "string").join(", ")) : "N/A");
-
-  // Safely normalize compliance tests matrix
-  const tests = (Array.isArray(data.compliance_tests) && data.compliance_tests.length > 0)
-    ? data.compliance_tests
-    : (Array.isArray(data.compliance) ? data.compliance.map((c, idx) => {
-        const ruleRefMatch = (c.rule || "").match(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*/i);
-        return {
-          parameter_name: (c.rule || "").replace(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*\s*-\s*/i, "") || c.rule || `Statutory Declaration ${idx + 1}`,
-          rule_reference: ruleRefMatch ? ruleRefMatch[0] : (c.rule || "Rule 6"),
-          detected_value: c.detected_value || "MISSING",
-          required_standard: c.required_standard || "Legal Metrology (Packaged Commodities) Rules, 2011",
-          status: c.status || "Requires Review",
-          observations: c.reason || c.observations || ""
-        };
-      }) : []);
-
-  if (typeof showToast === "function") showToast("Compiling official PDF compliance report...", "warning");
-
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF("p", "mm", "a4");
-
-    // Header Background
-    doc.setFillColor(26, 31, 54);
-    doc.rect(0, 0, 210, 32, "F");
-
-    // Title
-    doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
-    doc.text("METRO-CHECK | LEGAL METROLOGY COMPLIANCE VERIFICATION SYSTEM", 14, 13);
-
-    doc.setFontSize(8.5);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(245, 158, 11);
-    doc.text("Ministry of Consumer Affairs, Food & Public Distribution • Government of India", 14, 21);
-    doc.text("Statutory Inspection & Optical Vision Verification Report (Rules, 2011)", 14, 27);
-
-    // Case particulars box
-    doc.setTextColor(30, 41, 59);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text(`INSPECTION CASE: ${caseId}`, 14, 40);
-
-    doc.setFontSize(8.5);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Date & Time: ${new Date().toLocaleString("en-IN")}`, 14, 46);
-    doc.text(`Field Inspector: ${user.name || "Field Inspector"}`, 14, 51);
-    doc.text(`Commodity: ${commodityName.length > 40 ? commodityName.substring(0, 40) + "..." : commodityName}`, 14, 56);
-    doc.text(`Net Quantity: ${netQuantity.length > 25 ? netQuantity.substring(0, 25) : netQuantity}`, 110, 46);
-    doc.text(`Declared MRP: ${mrpVal.length > 25 ? mrpVal.substring(0, 25) : mrpVal}`, 110, 51);
-    doc.text(`Manufacturer: ${mfgText ? (mfgText.length > 42 ? mfgText.substring(0, 42) + "..." : mfgText) : "N/A"}`, 110, 56);
-
-    // Verdict Stamp
-    const rawVerdict = String(data.overall_verdict || data.overall_status || "Requires Review");
-    const isPass = rawVerdict.toLowerCase() === "pass" || rawVerdict.toLowerCase() === "compliant";
-    const isFail = rawVerdict.toLowerCase() === "fail" || rawVerdict.toLowerCase() === "non-compliant";
-    doc.setLineWidth(0.8);
-    doc.setDrawColor(isPass ? 16 : isFail ? 220 : 245, isPass ? 185 : isFail ? 38 : 158, isPass ? 129 : isFail ? 38 : 11);
-    doc.rect(14, 62, 182, 12);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(isPass ? 16 : isFail ? 220 : 200, isPass ? 185 : isFail ? 38 : 120, isPass ? 129 : isFail ? 38 : 0);
-    doc.text(`OFFICIAL VERDICT: ${isPass ? "COMPLIANT (PASS)" : isFail ? "NON-COMPLIANT (FAIL)" : "REQUIRES REVIEW"}`, 18, 70);
-
-    // Parameters Table
-    doc.setTextColor(30, 41, 59);
-    doc.setFontSize(9.5);
-    doc.setFont("helvetica", "bold");
-    doc.text("Statutory Compliance Parameter Evaluation Matrix", 14, 82);
-
-    let y = 88;
-    doc.setFontSize(7.5);
-    doc.setFillColor(241, 245, 249);
-    doc.rect(14, y - 4, 182, 6, "F");
-    doc.text("Parameter / Rule", 16, y);
-    doc.text("Detected Value", 75, y);
-    doc.text("Status", 130, y);
-    doc.text("Observations", 150, y);
-    y += 5;
-
-    if (tests.length === 0) {
-      doc.setFont("helvetica", "italic");
-      doc.setTextColor(100, 116, 139);
-      doc.text("No statutory test parameters recorded.", 16, y);
-      y += 6.5;
-    } else {
-      tests.forEach((t, i) => {
-        if (y > 265) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(71, 85, 105);
-        const paramName = t.parameter_name || t.rule || t.parameter || "Rule";
-        const param = String(paramName).substring(0, 32);
-        doc.text(`${i + 1}. ${param}`, 16, y);
-
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(15, 23, 42);
-        const detectedVal = String(t.detected_value != null && t.detected_value !== "" ? t.detected_value : "MISSING");
-        doc.text(detectedVal.length > 26 ? detectedVal.substring(0, 26) : detectedVal, 75, y);
-
-        const statusStr = String(t.status || "Review");
-        const statusLower = statusStr.toLowerCase();
-        doc.setFont("helvetica", "bold");
-        if (statusLower === "pass" || statusLower === "compliant") doc.setTextColor(16, 185, 129);
-        else if (statusLower === "fail" || statusLower === "non-compliant") doc.setTextColor(220, 38, 38);
-        else doc.setTextColor(245, 158, 11);
-        doc.text(statusStr.toUpperCase(), 130, y);
-
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(100, 116, 139);
-        const obsStr = String(t.observations || t.reason || "");
-        const formattedObs = obsStr ? (obsStr.length > 30 ? obsStr.substring(0, 30) + "..." : obsStr) : "-";
-        doc.text(formattedObs, 150, y);
-
-        y += 6.5;
-      });
-    }
-
-    // Executive Summary Box
-    y += 4;
-    if (y > 250) { doc.addPage(); y = 20; }
-    doc.setDrawColor(203, 213, 225);
-    doc.rect(14, y, 182, 22);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.setTextColor(30, 41, 59);
-    doc.text("Judicial Findings & Enforcement Summary:", 17, y + 6);
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(71, 85, 105);
-    const summaryText = String(data.executive_summary || (Array.isArray(data.observations) ? data.observations.join(". ") : "") || "Inspection complete.");
-    const splitSummary = doc.splitTextToSize(summaryText, 175);
-    doc.text(splitSummary, 17, y + 12);
-    const actionText = String(data.recommended_action || "Notice issued under statutory procedure.");
-    doc.text(`Action Directive: ${actionText.length > 85 ? actionText.substring(0, 85) + "..." : actionText}`, 17, y + 18);
-
-    // Sign-off
-    y += 30;
-    if (y > 270) { doc.addPage(); y = 20; }
-    doc.setTextColor(148, 163, 184);
-    doc.setFontSize(7.5);
-    doc.text("Digitally signed through METRO-CHECK Enforcement Architecture • DCA Govt of India", 14, y);
-    doc.text(`Digital Verification Token: MC-AI-OCR-${caseId}`, 14, y + 5);
-
-    // Watermark
-    doc.setTextColor(230, 235, 240);
-    doc.setFontSize(36);
-    doc.setFont("helvetica", "bold");
-    doc.text("LEGAL METROLOGY AUDIT", 20, 180, { angle: 30 });
-
-    doc.save(`METRO-CHECK_AI_Report_${caseId}.pdf`);
-    if (typeof showToast === "function") showToast("Compliance Report PDF downloaded!", "success");
-  } catch (err) {
-    console.error("PDF download failed:", err);
-    if (typeof showToast === "function") showToast("Could not generate PDF report: " + (err.message || "Unknown error"), "error");
-    alert("Could not generate PDF report: " + (err.message || "Unknown error"));
+  if (typeof generateStatutoryNoticePDF === "function") {
+    generateStatutoryNoticePDF(currentInspectionResult);
+  } else {
+    if (typeof showToast === "function") showToast("PDF generation engine not available.", "error");
+    else alert("PDF generation engine not available.");
   }
 }
+
+// Lifecycle listeners to prevent camera leaks when navigating away or switching tabs
+window.addEventListener("beforeunload", stopLiveCamera);
+window.addEventListener("pagehide", stopLiveCamera);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopLiveCamera();
+});

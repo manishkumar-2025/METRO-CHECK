@@ -111,8 +111,15 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <span class="hidden sm:inline-flex text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Fast Role Switcher Pill -->
+        <div class="hidden sm:flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs">
+          <button type="button" onclick="switchRole('inspector')" class="px-2.5 py-1 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition">👮 Inspector</button>
+          <button type="button" onclick="switchRole('officer')" class="px-2.5 py-1 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition">⚖️ Officer</button>
+          <button type="button" class="px-2.5 py-1 rounded-lg font-bold bg-amber-500 text-white shadow-sm">🛡️ Admin</button>
+        </div>
+
+        <span class="hidden lg:inline-flex text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
           ● All Systems Nominal (100% SLA)
         </span>
         <button onclick="showToast('System operational telemetry verified.', 'success')" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 border border-slate-200 relative" title="Notifications">
@@ -270,9 +277,12 @@
         </div>
 
         <!-- ROW 4: Quick Action Controls -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <button type="button" onclick="triggerLoadSampleData()" class="py-3 px-4 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs rounded-xl shadow-sm transition btn-hover-effect">
+            📦 Load Sample Data (Demo Records)
+          </button>
           <button type="button" onclick="resetDemoData()" class="py-3 px-4 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs rounded-xl shadow-sm transition btn-hover-effect">
-            🔄 Reset Demo Data (Factory Defaults)
+            🗑️ Clear / Reset Storage
           </button>
           <button type="button" onclick="exportAllData()" class="py-3 px-4 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs rounded-xl shadow-sm transition btn-hover-effect">
             📥 Export All Data (JSON Snapshot)
@@ -520,7 +530,7 @@
                 <p class="font-bold text-slate-800">Strict Tolerance Enforcement Mode</p>
                 <p class="text-[11px] text-slate-400">Enforce zero-tolerance rule on packages deviating beyond twice the MAV.</p>
               </div>
-              <input type="checkbox" checked class="w-4 h-4 text-amber-500 rounded">
+              <input type="checkbox" id="settingStrictMode" onchange="updatePolicySetting('metro_strict_mode', this.checked)" class="w-4 h-4 text-amber-500 rounded">
             </label>
 
             <label class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50 cursor-pointer">
@@ -528,7 +538,7 @@
                 <p class="font-bold text-slate-800">AI Vision OCR Fallback Mode</p>
                 <p class="text-[11px] text-slate-400">Use pre-cached OCR recognition heuristics if backend AI proxy is offline.</p>
               </div>
-              <input type="checkbox" checked class="w-4 h-4 text-amber-500 rounded">
+              <input type="checkbox" id="settingOcrFallback" onchange="updatePolicySetting('metro_ocr_fallback', this.checked)" class="w-4 h-4 text-amber-500 rounded">
             </label>
           </div>
         </div>
@@ -646,6 +656,8 @@
 
   <!-- Scripts -->
   <script src="js/storage.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/pdfService.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>

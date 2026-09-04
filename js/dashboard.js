@@ -19,7 +19,7 @@ let currentPendingDecision = null;
  * Initializes the Inspector Portal on page load.
  */
 function initInspectorApp() {
-  seedInitialDataIfEmpty();
+  initStorage();
 
   const user = getCurrentUser();
   if (user) {
@@ -40,6 +40,7 @@ function initInspectorApp() {
   renderMyInspections();
   renderCommodityLookup();
   renderCompletedReports();
+  renderNotificationDropdown("inspector");
 }
 
 /**
@@ -90,11 +91,20 @@ function switchInspectorTab(tabId) {
   }
 
   // Refresh active tab contents
-  if (tabId === "dashboard") { renderStats(); renderRecentDashboardTable(); }
-  else if (tabId === "ocr") { if (typeof initAiScanner === "function") initAiScanner(); }
-  else if (tabId === "inspections") renderMyInspections();
-  else if (tabId === "lookup") renderCommodityLookup();
-  else if (tabId === "reports") renderCompletedReports();
+  if (tabId === "dashboard") { 
+    if (typeof stopLiveCamera === "function") stopLiveCamera();
+    renderStats(); 
+    renderRecentDashboardTable(); 
+  }
+  else if (tabId === "ocr") { 
+    if (typeof initAiScanner === "function") initAiScanner(); 
+  }
+  else {
+    if (typeof stopLiveCamera === "function") stopLiveCamera();
+    if (tabId === "inspections") renderMyInspections();
+    else if (tabId === "lookup") renderCommodityLookup();
+    else if (tabId === "reports") renderCompletedReports();
+  }
 
   // Close mobile sidebar if open
   const sidebar = document.querySelector("aside");
@@ -182,11 +192,14 @@ function renderMyInspections() {
   const all = getInspections();
   const search = (document.getElementById("inspectionsSearchInput")?.value || "").trim().toLowerCase();
 
+  const isPendingStatus = (s) => s === "submitted" || s === "pending" || s === "NON_COMPLIANT_PENDING";
+  const isHistoryStatus = (s) => s === "approved" || s === "rejected" || s === "COMPLIANT_LOGGED" || s === "OFFICER_APPROVED" || s === "NOTICE_ISSUED" || s === "OFFICER_DISMISSED";
+
   // Update tab counts
   const countAll = all.length;
   const countDraft = all.filter(i => i.status === "draft").length;
-  const countSubmitted = all.filter(i => i.status === "submitted" || i.status === "pending").length;
-  const countHistory = all.filter(i => i.status === "approved" || i.status === "rejected").length;
+  const countSubmitted = all.filter(i => isPendingStatus(i.status)).length;
+  const countHistory = all.filter(i => isHistoryStatus(i.status)).length;
 
   if (document.getElementById("countTabAll")) document.getElementById("countTabAll").textContent = countAll;
   if (document.getElementById("countTabDraft")) document.getElementById("countTabDraft").textContent = countDraft;
@@ -195,8 +208,8 @@ function renderMyInspections() {
 
   let filtered = all;
   if (activeInspectionSubFilter === "draft") filtered = all.filter(i => i.status === "draft");
-  else if (activeInspectionSubFilter === "submitted") filtered = all.filter(i => i.status === "submitted" || i.status === "pending");
-  else if (activeInspectionSubFilter === "history") filtered = all.filter(i => i.status === "approved" || i.status === "rejected");
+  else if (activeInspectionSubFilter === "submitted") filtered = all.filter(i => isPendingStatus(i.status));
+  else if (activeInspectionSubFilter === "history") filtered = all.filter(i => isHistoryStatus(i.status));
 
   if (search) {
     filtered = filtered.filter(i => {
@@ -381,7 +394,7 @@ function renderCommodityLookup() {
 }
 
 function startInspectionForCommodity(commodityName) {
-  window.location.href = "scanner.html";
+  window.location.href = `inspector.html?view=ocr&commodity=${encodeURIComponent(commodityName || "")}`;
 }
 
 /**
@@ -401,8 +414,8 @@ function renderCompletedReports() {
   if (empty) empty.classList.add("hidden");
 
   container.innerHTML = completed.map(item => {
-    const ext = item.extractedData || {};
-    const isApproved = item.status === "approved";
+    const statusLabel = typeof formatStatusLabel === "function" ? formatStatusLabel(item.status) : (item.status || "Completed");
+    const badgeStyle = typeof getStatusBadgeClass === "function" ? getStatusBadgeClass(item.status) : "bg-slate-100 text-slate-800 border border-slate-300";
 
     return `
       <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm card-hover-effect flex flex-col justify-between">
@@ -413,8 +426,8 @@ function renderCompletedReports() {
               <h4 class="font-extrabold text-slate-900 text-sm mt-0.5">${item.product || "Inspected Product"}</h4>
               <p class="text-[11px] text-slate-400 font-mono">Date: ${item.date || "-"}</p>
             </div>
-            <span class="px-2.5 py-1 rounded-full text-xs font-black uppercase ${isApproved ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-              ${isApproved ? 'APPROVED' : 'REJECTED'}
+            <span class="px-2.5 py-1 rounded-full text-xs font-black uppercase ${badgeStyle}">
+              ${statusLabel}
             </span>
           </div>
 
@@ -441,6 +454,10 @@ function renderCompletedReports() {
  * Generates an official, structured PDF compliance report on client-side using jsPDF.
  */
 function downloadInspectionPDF(inspectionId) {
+  if (typeof generateStatutoryNoticePDF === "function") {
+    generateStatutoryNoticePDF(inspectionId);
+    return;
+  }
   const item = getInspectionById(inspectionId);
   if (!item) {
     alert("Record not found.");
@@ -513,6 +530,10 @@ function downloadInspectionPDF(inspectionId) {
     let y = 88;
     doc.setFontSize(9);
     declarations.forEach(([label, value]) => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
       doc.setFont("helvetica", "bold");
       doc.setTextColor(71, 85, 105);
       doc.text(String(label), 16, y);
@@ -521,21 +542,25 @@ function downloadInspectionPDF(inspectionId) {
       const isMissing = !valStr || valStr === "MISSING" || valStr === "null" || valStr === "undefined";
       doc.setFont("helvetica", isMissing ? "bold" : "normal");
       doc.setTextColor(isMissing ? 220 : 15, isMissing ? 38 : 23, isMissing ? 38 : 42);
-      doc.text(valStr.length > 55 ? valStr.substring(0, 55) + "..." : valStr, 90, y);
-      y += 8;
+
+      const splitVal = doc.splitTextToSize(valStr, 105);
+      doc.text(splitVal, 90, y);
+      const rowHeight = Math.max(splitVal.length * 4.5, 6.5);
+      y += rowHeight;
     });
 
     // Violations Section
-    y += 4;
+    if (y > 260) { doc.addPage(); y = 20; }
+    y += 2;
     doc.setDrawColor(203, 213, 225);
     doc.line(14, y, 196, y);
-    y += 8;
+    y += 7;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(30, 41, 59);
     doc.text("Detected Statutory Violations", 14, y);
-    y += 7;
+    y += 6;
 
     const viols = Array.isArray(item.violations) ? item.violations : [];
     doc.setFontSize(9);
@@ -543,36 +568,43 @@ function downloadInspectionPDF(inspectionId) {
       doc.setFont("helvetica", "normal");
       doc.setTextColor(16, 185, 129);
       doc.text("✓ Zero statutory violations found. Package complies with Legal Metrology Packaged Commodities Rules 2011.", 16, y);
-      y += 10;
+      y += 8;
     } else {
       doc.setFont("helvetica", "normal");
       doc.setTextColor(220, 38, 38);
       viols.forEach((v, idx) => {
+        if (y > 270) { doc.addPage(); y = 20; }
         const vText = typeof v === "object" ? (v?.reason || v?.rule || v?.violation || JSON.stringify(v)) : String(v || "Statutory Violation");
-        doc.text(`${idx + 1}. ${vText.length > 85 ? vText.substring(0, 85) + "..." : vText} — (Per Legal Metrology PCR 2011)`, 16, y);
-        y += 7;
+        const fullLine = `${idx + 1}. ${vText} — (Per Legal Metrology PCR 2011)`;
+        const splitViol = doc.splitTextToSize(fullLine, 180);
+        doc.text(splitViol, 16, y);
+        y += Math.max(splitViol.length * 4.5, 5.5);
       });
-      y += 4;
     }
 
     // Verdict Stamp & Officer Comments
+    if (y > 250) { doc.addPage(); y = 20; }
+    y += 2;
     doc.setDrawColor(203, 213, 225);
     doc.line(14, y, 196, y);
-    y += 8;
+    y += 7;
 
     doc.setFont("helvetica", "bold");
     doc.setTextColor(30, 41, 59);
     doc.text("Judicial Findings & Enforcement Directive", 14, y);
-    y += 7;
+    y += 6;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(71, 85, 105);
-    const commentStr = String(item.reviewComments || "Inspection recorded and verified.");
-    doc.text(`Official Comments: ${commentStr.length > 90 ? commentStr.substring(0, 90) + "..." : commentStr}`, 16, y);
+    const commentStr = `Official Comments: ${String(item.reviewComments || "Inspection recorded and verified.")}`;
+    const splitComment = doc.splitTextToSize(commentStr, 180);
+    doc.text(splitComment, 16, y);
+    y += Math.max(splitComment.length * 4.5 + 4, 10);
+
+    if (y > 245) { doc.addPage(); y = 20; }
 
     // Stamp box
-    y += 16;
     doc.setDrawColor(item.isCompliant ? 16 : 220, item.isCompliant ? 185 : 38, item.isCompliant ? 129 : 38);
     doc.setLineWidth(1);
     doc.rect(14, y, 60, 16);
@@ -672,10 +704,12 @@ function closeInspectorDetailModal() {
 }
 
 function getStatusBadgeClass(status) {
-  if (status === "approved") return "bg-emerald-100 text-emerald-800 border border-emerald-300";
-  if (status === "rejected") return "bg-red-100 text-red-800 border border-red-300";
-  if (status === "draft") return "bg-slate-200 text-slate-700 border border-slate-300";
-  return "bg-amber-100 text-amber-800 border border-amber-300";
+  const s = String(status || "").toUpperCase();
+  if (s === "APPROVED" || s === "COMPLIANT_LOGGED") return "bg-emerald-100 text-emerald-800 border border-emerald-300";
+  if (s === "NOTICE_ISSUED" || s === "OFFICER_APPROVED") return "bg-amber-100 text-amber-900 border border-amber-300";
+  if (s === "REJECTED" || s === "OFFICER_DISMISSED") return "bg-slate-100 text-slate-700 border border-slate-300";
+  if (s === "DRAFT") return "bg-slate-200 text-slate-700 border border-slate-300";
+  return "bg-red-100 text-red-800 border border-red-300";
 }
 
 /* ==========================================================================
@@ -683,7 +717,7 @@ function getStatusBadgeClass(status) {
    ========================================================================== */
 
 function loadReviewDocket() {
-  seedInitialDataIfEmpty();
+  initStorage();
   const user = getCurrentUser();
   if (user) {
     const nameEl = document.getElementById("officerUserName");
@@ -699,13 +733,14 @@ function loadReviewDocket() {
   filterByStatus("all");
   initOfficerOfficialReports();
   renderOfficerCommodityStandards();
+  renderNotificationDropdown("officer");
 }
 
 /**
  * Switches officer views (docket, reports, legal, standards)
  */
 function switchOfficerTab(tabId) {
-  const allowed = ["docket", "reports", "legal", "standards"];
+  const allowed = ["docket", "review", "reports", "legal", "standards"];
   if (!allowed.includes(tabId)) tabId = "docket";
 
   allowed.forEach(id => {
@@ -719,13 +754,14 @@ function switchOfficerTab(tabId) {
       if (id === tabId) {
         navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-amber-500 text-white shadow font-semibold transition text-left";
       } else {
-        navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition text-left";
+        navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left";
       }
     }
   });
 
   const titles = {
     docket: { bc: "Review Docket", title: "Enforcement Review Docket" },
+    review: { bc: "Case Evidence", title: "Case Evidence 3-Pane Review Workspace" },
     reports: { bc: "Official Reports", title: "Statutory Violation Notice Generator" },
     legal: { bc: "Legal Reference", title: "Legal Metrology Act 2009 & PCR 2011" },
     standards: { bc: "Commodity Standards", title: "Maximum Permissible Errors & Weight Tolerances" }
@@ -736,6 +772,15 @@ function switchOfficerTab(tabId) {
   if (bcEl) bcEl.textContent = meta.bc;
   if (tEl) tEl.textContent = meta.title;
 
+  if (tabId === "review") {
+    if (!currentReviewId) {
+      const all = getInspections();
+      const firstTarget = all.find(i => i.status === "submitted" || i.status === "pending") || all[0];
+      if (firstTarget) loadCaseDetails(firstTarget.id);
+    } else {
+      loadCaseDetails(currentReviewId);
+    }
+  }
   if (tabId === "reports") initOfficerOfficialReports();
   if (tabId === "standards") renderOfficerCommodityStandards();
 }
@@ -750,13 +795,27 @@ function filterByStatus(status) {
   });
 
   const all = getInspections();
-  const pendingCount = all.filter(i => i.status === "submitted" || i.status === "pending").length;
+  const isPendingStatus = (s) => {
+    const u = String(s || "").toUpperCase();
+    return u === "SUBMITTED" || u === "PENDING" || u === "NON_COMPLIANT_PENDING";
+  };
+  const isApprovedStatus = (s) => {
+    const u = String(s || "").toUpperCase();
+    return u === "APPROVED" || u === "COMPLIANT_LOGGED" || u === "OFFICER_APPROVED" || u === "NOTICE_ISSUED";
+  };
+  const isRejectedStatus = (s) => {
+    const u = String(s || "").toUpperCase();
+    return u === "REJECTED" || u === "OFFICER_DISMISSED";
+  };
+
+  const pendingCount = all.filter(i => isPendingStatus(i.status)).length;
   const countEl = document.getElementById("pendingCasesCount");
   if (countEl) countEl.textContent = `${pendingCount} cases pending review`;
 
   let filtered = all;
-  if (status === "pending") filtered = all.filter(i => i.status === "submitted" || i.status === "pending");
-  else if (status === "approved" || status === "rejected") filtered = all.filter(i => i.status === status);
+  if (status === "pending") filtered = all.filter(i => isPendingStatus(i.status));
+  else if (status === "approved") filtered = all.filter(i => isApprovedStatus(i.status));
+  else if (status === "rejected") filtered = all.filter(i => isRejectedStatus(i.status));
 
   const search = (document.getElementById("docketSearchInput")?.value || "").trim().toLowerCase();
   if (search) {
@@ -783,11 +842,17 @@ function renderTable(inspections) {
   }
   if (empty) empty.classList.add("hidden");
 
+  const isPendingStatus = (s) => {
+    const u = String(s || "").toUpperCase();
+    return u === "SUBMITTED" || u === "PENDING" || u === "NON_COMPLIANT_PENDING";
+  };
+
   tbody.innerHTML = inspections.map(item => {
     const pBadge = item.priority === "Urgent" ? "bg-red-100 text-red-700" : item.priority === "Low" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700";
     const pIcon = item.priority === "Urgent" ? "🔴" : item.priority === "Low" ? "🟢" : "🟡";
     const violCount = item.violations ? item.violations.length : 0;
-    const canReview = item.status === "submitted" || item.status === "pending";
+    const canReview = isPendingStatus(item.status);
+    const displayStatus = typeof formatStatusLabel === "function" ? formatStatusLabel(item.status) : item.status;
 
     return `
       <tr class="hover:bg-slate-50 border-b border-slate-100 text-xs sm:text-sm">
@@ -797,7 +862,7 @@ function renderTable(inspections) {
         <td class="px-3 py-3 text-slate-500 font-mono text-xs">${item.date || "-"}</td>
         <td class="px-3 py-3">${violCount > 0 ? `<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700">${violCount} Found</span>` : `<span class="text-emerald-600 font-medium text-xs">None</span>`}</td>
         <td class="px-3 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${pBadge}">${pIcon} ${item.priority || "Standard"}</span></td>
-        <td class="px-3 py-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(item.status)}">${item.status}</span></td>
+        <td class="px-3 py-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(item.status)}">${displayStatus}</span></td>
         <td class="px-3 py-3">
           <button onclick="openCase('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${canReview ? 'bg-amber-500 hover:bg-amber-600 text-white shadow' : 'bg-slate-200 hover:bg-slate-300 text-slate-700'} transition">
             ${canReview ? "Review →" : "View"}
@@ -808,75 +873,167 @@ function renderTable(inspections) {
 }
 
 function openCase(id) { 
-  window.location.href = `review.html?id=${id}`; 
+  loadCaseDetails(id);
+  switchOfficerTab("review");
 }
 
 /* ==========================================================================
-   CASE EVIDENCE 3-PANE WORKSPACE (review.html)
+   CASE EVIDENCE 3-PANE WORKSPACE (Integrated inside officer.html)
    ========================================================================== */
 
-function loadCaseDetails() {
-  const id = new URLSearchParams(window.location.search).get("id") || "INS-1024";
+function loadCaseDetails(id) {
+  if (!id) {
+    id = new URLSearchParams(window.location.search).get("id");
+  }
+  if (!id) {
+    const inspections = getInspections();
+    const pending = inspections.find(i => i.status === "submitted" || i.status === "pending" || !i.isCompliant);
+    id = (pending && pending.id) || (inspections[0] && inspections[0].id) || "INS-1024";
+  }
   currentReviewId = id;
   const item = getInspectionById(id);
-  if (!item) { alert("Case not found."); window.location.href = "officer.html"; return; }
+  if (!item) {
+    if (typeof showToast === "function") showToast(`Case ${id} not found.`, "warning");
+    return;
+  }
 
   // Left Panel: Metadata
-  document.getElementById("caseIdText").textContent = item.id;
+  const caseIdEl = document.getElementById("caseIdText");
+  if (caseIdEl) caseIdEl.textContent = item.id;
   const badgeEl = document.getElementById("caseStatusBadge");
-  badgeEl.textContent = (item.status || "submitted").toUpperCase();
-  badgeEl.className = `px-2.5 py-1 text-xs rounded-full font-bold ${getStatusBadgeClass(item.status)}`;
-  document.getElementById("caseInspectorName").textContent = item.inspectorName || "Field Inspector";
-  document.getElementById("caseDateText").textContent = item.date || "-";
-  document.getElementById("caseProductName").textContent = item.product || "-";
-  document.getElementById("caseLocationText").textContent = item.location || "Regional Depot";
-  document.getElementById("timelineScannedDate").textContent = item.date || "Recorded";
-  document.getElementById("timelineSubmittedDate").textContent = item.date || "Recorded";
+  if (badgeEl) {
+    badgeEl.textContent = (item.status || "submitted").toUpperCase();
+    badgeEl.className = `px-2.5 py-1 text-xs rounded-full font-bold ${getStatusBadgeClass(item.status)}`;
+  }
+  const inspNameEl = document.getElementById("caseInspectorName");
+  if (inspNameEl) inspNameEl.textContent = item.inspectorName || "Field Inspector";
+  const dateEl = document.getElementById("caseDateText");
+  if (dateEl) dateEl.textContent = item.date || "-";
+  const prodEl = document.getElementById("caseProductName");
+  if (prodEl) prodEl.textContent = item.product || "-";
+  const locEl = document.getElementById("caseLocationText");
+  if (locEl) locEl.textContent = item.location || "Regional Depot";
+  const scDateEl = document.getElementById("timelineScannedDate");
+  if (scDateEl) scDateEl.textContent = item.date || "Recorded";
+  const subDateEl = document.getElementById("timelineSubmittedDate");
+  if (subDateEl) subDateEl.textContent = item.date || "Recorded";
 
   // Center Panel: Visual Evidence & AI Extracted Declarations
-  if (item.image) {
-    const imgEl = document.getElementById("reviewSpecimenImage");
-    if (imgEl) imgEl.src = item.image;
+  const imgEl = document.getElementById("reviewSpecimenImage");
+  const placeholderEl = document.getElementById("reviewNoImagePlaceholder");
+  if (imgEl) {
+    if (item.image && item.image.trim() !== "") {
+      imgEl.src = item.image;
+      imgEl.classList.remove("hidden");
+      if (placeholderEl) placeholderEl.classList.add("hidden");
+    } else {
+      imgEl.classList.add("hidden");
+      if (placeholderEl) placeholderEl.classList.remove("hidden");
+    }
   }
 
   const extracted = item.extractedData || {};
   const listEl = document.getElementById("reviewExtractedFields");
   if (listEl) {
     const rows = [
-      ["Commodity Name", extracted.commodity_name],
+      ["Commodity Name", extracted.commodity_name || extracted.generic_name],
       ["Net Quantity", extracted.net_quantity],
       ["MRP", extracted.mrp],
-      ["Manufacturer", extracted.manufacturer],
-      ["Month/Year", extracted.mfg_date],
+      ["Unit Sale Price (USP)", extracted.unit_sale_price || extracted.usp],
+      ["Manufacturer / Packer", extracted.manufacturer || [extracted.manufacturer_name, extracted.manufacturer_address].filter(Boolean).join(", ")],
+      ["Month/Year", extracted.mfg_date || extracted.mfg_month_year],
+      ["Country of Origin", extracted.country_of_origin],
       ["Consumer Care", extracted.consumer_care]
     ];
     listEl.innerHTML = rows.map(([lbl, val]) => `
-      <div class="flex justify-between py-1.5 border-b border-slate-100 text-xs">
+      <div class="ocr-field-row flex justify-between py-1.5 px-2 rounded-lg border-b border-slate-100 text-xs transition-colors duration-200">
         <span class="text-slate-500 font-medium">${lbl}:</span>
         <span class="${val ? 'font-semibold text-slate-800' : 'text-red-600 font-bold bg-red-50 px-1.5 rounded'}">${val || "MISSING"}</span>
       </div>`).join("");
   }
 
+  // Reset focus on new case load
+  ocrFocusActive = false;
+  const card = document.getElementById("reviewExtractedCard");
+  const badge = document.getElementById("ocrFocusIndicator");
+  const btnText = document.getElementById("ocrFocusBtnText");
+  if (card) card.classList.remove("ring-2", "ring-amber-400", "bg-amber-50/40");
+  if (badge) badge.classList.add("hidden");
+  if (btnText) btnText.textContent = "Highlight OCR Declarations";
+
   // Right Panel: populate checklist checks
   const viol = item.violations || [];
   document.querySelectorAll(".violation-check").forEach(c => {
     const val = c.getAttribute("data-rule");
-    c.checked = viol.some(v => v.toLowerCase().includes(val.toLowerCase()));
+    c.checked = viol.some(v => (typeof v === "string" ? v : (v.reason || v.rule || "")).toLowerCase().includes(val.toLowerCase()));
   });
 }
 
+let ocrFocusActive = false;
 function toggleOcrOverlay() {
-  const overlay = document.getElementById("ocrOverlayBox");
-  if (overlay) overlay.classList.toggle("hidden");
+  ocrFocusActive = !ocrFocusActive;
+  const card = document.getElementById("reviewExtractedCard");
+  const badge = document.getElementById("ocrFocusIndicator");
+  const btnText = document.getElementById("ocrFocusBtnText");
+  const fields = document.querySelectorAll("#reviewExtractedFields .ocr-field-row");
+
+  if (card) {
+    if (ocrFocusActive) {
+      card.classList.add("ring-2", "ring-amber-400", "bg-amber-50/40");
+    } else {
+      card.classList.remove("ring-2", "ring-amber-400", "bg-amber-50/40");
+    }
+  }
+
+  if (badge) {
+    if (ocrFocusActive) badge.classList.remove("hidden");
+    else badge.classList.add("hidden");
+  }
+
+  if (btnText) {
+    btnText.textContent = ocrFocusActive ? "Clear OCR Focus" : "Highlight OCR Declarations";
+  }
+
+  fields.forEach(row => {
+    if (ocrFocusActive) {
+      row.classList.add("bg-amber-100/70", "border-amber-300");
+    } else {
+      row.classList.remove("bg-amber-100/70", "border-amber-300");
+    }
+  });
 }
 
 function openDecisionModal(decision) {
   currentPendingDecision = decision;
   const modal = document.getElementById("decisionModal");
   const title = document.getElementById("modalDecisionTitle");
+  const sub = document.getElementById("modalDecisionSubtitle");
+  const confirmBtn = document.getElementById("modalConfirmBtn");
   const comments = document.getElementById("modalCommentsInput");
   if (comments) comments.value = "";
-  if (title) title.textContent = `Confirm Decision: ${decision.toUpperCase()}`;
+
+  if (decision === "approved") {
+    if (title) title.textContent = "Approve & Issue Statutory Notice";
+    if (sub) sub.textContent = "Confirm violation findings and generate official statutory show cause notice PDF:";
+    if (confirmBtn) {
+      confirmBtn.textContent = "Approve & Issue Notice";
+      confirmBtn.className = "px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition";
+    }
+  } else if (decision === "rejected") {
+    if (title) title.textContent = "Dismiss Flagged Violations (Reject Case)";
+    if (sub) sub.textContent = "Enter judicial rationale for dismissing contraventions (mandatory):";
+    if (confirmBtn) {
+      confirmBtn.textContent = "Confirm Dismissal";
+      confirmBtn.className = "px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow transition";
+    }
+  } else {
+    if (title) title.textContent = `Confirm Decision: ${decision.toUpperCase()}`;
+    if (confirmBtn) {
+      confirmBtn.textContent = "Confirm & Save";
+      confirmBtn.className = "px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow transition";
+    }
+  }
+
   if (modal) modal.classList.remove("hidden");
 }
 
@@ -886,19 +1043,56 @@ function closeDecisionModal() {
 }
 
 function confirmDecision() {
-  const comments = (document.getElementById("modalCommentsInput").value || "").trim();
+  const comments = (document.getElementById("modalCommentsInput")?.value || "").trim();
   if (currentPendingDecision === "rejected" && !comments) {
-    alert("Comments are required when rejecting an inspection!");
+    alert("Comments are required when dismissing or rejecting an inspection!");
     return;
   }
   submitDecision(currentReviewId, currentPendingDecision, comments);
 }
 
+/**
+ * Step E: Officer opens review modal → reviews original image against extracted text → clicks "Approve & Issue Notice" → downloads formatted PDF statutory notice with zero overlapping text.
+ */
 function submitDecision(id, decision, comments) {
-  updateInspectionStatus(id, decision, comments);
+  let targetStatus = decision;
+  if (typeof INSPECTION_STATUS !== "undefined") {
+    if (decision === "approved" || decision === "approve_notice") {
+      targetStatus = INSPECTION_STATUS.OFFICER_APPROVED;
+    } else if (decision === "rejected") {
+      targetStatus = INSPECTION_STATUS.OFFICER_DISMISSED;
+    }
+  }
+
+  updateInspectionStatus(id, targetStatus, comments);
   closeDecisionModal();
-  alert(`Case ${id} successfully marked as ${decision.toUpperCase()}!`);
-  window.location.href = "officer.html";
+
+  if (decision === "approved" || decision === "approve_notice") {
+    if (typeof showToast === "function") {
+      showToast(`Case ${id} Approved! Generating official Statutory Notice PDF...`, "success");
+    } else {
+      alert(`Case ${id} Approved! Generating official Statutory Notice PDF...`);
+    }
+
+    // Step E: downloads formatted PDF statutory notice with zero overlapping text
+    setTimeout(() => {
+      if (typeof generateStatutoryNoticePDF === "function") {
+        generateStatutoryNoticePDF(id);
+        if (typeof INSPECTION_STATUS !== "undefined") {
+          updateInspectionStatus(id, INSPECTION_STATUS.NOTICE_ISSUED);
+        }
+      }
+    }, 350);
+  } else {
+    if (typeof showToast === "function") {
+      showToast(`Case ${id} marked as ${decision.toUpperCase()}!`, "success");
+    } else {
+      alert(`Case ${id} successfully marked as ${decision.toUpperCase()}!`);
+    }
+  }
+
+  filterByStatus(activeDocketFilter || "all");
+  switchOfficerTab("docket");
 }
 
 /* ==========================================================================
@@ -1125,3 +1319,87 @@ function renderOfficerCommodityStandards() {
     </tr>
   `).join("");
 }
+
+/* ==========================================================================
+   NOTIFICATION DROPDOWN & ENFORCEMENT ALERTS (Active Non-Compliant Stream)
+   ========================================================================== */
+
+function toggleNotificationDropdown(role = "inspector") {
+  const dropdownId = role === "officer" ? "officerNotificationDropdown" : "inspectorNotificationDropdown";
+  const dropdown = document.getElementById(dropdownId);
+  if (!dropdown) return;
+  const isHidden = dropdown.classList.contains("hidden");
+  if (isHidden) {
+    renderNotificationDropdown(role);
+    dropdown.classList.remove("hidden");
+  } else {
+    dropdown.classList.add("hidden");
+  }
+}
+
+function renderNotificationDropdown(role = "inspector") {
+  const listId = role === "officer" ? "officerNotificationList" : "inspectorNotificationList";
+  const badgeId = role === "officer" ? "officerNotificationBadge" : "inspectorNotificationBadge";
+  const dotId = role === "officer" ? "officerNotificationDot" : "inspectorNotificationDot";
+  
+  const listEl = document.getElementById(listId);
+  const badgeEl = document.getElementById(badgeId);
+  const dotEl = document.getElementById(dotId);
+
+  const allInspections = getInspections();
+  const nonCompliant = allInspections.filter(item => !item.isCompliant || (item.violations && item.violations.length > 0) || item.status === "rejected");
+  const topAlerts = nonCompliant.slice(0, 3);
+
+  if (badgeEl) badgeEl.textContent = `${nonCompliant.length} Alert${nonCompliant.length === 1 ? "" : "s"}`;
+  if (dotEl) {
+    if (nonCompliant.length > 0) dotEl.classList.remove("hidden");
+    else dotEl.classList.add("hidden");
+  }
+
+  if (!listEl) return;
+
+  if (topAlerts.length === 0) {
+    listEl.innerHTML = `
+      <div class="py-4 text-center text-slate-400">
+        <span class="text-xl">✅</span>
+        <p class="font-bold mt-1 text-slate-600">All Scans Compliant</p>
+        <p class="text-[11px]">No active statutory infractions recorded.</p>
+      </div>`;
+    return;
+  }
+
+  listEl.innerHTML = topAlerts.map(item => {
+    const viol = (item.violations && item.violations[0]) || "Rule 6 Non-Compliance";
+    const violText = typeof viol === "object" ? (viol.reason || viol.rule || "Violation") : String(viol);
+    const actionClick = role === "officer"
+      ? `openCase('${item.id}'); toggleNotificationDropdown('officer');`
+      : `openInspectorDetailModal('${item.id}'); toggleNotificationDropdown('inspector');`;
+
+    return `
+      <div onclick="${actionClick}" class="py-2.5 px-2 hover:bg-slate-50 cursor-pointer rounded-xl transition flex items-start gap-2.5">
+        <span class="text-base mt-0.5">🚨</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <span class="font-mono font-bold text-slate-900">${item.id}</span>
+            <span class="text-[10px] font-bold text-red-600 uppercase">${item.priority || "Urgent"}</span>
+          </div>
+          <p class="font-semibold text-slate-800 truncate">${item.product || "Pre-Packed Commodity"}</p>
+          <p class="text-[11px] text-red-500 font-medium truncate">⚠️ ${violText}</p>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+// Global click handler to close dropdown when clicking outside
+document.addEventListener("click", (e) => {
+  ["inspector", "officer"].forEach(role => {
+    const btn = document.getElementById(role === "officer" ? "officerNotificationBellBtn" : "inspectorNotificationBellBtn");
+    const dropdown = document.getElementById(role === "officer" ? "officerNotificationDropdown" : "inspectorNotificationDropdown");
+    if (dropdown && !dropdown.classList.contains("hidden")) {
+      if (btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.add("hidden");
+      }
+    }
+  });
+});
+

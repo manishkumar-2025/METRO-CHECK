@@ -4,6 +4,7 @@
    ========================================================================== */
 
 require("dotenv").config();
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
@@ -16,6 +17,9 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
+// Serve frontend static files (HTML, CSS, JS, Assets) from workspace root
+app.use(express.static(path.join(__dirname, "..")));
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 } });
 
@@ -23,69 +27,116 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const PRIMARY_MODEL = "gemini-3.5-flash";
 const FALLBACK_MODEL = "gemini-3.6-flash";
 
-const LEGAL_METROLOGY_SYSTEM_PROMPT = `You are a Legal Metrology compliance inspector AI.
+const LEGAL_METROLOGY_SYSTEM_PROMPT = `You are a Senior Legal Metrology Compliance Officer and Optical Inspection AI for the Department of Consumer Affairs, Government of India.
 
-Analyze this product label image using OCR and extract ALL visible text.
+Analyze the package label image(s) using high-precision optical character recognition and extract ALL visible text.
 
-Then check compliance against Legal Metrology (Packaged Commodities) Rules, 2011.
+Then evaluate statutory compliance strictly against the Legal Metrology (Packaged Commodities) Rules, 2011.
 
-Return ONLY valid JSON (no markdown, no explanation):
+Return ONLY a single valid JSON object (no markdown, no code fences, no conversational preamble):
 
 {
-  "extracted_text": "full raw text from image",
+  "extracted_text": "verbatim text extracted from all visible package panels",
   "fields": {
-    "commodity_name": "string or null",
+    "manufacturer_name_address": "string or null",
+    "generic_name": "string or null",
     "net_quantity": "string or null",
-    "mrp": "string or null",
-    "manufacturer_name": "string or null",
-    "manufacturer_address": "string or null",
-    "mfg_date": "string or null",
-    "best_before": "string or null",
-    "consumer_care": "string or null",
-    "country_of_origin": "string or null",
-    "fssai_license": "string or null"
+    "mfg_month_year": "string or null",
+    "unit_sale_price": "string or null",
+    "mrp_tax_inclusive": "string or null",
+    "consumer_care_contact": "string or null",
+    "brand_name": "string or null",
+    "batch_number": "string or null",
+    "country_of_origin": "string or null"
   },
-  "compliance": [
+  "rules": [
     {
-      "rule": "Rule 6(1)(a) - Commodity Name",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
+      "clause": "Rule 6(1)(a)",
+      "parameter_name": "Manufacturer Name & Address",
+      "found": true,
+      "value": "string or null",
+      "compliant": true,
+      "violation_reason": null,
+      "severity": "None | Minor | Moderate | Critical"
     },
     {
-      "rule": "Rule 6(1)(b) - Net Quantity",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
+      "clause": "Rule 6(1)(b)",
+      "parameter_name": "Generic or Commodity Name",
+      "found": true,
+      "value": "string or null",
+      "compliant": true,
+      "violation_reason": null,
+      "severity": "None | Minor | Moderate | Critical"
     },
     {
-      "rule": "Rule 6(1)(c) - MRP",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
+      "clause": "Rule 6(1)(c)",
+      "parameter_name": "Net Quantity & Metric Unit",
+      "found": true,
+      "value": "string or null",
+      "compliant": true,
+      "violation_reason": null,
+      "severity": "None | Minor | Moderate | Critical"
     },
     {
-      "rule": "Rule 6(1)(d) - Manufacturer Details",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
+      "clause": "Rule 6(1)(d)",
+      "parameter_name": "Month & Year of Manufacture",
+      "found": true,
+      "value": "string or null",
+      "compliant": true,
+      "violation_reason": null,
+      "severity": "None | Minor | Moderate | Critical"
     },
     {
-      "rule": "Rule 6(1)(e) - Mfg/Packaging Date",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
+      "clause": "Rule 6(1)(da)",
+      "parameter_name": "Unit Sale Price (USP)",
+      "found": true,
+      "value": "string or null",
+      "compliant": true,
+      "violation_reason": null,
+      "severity": "None | Minor | Moderate | Critical"
     },
     {
-      "rule": "Rule 6(1)(f) - Consumer Care",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
+      "clause": "Rule 6(1)(e)",
+      "parameter_name": "Retail Sale Price (MRP)",
+      "found": true,
+      "value": "string or null",
+      "compliant": true,
+      "violation_reason": null,
+      "severity": "None | Minor | Moderate | Critical"
+    },
+    {
+      "clause": "Rule 6(1)(n)",
+      "parameter_name": "Consumer Care Contact",
+      "found": true,
+      "value": "string or null",
+      "compliant": true,
+      "violation_reason": null,
+      "severity": "None | Minor | Moderate | Critical"
+    },
+    {
+      "clause": "Rule 6(1)(aa)",
+      "parameter_name": "Country of Origin",
+      "found": true,
+      "value": "string or null",
+      "compliant": true,
+      "violation_reason": null,
+      "severity": "None | Minor | Moderate | Critical"
     }
   ],
   "overall_status": "Compliant | Non-Compliant | Partial",
-  "confidence": 0.95,
-  "observations": ["any extra notes"]
+  "confidence": 0.98,
+  "observations": ["detailed legal compliance notes"]
 }
 
-Rules for status:
-- Pass: Field clearly visible and correctly formatted
-- Fail: Field missing or clearly wrong
-- Review: Field partially visible, unclear, or needs human verification`;
+Statutory Evaluation Standards:
+- Rule 6(1)(a): Complete registered company name and physical geographical address of manufacturer/packer/importer.
+- Rule 6(1)(b): Generic or common nomenclature of the pre-packaged commodity.
+- Rule 6(1)(c): Declared weight or measure in standard metric units (g, kg, ml, l, m, n). Non-standard units (e.g. lbs, oz alone) are violations.
+- Rule 6(1)(d): Clear month and year of packaging, manufacturing, or import.
+- Rule 6(1)(da): Unit sale price calculated per g/kg/ml/l/piece (required for packages > 100g/100ml).
+- Rule 6(1)(e): Maximum Retail Price inclusive of all taxes, with currency symbol ₹ or Rs.
+- Rule 6(1)(n): Consumer grievance contact name/designation, phone number, email address, and physical address.
+- Severity: "None" (compliant), "Minor" (slight formatting irregularity), "Moderate" (omission of contact/date), "Critical" (omission/overwriting of MRP or Net Quantity).`;
 
 /**
  * Clean JSON strings returned by LLMs
@@ -103,15 +154,17 @@ function cleanJsonOutput(rawText) {
  */
 function getDetectedValueForRule(rule, fields = {}) {
   const r = (rule || "").toLowerCase();
-  if (r.includes("commodity")) return fields.commodity_name || "MISSING";
-  if (r.includes("quantity")) return fields.net_quantity || "MISSING";
-  if (r.includes("mrp") || r.includes("price")) return fields.mrp || "MISSING";
-  if (r.includes("manufacturer")) {
-    const parts = [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean);
-    return parts.length ? parts.join(", ") : "MISSING";
+  if (r.includes("generic") || r.includes("commodity") || r.includes("6(1)(b)")) return fields.generic_name || fields.commodity_name || "MISSING";
+  if (r.includes("quantity") || r.includes("6(1)(c)")) return fields.net_quantity || "MISSING";
+  if (r.includes("unit sale price") || r.includes("usp") || r.includes("6(1)(da)")) return fields.unit_sale_price || "N/A";
+  if (r.includes("mrp") || r.includes("retail sale price") || r.includes("price") || r.includes("6(1)(e)")) return fields.mrp_tax_inclusive || fields.mrp || "MISSING";
+  if (r.includes("manufacturer") || r.includes("packer") || r.includes("6(1)(a)")) {
+    return fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || "MISSING";
   }
-  if (r.includes("mfg") || r.includes("packaging date")) return fields.mfg_date || "MISSING";
-  if (r.includes("consumer care")) return fields.consumer_care || "MISSING";
+  if (r.includes("mfg") || r.includes("month & year") || r.includes("packaging date") || r.includes("6(1)(d)")) return fields.mfg_month_year || fields.mfg_date || "MISSING";
+  if (r.includes("consumer care") || r.includes("grievance") || r.includes("6(1)(n)")) return fields.consumer_care_contact || fields.consumer_care || "MISSING";
+  if (r.includes("country of origin") || r.includes("origin") || r.includes("6(1)(aa)")) return fields.country_of_origin || "N/A";
+  if (r.includes("second schedule") || r.includes("pack size")) return fields.net_quantity || "MISSING";
   return "N/A";
 }
 
@@ -120,17 +173,20 @@ function getDetectedValueForRule(rule, fields = {}) {
  */
 function getRequiredStandardForRule(rule) {
   const r = (rule || "").toLowerCase();
-  if (r.includes("commodity")) return "Generic or commercial name prominently displayed under Rule 6(1)(a)";
-  if (r.includes("quantity")) return "Numerical value accompanied by standard metric unit (kg, g, L, ml, pcs) under Rule 6(1)(b)";
-  if (r.includes("mrp") || r.includes("price")) return "Maximum retail price inclusive of all taxes with currency symbol under Rule 6(1)(c)";
-  if (r.includes("manufacturer")) return "Complete registered name and physical address with postal PIN code under Rule 6(1)(d)";
-  if (r.includes("mfg") || r.includes("packaging date")) return "Legible month and year of packaging or manufacturing under Rule 6(1)(e)";
-  if (r.includes("consumer care")) return "Customer grievance contact with phone, email, and postal address under Rule 6(1)(f)";
-  return "Statutory declaration under Legal Metrology Rules, 2011";
+  if (r.includes("manufacturer") || r.includes("6(1)(a)")) return "Complete registered name and physical address with postal PIN code under Rule 6(1)(a)";
+  if (r.includes("generic") || r.includes("commodity") || r.includes("6(1)(b)")) return "Generic or commercial name prominently displayed under Rule 6(1)(b)";
+  if (r.includes("quantity") || r.includes("6(1)(c)")) return "Numerical value accompanied by standard metric unit (kg, g, L, ml, m, n) under Rule 6(1)(c)";
+  if (r.includes("mfg") || r.includes("month & year") || r.includes("6(1)(d)")) return "Legible month and year of packaging, manufacturing, or import under Rule 6(1)(d)";
+  if (r.includes("unit sale price") || r.includes("usp") || r.includes("6(1)(da)")) return "Unit sale price declared in terms of metric unit under Rule 6(1)(da)";
+  if (r.includes("mrp") || r.includes("retail sale price") || r.includes("6(1)(e)")) return "Maximum retail price inclusive of all taxes with currency symbol under Rule 6(1)(e)";
+  if (r.includes("consumer care") || r.includes("grievance") || r.includes("6(1)(n)")) return "Customer grievance contact with phone, email, and postal address under Rule 6(1)(n)";
+  if (r.includes("country of origin") || r.includes("origin") || r.includes("6(1)(aa)")) return "Country of origin clearly declared on principal display panel under Rule 6(1)(aa)";
+  if (r.includes("second schedule") || r.includes("pack size")) return "Pre-packaged commodity size must conform to permissible standard quantities under the Second Schedule";
+  return "Statutory declaration under Legal Metrology (Packaged Commodities) Rules, 2011";
 }
 
 // Health check endpoint
-app.get("/", (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({
     system: "METRO-CHECK Legal Metrology AI Engine",
     status: "online",
@@ -142,31 +198,105 @@ app.get("/", (req, res) => {
 
 /**
  * Main Real-Time AI OCR & Compliance Endpoint
- * Accepts multipart/form-data (field 'image') or JSON body ({ imageBase64, mimeType })
+ * Accepts dual images (Front & Back panels) or single image via multipart or JSON
  */
-app.post("/api/scan", upload.single("image"), async (req, res) => {
+app.post("/api/scan", upload.fields([
+  { name: "image", maxCount: 1 },
+  { name: "imageFront", maxCount: 1 },
+  { name: "imageBack", maxCount: 1 }
+]), async (req, res) => {
   try {
-    let base64Data = null;
-    let mimeType = "image/jpeg";
+    const imagesToProcess = [];
 
-    if (req.file) {
-      base64Data = req.file.buffer.toString("base64");
-      mimeType = req.file.mimetype || "image/jpeg";
-    } else if (req.body && req.body.imageBase64) {
-      let rawBase64 = req.body.imageBase64;
-      if (rawBase64.includes("base64,")) {
-        const parts = rawBase64.split("base64,");
-        base64Data = parts[1];
-        const matchMime = parts[0].match(/data:(.*?);/);
-        if (matchMime) mimeType = matchMime[1];
-      } else {
-        base64Data = rawBase64;
+    // 1. Process multipart file uploads
+    if (req.files) {
+      if (req.files.imageFront && req.files.imageFront[0]) {
+        imagesToProcess.push({
+          data: req.files.imageFront[0].buffer.toString("base64"),
+          mimeType: req.files.imageFront[0].mimetype || "image/jpeg",
+          panel: "Front Panel (Principal Display)"
+        });
       }
-      if (req.body.mimeType) mimeType = req.body.mimeType;
+      if (req.files.imageBack && req.files.imageBack[0]) {
+        imagesToProcess.push({
+          data: req.files.imageBack[0].buffer.toString("base64"),
+          mimeType: req.files.imageBack[0].mimetype || "image/jpeg",
+          panel: "Back / Side Declaration Panel"
+        });
+      }
+      if (req.files.image && req.files.image[0] && imagesToProcess.length === 0) {
+        imagesToProcess.push({
+          data: req.files.image[0].buffer.toString("base64"),
+          mimeType: req.files.image[0].mimetype || "image/jpeg",
+          panel: "Primary Package Specimen"
+        });
+      }
     }
 
-    if (!base64Data) {
-      return res.status(400).json({ error: "No image provided. Please upload an image file or pass base64 image data." });
+    // 2. Process JSON payload with base64 images
+    if (req.body && imagesToProcess.length === 0) {
+      // Multiple images array
+      if (Array.isArray(req.body.images) && req.body.images.length > 0) {
+        req.body.images.forEach((img, idx) => {
+          let b64 = typeof img === "object" ? (img.data || img.imageBase64) : img;
+          let mime = typeof img === "object" ? (img.mimeType || "image/jpeg") : "image/jpeg";
+          if (typeof b64 === "string" && b64.includes("base64,")) {
+            const parts = b64.split("base64,");
+            b64 = parts[1];
+            const matchMime = parts[0].match(/data:(.*?);/);
+            if (matchMime) mime = matchMime[1];
+          }
+          if (b64) {
+            imagesToProcess.push({
+              data: b64,
+              mimeType: mime,
+              panel: idx === 0 ? "Front Panel" : "Back Panel"
+            });
+          }
+        });
+      }
+
+      // Explicit front and back properties
+      if (req.body.imageFront) {
+        let b64 = req.body.imageFront;
+        let mime = "image/jpeg";
+        if (b64.includes("base64,")) {
+          const parts = b64.split("base64,");
+          b64 = parts[1];
+          const matchMime = parts[0].match(/data:(.*?);/);
+          if (matchMime) mime = matchMime[1];
+        }
+        imagesToProcess.push({ data: b64, mimeType: mime, panel: "Front Panel" });
+      }
+
+      if (req.body.imageBack) {
+        let b64 = req.body.imageBack;
+        let mime = "image/jpeg";
+        if (b64.includes("base64,")) {
+          const parts = b64.split("base64,");
+          b64 = parts[1];
+          const matchMime = parts[0].match(/data:(.*?);/);
+          if (matchMime) mime = matchMime[1];
+        }
+        imagesToProcess.push({ data: b64, mimeType: mime, panel: "Back Panel" });
+      }
+
+      // Legacy single imageBase64 fallback
+      if (req.body.imageBase64 && imagesToProcess.length === 0) {
+        let b64 = req.body.imageBase64;
+        let mime = req.body.mimeType || "image/jpeg";
+        if (b64.includes("base64,")) {
+          const parts = b64.split("base64,");
+          b64 = parts[1];
+          const matchMime = parts[0].match(/data:(.*?);/);
+          if (matchMime) mime = matchMime[1];
+        }
+        imagesToProcess.push({ data: b64, mimeType: mime, panel: "Primary Package Specimen" });
+      }
+    }
+
+    if (imagesToProcess.length === 0) {
+      return res.status(400).json({ error: "No image provided. Please upload front and/or back package label images." });
     }
 
     if (!GEMINI_API_KEY || GEMINI_API_KEY.length < 10) {
@@ -175,35 +305,67 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
       });
     }
 
-    console.log(`[METRO-CHECK] Processing real-time inspection. Image size: ~${Math.round(base64Data.length * 0.75 / 1024)} KB, Mime: ${mimeType}`);
+    console.log(`[METRO-CHECK] Processing real-time inspection for ${imagesToProcess.length} label image(s).`);
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     let textOutput = null;
     let usedModel = PRIMARY_MODEL;
 
-    const imagePart = {
+    const imageParts = imagesToProcess.map(img => ({
       inlineData: {
-        data: base64Data,
-        mimeType: mimeType
+        data: img.data,
+        mimeType: img.mimeType
       }
-    };
+    }));
 
-    // Attempt primary model, fallback to secondary if necessary
+    // Extract commodity category, standard packs, and tolerance from request body (Admin Commodity Tolerances)
+    const commodityCategory = (req.body && (req.body.commodityCategory || req.body.commodity || req.body.category)) || null;
+    const standardPacks = (req.body && (req.body.standardPacks || req.body.sizes)) || null;
+    const tolerance = (req.body && req.body.tolerance) || null;
+
+  let commodityDirective = "";
+  if (commodityCategory) {
+    commodityDirective = `\n\nSCHEDULE 2 COMMODITY STANDARD SPECIFICATION:
+- Target Commodity Category: ${commodityCategory}
+${standardPacks ? `- Prescribed Schedule 2 Standard Packing Sizes: ${standardPacks}` : ""}
+${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""}
+- Statutory Requirement: Verify whether the declared net quantity on the label conforms to the permissible sizes specified in the Second Schedule for '${commodityCategory}'.
+- In the "rules" array, include an additional rule object:
+  {
+    "clause": "Second Schedule",
+    "parameter_name": "Schedule 2 Permissible Standard Pack Sizes",
+    "found": true,
+    "value": "detected quantity",
+    "compliant": true,
+    "violation_reason": null,
+    "severity": "Moderate"
+  }`;
+  }
+
+    const dualImageDirective = imagesToProcess.length > 1
+      ? `\n\nIMPORTANT: You have been provided ${imagesToProcess.length} images of the same product (Panel 1: Front Facing and Panel 2: Back/Side Panel). Combine declarations from both panels to perform a complete Legal Metrology (Packaged Commodities) Rules, 2011 inspection.`
+      : "";
+
+    const inspectionPrompt = `${LEGAL_METROLOGY_SYSTEM_PROMPT}${dualImageDirective}${commodityDirective}`;
+
+    const contents = [inspectionPrompt, ...imageParts];
+
+    // Attempt primary model, fallback to secondary if necessary (temperature: 0.0 for deterministic output)
     try {
       const model = genAI.getGenerativeModel(
-        { model: PRIMARY_MODEL, generationConfig: { responseMimeType: "application/json", temperature: 0.1 } },
+        { model: PRIMARY_MODEL, generationConfig: { responseMimeType: "application/json", temperature: 0.0 } },
         { apiVersion: "v1beta" }
       );
-      const result = await model.generateContent([LEGAL_METROLOGY_SYSTEM_PROMPT, imagePart]);
+      const result = await model.generateContent(contents);
       textOutput = result.response.text();
     } catch (primaryErr) {
       console.warn(`[METRO-CHECK] Primary model ${PRIMARY_MODEL} error: ${primaryErr.message}. Attempting ${FALLBACK_MODEL}...`);
       usedModel = FALLBACK_MODEL;
       const fallbackModel = genAI.getGenerativeModel(
-        { model: FALLBACK_MODEL, generationConfig: { responseMimeType: "application/json", temperature: 0.1 } },
+        { model: FALLBACK_MODEL, generationConfig: { responseMimeType: "application/json", temperature: 0.0 } },
         { apiVersion: "v1beta" }
       );
-      const result = await fallbackModel.generateContent([LEGAL_METROLOGY_SYSTEM_PROMPT, imagePart]);
+      const result = await fallbackModel.generateContent(contents);
       textOutput = result.response.text();
     }
 
@@ -225,66 +387,101 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
 
     // Standardize user's required schema fields
     const fields = parsedData.fields || {};
-    const compliance = Array.isArray(parsedData.compliance) ? parsedData.compliance : [];
+    const rulesList = Array.isArray(parsedData.rules) ? parsedData.rules : [];
     const overallStatus = parsedData.overall_status || "Partial";
-    const confidence = typeof parsedData.confidence === "number" ? parsedData.confidence : 0.95;
+    const confidence = typeof parsedData.confidence === "number" ? parsedData.confidence : 0.98;
     const observations = Array.isArray(parsedData.observations) ? parsedData.observations : [];
 
-    // Map overall status to legacy verdict
-    const overallVerdict = overallStatus === "Compliant" ? "Pass" : (overallStatus === "Non-Compliant" ? "Fail" : "Requires Review");
-    const violationsCount = compliance.filter(c => (c.status || "").toLowerCase() === "fail").length;
+    // Canonical fields with all Rule 6 clauses:
+    const standardizedFields = {
+      manufacturer_name_address: fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || null,
+      generic_name: fields.generic_name || fields.commodity_name || null,
+      net_quantity: fields.net_quantity || null,
+      mfg_month_year: fields.mfg_month_year || fields.mfg_date || null,
+      unit_sale_price: fields.unit_sale_price || null,
+      mrp_tax_inclusive: fields.mrp_tax_inclusive || fields.mrp || null,
+      consumer_care_contact: fields.consumer_care_contact || fields.consumer_care || null,
+      brand_name: fields.brand_name || null,
+      batch_number: fields.batch_number || null,
+      country_of_origin: fields.country_of_origin || null,
 
-    // Create backward-compatible compliance_tests structure for UI views
-    const complianceTests = compliance.map(c => {
-      const ruleRefMatch = (c.rule || "").match(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*/i);
-      const ruleRef = ruleRefMatch ? ruleRefMatch[0] : (c.rule || "Rule 6");
-      const paramName = (c.rule || "").replace(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*\s*-\s*/i, "") || "Statutory Declaration";
-      const status = (c.status === "Pass" || c.status === "Fail") ? c.status : "Requires Review";
+      // Aliases for backwards compatibility with legacy UI consumers
+      commodity_name: fields.generic_name || fields.commodity_name || null,
+      mrp: fields.mrp_tax_inclusive || fields.mrp || null,
+      manufacturer_name: fields.manufacturer_name || null,
+      manufacturer_address: fields.manufacturer_name_address || fields.manufacturer_address || null,
+      mfg_date: fields.mfg_month_year || fields.mfg_date || null,
+      consumer_care: fields.consumer_care_contact || fields.consumer_care || null
+    };
 
-      return {
-        parameter_name: paramName,
-        rule_reference: ruleRef,
-        detected_value: getDetectedValueForRule(c.rule, fields),
-        required_standard: getRequiredStandardForRule(c.rule),
-        status: status,
-        observations: c.reason || ""
-      };
-    });
+    // Construct standardized rule objects
+    const standardizedRules = rulesList.length > 0 ? rulesList.map(r => ({
+      clause: r.clause || "Rule 6",
+      parameter_name: r.parameter_name || "Statutory Declaration",
+      found: typeof r.found === "boolean" ? r.found : Boolean(r.value && r.value !== "MISSING"),
+      value: r.value || getDetectedValueForRule(r.clause || r.parameter_name, standardizedFields),
+      compliant: typeof r.compliant === "boolean" ? r.compliant : ((r.status || "").toLowerCase() === "pass"),
+      violation_reason: r.violation_reason || (r.compliant === false ? (r.reason || "Declaration does not satisfy statutory requirement") : null),
+      severity: r.severity || (r.compliant === false ? "Moderate" : "None")
+    })) : [
+      { clause: "Rule 6(1)(a)", parameter_name: "Manufacturer Name & Address", found: Boolean(standardizedFields.manufacturer_name_address), value: standardizedFields.manufacturer_name_address, compliant: Boolean(standardizedFields.manufacturer_name_address), violation_reason: standardizedFields.manufacturer_name_address ? null : "Missing manufacturer details", severity: standardizedFields.manufacturer_name_address ? "None" : "Moderate" },
+      { clause: "Rule 6(1)(b)", parameter_name: "Generic or Commodity Name", found: Boolean(standardizedFields.generic_name), value: standardizedFields.generic_name, compliant: Boolean(standardizedFields.generic_name), violation_reason: standardizedFields.generic_name ? null : "Missing commodity name", severity: standardizedFields.generic_name ? "None" : "Moderate" },
+      { clause: "Rule 6(1)(c)", parameter_name: "Net Quantity & Metric Unit", found: Boolean(standardizedFields.net_quantity), value: standardizedFields.net_quantity, compliant: Boolean(standardizedFields.net_quantity), violation_reason: standardizedFields.net_quantity ? null : "Missing net quantity", severity: standardizedFields.net_quantity ? "None" : "Critical" },
+      { clause: "Rule 6(1)(d)", parameter_name: "Month & Year of Manufacture", found: Boolean(standardizedFields.mfg_month_year), value: standardizedFields.mfg_month_year, compliant: Boolean(standardizedFields.mfg_month_year), violation_reason: standardizedFields.mfg_month_year ? null : "Missing mfg date", severity: standardizedFields.mfg_month_year ? "None" : "Moderate" },
+      { clause: "Rule 6(1)(da)", parameter_name: "Unit Sale Price (USP)", found: Boolean(standardizedFields.unit_sale_price), value: standardizedFields.unit_sale_price || "N/A", compliant: true, violation_reason: null, severity: "None" },
+      { clause: "Rule 6(1)(e)", parameter_name: "Retail Sale Price (MRP)", found: Boolean(standardizedFields.mrp_tax_inclusive), value: standardizedFields.mrp_tax_inclusive, compliant: Boolean(standardizedFields.mrp_tax_inclusive), violation_reason: standardizedFields.mrp_tax_inclusive ? null : "Missing MRP", severity: standardizedFields.mrp_tax_inclusive ? "None" : "Critical" },
+      { clause: "Rule 6(1)(n)", parameter_name: "Consumer Care Contact", found: Boolean(standardizedFields.consumer_care_contact), value: standardizedFields.consumer_care_contact, compliant: Boolean(standardizedFields.consumer_care_contact), violation_reason: standardizedFields.consumer_care_contact ? null : "Missing consumer care", severity: standardizedFields.consumer_care_contact ? "None" : "Moderate" },
+      { clause: "Rule 6(1)(aa)", parameter_name: "Country of Origin", found: Boolean(standardizedFields.country_of_origin), value: standardizedFields.country_of_origin || "N/A", compliant: true, violation_reason: null, severity: "None" }
+    ];
+
+    // Backward-compatible compliance array
+    const legacyCompliance = standardizedRules.map(r => ({
+      rule: `${r.clause} - ${r.parameter_name}`,
+      status: r.compliant ? "Pass" : "Fail",
+      reason: r.violation_reason || (r.compliant ? "Statutory declaration compliant." : "Non-compliant declaration.")
+    }));
+
+    // Backward-compatible compliance_tests structure for UI tables
+    const complianceTests = standardizedRules.map(r => ({
+      parameter_name: r.parameter_name,
+      rule_reference: r.clause,
+      detected_value: r.value || "MISSING",
+      required_standard: getRequiredStandardForRule(r.clause),
+      status: r.compliant ? "Pass" : "Fail",
+      observations: r.violation_reason || "Verified."
+    }));
+
+    const violationsCount = standardizedRules.filter(r => !r.compliant).length;
+    const computedOverallStatus = violationsCount === 0 ? "Compliant" : "Non-Compliant";
+    const overallVerdict = computedOverallStatus === "Compliant" ? "Pass" : "Fail";
 
     const fullResponse = {
-      // User's exact requested schema:
+      // Deterministic structured output
       extracted_text: parsedData.extracted_text || "",
-      fields: fields,
-      compliance: compliance,
-      overall_status: overallStatus,
+      fields: standardizedFields,
+      rules: standardizedRules,
+      compliance: legacyCompliance,
+      overall_status: computedOverallStatus,
       confidence: confidence,
       observations: observations,
 
-      // Seamless backward compatibility for UI dashboards, reports, and PDF exports:
+      // Schedule 2 metadata if provided
+      commodity_standard: commodityCategory ? {
+        category: commodityCategory,
+        standard_packs: standardPacks || "Standard permissible sizes",
+        tolerance: tolerance || "MAV per Second Schedule"
+      } : null,
+
+      // UI / PDF backward compatibility
       raw_ocr_text: parsedData.extracted_text || "",
-      categorized_fields: {
-        commodity_name: fields.commodity_name || null,
-        brand_name: null,
-        net_quantity: fields.net_quantity || null,
-        mrp: fields.mrp || null,
-        unit_sale_price: null,
-        manufacturer: [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || null,
-        mfg_date: fields.mfg_date || null,
-        expiry_date: fields.best_before || null,
-        consumer_care: fields.consumer_care || null,
-        country_of_origin: fields.country_of_origin || null,
-        fssai_license: fields.fssai_license || null,
-        batch_number: null
-      },
+      categorized_fields: standardizedFields,
       compliance_tests: complianceTests,
       overall_verdict: overallVerdict,
       violations_count: violationsCount,
-      executive_summary: observations.length > 0 ? observations.join(". ") : `AI verification completed under PCR 2011. Verdict: ${overallStatus}.`,
-      recommended_action: overallStatus === "Compliant" 
+      executive_summary: observations.length > 0 ? observations.join(". ") : `Forensic Legal Metrology inspection complete under PCR 2011. Verdict: ${computedOverallStatus}.`,
+      recommended_action: computedOverallStatus === "Compliant" 
         ? "Statutory declaration compliant. Record in audit registry." 
-        : (overallStatus === "Non-Compliant" 
-          ? "Issue Statutory Notice under Section 36 of Legal Metrology Act, 2009." 
-          : "Case flagged for manual verification by Metrology Officer."),
+        : "Issue Statutory Compounding Notice under Section 36 of Legal Metrology Act, 2009.",
       model_used: usedModel,
       is_realtime: true
     };

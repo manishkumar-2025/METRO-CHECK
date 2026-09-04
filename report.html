@@ -9,9 +9,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- PDF Generation Libraries via CDN -->
+  <!-- PDF Generation Library via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body class="bg-slate-200 min-h-screen py-6 px-4 text-slate-800 antialiased" onload="initReportView()">
 
@@ -79,7 +78,13 @@
           <div><span class="text-slate-500">Category:</span> <strong id="reportProductCategory" class="text-slate-700">Food / Packaged Grain</strong></div>
           <div><span class="text-slate-500">Packaging Type:</span> <strong class="text-slate-700">Pre-Packed Poly Pouch</strong></div>
         </div>
-        <img id="reportProductThumbnail" src="https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=200&q=80" alt="Specimen Thumbnail" class="w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm ml-2">
+        <div class="ml-2 flex items-center shrink-0">
+          <img id="reportProductThumbnail" src="" alt="Specimen Thumbnail" class="hidden w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm">
+          <div id="reportProductThumbnailFallback" class="w-20 h-16 bg-slate-100 border border-slate-200 rounded-lg flex flex-col items-center justify-center text-center p-1 text-[9px] text-slate-500 font-semibold leading-tight">
+            <span class="text-base">📋</span>
+            <span>Manual Entry<br>No Photo</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -151,6 +156,7 @@
   <!-- Scripts -->
   <script src="js/auth.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/pdfService.js"></script>
   <script src="js/report.js"></script>
 </body>
 </html>

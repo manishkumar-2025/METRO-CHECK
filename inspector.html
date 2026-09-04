@@ -67,28 +67,21 @@
           </span>
         </button>
 
-        <!-- 3. My Inspections -->
+        <!-- 3. My Inspections & Reports -->
         <button type="button" onclick="switchInspectorTab('inspections')" id="navBtn-inspections" class="inspector-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
           <span class="flex items-center gap-3">
-            <span>📝</span> <span>My Inspections</span>
+            <span>📝</span> <span>My Inspections & Reports</span>
           </span>
         </button>
 
-        <!-- 4. Commodity Lookup -->
+        <!-- 4. Commodity Standards -->
         <button type="button" onclick="switchInspectorTab('lookup')" id="navBtn-lookup" class="inspector-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
           <span class="flex items-center gap-3">
-            <span>🔍</span> <span>Commodity Lookup</span>
+            <span>🔍</span> <span>Commodity Standards</span>
           </span>
         </button>
 
-        <!-- 5. My Reports -->
-        <button type="button" onclick="switchInspectorTab('reports')" id="navBtn-reports" class="inspector-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-          <span class="flex items-center gap-3">
-            <span>📑</span> <span>My Reports</span>
-          </span>
-        </button>
-
-        <!-- 6. Help & Guide -->
+        <!-- 5. Help & Guide -->
         <button type="button" onclick="switchInspectorTab('help')" id="navBtn-help" class="inspector-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
           <span class="flex items-center gap-3">
             <span>❓</span> <span>Help & Guide</span>
@@ -142,14 +135,40 @@
           <span>AI Engine Ready</span>
         </div>
 
-        <button type="button" onclick="switchInspectorTab('ocr')" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f59e0b] hover:bg-[#d97706] text-white text-xs font-bold rounded-xl shadow transition btn-hover-effect">
+        <!-- Fast Role Switcher Pill -->
+        <div class="hidden sm:flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs">
+          <button type="button" class="px-2.5 py-1 rounded-lg font-bold bg-amber-500 text-white shadow-sm">👮 Inspector</button>
+          <button type="button" onclick="switchRole('officer')" class="px-2.5 py-1 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition">⚖️ Officer</button>
+          <button type="button" onclick="switchRole('admin')" class="px-2.5 py-1 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition">🛡️ Admin</button>
+        </div>
+
+        <button type="button" onclick="switchInspectorTab('ocr')" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f59e0b] hover:bg-[#d97706] text-white text-xs font-bold rounded-xl shadow transition btn-hover-effect">
           <span>⚡ Live AI OCR</span>
         </button>
 
-        <button onclick="showToast('Inspector notifications up to date', 'success')" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 border border-slate-200 relative" title="Notifications">
-          <span>🔔</span>
-          <span class="w-2 h-2 rounded-full bg-emerald-500 absolute top-1.5 right-1.5"></span>
-        </button>
+        <!-- Enforcement Notifications Bell & Dropdown -->
+        <div class="relative">
+          <button type="button" id="inspectorNotificationBellBtn" onclick="toggleNotificationDropdown('inspector')" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 border border-slate-200 relative transition" title="Enforcement Notifications">
+            <span>🔔</span>
+            <span id="inspectorNotificationDot" class="w-2.5 h-2.5 rounded-full bg-red-500 absolute top-1.5 right-1.5 border border-white animate-pulse"></span>
+          </button>
+          
+          <div id="inspectorNotificationDropdown" class="hidden absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 py-3 px-4 z-50">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm">⚠️</span>
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Non-Compliant Alerts</h4>
+              </div>
+              <span id="inspectorNotificationBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">0 Alerts</span>
+            </div>
+            <div id="inspectorNotificationList" class="divide-y divide-slate-100 max-h-72 overflow-y-auto my-2 text-xs">
+              <!-- Dynamically populated from dashboard.js -->
+            </div>
+            <div class="pt-2 border-t border-slate-100 text-center">
+              <p class="text-[10px] text-slate-400 font-medium">Department of Consumer Affairs • Enforcement Stream</p>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -169,6 +188,25 @@
             <p class="text-xs text-slate-300 mt-1 max-w-xl">Scan packaged goods, detect mandatory declaration omissions, and verify Maximum Permissible Errors (tolerances) on-site.</p>
           </div>
           <div class="absolute -right-6 -bottom-6 text-7xl opacity-15 pointer-events-none">⚖️</div>
+        </div>
+
+        <!-- Prominent Hero CTA Card: Start New Label Scan -->
+        <div onclick="switchInspectorTab('ocr')" class="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 bg-[length:200%_auto] hover:bg-right transition-all duration-500 rounded-2xl p-5 sm:p-6 text-white shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:shadow-xl hover:-translate-y-0.5 border border-amber-400/40">
+          <div class="space-y-1">
+            <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-slate-900/30 text-white text-[11px] font-extrabold uppercase tracking-wider">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Vision AI Ready
+            </div>
+            <h3 class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2">
+              <span>⚡ Start New Label Scan</span>
+            </h3>
+            <p class="text-xs text-amber-50 max-w-xl">
+              Capture or upload package labels for instant Rule 6 mandatory declaration extraction, Net Quantity tolerance check, and automated enforcement docket routing.
+            </p>
+          </div>
+          <button type="button" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-black text-sm rounded-xl shadow-lg transition self-start sm:self-auto shrink-0 border border-slate-700">
+            <span>📸 Launch Scanner</span>
+            <span>➔</span>
+          </button>
         </div>
 
         <!-- 4 Stat Cards: Total Scans, Compliant, Violations, Pending (reading localStorage) -->
@@ -244,10 +282,17 @@
             </table>
 
             <!-- Empty State -->
-            <div id="emptyStateBanner" class="hidden p-8 text-center">
-              <div class="text-3xl mb-2">📦</div>
-              <p class="text-sm font-semibold text-slate-700">No inspections recorded yet.</p>
-              <p class="text-xs text-slate-400 mt-1">Start your first scan to begin verification!</p>
+            <div id="emptyStateBanner" class="hidden p-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 m-4">
+              <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mx-auto mb-3 shadow-sm">
+                📦
+              </div>
+              <h4 class="text-sm font-bold text-slate-800">No inspections recorded yet</h4>
+              <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">All logged inspections are up to date. Start a live dual-panel AI scan or manual entry to log your first inspection.</p>
+              <div class="mt-4 flex items-center justify-center gap-2">
+                <button type="button" onclick="switchInspectorTab('ocr')" class="btn-primary px-4 py-2 text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm">
+                  <span>📸</span> <span>Start New Scan</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -291,14 +336,36 @@
           </div>
         </div>
 
-        <!-- STEP 1: Upload or Capture Package Label Image -->
+        <!-- Schedule 2 Commodity Standard & Tolerances Selector -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-sm shadow-sm">⚖️</span>
+            <div>
+              <h4 class="font-bold text-slate-900 text-xs">Schedule 2 Commodity Category & Standards</h4>
+              <p class="text-[10px] text-slate-500">Injects permissible pack sizes and legal MAV tolerances directly into AI analysis</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <label for="ocrCommodityCategorySelect" class="sr-only">Commodity Standard</label>
+            <select id="ocrCommodityCategorySelect" onchange="handleOcrCommodityChange()" class="p-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 min-w-[220px]">
+              <option value="">-- General Packaged Commodity --</option>
+              <!-- Dynamically populated from getCommodities() in storage.js -->
+            </select>
+            <div id="ocrCommodityStandardBadge" class="hidden text-[11px] font-mono bg-amber-50 text-amber-900 px-3 py-1.5 rounded-xl border border-amber-200 font-semibold">
+              <span id="ocrCommodityToleranceText">MAV: -</span> • <span id="ocrCommoditySizesText">Sizes: -</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 1: Dual-Facing Image Capture (Front & Back Panels) -->
         <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 gap-3">
             <div class="flex items-center gap-2.5">
               <span class="w-7 h-7 rounded-full bg-amber-500 text-white font-extrabold text-xs flex items-center justify-center shadow">1</span>
               <div>
-                <h4 class="font-bold text-slate-900 text-sm">Upload or Capture Package Label Image</h4>
-                <p class="text-[11px] text-slate-400">Position the Principal Display Panel (PDP) showing MRP, Net Qty, Mfg Date, and Manufacturer details.</p>
+                <h4 class="font-bold text-slate-900 text-sm">Dual-Facing Package Label Capture</h4>
+                <p class="text-[11px] text-slate-400">Capture both Front and Back/Side panels so Gemini analyzes all statutory declarations together.</p>
               </div>
             </div>
 
@@ -313,6 +380,22 @@
             </div>
           </div>
 
+          <!-- Active Capture Slot Switcher Pill -->
+          <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-100/80 rounded-xl border border-slate-200">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-bold text-slate-700">Active Capture Slot:</span>
+              <span class="text-[10px] text-slate-500">(auto-advances from Front to Back during capture)</span>
+            </div>
+            <div class="inline-flex gap-1.5">
+              <button type="button" id="slotBtnFront" onclick="setActiveCaptureSlot('front')" class="py-1 px-3 rounded-lg font-bold text-xs bg-amber-500 text-white shadow transition flex items-center gap-1">
+                <span>1️⃣</span> <span>Panel 1: Front Facing</span>
+              </button>
+              <button type="button" id="slotBtnBack" onclick="setActiveCaptureSlot('back')" class="py-1 px-3 rounded-lg font-semibold text-xs bg-white text-slate-700 hover:bg-slate-200 transition border border-slate-200 flex items-center gap-1">
+                <span>2️⃣</span> <span>Panel 2: Back / Side</span>
+              </button>
+            </div>
+          </div>
+
           <!-- MODE A: Live Camera Viewfinder -->
           <div id="cameraModeBox" class="space-y-3">
             <div class="relative bg-slate-950 rounded-2xl overflow-hidden min-h-[320px] max-h-[460px] flex items-center justify-center border-2 border-slate-800 shadow-inner">
@@ -323,7 +406,7 @@
               <!-- Viewfinder Scanning Target Overlay -->
               <div class="absolute inset-4 border-2 border-dashed border-emerald-400/40 rounded-xl pointer-events-none flex flex-col justify-between p-3">
                 <div class="flex justify-between text-[10px] font-mono text-emerald-400 font-bold bg-black/60 px-2 py-1 rounded w-fit">
-                  <span>[TARGET: PRINCIPAL DISPLAY PANEL]</span>
+                  <span id="cameraTargetLabel">[TARGET: PANEL 1 - FRONT FACING]</span>
                 </div>
                 <!-- Animated green/amber laser sweep line -->
                 <div class="scanner-laser-line"></div>
@@ -346,7 +429,7 @@
             <!-- Live Camera Active Controls -->
             <div id="cameraActiveControls" class="hidden flex flex-wrap items-center justify-center gap-3 pt-1">
               <button type="button" onclick="captureCameraSnapshot()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg transition btn-hover-effect flex items-center gap-2">
-                <span>📸</span> <span>Capture & Scan Frame</span>
+                <span>📸</span> <span>Capture Active Slot</span>
               </button>
               <button type="button" onclick="switchLiveCamera()" class="px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs rounded-xl transition flex items-center gap-1.5">
                 <span>🔄</span> <span>Flip Camera</span>
@@ -357,26 +440,97 @@
             </div>
           </div>
 
-          <!-- MODE B: Upload / Drag & Drop Dropzone (Hidden by default, shown when Upload tab chosen) -->
+          <!-- MODE B: Upload / Drag & Drop Dropzone -->
           <div id="uploadModeBox" class="hidden space-y-3">
-            <div id="ocrDropzone" onclick="document.getElementById('packageImageFileInput').click()" class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-2xl p-8 text-center bg-slate-50/60 hover:bg-amber-50/20 cursor-pointer transition">
+            <div id="ocrDropzone" onclick="document.getElementById('packageImageFileInput').click()" class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-2xl p-6 text-center bg-slate-50/60 hover:bg-amber-50/20 cursor-pointer transition">
               <div id="uploadPromptContent">
-                <span class="text-4xl block">📷</span>
-                <p class="text-sm font-bold text-slate-700 mt-2">Click to browse or drag & drop package photo</p>
-                <p class="text-xs text-slate-400 mt-1">High-resolution JPG, PNG, or WEBP label specimen</p>
+                <span class="text-3xl block">📁</span>
+                <p class="text-xs font-bold text-slate-700 mt-1">Click to browse or drop package image</p>
+                <p class="text-[10px] text-slate-400">High-resolution JPG, PNG, or WEBP specimen</p>
               </div>
             </div>
             <input type="file" id="packageImageFileInput" accept="image/jpeg,image/png,image/webp" onchange="handleFileInputChange(event)" class="hidden">
           </div>
 
+          <!-- 2-SLOT DUAL IMAGE UPLOADER DECK -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- SLOT 1: Front Facing Panel -->
+            <div id="slotCardFront" class="bg-slate-50/70 rounded-2xl p-4 border-2 border-amber-400 ring-1 ring-amber-400 transition space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[10px] font-black">PANEL 1</span>
+                  <div>
+                    <h5 class="font-bold text-slate-900 text-xs">Front Facing Panel</h5>
+                    <p class="text-[10px] text-slate-500 font-medium">Net Qty, Brand, Commodity Name</p>
+                  </div>
+                </div>
+                <button type="button" onclick="setActiveCaptureSlot('front')" class="text-[11px] font-bold text-amber-700 hover:underline">Select Slot</button>
+              </div>
+
+              <!-- Empty State / Uploader for Front -->
+              <div id="slotEmptyFront" class="border-2 border-dashed border-slate-300 hover:border-amber-400 rounded-xl p-6 text-center bg-white cursor-pointer transition" onclick="document.getElementById('packageImageFrontInput').click()">
+                <span class="text-3xl block mb-1">🖼️</span>
+                <p class="text-xs font-bold text-slate-700">Upload Front Panel</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Click to browse or drop JPG / PNG</p>
+                <button type="button" class="mt-2.5 px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 text-[11px] font-bold rounded-lg transition pointer-events-none">Browse Front</button>
+              </div>
+
+              <!-- Preview for Front -->
+              <div id="slotPreviewFront" class="hidden bg-slate-900 rounded-xl p-3 text-center space-y-2">
+                <div class="flex items-center justify-between text-[11px] text-white">
+                  <span class="text-emerald-400 font-bold flex items-center gap-1"><span>✓</span> Front Specimen Ready</span>
+                  <button type="button" onclick="clearSlotImage('front')" class="text-red-400 hover:text-red-300 font-semibold">✕ Retake</button>
+                </div>
+                <img id="slotPreviewImgFront" src="" alt="Front Specimen Preview" class="max-h-48 mx-auto rounded-lg object-contain bg-black/40">
+              </div>
+
+              <input type="file" id="packageImageFrontInput" accept="image/jpeg,image/png,image/webp" onchange="handleSlotFileChange('front', event)" class="hidden">
+            </div>
+
+            <!-- SLOT 2: Back / Side Panel -->
+            <div id="slotCardBack" class="bg-slate-50/70 rounded-2xl p-4 border-2 border-slate-200 transition space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded-md bg-slate-700 text-white text-[10px] font-black">PANEL 2</span>
+                  <div>
+                    <h5 class="font-bold text-slate-900 text-xs">Back / Side Panel</h5>
+                    <p class="text-[10px] text-slate-500 font-medium">MRP, Manufacturer Address, Date, Consumer Care</p>
+                  </div>
+                </div>
+                <button type="button" onclick="setActiveCaptureSlot('back')" class="text-[11px] font-bold text-slate-600 hover:underline">Select Slot</button>
+              </div>
+
+              <!-- Empty State / Uploader for Back -->
+              <div id="slotEmptyBack" class="border-2 border-dashed border-slate-300 hover:border-amber-400 rounded-xl p-6 text-center bg-white cursor-pointer transition" onclick="document.getElementById('packageImageBackInput').click()">
+                <span class="text-3xl block mb-1">🏷️</span>
+                <p class="text-xs font-bold text-slate-700">Upload Back / Side Panel</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Click to browse or drop JPG / PNG</p>
+                <button type="button" class="mt-2.5 px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 text-[11px] font-bold rounded-lg transition pointer-events-none">Browse Back</button>
+              </div>
+
+              <!-- Preview for Back -->
+              <div id="slotPreviewBack" class="hidden bg-slate-900 rounded-xl p-3 text-center space-y-2">
+                <div class="flex items-center justify-between text-[11px] text-white">
+                  <span class="text-emerald-400 font-bold flex items-center gap-1"><span>✓</span> Back Specimen Ready</span>
+                  <button type="button" onclick="clearSlotImage('back')" class="text-red-400 hover:text-red-300 font-semibold">✕ Retake</button>
+                </div>
+                <img id="slotPreviewImgBack" src="" alt="Back Specimen Preview" class="max-h-48 mx-auto rounded-lg object-contain bg-black/40">
+              </div>
+
+              <input type="file" id="packageImageBackInput" accept="image/jpeg,image/png,image/webp" onchange="handleSlotFileChange('back', event)" class="hidden">
+            </div>
+
+          </div>
+
           <!-- Preset Sample Package Label Buttons -->
           <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">⚡ Quick Sample Labels for Real-Time AI OCR Testing:</span>
+            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">⚡ Quick Sample Labels for AI OCR Testing:</span>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               <button type="button" onclick="loadDemoSpecimen('tea')" class="p-3 rounded-xl bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-400 text-slate-800 font-bold text-left transition shadow-sm flex items-center justify-between">
                 <div>
                   <span class="block text-sm">🍵 Masala Chai 500g</span>
-                  <span class="text-[10px] text-emerald-700 font-semibold block mt-0.5">✓ Fully Compliant Statutory Label</span>
+                  <span class="text-[10px] text-emerald-700 font-semibold block mt-0.5">✓ Fully Compliant Dual-Panel Label</span>
                 </div>
                 <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">LOAD LABEL</span>
               </button>
@@ -388,10 +542,10 @@
                 <span class="px-2 py-0.5 rounded bg-red-100 text-red-800 text-[10px] font-bold">LOAD LABEL</span>
               </button>
             </div>
-            <p class="text-[10px] text-slate-400 mt-2">Note: Clicking loads the actual label image into the inspector. Clicking "Run AI OCR" sends the real image pixels to Gemini Vision for 100% live OCR & statutory inspection.</p>
+            <p class="text-[10px] text-slate-400 mt-2">Note: Clicking loads the actual label into the slot. Clicking "Run AI OCR" sends the real images to Gemini Vision to evaluate both panels simultaneously.</p>
           </div>
 
-          <!-- Active Captured Specimen Preview Box -->
+          <!-- Active Captured Specimen Preview Box (Legacy fallback) -->
           <div id="specimenPreviewContainer" class="hidden bg-slate-900 p-4 rounded-2xl border border-slate-300 text-center space-y-3">
             <div class="flex items-center justify-between text-xs text-white pb-2 border-b border-slate-800">
               <span class="flex items-center gap-1 text-emerald-400 font-bold">
@@ -411,15 +565,97 @@
               id="btnRunAiAnalysis" 
               disabled 
               onclick="startAiOcrInspection()" 
-              class="w-full py-4 px-6 bg-gradient-to-r from-amber-500 to-[#d97706] text-white font-black text-sm sm:text-base rounded-2xl shadow-xl transition opacity-50 cursor-not-allowed flex items-center justify-center gap-2.5"
+              class="w-full py-4 px-6 bg-gradient-to-r from-amber-500 to-[#d97706] text-white font-black text-sm sm:text-base rounded-2xl shadow-xl transition opacity-50 cursor-not-allowed flex items-center justify-center gap-2.5 btn-primary"
             >
               <span>⚡</span>
-              <span>Run Gemini Vision AI OCR & Compliance Audit</span>
+              <span>Scan Label & Run Dual-Panel AI Audit</span>
               <span class="font-mono">➔</span>
             </button>
-            <p class="text-center text-[11px] text-slate-400 mt-2">Extracts all visible text, categorizes statutory parameters, checks Rule 6/7/9 conformity, and auto-fills report.</p>
+            <p class="text-center text-[11px] text-slate-400 mt-2">Extracts declarations from both panels, cross-validates Rule 6/7/9 conformity, and auto-fills report.</p>
           </div>
         </div>
+
+        <!-- =================================================================
+             FALLBACK: MANUAL DECLARATION ENTRY FORM (HTML5 & JS Validation)
+             ================================================================= -->
+        <details id="manualEntryAccordion" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <summary class="p-4 sm:p-5 font-bold text-slate-900 text-xs sm:text-sm flex items-center justify-between cursor-pointer bg-slate-50/70 hover:bg-slate-100/70 transition select-none">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-full bg-slate-800 text-white font-extrabold text-xs flex items-center justify-center shadow">✍️</span>
+              <div>
+                <h4 class="font-bold text-slate-900 text-sm">Manual Declaration Entry & Statutory Validation Form</h4>
+                <p class="text-[11px] text-slate-400">Direct manual inspection entry with instant Rule 6 statutory validation and metric unit checks</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">Open Manual Form ▼</span>
+          </summary>
+          
+          <form id="manualInspectionForm" onsubmit="handleManualInspectionSubmit(event)" novalidate class="p-5 sm:p-6 space-y-4 border-t border-slate-100">
+            <div class="bg-amber-50/80 p-3 rounded-xl border border-amber-200 text-xs text-amber-900 leading-relaxed">
+              <strong>Statutory Validation Constraints:</strong> Retail Sale Price (MRP) must be a positive number (> ₹0.01), Manufacturing date cannot be in the future, and Net Quantity must contain recognized metric units (g, kg, ml, l, m, n).
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+              <!-- Commodity Name -->
+              <div>
+                <label for="manualCommodity" class="block font-bold text-slate-700 mb-1">Commodity / Generic Name <span class="text-red-500">*</span></label>
+                <input type="text" id="manualCommodity" required placeholder="e.g. Masala Tea / Biscuits / Edible Oil" class="w-full p-2.5 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+              </div>
+
+              <!-- Brand Name -->
+              <div>
+                <label for="manualBrand" class="block font-bold text-slate-700 mb-1">Brand / Trade Name</label>
+                <input type="text" id="manualBrand" placeholder="e.g. MetroGold / NatureFresh" class="w-full p-2.5 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+              </div>
+
+              <!-- Net Quantity with Metric Unit -->
+              <div>
+                <label for="manualNetQty" class="block font-bold text-slate-700 mb-1">Net Quantity (with unit) <span class="text-red-500">*</span></label>
+                <input type="text" id="manualNetQty" required pattern="^([0-9]+(\.[0-9]+)?)\s*(g|kg|ml|l|m|n)$" placeholder="e.g. 500 g, 1 kg, 750 ml, 5 L, 10 n" class="w-full p-2.5 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <span class="text-[10px] text-slate-400 mt-0.5 block">Recognized units: g, kg, ml, l, m, n</span>
+              </div>
+
+              <!-- Retail Sale Price (MRP) -->
+              <div>
+                <label for="manualMrp" class="block font-bold text-slate-700 mb-1">Retail Sale Price - MRP (₹) <span class="text-red-500">*</span></label>
+                <input type="number" id="manualMrp" required min="0.01" step="0.01" placeholder="e.g. 150.00" class="w-full p-2.5 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <span class="text-[10px] text-slate-400 mt-0.5 block">Positive number (min ₹0.01)</span>
+              </div>
+
+              <!-- Manufacturing Date -->
+              <div>
+                <label for="manualMfgDate" class="block font-bold text-slate-700 mb-1">Mfg / Packaging Date <span class="text-red-500">*</span></label>
+                <input type="date" id="manualMfgDate" required class="w-full p-2.5 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <span class="text-[10px] text-slate-400 mt-0.5 block">Cannot be in the future</span>
+              </div>
+
+              <!-- Batch / Lot No -->
+              <div>
+                <label for="manualBatch" class="block font-bold text-slate-700 mb-1">Batch / Lot Number</label>
+                <input type="text" id="manualBatch" placeholder="e.g. B-84920" class="w-full p-2.5 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+              </div>
+
+              <!-- Manufacturer / Packer Details -->
+              <div class="sm:col-span-2">
+                <label for="manualManufacturer" class="block font-bold text-slate-700 mb-1">Manufacturer / Packer Name & Address <span class="text-red-500">*</span></label>
+                <input type="text" id="manualManufacturer" required placeholder="Complete registered company name and physical factory address" class="w-full p-2.5 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+              </div>
+
+              <!-- Consumer Care Details -->
+              <div>
+                <label for="manualConsumerCare" class="block font-bold text-slate-700 mb-1">Consumer Care Helpline / Email <span class="text-red-500">*</span></label>
+                <input type="text" id="manualConsumerCare" required placeholder="Helpline phone, email or address" class="w-full p-2.5 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+              <button type="reset" class="btn-secondary px-4 py-2 text-xs font-semibold rounded-xl">Clear Fields</button>
+              <button type="submit" class="btn-primary px-6 py-2.5 text-xs font-bold rounded-xl flex items-center gap-2 shadow-md">
+                <span>✓</span> <span>Validate & Record Inspection</span>
+              </button>
+            </div>
+          </form>
+        </details>
 
         <!-- PROGRESS / LOADING STATE -->
         <div id="ocrLoadingSection" class="hidden bg-white rounded-2xl p-8 border border-slate-200 shadow-sm text-center space-y-3">
@@ -614,10 +850,20 @@
         </div>
 
         <!-- Empty State -->
-        <div id="myInspectionsEmptyState" class="hidden bg-white rounded-2xl p-10 text-center border border-slate-200">
-          <div class="text-4xl mb-2">🔍</div>
+        <div id="myInspectionsEmptyState" class="hidden bg-white rounded-2xl p-8 text-center border border-slate-200 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center text-xl mx-auto mb-3">
+            🔍
+          </div>
           <h4 class="font-bold text-slate-800 text-sm">No inspections found</h4>
-          <p class="text-xs text-slate-400 mt-1">Try changing the active tab or clearing the search query.</p>
+          <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">No records match your active search or tab filter. Clear search terms or reset the filter view.</p>
+          <div class="mt-4 flex items-center justify-center gap-2">
+            <button type="button" onclick="setInspectionTab('all'); const si = document.getElementById('inspectionsSearchInput'); if(si) si.value=''; filterMyInspections();" class="btn-secondary px-4 py-2 text-xs font-bold rounded-xl flex items-center gap-1.5">
+              <span>🔄</span> <span>Show All Inspections</span>
+            </button>
+            <button type="button" onclick="switchInspectorTab('ocr')" class="btn-primary px-4 py-2 text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm">
+              <span>📸</span> <span>Start New Scan</span>
+            </button>
+          </div>
         </div>
 
       </section>
@@ -691,10 +937,17 @@
         </div>
 
         <!-- Empty State for Reports -->
-        <div id="completedReportsEmptyState" class="hidden bg-white rounded-2xl p-10 text-center border border-slate-200">
-          <div class="text-4xl mb-2">📑</div>
+        <div id="completedReportsEmptyState" class="hidden bg-white rounded-2xl p-8 text-center border border-slate-200 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mx-auto mb-3">
+            📑
+          </div>
           <h4 class="font-bold text-slate-800 text-sm">No completed reports yet</h4>
-          <p class="text-xs text-slate-400 mt-1">Reports will appear here once submitted inspections are reviewed and marked 'Approved' or 'Rejected' by the Metrology Officer.</p>
+          <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">All logged inspections are up to date. Official compliance certificates and violation notices will appear here once reviewed by the Metrology Officer.</p>
+          <div class="mt-4 flex items-center justify-center gap-2">
+            <button type="button" onclick="switchInspectorTab('inspections')" class="btn-secondary px-4 py-2 text-xs font-bold rounded-xl flex items-center gap-1.5">
+              <span>📋</span> <span>View Active Cases</span>
+            </button>
+          </div>
         </div>
 
       </section>
@@ -856,6 +1109,8 @@
 
   <!-- Scripts -->
   <script src="js/storage.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/pdfService.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/scanner.js"></script>
 </body>

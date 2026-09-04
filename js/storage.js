@@ -58,6 +58,28 @@ function saveInspection(inspectionData) {
   return inspectionData;
 }
 
+/* ==========================================================================
+   STANDARDIZED INSPECTION STATE MACHINE
+   ========================================================================== */
+const INSPECTION_STATUS = {
+  NON_COMPLIANT_PENDING: "NON_COMPLIANT_PENDING", // Auto-flagged by AI, awaiting review
+  COMPLIANT_LOGGED: "COMPLIANT_LOGGED",           // Passed all checks, archived
+  OFFICER_APPROVED: "OFFICER_APPROVED",           // Confirmed violation; notice ready
+  OFFICER_DISMISSED: "OFFICER_DISMISSED",         // False alarm dismissed by officer
+  NOTICE_ISSUED: "NOTICE_ISSUED"                  // Official statutory notice generated
+};
+
+function formatStatusLabel(status) {
+  const s = String(status || "").toUpperCase();
+  if (s === "NON_COMPLIANT_PENDING" || s === "SUBMITTED" || s === "PENDING") return "Pending Officer Review";
+  if (s === "COMPLIANT_LOGGED" || s === "APPROVED") return "Compliant (Logged)";
+  if (s === "OFFICER_APPROVED") return "Violation Confirmed";
+  if (s === "OFFICER_DISMISSED" || s === "REJECTED") return "Violation Dismissed";
+  if (s === "NOTICE_ISSUED") return "Notice Issued";
+  if (s === "DRAFT") return "Draft";
+  return status || "Pending";
+}
+
 /**
  * Updates status and optional review fields of an inspection.
  */
@@ -75,17 +97,21 @@ function updateInspectionStatus(inspectionId, newStatus, comments) {
 }
 
 /**
- * Calculates summary metrics for the dashboard.
+ * Calculates summary metrics for the dashboard matching the standardized state machine.
  */
 function getStats() {
   const allInspections = getInspections();
   let compliantCount = 0, violationsCount = 0, pendingReviewCount = 0;
 
   allInspections.forEach(function(item) {
-    if (item.isCompliant === true) compliantCount++;
+    const s = String(item.status || "").toUpperCase();
+    const isComp = item.isCompliant === true || s === "COMPLIANT_LOGGED" || s === "APPROVED";
+    if (isComp) compliantCount++;
     else violationsCount++;
 
-    if (item.status === "submitted" || item.status === "pending") pendingReviewCount++;
+    if (s === "NON_COMPLIANT_PENDING" || s === "SUBMITTED" || s === "PENDING") {
+      pendingReviewCount++;
+    }
   });
 
   return {
@@ -97,11 +123,14 @@ function getStats() {
 }
 
 /**
- * Returns completed inspections (approved or rejected).
+ * Returns completed inspections (approved, dismissed, or notice issued).
  */
 function getCompletedInspections() {
   const all = getInspections();
-  return all.filter(item => item.status === "approved" || item.status === "rejected");
+  return all.filter(item => {
+    const s = String(item.status || "").toUpperCase();
+    return s === "OFFICER_APPROVED" || s === "OFFICER_DISMISSED" || s === "NOTICE_ISSUED" || s === "APPROVED" || s === "REJECTED";
+  });
 }
 
 /**
@@ -344,28 +373,34 @@ function resetCommodities() {
 }
 
 /**
- * Seeds demo inspections and default commodities if empty.
+ * Seeds demo inspections only when explicitly requested (e.g. from Admin console).
+ * Does NOT auto-pollute storage on production loads.
  */
-function seedDemoData() {
+function seedDemoData(force = false) {
   const existing = getInspections();
-  if (existing.length === 0) {
+  if (force || existing.length === 0) {
     const demoRecords = [
       {
         id: "INS-1024",
         date: "2025-01-15",
         product: "Basmati Rice Premium 5kg",
-        status: "submitted",
+        status: INSPECTION_STATUS.NON_COMPLIANT_PENDING,
         priority: "Urgent",
         location: "Warehouse 4, Delhi",
         extractedData: {
           commodity_name: "Basmati Rice Premium",
+          generic_name: "Basmati Rice Premium",
           net_quantity: "5 kg",
           mrp: "₹450.00",
+          mrp_tax_inclusive: "₹450.00",
           manufacturer: "ABC Foods Pvt Ltd, Mumbai",
+          manufacturer_name_address: "ABC Foods Pvt Ltd, Mumbai",
           mfg_date: "01/2025",
-          consumer_care: null
+          mfg_month_year: "01/2025",
+          consumer_care: null,
+          consumer_care_contact: null
         },
-        violations: ["Missing Consumer Care Details"],
+        violations: ["Rule 6(1)(n): Missing Consumer Care Details"],
         isCompliant: false,
         inspectorName: "Field Inspector"
       },
@@ -373,17 +408,22 @@ function seedDemoData() {
         id: "INS-1025",
         date: "2025-01-15",
         product: "Refined Sunflower Oil 1L",
-        status: "approved",
+        status: INSPECTION_STATUS.COMPLIANT_LOGGED,
         priority: "Low",
         location: "Reliance Mart, Mumbai",
         reviewComments: "Fully compliant with Legal Metrology Packaged Commodities Rules 2011.",
         extractedData: {
           commodity_name: "Refined Sunflower Oil",
+          generic_name: "Refined Sunflower Oil",
           net_quantity: "1 L",
           mrp: "₹160.00",
+          mrp_tax_inclusive: "₹160.00",
           manufacturer: "Sun Agro Oils Ltd, Gujarat",
+          manufacturer_name_address: "Sun Agro Oils Ltd, Gujarat",
           mfg_date: "12/2024",
-          consumer_care: "care@sunagro.com"
+          mfg_month_year: "12/2024",
+          consumer_care: "care@sunagro.com",
+          consumer_care_contact: "care@sunagro.com"
         },
         violations: [],
         isCompliant: true,
@@ -393,16 +433,21 @@ function seedDemoData() {
         id: "INS-1026",
         date: "2025-01-14",
         product: "Packaged Wheat Flour 10kg",
-        status: "submitted",
+        status: INSPECTION_STATUS.COMPLIANT_LOGGED,
         priority: "Standard",
         location: "Big Bazaar, Pune",
         extractedData: {
           commodity_name: "Packaged Wheat Flour",
+          generic_name: "Packaged Wheat Flour",
           net_quantity: "10 kg",
           mrp: "₹380.00",
+          mrp_tax_inclusive: "₹380.00",
           manufacturer: "Grain Mills Corp, Punjab",
+          manufacturer_name_address: "Grain Mills Corp, Punjab",
           mfg_date: "11/2024",
-          consumer_care: "1800-444-555"
+          mfg_month_year: "11/2024",
+          consumer_care: "1800-444-555",
+          consumer_care_contact: "1800-444-555"
         },
         violations: [],
         isCompliant: true,
@@ -412,19 +457,24 @@ function seedDemoData() {
         id: "INS-1027",
         date: "2025-01-14",
         product: "Pure Cow Ghee 500ml",
-        status: "rejected",
+        status: INSPECTION_STATUS.NOTICE_ISSUED,
         priority: "Urgent",
         location: "Modern Bazaar, Delhi",
         reviewComments: "Statutory notice issued under Rule 32 for missing currency symbol on MRP and substandard font height.",
         extractedData: {
           commodity_name: "Pure Cow Ghee",
+          generic_name: "Pure Cow Ghee",
           net_quantity: "500 ml",
           mrp: "420",
+          mrp_tax_inclusive: "420",
           manufacturer: "Dairy Valley Ltd, Karnal",
+          manufacturer_name_address: "Dairy Valley Ltd, Karnal",
           mfg_date: "10/2024",
-          consumer_care: "support@dairyvalley.in"
+          mfg_month_year: "10/2024",
+          consumer_care: "support@dairyvalley.in",
+          consumer_care_contact: "support@dairyvalley.in"
         },
-        violations: ["Defective MRP format (missing currency symbol)", "Incorrect Font Size"],
+        violations: ["Rule 6(1)(e): Defective MRP format (missing currency symbol)", "Incorrect Font Size"],
         isCompliant: false,
         inspectorName: "Field Inspector"
       },
@@ -432,17 +482,22 @@ function seedDemoData() {
         id: "INS-1028",
         date: "2025-01-13",
         product: "Iodized Table Salt 1kg",
-        status: "approved",
+        status: INSPECTION_STATUS.COMPLIANT_LOGGED,
         priority: "Low",
         location: "City Retail, Kolkata",
         reviewComments: "All mandatory markings verified as per Schedule 2.",
         extractedData: {
           commodity_name: "Iodized Table Salt",
+          generic_name: "Iodized Table Salt",
           net_quantity: "1 kg",
           mrp: "₹28.00",
+          mrp_tax_inclusive: "₹28.00",
           manufacturer: "Salt Works India Ltd, Tuticorin",
+          manufacturer_name_address: "Salt Works India Ltd, Tuticorin",
           mfg_date: "12/2024",
-          consumer_care: "salt@works.in"
+          mfg_month_year: "12/2024",
+          consumer_care: "salt@works.in",
+          consumer_care_contact: "salt@works.in"
         },
         violations: [],
         isCompliant: true,
@@ -452,18 +507,23 @@ function seedDemoData() {
         id: "INS-1029",
         date: "2025-01-13",
         product: "Detergent Powder 2kg",
-        status: "draft",
+        status: "DRAFT",
         priority: "Standard",
         location: "Depot 2, Bangalore",
         extractedData: {
           commodity_name: "Detergent Powder",
+          generic_name: "Detergent Powder",
           net_quantity: "2 kg",
           mrp: "₹190.00",
+          mrp_tax_inclusive: "₹190.00",
           manufacturer: "Clean Care Chem, Chennai",
+          manufacturer_name_address: "Clean Care Chem, Chennai",
           mfg_date: null,
-          consumer_care: "care@cleancare.in"
+          mfg_month_year: null,
+          consumer_care: "care@cleancare.in",
+          consumer_care_contact: "care@cleancare.in"
         },
-        violations: ["Missing Month/Year of Packaging"],
+        violations: ["Rule 6(1)(d): Missing Month/Year of Packaging"],
         isCompliant: false,
         inspectorName: "Field Inspector"
       }
@@ -475,9 +535,21 @@ function seedDemoData() {
   getCommodities();
 }
 
-function seedInitialDataIfEmpty() {
-  seedDemoData();
+/**
+ * Explicit user-triggered loader for demo/testing data.
+ */
+function loadSampleDemoData() {
+  seedDemoData(true);
+  return getInspections();
 }
 
-// Auto-seed on load
-seedDemoData();
+/**
+ * Initializes baseline storage references without injecting fake inspection data.
+ */
+function initStorage() {
+  getCommodities();
+}
+
+// Initialize system standards (commodities/rules) on script load
+initStorage();
+
