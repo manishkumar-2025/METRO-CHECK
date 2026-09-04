@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>METRO-CHECK | Metrology Officer Enforcement Docket</title>
+  
+  <!-- Security check: Ensure only officers or admins can access -->
+  <script src="js/auth.js"></script>
+  <script>checkLogin("officer");</script>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- jsPDF Library for In-Browser Official Legal Notice PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex text-slate-800 antialiased" onload="loadReviewDocket()">
+
+  <!-- Mobile Drawer Backdrop -->
+  <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden transition-opacity"></div>
+
+  <!-- Left Navigation Sidebar (280px wide, Dark Navy #1a1f36, Responsive Mobile Drawer) -->
+  <aside class="fixed inset-y-0 left-0 z-40 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-200 ease-in-out w-[280px] bg-[#1a1f36] text-slate-300 flex flex-col justify-between flex-shrink-0 min-h-screen p-5 shadow-2xl md:shadow-none">
+    <div>
+      <!-- Brand Logo -->
+      <div class="flex items-center justify-between pb-5 border-b border-slate-700/60">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 text-xl font-black">
+            ⚖️
+          </div>
+          <div>
+            <h1 class="text-white font-black text-base tracking-wider">METRO-CHECK</h1>
+            <p class="text-[10px] text-amber-400 font-semibold uppercase tracking-wider">Legal Metrology Portal</p>
+          </div>
+        </div>
+        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800" title="Close Menu">✕</button>
+      </div>
+
+      <!-- Officer Badge Status -->
+      <div class="mt-4 px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-slate-300 font-semibold text-[11px]">Enforcement Authority</span>
+        </div>
+        <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold text-[10px] border border-amber-500/30">OFFICER</span>
+      </div>
+
+      <!-- Officer Navigation Menu: 5 Modules -->
+      <nav class="mt-5 space-y-1 text-sm font-medium">
+        <!-- 1. Review Docket -->
+        <button type="button" onclick="switchOfficerTab('docket')" id="officerNavBtn-docket" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-amber-500 text-white shadow font-semibold transition text-left">
+          <span>📋</span> <span>Review Docket</span>
+        </button>
+
+        <!-- 2. Case Evidence Workspace -->
+        <a href="review.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition">
+          <span>🔬</span> <span>Case Evidence (3-Pane)</span>
+        </a>
+
+        <!-- 3. Official Reports -->
+        <button type="button" onclick="switchOfficerTab('reports')" id="officerNavBtn-reports" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+          <span>📄</span> <span>Official Reports & Notices</span>
+        </button>
+
+        <!-- 4. Legal Reference -->
+        <button type="button" onclick="switchOfficerTab('legal')" id="officerNavBtn-legal" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+          <span>⚖️</span> <span>Legal Reference (Act 2009)</span>
+        </button>
+
+        <!-- 5. Commodity Standards -->
+        <button type="button" onclick="switchOfficerTab('standards')" id="officerNavBtn-standards" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+          <span>📦</span> <span>Commodity Standards</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Bottom Sidebar: User & Logout -->
+    <div class="pt-4 border-t border-slate-700/60">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-xs text-amber-400">
+            ⚖️
+          </div>
+          <div>
+            <p id="officerUserName" class="text-xs font-bold text-white leading-tight">Metrology Officer</p>
+            <span class="inline-block px-1.5 py-0.2 text-[9px] font-bold rounded bg-amber-500/20 text-amber-400">
+              LEGAL CONTROLLER
+            </span>
+          </div>
+        </div>
+      </div>
+      <button type="button" onclick="logout()" class="w-full py-2 px-3 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
+        <span>🚪</span> <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Right Viewport Area -->
+  <div class="flex-1 flex flex-col min-w-0">
+    
+    <!-- Top Header Bar -->
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-20 shadow-sm">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-xl hover:bg-slate-100 text-slate-700 border border-slate-200" title="Toggle Navigation">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div>
+          <div class="text-[11px] font-semibold text-slate-400">
+            <span>Metrology Officer</span> <span class="mx-1 text-slate-300">&gt;</span> <span id="officerBreadcrumb" class="text-slate-800 font-bold">Review Docket</span>
+          </div>
+          <h2 id="officerPageTitle" class="text-sm font-extrabold text-slate-900 leading-tight">Enforcement Review Docket</h2>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+          ● Judicial Quorum Active
+        </span>
+        <button onclick="showToast('Officer docket synchronised with field units.', 'success')" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 border border-slate-200 relative" title="Notifications">
+          <span>🔔</span>
+          <span class="w-2 h-2 rounded-full bg-amber-500 absolute top-1.5 right-1.5"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="p-4 sm:p-6 space-y-6 overflow-y-auto max-w-7xl w-full mx-auto">
+      
+      <!-- ===================================================================
+           VIEW 1: 📋 REVIEW DOCKET (Dense Data Table of 'submitted' Cases)
+           =================================================================== -->
+      <section id="officerView-docket" class="space-y-5">
+        
+        <!-- Filter & Search Bar -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900 tracking-tight">Review Docket</h3>
+            <p id="pendingCasesCount" class="text-xs text-amber-600 font-bold mt-0.5">Calculating pending cases...</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <!-- Search Bar -->
+            <div class="relative">
+              <input 
+                type="text" 
+                id="docketSearchInput" 
+                oninput="filterByStatus(activeDocketFilter)" 
+                placeholder="Search docket cases..." 
+                class="pl-8 pr-3 py-2 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 w-full sm:w-56"
+              >
+              <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
+            </div>
+
+            <!-- Filter Tabs: All | Pending | Approved | Rejected -->
+            <div class="inline-flex p-1 bg-slate-100 rounded-xl gap-1 border border-slate-200">
+              <button type="button" data-tab="all" onclick="filterByStatus('all')" class="docket-tab px-3.5 py-1.5 font-bold text-xs rounded-lg bg-amber-500 text-white shadow">
+                All
+              </button>
+              <button type="button" data-tab="pending" onclick="filterByStatus('pending')" class="docket-tab px-3.5 py-1.5 font-semibold text-xs rounded-lg text-slate-600 hover:bg-slate-200">
+                Pending
+              </button>
+              <button type="button" data-tab="approved" onclick="filterByStatus('approved')" class="docket-tab px-3.5 py-1.5 font-semibold text-xs rounded-lg text-slate-600 hover:bg-slate-200">
+                Approved
+              </button>
+              <button type="button" data-tab="rejected" onclick="filterByStatus('rejected')" class="docket-tab px-3.5 py-1.5 font-semibold text-xs rounded-lg text-slate-600 hover:bg-slate-200">
+                Rejected
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dense Data Table -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase font-bold border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-3">Case ID</th>
+                  <th class="px-4 py-3">Inspector</th>
+                  <th class="px-4 py-3">Product</th>
+                  <th class="px-4 py-3">Date</th>
+                  <th class="px-4 py-3">Violations</th>
+                  <th class="px-4 py-3">Priority</th>
+                  <th class="px-4 py-3">Status</th>
+                  <th class="px-4 py-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="officerDocketTableBody">
+                <!-- Dynamically populated from storage.js via js/dashboard.js -->
+              </tbody>
+            </table>
+
+            <!-- Empty State -->
+            <div id="officerEmptyState" class="hidden p-10 text-center">
+              <div class="text-4xl mb-2">📂</div>
+              <p class="text-sm font-bold text-slate-700">No cases found in this category.</p>
+              <p class="text-xs text-slate-400 mt-1">Select another tab or wait for field inspectors to submit inspections.</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 2: 📄 OFFICIAL REPORTS (Statutory Violation Notices with Digital Sig & jsPDF)
+           =================================================================== -->
+      <section id="officerView-reports" class="hidden space-y-6">
+        
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900">Official Violation Notice Generator</h3>
+            <p class="text-xs text-slate-500">Draft legally binding compounding show-cause notices under Section 36 of Legal Metrology Act, 2009</p>
+          </div>
+
+          <!-- Configuration Form -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <!-- Select Case -->
+            <div>
+              <label for="officialReportCaseSelect" class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Select Case from Docket</label>
+              <select id="officialReportCaseSelect" onchange="updateOfficialReportPreview()" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+
+            <!-- Digital Signature Name -->
+            <div>
+              <label for="officerSignatureInput" class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Officer's Digital Signature</label>
+              <input type="text" id="officerSignatureInput" oninput="updateOfficialReportPreview()" value="A. K. Sharma" placeholder="e.g. A. K. Sharma" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+            </div>
+
+            <!-- Designation -->
+            <div>
+              <label for="officerDesignationInput" class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Judicial Designation</label>
+              <input type="text" id="officerDesignationInput" oninput="updateOfficialReportPreview()" value="Assistant Controller of Legal Metrology" placeholder="Designation" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Official Notice Paper Preview -->
+        <div class="bg-white rounded-2xl p-8 border border-slate-300 shadow-lg max-w-3xl mx-auto space-y-6 relative overflow-hidden">
+          <!-- Background Watermark Indicator -->
+          <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none transform -rotate-45">
+            <span class="text-8xl font-black text-slate-900 tracking-widest">LEGAL NOTICE</span>
+          </div>
+
+          <!-- Document Header -->
+          <div class="text-center border-b-2 border-slate-800 pb-4 space-y-1">
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Government of India</h4>
+            <h2 class="text-base font-black text-slate-900 uppercase">Ministry of Consumer Affairs, Food & Public Distribution</h2>
+            <p class="text-xs font-semibold text-slate-700">Department of Consumer Affairs • Legal Metrology Division</p>
+          </div>
+
+          <!-- Reference & Date -->
+          <div class="flex justify-between text-xs font-mono">
+            <div><strong>Notice Ref:</strong> LM/DCA/2025/<span id="previewNoticeCaseId">INS-1024</span></div>
+            <div><strong>Date:</strong> <span id="previewNoticeDate">-</span></div>
+          </div>
+
+          <!-- Subject -->
+          <div class="text-center py-2 bg-amber-50/60 rounded-xl border border-amber-200/80">
+            <h3 class="text-xs font-extrabold text-amber-950 uppercase tracking-wide">STATUTORY SHOW CAUSE NOTICE UNDER SECTION 36</h3>
+            <p class="text-[11px] text-slate-600 font-medium">Read with Rule 32 of Legal Metrology (Packaged Commodities) Rules, 2011</p>
+          </div>
+
+          <!-- Body -->
+          <div class="text-xs text-slate-700 space-y-3 leading-relaxed">
+            <p><strong>TO:</strong> <span id="previewNoticeManufacturer" class="font-bold text-slate-900">Packer / Manufacturer</span></p>
+            <p>WHEREAS on physical audit and vision scan of pre-packaged commodity <strong id="previewNoticeProduct" class="text-slate-900">Specimen</strong>, the following statutory contraventions were recorded:</p>
+            
+            <ul id="previewNoticeViolations" class="list-disc list-inside space-y-1 pl-2 text-red-700 font-medium">
+              <!-- Dynamically populated -->
+            </ul>
+
+            <p>NOW THEREFORE, notice is hereby issued requiring you to show cause within fifteen (15) days from the date of issuance why proceedings for compounding of offence or penal prosecution under Section 36 of the Legal Metrology Act, 2009 should not be initiated before the Competent Court.</p>
+          </div>
+
+          <!-- Signature Block -->
+          <div class="pt-6 border-t border-slate-200 flex justify-between items-end">
+            <div class="text-[11px] text-slate-400 font-mono">
+              <p>Official Seal: [ENFORCEMENT-SEAL-2025]</p>
+              <p>Security Hash: SHA256:7f9a...88c1</p>
+            </div>
+            <div class="text-right space-y-1">
+              <div class="w-40 h-8 border-b border-slate-400 italic text-slate-600 font-cursive flex items-end justify-end pr-2 text-sm">
+                <span id="previewNoticeSignatureName">A. K. Sharma</span>
+              </div>
+              <p class="text-xs font-extrabold text-slate-900" id="previewNoticeDesignation">Assistant Controller of Legal Metrology</p>
+              <p class="text-[10px] text-slate-500">Ministry of Consumer Affairs, Govt. of India</p>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <div class="pt-4 text-center">
+            <button type="button" onclick="generateOfficialNoticePDF()" class="px-6 py-3 bg-[#f59e0b] hover:bg-[#d97706] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg transition btn-hover-effect flex items-center justify-center gap-2 mx-auto">
+              <span>📥</span> <span>Generate & Download Official Notice PDF (with Watermark)</span>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 3: ⚖️ LEGAL REFERENCE (Searchable with Yellow Keyword Highlighting)
+           =================================================================== -->
+      <section id="officerView-legal" class="hidden space-y-5">
+        
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h3 class="font-extrabold text-slate-900 text-base">Legal Metrology Act 2009 & PCR 2011 Reference</h3>
+              <p class="text-xs text-slate-500">Instant full-text statutory search with real-time keyword highlighting</p>
+            </div>
+            <span class="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200">
+              Live Highlighter Active
+            </span>
+          </div>
+
+          <!-- Real-Time Search Bar -->
+          <div class="relative">
+            <input 
+              type="text" 
+              id="legalSearchInput" 
+              oninput="searchLegalReference()" 
+              placeholder="Search legal sections (e.g., 'Section 36', 'MRP', 'font size', 'tolerance', 'compounding', 'Rule 6')..." 
+              class="w-full pl-10 pr-4 py-3 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
+            >
+            <span class="absolute left-3.5 top-3.5 text-slate-400 text-sm">🔍</span>
+          </div>
+        </div>
+
+        <!-- Statutory Articles Content Area (Where <mark> highlighting occurs) -->
+        <div id="legalReferenceContent" class="space-y-4">
+          
+          <!-- Article 1: Section 36 -->
+          <article class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h4 class="font-bold text-slate-900 text-sm">Section 36: Penalty for Selling, etc., of Non-Standard Packages</h4>
+              <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-mono">Act of 2009</span>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed">
+              (1) Whoever manufactures, packs, imports, sells, distributes, delivers or offers or exposes for sale, or has in his possession for sale, any pre-packaged commodity which does not conform to the declarations on the package as required under the rules, shall be punished with fine which may extend to twenty-five thousand rupees, for the second offence, to fifty thousand rupees and for the subsequent offence, with fine which shall not be less than fifty thousand rupees but which may extend to one lakh rupees or with imprisonment for a term which may extend to one year or with both.
+            </p>
+          </article>
+
+          <!-- Article 2: Rule 6 -->
+          <article class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h4 class="font-bold text-slate-900 text-sm">Rule 6: Mandatory Declarations to be Made on Every Package</h4>
+              <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono">PCR 2011</span>
+            </div>
+            <div class="text-xs text-slate-700 leading-relaxed space-y-1">
+              <p>Every package shall bear thereon or on a label securely affixed thereto, the following statutory declarations:</p>
+              <ul class="list-disc list-inside space-y-1 pl-2">
+                <li>(a) The name and complete registered address of the manufacturer, or where manufacturer is not packer, name and address of manufacturer and packer;</li>
+                <li>(b) The generic or commodity name of the pre-packaged commodity contained in the package;</li>
+                <li>(c) The net quantity, in terms of standard unit of weight or measure, of the commodity;</li>
+                <li>(d) The month and year in which the commodity is manufactured, packed or imported;</li>
+                <li>(e) The maximum retail sale price (MRP) inclusive of all taxes;</li>
+                <li>(f) The name, address, telephone number, and email address of the person or office which may be contacted in case of consumer complaints.</li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Article 3: Rule 7 & Font Size -->
+          <article class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h4 class="font-bold text-slate-900 text-sm">Rule 7: Principal Display Panel & Minimum Font Height</h4>
+              <span class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-mono">PCR 2011</span>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed">
+              The height of any numeral and letter in the declaration shall not be less than the minimum height specified in the table based on the area of the principal display panel. For packages exceeding 500 sq cm, numeral height must not be less than 4.0 mm to guarantee prominent consumer legibility.
+            </p>
+          </article>
+
+          <!-- Article 4: Rule 9 -->
+          <article class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h4 class="font-bold text-slate-900 text-sm">Rule 9: Manner of Declaration of Retail Sale Price (MRP)</h4>
+              <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono">PCR 2011</span>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed">
+              The retail sale price shall clearly include the currency symbol ₹ or words 'Rs.' along with the maximum retail price inclusive of all taxes. Dual pricing and overwriting of declared MRP on packaged goods is strictly prohibited under Rule 18(2).
+            </p>
+          </article>
+
+          <!-- Article 5: Rule 32 & Compounding -->
+          <article class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h4 class="font-bold text-slate-900 text-sm">Rule 32: Power to Inspect, Seize Samples, and Issue Compounding Orders</h4>
+              <span class="text-[10px] font-bold bg-red-100 text-red-800 px-2 py-0.5 rounded font-mono">Enforcement</span>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed">
+              Any Legal Metrology Officer may inspect packages at any premises, seize non-conforming specimens as evidence, and initiate compounding under Section 48 upon payment of statutory compounding fees by the manufacturer or packer.
+            </p>
+          </article>
+
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 4: 📦 COMMODITY STANDARDS (HTML Reference Tables for Tolerances)
+           =================================================================== -->
+      <section id="officerView-standards" class="hidden space-y-5">
+        
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <h3 class="font-extrabold text-slate-900 text-base">Legal Weight Tolerances (Maximum Permissible Errors)</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Statutory reference tables for Food, Electronics, Textiles, and Household FMCG under the Second Schedule</p>
+        </div>
+
+        <!-- Clean HTML Table -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200 text-[11px]">
+                <tr>
+                  <th class="px-4 py-3">Commodity Specification</th>
+                  <th class="px-4 py-3">Category</th>
+                  <th class="px-4 py-3">Legal Tolerance (MAV)</th>
+                  <th class="px-4 py-3">Permissible Standard Sizes</th>
+                  <th class="px-4 py-3">Statutory Rule</th>
+                </tr>
+              </thead>
+              <tbody id="officerStandardsTableBody">
+                <!-- Dynamically populated from dashboard.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Footer Information -->
+      <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 mt-6">
+        <p>© 2025 METRO-CHECK | Department of Consumer Affairs, Govt. of India</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">Built for Smart India Hackathon 2025 • Metrology Officer Judicial Quorum</p>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
