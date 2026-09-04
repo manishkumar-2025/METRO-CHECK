@@ -268,10 +268,23 @@ function clearSpecimenImage() {
    3. REAL-TIME AI VISION OCR & STATUTORY COMPLIANCE ANALYSIS (Gemini Vision)
    ========================================================================== */
 
-const BROWSER_GEMINI_API_KEY = "AQ.Ab8RN6JV6M48HSJQYPkAnzwoVpHuZAlVQiQpa5w2X0x2c5Ts8Q";
+/**
+ * Direct browser scan handler: does not call Google's API directly from the client.
+ * Keeps secret API keys securely inside server/.env on the backend server.
+ */
+function performDirectBrowserScan() {
+  const msg = "Backend server is offline. Please ensure 'npm start' is running in the /server directory.";
+  if (typeof showToast === "function") {
+    showToast(msg, "error");
+  }
+  alert(msg);
+  throw new Error(msg);
+}
+
+const executeDirectBrowserGeminiInspection = performDirectBrowserScan;
 
 /**
- * Dispatches image to backend proxy or direct Gemini Vision endpoint.
+ * Dispatches image to backend proxy server (/api/scan).
  * STRICT REAL-TIME INSPECTION: Never falls back to mock demo data.
  */
 async function executeGeminiVisionInspection(imageDataUrl) {
@@ -285,7 +298,7 @@ async function executeGeminiVisionInspection(imageDataUrl) {
     if (matchMime) mimeType = matchMime[1];
   }
 
-  // Method 1: Backend Express proxy server (port 3000)
+  // Backend Express proxy server (port 3000)
   try {
     const res = await fetch("http://localhost:3000/api/scan", {
       method: "POST",
@@ -302,181 +315,14 @@ async function executeGeminiVisionInspection(imageDataUrl) {
     }
 
     if (data && data.error) {
-      console.warn("[METRO-CHECK] Backend proxy error, attempting direct browser call:", data.error);
+      console.warn("[METRO-CHECK] Backend proxy error:", data.error);
     }
   } catch (proxyErr) {
-    console.warn("[METRO-CHECK] Backend server at localhost:3000 unreachable, trying direct Gemini API call...", proxyErr);
+    console.warn("[METRO-CHECK] Backend server at localhost:3000 unreachable:", proxyErr);
   }
 
-  // Method 2: Direct Client-Side Gemini Vision Call (no mock data fallback)
-  return await executeDirectBrowserGeminiInspection(cleanBase64, mimeType);
-}
-
-/**
- * Direct browser call to Gemini Vision v1beta API if local proxy is not running.
- * Preserves real-time optical recognition without assumptions.
- */
-async function executeDirectBrowserGeminiInspection(base64Data, mimeType) {
-  const prompt = `You are a Legal Metrology compliance inspector AI.
-
-Analyze this product label image using OCR and extract ALL visible text.
-
-Then check compliance against Legal Metrology (Packaged Commodities) Rules, 2011.
-
-Return ONLY valid JSON (no markdown, no explanation):
-
-{
-  "extracted_text": "full raw text from image",
-  "fields": {
-    "commodity_name": "string or null",
-    "net_quantity": "string or null",
-    "mrp": "string or null",
-    "manufacturer_name": "string or null",
-    "manufacturer_address": "string or null",
-    "mfg_date": "string or null",
-    "best_before": "string or null",
-    "consumer_care": "string or null",
-    "country_of_origin": "string or null",
-    "fssai_license": "string or null"
-  },
-  "compliance": [
-    {
-      "rule": "Rule 6(1)(a) - Commodity Name",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
-    },
-    {
-      "rule": "Rule 6(1)(b) - Net Quantity",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
-    },
-    {
-      "rule": "Rule 6(1)(c) - MRP",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
-    },
-    {
-      "rule": "Rule 6(1)(d) - Manufacturer Details",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
-    },
-    {
-      "rule": "Rule 6(1)(e) - Mfg/Packaging Date",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
-    },
-    {
-      "rule": "Rule 6(1)(f) - Consumer Care",
-      "status": "Pass | Fail | Review",
-      "reason": "short reason"
-    }
-  ],
-  "overall_status": "Compliant | Non-Compliant | Partial",
-  "confidence": 0.95,
-  "observations": ["any extra notes"]
-}
-
-Rules for status:
-- Pass: Field clearly visible and correctly formatted
-- Fail: Field missing or clearly wrong
-- Review: Field partially visible, unclear, or needs human verification`;
-
-  for (const model of ["gemini-3.5-flash", "gemini-3.6-flash"]) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${BROWSER_GEMINI_API_KEY}`;
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
-                {
-                  inlineData: {
-                    mimeType: mimeType || "image/jpeg",
-                    data: base64Data
-                  }
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 2048,
-            responseMimeType: "application/json"
-          }
-        })
-      });
-
-      const resData = await resp.json();
-      if (resData.error) {
-        console.warn(`[METRO-CHECK] Direct call to ${model} failed:`, resData.error);
-        continue;
-      }
-
-      const text = resData.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!text) continue;
-
-      let cleaned = text.trim().replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "");
-      const parsed = JSON.parse(cleaned);
-
-      const fields = parsed.fields || {};
-      const compliance = parsed.compliance || [];
-      const overallStatus = parsed.overall_status || "Partial";
-      const confidence = typeof parsed.confidence === "number" ? parsed.confidence : 0.95;
-
-      const complianceTests = compliance.map(c => {
-        const ruleRefMatch = (c.rule || "").match(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*/i);
-        return {
-          parameter_name: (c.rule || "").replace(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*\s*-\s*/i, "") || "Statutory Declaration",
-          rule_reference: ruleRefMatch ? ruleRefMatch[0] : (c.rule || "Rule 6"),
-          detected_value: (c.rule || "").includes("Commodity") ? (fields.commodity_name || "MISSING")
-            : (c.rule || "").includes("Quantity") ? (fields.net_quantity || "MISSING")
-            : (c.rule || "").includes("MRP") ? (fields.mrp || "MISSING")
-            : (c.rule || "").includes("Manufacturer") ? ([fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || "MISSING")
-            : (c.rule || "").includes("Date") ? (fields.mfg_date || "MISSING")
-            : (c.rule || "").includes("Consumer") ? (fields.consumer_care || "MISSING") : "N/A",
-          required_standard: "Legal Metrology (Packaged Commodities) Rules, 2011",
-          status: (c.status === "Pass" || c.status === "Fail") ? c.status : "Requires Review",
-          observations: c.reason || ""
-        };
-      });
-
-      return {
-        extracted_text: parsed.extracted_text || "",
-        fields: fields,
-        compliance: compliance,
-        overall_status: overallStatus,
-        confidence: confidence,
-        observations: parsed.observations || [],
-        raw_ocr_text: parsed.extracted_text || "",
-        categorized_fields: {
-          commodity_name: fields.commodity_name || null,
-          brand_name: null,
-          net_quantity: fields.net_quantity || null,
-          mrp: fields.mrp || null,
-          manufacturer: [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || null,
-          mfg_date: fields.mfg_date || null,
-          expiry_date: fields.best_before || null,
-          consumer_care: fields.consumer_care || null,
-          country_of_origin: fields.country_of_origin || null,
-          fssai_license: fields.fssai_license || null
-        },
-        compliance_tests: complianceTests,
-        overall_verdict: overallStatus === "Compliant" ? "Pass" : (overallStatus === "Non-Compliant" ? "Fail" : "Requires Review"),
-        violations_count: compliance.filter(c => (c.status || "").toLowerCase() === "fail").length,
-        executive_summary: (parsed.observations && parsed.observations.length > 0) ? parsed.observations.join(". ") : `Live inspection completed. Status: ${overallStatus}.`,
-        recommended_action: overallStatus === "Compliant" ? "Statutory declarations compliant. Record in audit registry." : "Issue statutory compliance notice under Section 36.",
-        model_used: model,
-        is_realtime: true
-      };
-    } catch (e) {
-      console.warn(`[METRO-CHECK] Attempt with ${model} failed:`, e);
-    }
-  }
-
-  throw new Error("Unable to perform real-time AI optical inspection on this image. Please ensure the backend server is running (npm start in /server) or check network connectivity. No mock assumptions will be generated.");
+  // If backend is unreachable, do not call Google's API directly from the client.
+  return performDirectBrowserScan();
 }
 
 /**
@@ -774,13 +620,42 @@ function handleSaveOcrInspection(statusType) {
 
 /**
  * Generates an official, comprehensive compliance report PDF using jsPDF.
+ * Fully resilient against missing statutory declarations, null fields, and varied data structures.
  */
 function downloadOcrReportPdf() {
-  if (!currentInspectionResult) return;
+  if (!currentInspectionResult) {
+    if (typeof showToast === "function") showToast("No inspection results available to export.", "warning");
+    return;
+  }
   const data = currentInspectionResult;
-  const fields = data.categorized_fields || {};
-  const tests = data.compliance_tests || [];
   const user = getCurrentUser() || { name: "Field Inspector" };
+  const caseId = currentCaseId || data.id || generateId("INS-");
+
+  // Safely extract and normalize fields
+  const rawFields = data.categorized_fields || data.fields || {};
+  const commodityName = String(rawFields.commodity_name || rawFields.brand_name || data.product || "Pre-Packed Commodity");
+  const netQuantity = String(rawFields.net_quantity != null && rawFields.net_quantity !== "" ? rawFields.net_quantity : "N/A");
+  const mrpVal = String(rawFields.mrp != null && rawFields.mrp !== "" ? rawFields.mrp : "N/A");
+
+  const mfgRaw = rawFields.manufacturer || [rawFields.manufacturer_name, rawFields.manufacturer_address].filter(Boolean).join(", ");
+  const mfgText = typeof mfgRaw === "string"
+    ? mfgRaw
+    : (mfgRaw && typeof mfgRaw === "object" ? (mfgRaw.name || Object.values(mfgRaw).filter(v => typeof v === "string").join(", ")) : "N/A");
+
+  // Safely normalize compliance tests matrix
+  const tests = (Array.isArray(data.compliance_tests) && data.compliance_tests.length > 0)
+    ? data.compliance_tests
+    : (Array.isArray(data.compliance) ? data.compliance.map((c, idx) => {
+        const ruleRefMatch = (c.rule || "").match(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*/i);
+        return {
+          parameter_name: (c.rule || "").replace(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*\s*-\s*/i, "") || c.rule || `Statutory Declaration ${idx + 1}`,
+          rule_reference: ruleRefMatch ? ruleRefMatch[0] : (c.rule || "Rule 6"),
+          detected_value: c.detected_value || "MISSING",
+          required_standard: c.required_standard || "Legal Metrology (Packaged Commodities) Rules, 2011",
+          status: c.status || "Requires Review",
+          observations: c.reason || c.observations || ""
+        };
+      }) : []);
 
   if (typeof showToast === "function") showToast("Compiling official PDF compliance report...", "warning");
 
@@ -808,20 +683,21 @@ function downloadOcrReportPdf() {
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
-    doc.text(`INSPECTION CASE: ${currentCaseId}`, 14, 40);
+    doc.text(`INSPECTION CASE: ${caseId}`, 14, 40);
 
     doc.setFontSize(8.5);
     doc.setFont("helvetica", "normal");
     doc.text(`Date & Time: ${new Date().toLocaleString("en-IN")}`, 14, 46);
     doc.text(`Field Inspector: ${user.name || "Field Inspector"}`, 14, 51);
-    doc.text(`Commodity: ${fields.commodity_name || fields.brand_name || "Pre-Packed Good"}`, 14, 56);
-    doc.text(`Net Quantity: ${fields.net_quantity || "N/A"}`, 110, 46);
-    doc.text(`Declared MRP: ${fields.mrp || "N/A"}`, 110, 51);
-    doc.text(`Manufacturer: ${fields.manufacturer ? fields.manufacturer.substring(0, 45) + "..." : "N/A"}`, 110, 56);
+    doc.text(`Commodity: ${commodityName.length > 40 ? commodityName.substring(0, 40) + "..." : commodityName}`, 14, 56);
+    doc.text(`Net Quantity: ${netQuantity.length > 25 ? netQuantity.substring(0, 25) : netQuantity}`, 110, 46);
+    doc.text(`Declared MRP: ${mrpVal.length > 25 ? mrpVal.substring(0, 25) : mrpVal}`, 110, 51);
+    doc.text(`Manufacturer: ${mfgText ? (mfgText.length > 42 ? mfgText.substring(0, 42) + "..." : mfgText) : "N/A"}`, 110, 56);
 
     // Verdict Stamp
-    const isPass = data.overall_verdict === "Pass";
-    const isFail = data.overall_verdict === "Fail";
+    const rawVerdict = String(data.overall_verdict || data.overall_status || "Requires Review");
+    const isPass = rawVerdict.toLowerCase() === "pass" || rawVerdict.toLowerCase() === "compliant";
+    const isFail = rawVerdict.toLowerCase() === "fail" || rawVerdict.toLowerCase() === "non-compliant";
     doc.setLineWidth(0.8);
     doc.setDrawColor(isPass ? 16 : isFail ? 220 : 245, isPass ? 185 : isFail ? 38 : 158, isPass ? 129 : isFail ? 38 : 11);
     doc.rect(14, 62, 182, 12);
@@ -846,31 +722,45 @@ function downloadOcrReportPdf() {
     doc.text("Observations", 150, y);
     y += 5;
 
-    tests.forEach((t, i) => {
-      if (y > 265) {
-        doc.addPage();
-        y = 20;
-      }
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(71, 85, 105);
-      doc.text(`${i + 1}. ${t.parameter_name.substring(0, 32)}`, 16, y);
-
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(15, 23, 42);
-      doc.text(String(t.detected_value || "MISSING").substring(0, 26), 75, y);
-
-      doc.setFont("helvetica", "bold");
-      if (t.status === "Pass") doc.setTextColor(16, 185, 129);
-      else if (t.status === "Fail") doc.setTextColor(220, 38, 38);
-      else doc.setTextColor(245, 158, 11);
-      doc.text(t.status.toUpperCase(), 130, y);
-
-      doc.setFont("helvetica", "normal");
+    if (tests.length === 0) {
+      doc.setFont("helvetica", "italic");
       doc.setTextColor(100, 116, 139);
-      doc.text(String(t.observations || "").substring(0, 30) + "...", 150, y);
-
+      doc.text("No statutory test parameters recorded.", 16, y);
       y += 6.5;
-    });
+    } else {
+      tests.forEach((t, i) => {
+        if (y > 265) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(71, 85, 105);
+        const paramName = t.parameter_name || t.rule || t.parameter || "Rule";
+        const param = String(paramName).substring(0, 32);
+        doc.text(`${i + 1}. ${param}`, 16, y);
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(15, 23, 42);
+        const detectedVal = String(t.detected_value != null && t.detected_value !== "" ? t.detected_value : "MISSING");
+        doc.text(detectedVal.length > 26 ? detectedVal.substring(0, 26) : detectedVal, 75, y);
+
+        const statusStr = String(t.status || "Review");
+        const statusLower = statusStr.toLowerCase();
+        doc.setFont("helvetica", "bold");
+        if (statusLower === "pass" || statusLower === "compliant") doc.setTextColor(16, 185, 129);
+        else if (statusLower === "fail" || statusLower === "non-compliant") doc.setTextColor(220, 38, 38);
+        else doc.setTextColor(245, 158, 11);
+        doc.text(statusStr.toUpperCase(), 130, y);
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 116, 139);
+        const obsStr = String(t.observations || t.reason || "");
+        const formattedObs = obsStr ? (obsStr.length > 30 ? obsStr.substring(0, 30) + "..." : obsStr) : "-";
+        doc.text(formattedObs, 150, y);
+
+        y += 6.5;
+      });
+    }
 
     // Executive Summary Box
     y += 4;
@@ -885,9 +775,11 @@ function downloadOcrReportPdf() {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
     doc.setTextColor(71, 85, 105);
-    const splitSummary = doc.splitTextToSize(data.executive_summary || "Inspection complete.", 175);
+    const summaryText = String(data.executive_summary || (Array.isArray(data.observations) ? data.observations.join(". ") : "") || "Inspection complete.");
+    const splitSummary = doc.splitTextToSize(summaryText, 175);
     doc.text(splitSummary, 17, y + 12);
-    doc.text(`Action Directive: ${data.recommended_action || "Notice issued."}`, 17, y + 18);
+    const actionText = String(data.recommended_action || "Notice issued under statutory procedure.");
+    doc.text(`Action Directive: ${actionText.length > 85 ? actionText.substring(0, 85) + "..." : actionText}`, 17, y + 18);
 
     // Sign-off
     y += 30;
@@ -895,7 +787,7 @@ function downloadOcrReportPdf() {
     doc.setTextColor(148, 163, 184);
     doc.setFontSize(7.5);
     doc.text("Digitally signed through METRO-CHECK Enforcement Architecture • DCA Govt of India", 14, y);
-    doc.text(`Digital Verification Token: MC-AI-OCR-${currentCaseId}`, 14, y + 5);
+    doc.text(`Digital Verification Token: MC-AI-OCR-${caseId}`, 14, y + 5);
 
     // Watermark
     doc.setTextColor(230, 235, 240);
@@ -903,10 +795,11 @@ function downloadOcrReportPdf() {
     doc.setFont("helvetica", "bold");
     doc.text("LEGAL METROLOGY AUDIT", 20, 180, { angle: 30 });
 
-    doc.save(`METRO-CHECK_AI_Report_${currentCaseId}.pdf`);
+    doc.save(`METRO-CHECK_AI_Report_${caseId}.pdf`);
     if (typeof showToast === "function") showToast("Compliance Report PDF downloaded!", "success");
   } catch (err) {
     console.error("PDF download failed:", err);
-    alert("Could not generate PDF report.");
+    if (typeof showToast === "function") showToast("Could not generate PDF report: " + (err.message || "Unknown error"), "error");
+    alert("Could not generate PDF report: " + (err.message || "Unknown error"));
   }
 }

@@ -476,14 +476,15 @@ function downloadInspectionPDF(inspectionId) {
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text(`Case ID: ${item.id}`, 14, 48);
-    doc.text(`Inspection Date: ${item.date || "N/A"}`, 14, 54);
-    doc.text(`Field Inspector: ${item.inspectorName || "Field Inspector"}`, 14, 60);
-    doc.text(`Inspection Location: ${item.location || "Regional Enforcement Unit"}`, 14, 66);
+    doc.text(`Case ID: ${String(item.id || "N/A")}`, 14, 48);
+    doc.text(`Inspection Date: ${String(item.date || "N/A")}`, 14, 54);
+    doc.text(`Field Inspector: ${String(item.inspectorName || "Field Inspector")}`, 14, 60);
+    doc.text(`Inspection Location: ${String(item.location || "Regional Enforcement Unit")}`, 14, 66);
 
-    doc.text(`Product Name: ${item.product || "N/A"}`, 110, 48);
-    doc.text(`Adjudication Status: ${(item.status || "N/A").toUpperCase()}`, 110, 54);
-    doc.text(`Priority Level: ${item.priority || "Standard"}`, 110, 60);
+    const prodName = String(item.product || "N/A");
+    doc.text(`Product Name: ${prodName.length > 40 ? prodName.substring(0, 40) + "..." : prodName}`, 110, 48);
+    doc.text(`Adjudication Status: ${String(item.status || "N/A").toUpperCase()}`, 110, 54);
+    doc.text(`Priority Level: ${String(item.priority || "Standard")}`, 110, 60);
 
     // Separator Line
     doc.setDrawColor(203, 213, 225);
@@ -496,11 +497,15 @@ function downloadInspectionPDF(inspectionId) {
     doc.text("Mandatory Label Declarations (Legal Metrology Rules 2011)", 14, 80);
 
     const ext = item.extractedData || {};
+    const mfgResolved = typeof ext.manufacturer === "string" && ext.manufacturer.trim().length > 0
+      ? ext.manufacturer
+      : ([ext.manufacturer_name, ext.manufacturer_address].filter(Boolean).join(", ") || (ext.manufacturer && typeof ext.manufacturer === "object" ? ext.manufacturer.name : "MISSING"));
+
     const declarations = [
       ["1. Commodity Generic Name", ext.commodity_name || "MISSING"],
       ["2. Net Quantity", ext.net_quantity || "MISSING"],
       ["3. Retail Sale Price (MRP)", ext.mrp || "MISSING"],
-      ["4. Manufacturer / Packer Address", ext.manufacturer || "MISSING"],
+      ["4. Manufacturer / Packer Address", mfgResolved || "MISSING"],
       ["5. Month & Year of Packaging", ext.mfg_date || "MISSING"],
       ["6. Consumer Care Helpline", ext.consumer_care || "MISSING"]
     ];
@@ -510,12 +515,13 @@ function downloadInspectionPDF(inspectionId) {
     declarations.forEach(([label, value]) => {
       doc.setFont("helvetica", "bold");
       doc.setTextColor(71, 85, 105);
-      doc.text(label, 16, y);
+      doc.text(String(label), 16, y);
 
-      const isMissing = !value || value === "MISSING";
+      const valStr = String(value != null && value !== "" ? value : "MISSING");
+      const isMissing = !valStr || valStr === "MISSING" || valStr === "null" || valStr === "undefined";
       doc.setFont("helvetica", isMissing ? "bold" : "normal");
       doc.setTextColor(isMissing ? 220 : 15, isMissing ? 38 : 23, isMissing ? 38 : 42);
-      doc.text(String(value), 90, y);
+      doc.text(valStr.length > 55 ? valStr.substring(0, 55) + "..." : valStr, 90, y);
       y += 8;
     });
 
@@ -531,7 +537,7 @@ function downloadInspectionPDF(inspectionId) {
     doc.text("Detected Statutory Violations", 14, y);
     y += 7;
 
-    const viols = item.violations || [];
+    const viols = Array.isArray(item.violations) ? item.violations : [];
     doc.setFontSize(9);
     if (viols.length === 0) {
       doc.setFont("helvetica", "normal");
@@ -542,7 +548,8 @@ function downloadInspectionPDF(inspectionId) {
       doc.setFont("helvetica", "normal");
       doc.setTextColor(220, 38, 38);
       viols.forEach((v, idx) => {
-        doc.text(`${idx + 1}. ${v} — (Per Legal Metrology PCR 2011)`, 16, y);
+        const vText = typeof v === "object" ? (v?.reason || v?.rule || v?.violation || JSON.stringify(v)) : String(v || "Statutory Violation");
+        doc.text(`${idx + 1}. ${vText.length > 85 ? vText.substring(0, 85) + "..." : vText} — (Per Legal Metrology PCR 2011)`, 16, y);
         y += 7;
       });
       y += 4;
@@ -561,7 +568,8 @@ function downloadInspectionPDF(inspectionId) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(71, 85, 105);
-    doc.text(`Official Comments: ${item.reviewComments || "Inspection recorded and verified."}`, 16, y);
+    const commentStr = String(item.reviewComments || "Inspection recorded and verified.");
+    doc.text(`Official Comments: ${commentStr.length > 90 ? commentStr.substring(0, 90) + "..." : commentStr}`, 16, y);
 
     // Stamp box
     y += 16;
@@ -591,11 +599,12 @@ function downloadInspectionPDF(inspectionId) {
     doc.setTextColor(148, 163, 184);
     doc.text("Department of Consumer Affairs, Government of India • Smart India Hackathon 2025 Verification Report", 14, 285);
 
-    doc.save(`METRO-CHECK_Report_${item.id}.pdf`);
+    doc.save(`METRO-CHECK_Report_${String(item.id || "Report")}.pdf`);
     if (typeof showToast === "function") showToast("Compliance Report PDF downloaded successfully!", "success");
   } catch (err) {
     console.error("PDF download failed:", err);
-    alert("Failed to generate PDF. Please try again.");
+    if (typeof showToast === "function") showToast("Failed to generate PDF: " + (err.message || "Unknown error"), "error");
+    alert("Failed to generate PDF: " + (err.message || "Unknown error"));
   }
 }
 
@@ -988,17 +997,21 @@ function generateOfficialNoticePDF() {
     doc.setFontSize(9.5);
     
     let y = 74;
-    doc.text(`TO: ${ext.manufacturer || "The Principal Officer / Packer / Manufacturer"}`, 14, y);
+    const mfgResolved = typeof ext.manufacturer === "string" && ext.manufacturer.trim().length > 0
+      ? ext.manufacturer
+      : ([ext.manufacturer_name, ext.manufacturer_address].filter(Boolean).join(", ") || (ext.manufacturer && typeof ext.manufacturer === "object" ? ext.manufacturer.name : "The Principal Officer / Packer / Manufacturer"));
+    doc.text(`TO: ${mfgResolved.length > 70 ? mfgResolved.substring(0, 70) + "..." : mfgResolved}`, 14, y);
     y += 8;
-    doc.text(`WHEREAS an official inspection was conducted under Case ID ${item.id} regarding the pre-packaged`, 14, y);
+    doc.text(`WHEREAS an official inspection was conducted under Case ID ${String(item.id || "N/A")} regarding the pre-packaged`, 14, y);
     y += 6;
-    doc.text(`commodity "${item.product || ext.commodity_name || "Specimen"}"; and`, 14, y);
+    const prodTitle = String(item.product || ext.commodity_name || "Specimen");
+    doc.text(`commodity "${prodTitle.length > 50 ? prodTitle.substring(0, 50) + "..." : prodTitle}"; and`, 14, y);
     y += 8;
     doc.text("WHEREAS optical character recognition and physical audit detected non-compliance with statutory declarations:", 14, y);
     y += 8;
 
     // Violations List
-    const viols = item.violations || [];
+    const viols = Array.isArray(item.violations) ? item.violations : [];
     doc.setFont("helvetica", "bold");
     doc.setTextColor(185, 28, 28);
     if (viols.length === 0) {
@@ -1006,7 +1019,8 @@ function generateOfficialNoticePDF() {
       y += 8;
     } else {
       viols.forEach((v, idx) => {
-        doc.text(`(${idx + 1}) Non-compliance with Rule 6/9: ${v}`, 20, y);
+        const vText = typeof v === "object" ? (v?.reason || v?.rule || v?.violation || JSON.stringify(v)) : String(v || "Statutory Violation");
+        doc.text(`(${idx + 1}) Non-compliance with Rule 6/9: ${vText.length > 80 ? vText.substring(0, 80) + "..." : vText}`, 20, y);
         y += 7;
       });
     }
@@ -1026,11 +1040,11 @@ function generateOfficialNoticePDF() {
     y += 24;
     doc.setFont("helvetica", "bold");
     doc.setTextColor(15, 23, 42);
-    doc.text(sig, 140, y);
+    doc.text(String(sig || "A. K. Sharma"), 140, y);
     y += 5;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8.5);
-    doc.text(desig, 140, y);
+    doc.text(String(desig || "Assistant Controller of Legal Metrology"), 140, y);
     y += 5;
     doc.text("Legal Metrology Enforcement Directorate", 140, y);
     y += 5;

@@ -22,14 +22,20 @@ function initReportView() {
   }
 
   // Header Details
-  document.getElementById("reportIdDisplay").textContent = record.id;
-  document.getElementById("reportDateDisplay").textContent = record.date || new Date().toISOString().split("T")[0];
+  const idDisplay = document.getElementById("reportIdDisplay");
+  if (idDisplay) idDisplay.textContent = record.id || targetId;
+  const dateDisplay = document.getElementById("reportDateDisplay");
+  if (dateDisplay) dateDisplay.textContent = record.date || new Date().toISOString().split("T")[0];
 
   // 1. Inspector Details
-  document.getElementById("reportInspectorName").textContent = record.inspectorName || "Field Inspector";
-  document.getElementById("reportInspectorId").textContent = "OFFICER-ID-" + record.id.replace("INS-", "");
-  document.getElementById("reportInspectionDate").textContent = record.date || "-";
-  document.getElementById("reportInspectionLocation").textContent = record.location || "Regional Depot / Market";
+  const inspName = document.getElementById("reportInspectorName");
+  if (inspName) inspName.textContent = record.inspectorName || "Field Inspector";
+  const inspId = document.getElementById("reportInspectorId");
+  if (inspId) inspId.textContent = "OFFICER-ID-" + String(record.id || targetId).replace("INS-", "");
+  const inspDate = document.getElementById("reportInspectionDate");
+  if (inspDate) inspDate.textContent = record.date || "-";
+  const inspLoc = document.getElementById("reportInspectionLocation");
+  if (inspLoc) inspLoc.textContent = record.location || "Regional Depot / Market";
 
   // 2. Product Information
   const extracted = record.extractedData || {};
@@ -86,7 +92,8 @@ function initReportView() {
       violationsList.innerHTML = "<li class='text-xs text-emerald-700 font-medium'>Zero violations found. All mandatory declarations comply with Rules, 2011.</li>";
     } else {
       violationsList.innerHTML = viols.map(function(v, index) {
-        return `<li class="text-xs text-red-700 font-medium">${index + 1}. ${v} — (Per Legal Metrology Packaged Commodities Rules)</li>`;
+        const vText = typeof v === "object" ? (v?.reason || v?.rule || v?.violation || JSON.stringify(v)) : String(v || "Statutory Violation");
+        return `<li class="text-xs text-red-700 font-medium">${index + 1}. ${vText} — (Per Legal Metrology Packaged Commodities Rules)</li>`;
       }).join("");
     }
   }
