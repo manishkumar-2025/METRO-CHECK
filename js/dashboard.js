@@ -51,13 +51,20 @@ function switchInspectorTab(tabId) {
   if (!allowed.includes(tabId)) tabId = "dashboard";
   activeInspectorTab = tabId;
 
-  // Toggle view containers
+  // Toggle view containers with smooth transition
   allowed.forEach(id => {
     const viewEl = document.getElementById(`view-${id}`);
     const navBtn = document.getElementById(`navBtn-${id}`);
     if (viewEl) {
-      if (id === tabId) viewEl.classList.remove("hidden");
-      else viewEl.classList.add("hidden");
+      if (id === tabId) {
+        viewEl.classList.remove("hidden");
+        viewEl.classList.remove("view-fade-in");
+        void viewEl.offsetWidth; // force reflow for smooth animation replay
+        viewEl.classList.add("view-fade-in");
+      } else {
+        viewEl.classList.add("hidden");
+        viewEl.classList.remove("view-fade-in");
+      }
     }
     if (navBtn) {
       if (id === tabId) {
@@ -335,6 +342,9 @@ function renderCommodityLookup() {
 
   const container = document.getElementById("commodityCardsGrid");
   const empty = document.getElementById("commodityEmptyState");
+  if (typeof calculateInteractiveMav === "function") {
+    calculateInteractiveMav();
+  }
   if (!container) return;
 
   if (filtered.length === 0) {
@@ -394,8 +404,100 @@ function renderCommodityLookup() {
 }
 
 function startInspectionForCommodity(commodityName) {
-  window.location.href = `inspector.html?view=ocr&commodity=${encodeURIComponent(commodityName || "")}`;
+  const user = (typeof getCurrentUser === "function") ? getCurrentUser() : null;
+  if (user && user.role === "officer") {
+    if (typeof showToast === "function") {
+      showToast(`Commodity standard selected: ${commodityName}. Legal framework reference loaded.`, "info");
+    }
+    if (typeof switchOfficerTab === "function") {
+      switchOfficerTab("legal");
+    }
+    return;
+  }
+  if (typeof switchInspectorTab === "function") {
+    switchInspectorTab("ocr");
+    const commInput = document.getElementById("ocrCommoditySelect");
+    if (commInput && commodityName) {
+      commInput.value = commodityName;
+    }
+  } else {
+    window.location.href = `inspector.html?view=ocr&commodity=${encodeURIComponent(commodityName || "")}`;
+  }
 }
+
+/**
+ * 3b. Interactive MAV Tolerance Calculator (First Schedule / Rule 24)
+ */
+function getLegalMavGrams(decl) {
+  if (decl <= 50) return decl * 0.09;
+  if (decl <= 100) return 4.5;
+  if (decl <= 200) return decl * 0.045;
+  if (decl <= 300) return 9;
+  if (decl <= 500) return decl * 0.03;
+  if (decl <= 1000) return 15;
+  if (decl <= 10000) return decl * 0.015;
+  if (decl <= 15000) return 150;
+  return decl * 0.01;
+}
+
+function calculateInteractiveMav() {
+  const declInput = document.getElementById("mavDeclaredQtyInput");
+  const actualInput = document.getElementById("mavActualWeightInput");
+  if (!declInput || !actualInput) return;
+
+  const declared = parseFloat(declInput.value) || 0;
+  const actual = parseFloat(actualInput.value) || 0;
+  if (declared <= 0) return;
+
+  const mavAllowed = getLegalMavGrams(declared);
+  const minLegal = declared - mavAllowed;
+  const maxLegal = declared + mavAllowed;
+  const diff = actual - declared;
+  const percentDiff = ((diff / declared) * 100).toFixed(1);
+
+  const minEl = document.getElementById("mavMinLegalLimit");
+  const maxEl = document.getElementById("mavMaxLegalLimit");
+  const rangeEl = document.getElementById("mavToleranceRangeText");
+  const devEl = document.getElementById("mavDeviationText");
+  const allowEl = document.getElementById("mavAllowanceText");
+  const badgeEl = document.getElementById("mavVerdictBadge");
+  const needleEl = document.getElementById("mavNeedle");
+
+  if (minEl) minEl.textContent = minLegal.toFixed(1);
+  if (maxEl) maxEl.textContent = maxLegal.toFixed(1);
+  if (rangeEl) rangeEl.textContent = `${minLegal.toFixed(1)}g - ${maxLegal.toFixed(1)}g`;
+  if (allowEl) allowEl.textContent = `±${((mavAllowed / declared) * 100).toFixed(1)}% (${mavAllowed.toFixed(1)}g)`;
+
+  const diffSign = diff > 0 ? `+${diff.toFixed(1)}g` : `${diff.toFixed(1)}g`;
+  const pctSign = diff > 0 ? `+${percentDiff}%` : `${percentDiff}%`;
+
+  if (devEl) {
+    devEl.textContent = `${pctSign} (${diffSign})`;
+  }
+
+  // Map needle position (50% is declared net quantity)
+  // Deviation mapped relative to tolerance span
+  const span = mavAllowed * 3;
+  let needlePos = 50 + (diff / span) * 50;
+  needlePos = Math.max(3, Math.min(97, needlePos));
+  if (needleEl) needleEl.style.left = `${needlePos.toFixed(1)}%`;
+
+  if (actual < minLegal) {
+    if (badgeEl) {
+      badgeEl.className = "px-3 py-2 rounded-xl bg-red-950/90 border border-red-500 text-red-300 font-extrabold text-xs text-center flex items-center justify-center gap-1.5 h-[38px] shadow-lg animate-pulse";
+      badgeEl.innerHTML = "<span>⚠️</span> <span>DEFICIT CONTRAVENTION (RULE 24)</span>";
+    }
+    if (devEl) devEl.className = "text-red-400 font-bold";
+  } else {
+    if (badgeEl) {
+      badgeEl.className = "px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 font-extrabold text-xs text-center flex items-center justify-center gap-1.5 h-[38px] shadow-md";
+      badgeEl.innerHTML = "<span>✅</span> <span>WITHIN PERMISSIBLE MAV</span>";
+    }
+    if (devEl) devEl.className = "text-emerald-400 font-bold";
+  }
+}
+window.calculateInteractiveMav = calculateInteractiveMav;
+window.getLegalMavGrams = getLegalMavGrams;
 
 /**
  * 4. My Reports: Renders completed inspections with instant jsPDF download.
@@ -747,8 +849,15 @@ function switchOfficerTab(tabId) {
     const viewEl = document.getElementById(`officerView-${id}`);
     const navBtn = document.getElementById(`officerNavBtn-${id}`);
     if (viewEl) {
-      if (id === tabId) viewEl.classList.remove("hidden");
-      else viewEl.classList.add("hidden");
+      if (id === tabId) {
+        viewEl.classList.remove("hidden");
+        viewEl.classList.remove("view-fade-in");
+        void viewEl.offsetWidth; // force reflow for smooth animation replay
+        viewEl.classList.add("view-fade-in");
+      } else {
+        viewEl.classList.add("hidden");
+        viewEl.classList.remove("view-fade-in");
+      }
     }
     if (navBtn) {
       if (id === tabId) {
@@ -876,6 +985,48 @@ function openCase(id) {
   loadCaseDetails(id);
   switchOfficerTab("review");
 }
+
+/**
+ * Traverses forward or backward through cases in the officer review workspace.
+ */
+function navigateCase(direction) {
+  const all = getInspections();
+  if (!all || !all.length) {
+    if (typeof showToast === "function") showToast("No cases available in docket.", "warning");
+    return;
+  }
+  const currentIndex = all.findIndex(i => i.id === currentReviewId);
+  let newIndex = 0;
+  if (currentIndex !== -1) {
+    if (direction === "prev") {
+      newIndex = (currentIndex - 1 + all.length) % all.length;
+    } else {
+      newIndex = (currentIndex + 1) % all.length;
+    }
+  }
+  const target = all[newIndex];
+  if (target) {
+    loadCaseDetails(target.id);
+    if (typeof showToast === "function") {
+      showToast(`Reviewing Case ${target.id} (${newIndex + 1} of ${all.length})`, "info");
+    }
+  }
+}
+window.navigateCase = navigateCase;
+
+/**
+ * 1-Click demo inspection loader for empty states.
+ */
+function seedAndReloadDocket() {
+  if (typeof seedDemoData === "function") {
+    seedDemoData(true);
+  }
+  loadReviewDocket();
+  if (typeof showToast === "function") {
+    showToast("Realistic Legal Metrology demo cases loaded successfully!", "success");
+  }
+}
+window.seedAndReloadDocket = seedAndReloadDocket;
 
 /* ==========================================================================
    CASE EVIDENCE 3-PANE WORKSPACE (Integrated inside officer.html)

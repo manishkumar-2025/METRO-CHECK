@@ -13,10 +13,14 @@
 </head>
 <body class="bg-[#1a1f36] min-h-screen flex flex-col justify-between text-slate-800 antialiased p-0">
 
+  <!-- GIGW Mandatory Accessibility Skip Link -->
+  <a href="#mainContent" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-amber-500 focus:text-slate-950 focus:rounded-xl focus:shadow-2xl focus:font-black focus:outline-none focus:ring-2 focus:ring-amber-300 text-xs">
+    Skip to Main Content / मुख्य सामग्री पर जाएं
+  </a>
+
   <!-- =========================================================================
        1. OFFICIAL NATIONAL MASTHEAD & TRICOLOR HEADER BAR
        Government of India • Ministry of Consumer Affairs, Food & Public Distribution
-       Department of Consumer Affairs (Legal Metrology Division)
        Portal: e-LMCEP / METRO-CHECK
        ========================================================================= -->
   <div class="tricolor-strip"></div>
@@ -123,150 +127,222 @@
 
   <!-- Main Container: Centered Login Card + Demo Credentials -->
   <div class="flex-1 flex flex-col justify-between p-4 sm:p-6 w-full">
-  <main class="w-full max-w-4xl mx-auto flex flex-col items-center my-auto py-6">
+  <main id="mainContent" class="w-full max-w-4xl mx-auto flex flex-col items-center my-auto py-6">
 
-    <!-- Primary Login Card -->
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 border border-slate-100 card-hover-effect">
+    <!-- Primary Login Card (Executive Frosted Glass) -->
+    <div class="w-full max-w-md bg-[#161c2e]/90 backdrop-blur-xl rounded-3xl shadow-2xl p-7 sm:p-8 border border-slate-700/70 card-hover-effect text-slate-100">
       
       <!-- Brand & Identity Section -->
       <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 mb-3 border border-amber-500/20 shadow-inner">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500/20 to-amber-400/10 text-amber-400 mb-3 border border-amber-500/30 shadow-lg shadow-amber-500/10">
           <span class="text-2xl">⚖️</span>
         </div>
-        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">e-LMCEP</h1>
-        <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider mt-1">Legal Metrology Compliance Verification System (METRO-CHECK)</p>
-        <p class="text-xs text-slate-500 mt-2 font-medium">Scan • Understand • Validate • Report</p>
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">e-LMCEP</h1>
+        <p class="text-xs font-bold text-amber-400 uppercase tracking-widest mt-1">Legal Metrology Compliance & Enforcement</p>
+        <div class="flex items-center justify-center gap-2 mt-2 text-[11px] text-slate-400 font-medium">
+          <span>Scan</span>
+          <span class="text-amber-500/60">•</span>
+          <span>Validate</span>
+          <span class="text-amber-500/60">•</span>
+          <span>Enforce</span>
+          <span class="text-amber-500/60">•</span>
+          <span>Report</span>
+        </div>
       </div>
 
       <!-- Authentication Form -->
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
         
         <!-- Error Message Alert (Hidden by default, shown on invalid login) -->
-        <div id="errorMessage" class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 font-semibold text-center">
+        <div id="errorMessage" class="hidden p-3 rounded-xl bg-red-950/60 border border-red-500/60 text-xs text-red-200 font-semibold text-center shadow-inner">
         </div>
 
         <!-- Username Input Field -->
         <div>
-          <label for="usernameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-            Username
+          <label for="usernameInput" class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+            <span>Username</span>
+            <span class="text-[10px] text-slate-500 font-normal">Officer / Inspector ID</span>
           </label>
           <div class="relative">
+            <span class="absolute left-3.5 top-3 text-slate-400 text-sm">👤</span>
             <input 
               type="text" 
               id="usernameInput" 
-              placeholder="e.g. inspector" 
+              placeholder="e.g. inspector or admin" 
               required
-              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-150"
+              class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-[#0d121f]/90 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 transition duration-150"
             >
           </div>
         </div>
 
         <!-- Password Input Field -->
         <div>
-          <label for="passwordInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-            Password
+          <label for="passwordInput" class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+            <span>Password</span>
+            <span class="text-[10px] text-slate-500 font-normal">Confidential</span>
           </label>
           <div class="relative">
+            <span class="absolute left-3.5 top-3 text-slate-400 text-sm">🔒</span>
             <input 
               type="password" 
               id="passwordInput" 
               placeholder="••••••••" 
               required
-              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-150"
+              class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-[#0d121f]/90 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 transition duration-150"
             >
           </div>
+        </div>
+
+        <!-- Security CAPTCHA Verification (Government Portal Mandatory Standard) -->
+        <div class="space-y-1.5 pt-1">
+          <div class="flex items-center justify-between text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+            <span class="flex items-center gap-1.5">
+              <span>🛡️</span> <span>Security Code / कैप्चा</span>
+            </span>
+            <span class="text-[10px] text-amber-400 font-semibold">Mandatory</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Canvas CAPTCHA Image Container -->
+            <div class="relative bg-[#090d18] rounded-xl border border-slate-700 p-1 flex items-center justify-center overflow-hidden shadow-inner flex-shrink-0" style="width: 145px; height: 44px;">
+              <canvas id="loginCaptchaCanvas" width="140" height="40" class="rounded select-none" aria-label="Security Verification CAPTCHA"></canvas>
+            </div>
+
+            <!-- Action Controls: Refresh & Audio Voice -->
+            <div class="flex items-center gap-1">
+              <button 
+                type="button" 
+                onclick="refreshCaptcha('loginCaptchaCanvas', 'loginCaptchaInput', 'loginCaptchaError')" 
+                title="Refresh CAPTCHA (नया कोड प्राप्त करें)" 
+                class="p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              </button>
+              <button 
+                type="button" 
+                onclick="speakCaptcha('loginCaptchaCanvas')" 
+                title="Audio Challenge (ध्वनि से सुनें)" 
+                class="p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+              </button>
+            </div>
+
+            <!-- CAPTCHA Input -->
+            <div class="flex-1 min-w-0">
+              <input 
+                type="text" 
+                id="loginCaptchaInput" 
+                maxlength="6" 
+                autocomplete="off" 
+                placeholder="Enter Code" 
+                required 
+                class="w-full px-3 py-2.5 rounded-xl bg-[#0d121f]/90 border border-slate-700 text-sm font-mono tracking-widest uppercase text-amber-300 placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 transition duration-150 text-center font-bold"
+              >
+            </div>
+          </div>
+          <p id="loginCaptchaError" class="hidden text-[11px] text-red-400 font-medium pl-1"></p>
         </div>
 
         <!-- Submit Button -->
         <button 
           type="submit" 
           id="loginSubmitButton"
-          class="w-full py-3 px-4 bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition duration-200 flex items-center justify-center gap-2 btn-hover-effect"
+          class="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm rounded-xl shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition duration-200 flex items-center justify-center gap-2 btn-hover-effect mt-2"
         >
-          <span>Access Inspection Portal</span>
+          <span>Access Enforcement Portal</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
           </svg>
         </button>
       </form>
 
       <!-- Security Notice Footer -->
-      <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-center gap-2 text-slate-400 text-xs text-center">
-        <span>🔒</span>
-        <span>Secure Local Session • Authorized Personnel Only</span>
+      <div class="mt-5 pt-4 border-t border-slate-800 flex items-center justify-center gap-2 text-slate-400 text-[11px] text-center">
+        <span>🛡️</span>
+        <span>Secure Session • Encrypted Local Role-Based Access Control</span>
       </div>
     </div>
 
-    <!-- Demo Role Credential Cards (1-Click Login Fast Testing) -->
-    <div class="w-full max-w-4xl mt-8">
-      <div class="text-center mb-4">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700">
-          Demo Testing Credentials (1-Click Login)
+    <!-- Demo Role Credential Cards (Role-Specific Visual Distinction) -->
+    <div class="w-full max-w-4xl mt-7">
+      <div class="text-center mb-3.5">
+        <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-300 bg-slate-800/90 px-3.5 py-1.5 rounded-full border border-slate-700 shadow-sm">
+          ⚡ 1-Click Role Testing (Hackathon Fast Access)
         </span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
         
-        <!-- Card 1: Administrator -->
-        <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700/80 flex flex-col justify-between card-hover-effect">
+        <!-- Card 1: Administrator (Royal Indigo) -->
+        <div class="bg-gradient-to-b from-[#181a33] to-[#121324] rounded-2xl p-4 border border-indigo-500/30 flex flex-col justify-between card-hover-effect shadow-lg hover:border-indigo-400/60">
           <div>
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-xl">🛡️</span>
-              <h2 class="text-white font-bold text-sm">Administrator</h2>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🛡️</span>
+                <h2 class="text-white font-black text-sm">Administrator</h2>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[9px] font-black bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">CHIEF ADMIN</span>
             </div>
-            <div class="text-xs text-slate-300 space-y-1 font-mono bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/50">
-              <div><span class="text-slate-400">User:</span> <strong class="text-amber-400">admin</strong></div>
-              <div><span class="text-slate-400">Pass:</span> <strong class="text-slate-200">admin123</strong></div>
+            <div class="text-xs text-slate-300 space-y-1 font-mono bg-black/40 p-2.5 rounded-xl border border-indigo-500/20">
+              <div class="flex justify-between"><span class="text-slate-400">User:</span> <strong class="text-indigo-300">admin</strong></div>
+              <div class="flex justify-between"><span class="text-slate-400">Pass:</span> <strong class="text-slate-300">admin123</strong></div>
             </div>
           </div>
           <button 
             type="button"
             onclick="quickLogin('admin', 'admin123')" 
-            class="mt-3 w-full py-2 px-3 bg-slate-700 hover:bg-amber-500 text-slate-200 hover:text-slate-900 text-xs font-semibold rounded-lg transition duration-150 btn-hover-effect flex items-center justify-center gap-1.5"
+            class="mt-3 w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition shadow-md shadow-indigo-600/30 flex items-center justify-center gap-1.5 btn-hover-effect"
           >
-            <span>⚡ 1-Click Login (Admin)</span>
+            <span>⚡ Launch as Administrator</span>
           </button>
         </div>
 
-        <!-- Card 2: Field Inspector -->
-        <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700/80 flex flex-col justify-between card-hover-effect">
+        <!-- Card 2: Field Inspector (Vibrant Emerald) -->
+        <div class="bg-gradient-to-b from-[#122324] to-[#0c1819] rounded-2xl p-4 border border-emerald-500/30 flex flex-col justify-between card-hover-effect shadow-lg hover:border-emerald-400/60">
           <div>
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-xl">📸</span>
-              <h2 class="text-white font-bold text-sm">Field Inspector</h2>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">📸</span>
+                <h2 class="text-white font-black text-sm">Field Inspector</h2>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">MOBILE UNIT</span>
             </div>
-            <div class="text-xs text-slate-300 space-y-1 font-mono bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/50">
-              <div><span class="text-slate-400">User:</span> <strong class="text-amber-400">inspector</strong></div>
-              <div><span class="text-slate-400">Pass:</span> <strong class="text-slate-200">inspect123</strong></div>
+            <div class="text-xs text-slate-300 space-y-1 font-mono bg-black/40 p-2.5 rounded-xl border border-emerald-500/20">
+              <div class="flex justify-between"><span class="text-slate-400">User:</span> <strong class="text-emerald-300">inspector</strong></div>
+              <div class="flex justify-between"><span class="text-slate-400">Pass:</span> <strong class="text-slate-300">inspect123</strong></div>
             </div>
           </div>
           <button 
             type="button"
             onclick="quickLogin('inspector', 'inspect123')" 
-            class="mt-3 w-full py-2 px-3 bg-slate-700 hover:bg-amber-500 text-slate-200 hover:text-slate-900 text-xs font-semibold rounded-lg transition duration-150 btn-hover-effect flex items-center justify-center gap-1.5"
+            class="mt-3 w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition shadow-md shadow-emerald-600/30 flex items-center justify-center gap-1.5 btn-hover-effect"
           >
-            <span>⚡ 1-Click Login (Inspector)</span>
+            <span>⚡ Launch as Field Inspector</span>
           </button>
         </div>
 
-        <!-- Card 3: Metrology Officer -->
-        <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700/80 flex flex-col justify-between card-hover-effect">
+        <!-- Card 3: Metrology Officer (Judicial Warm Amber) -->
+        <div class="bg-gradient-to-b from-[#241d13] to-[#17120a] rounded-2xl p-4 border border-amber-500/30 flex flex-col justify-between card-hover-effect shadow-lg hover:border-amber-400/60">
           <div>
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-xl">⚖️</span>
-              <h2 class="text-white font-bold text-sm">Metrology Officer</h2>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">⚖️</span>
+                <h2 class="text-white font-black text-sm">Metrology Officer</h2>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[9px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">JUDICIAL</span>
             </div>
-            <div class="text-xs text-slate-300 space-y-1 font-mono bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/50">
-              <div><span class="text-slate-400">User:</span> <strong class="text-amber-400">officer</strong></div>
-              <div><span class="text-slate-400">Pass:</span> <strong class="text-slate-200">officer123</strong></div>
+            <div class="text-xs text-slate-300 space-y-1 font-mono bg-black/40 p-2.5 rounded-xl border border-amber-500/20">
+              <div class="flex justify-between"><span class="text-slate-400">User:</span> <strong class="text-amber-300">officer</strong></div>
+              <div class="flex justify-between"><span class="text-slate-400">Pass:</span> <strong class="text-slate-300">officer123</strong></div>
             </div>
           </div>
           <button 
             type="button"
             onclick="quickLogin('officer', 'officer123')" 
-            class="mt-3 w-full py-2 px-3 bg-slate-700 hover:bg-amber-500 text-slate-200 hover:text-slate-900 text-xs font-semibold rounded-lg transition duration-150 btn-hover-effect flex items-center justify-center gap-1.5"
+            class="mt-3 w-full py-2 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black rounded-xl transition shadow-md shadow-amber-500/30 flex items-center justify-center gap-1.5 btn-hover-effect"
           >
-            <span>⚡ 1-Click Login (Officer)</span>
+            <span>⚡ Launch as Metrology Officer</span>
           </button>
         </div>
 
@@ -277,9 +353,121 @@
 
   <!-- Footer Information -->
   <footer class="w-full max-w-4xl mx-auto py-3 text-center text-xs text-slate-400 border-t border-slate-800/80">
-    <p>© 2026 e-LMCEP (METRO-CHECK) | Department of Consumer Affairs, Govt. of India</p>
-    <p class="text-[11px] text-slate-500 mt-0.5">Ministry of Consumer Affairs, Food & Public Distribution • Smart India Hackathon</p>
+    <p>© 2026 e-LMCEP (METRO-CHECK) | Ministry of Consumer Affairs, Food & Public Distribution, Govt. of India</p>
+    <p class="text-[11px] text-slate-500 mt-0.5 flex flex-wrap items-center justify-center gap-x-2">
+      <span>Legal Metrology Compliance & Enforcement Portal • Smart India Hackathon</span>
+      <span class="text-slate-600">•</span>
+      <button type="button" onclick="openContactModal()" class="text-amber-400 hover:text-amber-300 underline font-semibold transition">
+        📞 Contact National Helpdesk / Grievance Redressal
+      </button>
+    </p>
   </footer>
+  </div>
+
+  <!-- Contact Support & Public Grievance Modal (With Mandatory Security CAPTCHA) -->
+  <div id="contactSupportModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#161c2e] border border-slate-700/80 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[95vh] overflow-y-auto text-slate-100">
+      
+      <div class="flex items-center justify-between border-b border-slate-700/80 pb-3.5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl border border-amber-500/30">
+            📞
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-white">National Metrology Helpdesk</h3>
+            <p class="text-[11px] text-slate-400">Department of Consumer Affairs • Citizen & Field Officer Grievance Redressal</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeContactModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition" title="Close Modal">✕</button>
+      </div>
+
+      <form id="contactForm" onsubmit="handleContactSubmit(event)" class="space-y-3.5 text-xs">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="contactNameInput" class="block text-[11px] font-bold text-slate-300 mb-1">Your Full Name <span class="text-red-400">*</span></label>
+            <input type="text" id="contactNameInput" required placeholder="e.g. Officer R. Sharma" class="w-full px-3 py-2 rounded-xl bg-[#0d121f] border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400">
+          </div>
+          <div>
+            <label for="contactEmailInput" class="block text-[11px] font-bold text-slate-300 mb-1">Official Email / Mobile <span class="text-red-400">*</span></label>
+            <input type="text" id="contactEmailInput" required placeholder="name@nic.in or phone" class="w-full px-3 py-2 rounded-xl bg-[#0d121f] border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400">
+          </div>
+        </div>
+
+        <div>
+          <label for="contactCategorySelect" class="block text-[11px] font-bold text-slate-300 mb-1">Inquiry / Grievance Category <span class="text-red-400">*</span></label>
+          <select id="contactCategorySelect" required class="w-full px-3 py-2 rounded-xl bg-[#0d121f] border border-slate-700 text-slate-100 focus:outline-none focus:border-amber-400">
+            <option value="Packaged Commodity Violation Report">Report Packaged Commodity Violation (Rule 6/MAV)</option>
+            <option value="AI Scanner & Mobile OCR Technical Support">AI Vision & OCR Scanner Technical Support</option>
+            <option value="Officer Review Docket & PDF Notice Query">Officer Review Docket & Statutory Notice Question</option>
+            <option value="User Credential & System Access Issue">System Access & User Credential Support</option>
+            <option value="General Legal Metrology Inquiries">General Legal Metrology Act & Rules Inquiry</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="contactMessageInput" class="block text-[11px] font-bold text-slate-300 mb-1">Grievance Description / Details <span class="text-red-400">*</span></label>
+          <textarea id="contactMessageInput" rows="3" required placeholder="Describe the issue, commodity batch, or technical inquiry..." class="w-full p-3 rounded-xl bg-[#0d121f] border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400 resize-none"></textarea>
+        </div>
+
+        <!-- Mandatory Security CAPTCHA -->
+        <div class="p-3 rounded-2xl bg-[#090d18] border border-slate-700/90 space-y-2">
+          <div class="flex items-center justify-between text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+            <span class="flex items-center gap-1.5">
+              <span>🛡️</span> <span>Mandatory Security Verification</span>
+            </span>
+            <span class="text-[10px] text-amber-400 font-semibold">Anti-Spam Code</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="relative bg-[#050811] rounded-xl border border-slate-700 p-1 flex items-center justify-center overflow-hidden shadow-inner flex-shrink-0" style="width: 145px; height: 42px;">
+              <canvas id="contactCaptchaCanvas" width="140" height="38" class="rounded select-none" aria-label="Contact Verification CAPTCHA"></canvas>
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button 
+                type="button" 
+                onclick="refreshCaptcha('contactCaptchaCanvas', 'contactCaptchaInput', 'contactCaptchaError')" 
+                title="Refresh CAPTCHA" 
+                class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              </button>
+              <button 
+                type="button" 
+                onclick="speakCaptcha('contactCaptchaCanvas')" 
+                title="Audio Challenge (Listen)" 
+                class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+              </button>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <input 
+                type="text" 
+                id="contactCaptchaInput" 
+                maxlength="6" 
+                autocomplete="off" 
+                placeholder="Enter Code" 
+                required 
+                class="w-full px-3 py-2 rounded-xl bg-[#0d121f] border border-slate-700 text-sm font-mono tracking-widest uppercase text-amber-300 placeholder-slate-500 focus:outline-none focus:border-amber-400 text-center font-bold"
+              >
+            </div>
+          </div>
+          <p id="contactCaptchaError" class="hidden text-[11px] text-red-400 font-medium pl-1"></p>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-700">
+          <button type="button" onclick="closeContactModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl shadow-lg transition flex items-center gap-1.5 btn-hover-effect">
+            <span>✉️ Submit Grievance Ticket</span>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- 3. Scripts -->

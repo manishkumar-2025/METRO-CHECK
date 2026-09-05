@@ -38,9 +38,10 @@ function initReportView() {
   if (inspLoc) inspLoc.textContent = record.location || "Regional Depot / Market";
 
   // 2. Product Information
-  const extracted = record.extractedData || {};
-  document.getElementById("reportProductName").textContent = record.product || extracted.commodity_name || "Packaged Product";
-  document.getElementById("reportProductCategory").textContent = "Packaged Commodity (Food / FMCG)";
+  const prodNameEl = document.getElementById("reportProductName");
+  if (prodNameEl) prodNameEl.textContent = record.product || extracted.commodity_name || "Packaged Product";
+  const prodCatEl = document.getElementById("reportProductCategory");
+  if (prodCatEl) prodCatEl.textContent = "Packaged Commodity (Food / FMCG)";
   const thumbImg = document.getElementById("reportProductThumbnail");
   const thumbFallback = document.getElementById("reportProductThumbnailFallback");
   if (thumbImg) {
@@ -82,15 +83,25 @@ function initReportView() {
     }).join("");
   }
 
-  // 4. Compliance Status Stamp
+  // 4. Official Digital Verification Seal
   const stampEl = document.getElementById("reportComplianceStamp");
   if (stampEl) {
     if (record.isCompliant) {
-      stampEl.className = "inline-block px-5 py-2 border-4 border-emerald-600 text-emerald-700 font-black text-lg tracking-widest uppercase rounded-lg transform -rotate-2";
-      stampEl.textContent = "COMPLIANT";
+      stampEl.className = "official-gov-seal seal-compliant p-3 w-32 h-32";
+      stampEl.innerHTML = `
+        <div class="text-[8px] font-black tracking-widest text-emerald-800 border-b border-emerald-500/40 pb-0.5">GOVT. OF INDIA</div>
+        <div class="text-2xl my-0.5">⚖️</div>
+        <div class="text-xs font-black tracking-wider text-emerald-700">COMPLIANT</div>
+        <div class="text-[7.5px] font-bold text-emerald-600 mt-0.5">ACT 2009 / PCR 2011</div>
+      `;
     } else {
-      stampEl.className = "inline-block px-5 py-2 border-4 border-red-600 text-red-700 font-black text-lg tracking-widest uppercase rounded-lg transform -rotate-2";
-      stampEl.textContent = "NON-COMPLIANT";
+      stampEl.className = "official-gov-seal seal-violation p-3 w-32 h-32";
+      stampEl.innerHTML = `
+        <div class="text-[8px] font-black tracking-widest text-red-900 border-b border-red-500/40 pb-0.5">GOVT. OF INDIA</div>
+        <div class="text-2xl my-0.5">⚠️</div>
+        <div class="text-xs font-black tracking-wider text-red-700">VIOLATION</div>
+        <div class="text-[7.5px] font-bold text-red-600 mt-0.5">SECTION 36 NOTICE</div>
+      `;
     }
   }
 

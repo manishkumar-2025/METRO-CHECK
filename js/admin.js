@@ -45,8 +45,15 @@ function switchAdminTab(tabId) {
     const viewEl = document.getElementById(`adminView-${id}`);
     const navBtn = document.getElementById(`adminNavBtn-${id}`);
     if (viewEl) {
-      if (id === tabId) viewEl.classList.remove("hidden");
-      else viewEl.classList.add("hidden");
+      if (id === tabId) {
+        viewEl.classList.remove("hidden");
+        viewEl.classList.remove("view-fade-in");
+        void viewEl.offsetWidth; // force reflow for smooth animation replay
+        viewEl.classList.add("view-fade-in");
+      } else {
+        viewEl.classList.add("hidden");
+        viewEl.classList.remove("view-fade-in");
+      }
     }
     if (navBtn) {
       if (id === tabId) {
@@ -260,8 +267,8 @@ function renderAdminCommodities() {
       <td class="px-4 py-3 text-slate-600 max-w-xs truncate">${c.standardPacks}</td>
       <td class="px-4 py-3 text-slate-500 font-mono text-[11px]">${c.ruleReference}</td>
       <td class="px-4 py-3 text-right space-x-1 whitespace-nowrap">
-        <button onclick="scanCommodityWithStandard('${c.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-[11px] font-bold transition shadow-sm inline-flex items-center gap-1">
-          <span>⚡</span> <span>Scan With Rule</span>
+        <button onclick="inspectCommodityStandard('${c.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-[11px] font-bold transition shadow-sm inline-flex items-center gap-1">
+          <span>📋</span> <span>View Spec</span>
         </button>
         <button onclick="editCommodity('${c.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold transition">Edit</button>
         <button onclick="deleteCommodityAction('${c.id}')" class="px-2.5 py-1 bg-red-50 hover:bg-red-600 hover:text-white text-red-600 rounded text-[11px] font-bold transition">Delete</button>
@@ -270,12 +277,12 @@ function renderAdminCommodities() {
   `).join("");
 }
 
+function inspectCommodityStandard(commodityId) {
+  openCommodityModal(commodityId);
+}
+
 function scanCommodityWithStandard(commodityId) {
-  const commodities = getCommodities();
-  const target = commodities.find(c => c.id === commodityId);
-  if (!target) return;
-  const url = `inspector.html?view=ocr&commodity=${encodeURIComponent(target.name)}&category=${encodeURIComponent(target.category || target.name)}&tolerance=${encodeURIComponent(target.tolerance || "")}&sizes=${encodeURIComponent(target.standardPacks || "")}`;
-  window.location.href = url;
+  inspectCommodityStandard(commodityId);
 }
 
 function openCommodityModal(editingId = null) {

@@ -346,5 +346,170 @@ body.gov-high-contrast button {
   border-color: #ffff00 !important;
 }
 
+/* ==========================================================================
+   15. View Transitions & Modern UI Micro-Animations
+   ========================================================================== */
+.view-fade-in {
+  animation: viewFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Frosted Glass Utilities */
+.glass-panel-dark {
+  background: rgba(22, 28, 46, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(51, 65, 85, 0.7);
+}
+
+/* ==========================================================================
+   16. Official Digital Verification Seal & MAV Tolerance Gauge
+   ========================================================================== */
+.official-gov-seal {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  position: relative;
+  text-transform: uppercase;
+  font-family: 'Inter', -apple-system, sans-serif;
+  letter-spacing: 0.05em;
+  user-select: none;
+  animation: stampSlam 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes stampSlam {
+  0% {
+    transform: scale(1.4) rotate(10deg);
+    opacity: 0;
+  }
+  75% {
+    transform: scale(0.96) rotate(-4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(-3deg);
+    opacity: 1;
+  }
+}
+
+.seal-compliant {
+  border: 4px double #059669;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.06);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2), inset 0 0 12px rgba(5, 150, 105, 0.1);
+}
+
+.seal-violation {
+  border: 4px double #dc2626;
+  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.06);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2), inset 0 0 12px rgba(220, 38, 38, 0.1);
+}
+
+/* MAV Gauge Needle & Track */
+.mav-gauge-track {
+  height: 14px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, 
+    #ef4444 0%, 
+    #f87171 25%, 
+    #fbbf24 38%, 
+    #10b981 44%, 
+    #10b981 56%, 
+    #34d399 70%, 
+    #38bdf8 100%
+  );
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.mav-needle-indicator {
+  position: absolute;
+  top: -6px;
+  width: 14px;
+  height: 26px;
+  background: #0f172a;
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ==========================================================================
+   17. Modern Dark-Mode User Menu & Popover Component
+   ========================================================================== */
+.user-menu-pill {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.user-menu-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.user-menu-pill:active {
+  transform: translateY(0);
+}
+
+.user-menu-avatar-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+
+.user-menu-popover {
+  background-color: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  animation: userPopoverSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top right;
+}
+
+@keyframes userPopoverSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.user-menu-chevron.is-active {
+  transform: rotate(180deg);
+}
+
+/* High contrast support for user menu */
+body.gov-high-contrast .user-menu-pill {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+
+body.gov-high-contrast .user-menu-popover {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffffff !important;
+}
+
+body.gov-high-contrast .user-menu-popover * {
+  color: #ffff00 !important;
+  border-color: #ffff00 !important;
+}
 
