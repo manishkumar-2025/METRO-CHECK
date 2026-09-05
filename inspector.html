@@ -16,13 +16,124 @@
   <!-- jsPDF Library for In-Browser PDF Compliance Report Generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-<body class="bg-slate-100 min-h-screen flex text-slate-800 antialiased" onload="initInspectorApp()">
+<body class="bg-slate-100 min-h-screen flex flex-col text-slate-800 antialiased" onload="initInspectorApp()">
+
+  <!-- =========================================================================
+       1. OFFICIAL NATIONAL MASTHEAD & TRICOLOR HEADER BAR
+       Government of India • Ministry of Consumer Affairs, Food & Public Distribution
+       Department of Consumer Affairs (Legal Metrology Division)
+       Portal: e-LMCEP / METRO-CHECK
+       ========================================================================= -->
+  <div class="tricolor-strip"></div>
+
+  <header id="nationalGovMasthead" class="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 z-30 flex-shrink-0 select-none text-slate-800">
+    <div class="w-full px-3 sm:px-6 py-2 flex items-center justify-between gap-3">
+      
+      <!-- Left: Sovereign Emblem & Bilingual Hierarchy -->
+      <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+        <!-- High-Precision Gold Metallic Lion Capital of Ashoka -->
+        <div class="flex-shrink-0 w-8 h-10 sm:w-9 sm:h-11 flex items-center justify-center">
+          <svg viewBox="0 0 100 125" class="w-full h-full drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="State Emblem of India">
+            <defs>
+              <linearGradient id="emblemGoldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#b45309"/>
+                <stop offset="50%" stop-color="#d97706"/>
+                <stop offset="100%" stop-color="#92400e"/>
+              </linearGradient>
+            </defs>
+            <g fill="url(#emblemGoldLight)">
+              <!-- Lions Silhouette -->
+              <path d="M50 7 C43 7 38 12 38 20 C38 25 40 29 43 33 C41 37 40 42 41 47 C41 53 43 56 46 59 C47 57 48 54 50 54 C52 54 53 57 54 59 C57 56 59 53 59 47 C60 42 59 37 57 33 C60 29 62 25 62 20 C62 12 57 7 50 7 Z"/>
+              <path d="M38 17 C32 16 27 20 26 26 C25 31 27 36 30 39 C29 43 29 48 31 53 C33 57 36 60 40 62 C38 58 38 54 38 50 C36 47 35 43 36 39 C33 37 32 33 33 29 C34 25 37 21 40 20 Z"/>
+              <path d="M62 17 C68 16 73 20 74 26 C75 31 73 36 70 39 C71 43 71 48 69 53 C67 57 64 60 60 62 C62 58 62 54 62 50 C64 47 65 43 64 39 C67 37 68 33 67 29 C66 25 63 21 60 20 Z"/>
+              <!-- Abacus Rim & Frieze -->
+              <rect x="22" y="65" width="56" height="3.5" rx="1.5"/>
+              <rect x="24" y="69.5" width="52" height="13"/>
+              <!-- Chakra & Wheel -->
+              <circle cx="50" cy="76" r="5.5" fill="#f8fafc" stroke="url(#emblemGoldLight)" stroke-width="0.9"/>
+              <circle cx="50" cy="76" r="1.5" fill="url(#emblemGoldLight)"/>
+              <!-- Horse & Bull Silhouettes -->
+              <path d="M30 78 Q32 73 36 74 Q37 77 36 79 L34 81 Z" fill="#f8fafc"/>
+              <path d="M64 78 Q66 73 70 74 Q71 77 70 79 L68 81 Z" fill="#f8fafc"/>
+              <!-- Base Lotus & Pedestal -->
+              <rect x="20" y="83.5" width="60" height="3.5" rx="1.5"/>
+              <path d="M26 88 C26 88 34 100 50 100 C66 100 74 88 74 88 Z"/>
+              <rect x="18" y="101" width="64" height="3.5" rx="1.5"/>
+              <!-- Satyameva Jayate Motto -->
+              <text x="50" y="115" text-anchor="middle" font-family="'Inter', sans-serif" font-size="8.5" font-weight="900" fill="url(#emblemGoldLight)" letter-spacing="1">सत्यमेव जयते</text>
+              <text x="50" y="123" text-anchor="middle" font-family="'Inter', sans-serif" font-size="5.5" font-weight="700" fill="#64748b" letter-spacing="0.5">SATYAMEVA JAYATE</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Hierarchy & Official Portal Indicator -->
+        <div class="flex flex-col justify-center min-w-0">
+          <div class="text-[12px] sm:text-[13.5px] font-black leading-tight tracking-tight text-slate-900">
+            उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय
+          </div>
+          <div class="text-[10px] sm:text-[11.5px] font-semibold leading-tight mt-0.5 text-slate-600 flex flex-wrap items-center gap-x-1.5">
+            <span>Ministry of Consumer Affairs, Food & Public Distribution</span>
+            <span class="px-1.5 py-0.2 rounded text-[8.5px] font-black bg-amber-500/15 text-amber-700 border border-amber-500/30 font-mono ml-1">e-LMCEP</span>
+            <span class="text-slate-400 font-normal hidden lg:inline">(e-Legal Metrology Compliance & Enforcement Portal / METRO-CHECK)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Modern Floating Glass Pill Dock -->
+      <div class="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
+        
+        <!-- Live IST Clock Ticker -->
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[10px] sm:text-[11px] font-bold shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="masthead-ist-clock tracking-tight">-- --- ---- | --:--:-- IST</span>
+        </div>
+
+        <!-- Accessibility Pill Dock -->
+        <div class="masthead-pill-dock">
+          <!-- Font Sizer -->
+          <div class="flex items-center text-[10px] font-black rounded-full overflow-hidden p-0.5">
+            <button type="button" onclick="govChangeFontSize('decrease')" id="fontSizer-decrease" title="Decrease Font (A-)" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 transition opacity-60">A-</button>
+            <button type="button" onclick="govChangeFontSize('normal')" id="fontSizer-normal" title="Normal Font (A)" class="px-1.5 py-0.5 rounded-full bg-amber-500 text-white shadow-xs transition">A</button>
+            <button type="button" onclick="govChangeFontSize('increase')" id="fontSizer-increase" title="Increase Font (A+)" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 transition opacity-60">A+</button>
+          </div>
+
+          <div class="w-[1px] h-3 bg-slate-300/80"></div>
+
+          <!-- High-Contrast Toggle -->
+          <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn" title="Toggle High-Contrast Mode" class="p-1 rounded-full hover:bg-slate-200/70 text-xs transition">
+            🌓
+          </button>
+
+          <div class="w-[1px] h-3 bg-slate-300/80"></div>
+
+          <!-- Language Toggle -->
+          <div class="flex items-center text-[9.5px] font-bold rounded-full overflow-hidden p-0.5">
+            <button type="button" onclick="govSetLanguage('en')" id="govLangEn" class="px-1.5 py-0.5 rounded-full bg-amber-500 text-white transition shadow-xs">EN</button>
+            <button type="button" onclick="govSetLanguage('hi')" id="govLangHi" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 transition opacity-60">हि</button>
+          </div>
+        </div>
+
+        <!-- Digital India & NIC Badge -->
+        <div class="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50/80 border border-blue-200 text-[9.5px] font-extrabold text-[#003366] shadow-xs">
+          <span>🇮🇳</span>
+          <span class="tracking-tight">Digital India</span>
+          <span class="opacity-30">•</span>
+          <span class="text-slate-500">NIC Initiative</span>
+        </div>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Workspace Container: Sidebar + Main Content Viewport -->
+  <div class="flex-1 flex min-h-0 relative">
 
   <!-- Mobile Drawer Backdrop -->
   <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden transition-opacity"></div>
 
   <!-- Left Navigation Sidebar (Responsive Drawer on Mobile, 280px Fixed on Desktop) -->
-  <aside class="fixed inset-y-0 left-0 z-40 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-200 ease-in-out w-[280px] bg-[#1a1f36] text-slate-300 flex flex-col justify-between flex-shrink-0 min-h-screen p-5 shadow-2xl md:shadow-none">
+  <aside class="fixed inset-y-0 left-0 z-40 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-200 ease-in-out w-[280px] bg-[#1a1f36] text-slate-300 flex flex-col justify-between flex-shrink-0 min-h-full p-5 shadow-2xl md:shadow-none">
     <div>
       <!-- Brand Identity Header -->
       <div class="flex items-center justify-between pb-5 border-b border-slate-700/60">
@@ -1066,11 +1177,12 @@
 
       <!-- Shared Footer Information -->
       <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 mt-6">
-        <p>© 2025 METRO-CHECK | Department of Consumer Affairs, Govt. of India</p>
-        <p class="text-[11px] text-slate-400 mt-0.5">Built for Smart India Hackathon 2025 • Field Inspector Mode</p>
+        <p>© 2026 e-LMCEP (METRO-CHECK) | Department of Consumer Affairs, Govt. of India</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">Ministry of Consumer Affairs, Food & Public Distribution • Field Inspector Mode</p>
       </footer>
 
     </main>
+  </div>
   </div>
 
   <!-- Detail Modal for Single Inspection -->
@@ -1113,5 +1225,6 @@
   <script src="js/pdfService.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/scanner.js"></script>
+  <script src="js/masthead.js"></script>
 </body>
 </html>

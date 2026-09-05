@@ -244,4 +244,107 @@ details.faq-accordion[open] {
   }
 }
 
+/* ==========================================================================
+   13. Official National Masthead & Tricolor Header Bar (Modern Executive)
+   ========================================================================== */
+.tricolor-strip {
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, #FF9933 0%, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%, #138808 100%);
+  box-shadow: 0 0 8px rgba(255, 153, 51, 0.4);
+}
+
+.masthead-pill-dock {
+  background: rgba(241, 245, 249, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 9999px;
+  padding: 3px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.masthead-pill-dock-dark {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  border-radius: 9999px;
+  padding: 3px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gov-pill-btn {
+  border-radius: 9999px;
+  transition: all 0.15s ease-in-out;
+}
+
+.gov-pill-btn:hover {
+  transform: translateY(-0.5px);
+}
+
+/* ==========================================================================
+   14. Official GIGW / NIC High-Contrast Mode for Accessibility
+   ========================================================================== */
+body.gov-high-contrast {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+
+body.gov-high-contrast #nationalGovMasthead {
+  background-color: #000000 !important;
+  border-bottom: 2px solid #ffff00 !important;
+}
+
+body.gov-high-contrast #nationalGovMasthead * {
+  color: #ffffff !important;
+  border-color: #ffff00 !important;
+}
+
+body.gov-high-contrast #nationalGovMasthead svg path,
+body.gov-high-contrast #nationalGovMasthead svg text,
+body.gov-high-contrast #nationalGovMasthead svg rect {
+  fill: #ffff00 !important;
+}
+
+body.gov-high-contrast .masthead-ist-clock {
+  color: #ffff00 !important;
+}
+
+body.gov-high-contrast aside {
+  background-color: #000000 !important;
+  border-right: 2px solid #ffff00 !important;
+}
+
+body.gov-high-contrast aside * {
+  color: #ffffff !important;
+}
+
+body.gov-high-contrast header {
+  background-color: #0a0a0a !important;
+  border-bottom: 2px solid #ffff00 !important;
+}
+
+body.gov-high-contrast header * {
+  color: #ffff00 !important;
+}
+
+body.gov-high-contrast .bg-white,
+body.gov-high-contrast .bg-slate-50,
+body.gov-high-contrast .bg-slate-100,
+body.gov-high-contrast .masthead-pill-dock,
+body.gov-high-contrast .masthead-pill-dock-dark {
+  background-color: #050505 !important;
+  border-color: #ffff00 !important;
+  color: #ffffff !important;
+}
+
+body.gov-high-contrast button {
+  border-color: #ffff00 !important;
+}
+
+
 
