@@ -6,6 +6,189 @@
 let activeAdminTab = "command";
 let ledgerSortColumn = "date";
 let ledgerSortAsc = false;
+let currentAdminSelectedZone = "All";
+
+/**
+ * Returns inspections accessible to the admin, filtered by the active zone selector.
+ */
+function getAdminFilteredInspections() {
+  const baseInspections = filterByZoneAccess(getInspections());
+  if (!currentAdminSelectedZone || currentAdminSelectedZone === "All" || currentAdminSelectedZone === "All India") {
+    return baseInspections;
+  }
+  const cleanZone = currentAdminSelectedZone.toLowerCase();
+  return baseInspections.filter(item => {
+    const z = (item.zone || "").trim().toLowerCase();
+    return z === cleanZone;
+  });
+}
+
+/**
+ * Initializes the Zone Selector and Summary Cards based on user role.
+ * National role has full interactive dropdown across all 6 zones.
+ * Zonal role is locked and disabled to only their assigned zone.
+ */
+function initAdminZoneSelector() {
+  const user = getCurrentUser() || { role: "national", zone: "All" };
+  const selectEl = document.getElementById("adminZoneFilterSelect");
+  const roleBadge = document.getElementById("adminZoneRoleBadge");
+  const subtitle = document.getElementById("adminZoneScopeSubtitle");
+
+  if (user.role === "zonal") {
+    currentAdminSelectedZone = user.zone || "North";
+    if (selectEl) {
+      selectEl.value = currentAdminSelectedZone;
+      selectEl.disabled = true;
+      selectEl.title = `Zonal Admin jurisdiction locked to ${currentAdminSelectedZone} Zone.`;
+    }
+    if (roleBadge) {
+      roleBadge.textContent = `🔒 Zonal Scope (${currentAdminSelectedZone})`;
+      roleBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider font-mono";
+    }
+    if (subtitle) {
+      subtitle.textContent = `Enforcement jurisdiction restricted to ${currentAdminSelectedZone} Zone. Non-jurisdictional zones are protected by RBAC.`;
+    }
+  } else {
+    currentAdminSelectedZone = "All";
+    if (selectEl) {
+      selectEl.disabled = false;
+      selectEl.value = "All";
+    }
+    if (roleBadge) {
+      roleBadge.textContent = "🇮🇳 National Command (All 6 Zones)";
+      roleBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wider font-mono";
+    }
+    if (subtitle) {
+      subtitle.textContent = "Select an official Zonal Council to filter command metrics, compliance ratios, and ledger records.";
+    }
+  }
+
+  updateActiveZoneBadge();
+  renderZoneSummaryCards();
+}
+
+function onAdminZoneFilterChange(selectedZone) {
+  currentAdminSelectedZone = selectedZone;
+  updateAdminDashboardForZone();
+}
+
+function onZoneCardClick(zoneName) {
+  const user = getCurrentUser();
+  if (user && user.role === "zonal") {
+    // Zonal users are locked to their own zone
+    return;
+  }
+  // If clicked again, toggle back to All India
+  if (currentAdminSelectedZone === zoneName) {
+    currentAdminSelectedZone = "All";
+  } else {
+    currentAdminSelectedZone = zoneName;
+  }
+
+  const selectEl = document.getElementById("adminZoneFilterSelect");
+  if (selectEl) selectEl.value = currentAdminSelectedZone;
+
+  updateAdminDashboardForZone();
+}
+
+function updateActiveZoneBadge() {
+  const displayEl = document.getElementById("activeZoneFilterDisplay");
+  if (displayEl) {
+    const isAll = !currentAdminSelectedZone || currentAdminSelectedZone === "All";
+    displayEl.textContent = isAll ? "Active: All India" : `Active: ${currentAdminSelectedZone} Zone`;
+    displayEl.className = isAll
+      ? "text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200"
+      : "text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200";
+  }
+}
+
+function updateAdminDashboardForZone() {
+  updateActiveZoneBadge();
+  renderZoneSummaryCards();
+  initCommandCenter();
+  renderMasterLedgerTable();
+  renderAnalytics();
+}
+
+/**
+ * Renders the 6 small official zone summary cards:
+ * North, Central, East, West, South, North East.
+ * Each card shows zone name, count of inspections, and compliance percentage.
+ * Uses Emerald for compliant, Rose Red for non-compliant, Amber for pending.
+ */
+function renderZoneSummaryCards() {
+  const container = document.getElementById("adminZoneSummaryCardsRow");
+  if (!container) return;
+
+  const zoneNames = ["North", "Central", "East", "West", "South", "North East"];
+  const allAccessible = filterByZoneAccess(getInspections());
+  const user = getCurrentUser();
+  const isZonalUser = user && user.role === "zonal";
+
+  container.innerHTML = zoneNames.map(zoneName => {
+    const zoneRecords = allAccessible.filter(item => (item.zone || "").trim().toLowerCase() === zoneName.toLowerCase());
+    const count = zoneRecords.length;
+    const compliantCount = zoneRecords.filter(item => {
+      const s = String(item.status || "").toUpperCase();
+      return item.isCompliant === true || s === "COMPLIANT_LOGGED" || s === "APPROVED";
+    }).length;
+    const pendingCount = zoneRecords.filter(item => {
+      const s = String(item.status || "").toUpperCase();
+      return s === "NON_COMPLIANT_PENDING" || s === "SUBMITTED" || s === "PENDING";
+    }).length;
+    const nonCompliantCount = count - compliantCount;
+
+    const compliancePercent = count > 0 ? Math.round((compliantCount / count) * 100) : 0;
+
+    const isSelected = currentAdminSelectedZone === zoneName;
+    const isUserZone = user && user.zone && user.zone.toLowerCase() === zoneName.toLowerCase();
+
+    // Determine status badge color: Emerald for compliant, Rose Red for non-compliant, Amber for pending
+    let statusBadge = "";
+    if (count === 0) {
+      statusBadge = `<span class="text-[10px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">0 Scans</span>`;
+    } else if (pendingCount > 0) {
+      statusBadge = `<span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">${pendingCount} Pending</span>`;
+    } else if (compliancePercent >= 60) {
+      statusBadge = `<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">${compliancePercent}% Compliant</span>`;
+    } else {
+      statusBadge = `<span class="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">${nonCompliantCount} Non-Comp</span>`;
+    }
+
+    const activeBorder = isSelected
+      ? "border-[#10B981] bg-emerald-50/40 ring-2 ring-[#10B981]/30 shadow-sm"
+      : "border-[#E4E7EC] bg-white hover:bg-slate-50/80 hover:border-slate-300";
+
+    const cursorClass = (isZonalUser && !isUserZone) ? "opacity-50 cursor-not-allowed" : "cursor-pointer";
+
+    return `
+      <button 
+        type="button"
+        onclick="onZoneCardClick('${zoneName}')"
+        class="rounded-xl p-3 border transition-all duration-200 text-left ${activeBorder} ${cursorClass} flex flex-col justify-between group cursor-pointer"
+        title="${isZonalUser && !isUserZone ? 'Restricted by Zonal RBAC' : 'Click to filter dashboard by ' + zoneName + ' Zone'}"
+      >
+        <div class="flex items-center justify-between mb-1.5 w-full">
+          <span class="text-xs font-bold text-[#0F172A] group-hover:text-emerald-700 transition truncate">${zoneName}</span>
+          ${isSelected ? '<span class="w-2 h-2 rounded-full bg-[#10B981]"></span>' : ''}
+        </div>
+        <div class="flex items-baseline justify-between gap-1 mt-1 w-full">
+          <span class="text-base font-extrabold text-[#0F172A] font-mono">${count}</span>
+          <span class="text-[10px] text-[#64748B] font-medium">record${count === 1 ? '' : 's'}</span>
+        </div>
+        <div class="mt-2 flex items-center justify-between w-full">
+          ${statusBadge}
+          <span class="text-[10px] font-mono text-slate-400 group-hover:text-emerald-600 transition">🔍</span>
+        </div>
+      </button>
+    `;
+  }).join("");
+}
+
+if (typeof window !== "undefined") {
+  window.onAdminZoneFilterChange = onAdminZoneFilterChange;
+  window.onZoneCardClick = onZoneCardClick;
+}
 
 /**
  * Initializes the Admin app on page load.
@@ -19,6 +202,8 @@ function initAdminApp() {
     if (nameEl) nameEl.textContent = user.name || "Administrator";
   }
 
+  initAdminZoneSelector();
+
   // Handle URL param or hash (?view=ledger, #commodities, etc.)
   const urlParams = new URLSearchParams(window.location.search);
   const hash = window.location.hash.replace("#", "");
@@ -31,6 +216,11 @@ function initAdminApp() {
   renderAdminCommodities();
   renderAdminUsers();
   initAdminSettings();
+  if (typeof NotificationCenter !== "undefined") {
+    NotificationCenter.init("admin");
+  } else if (typeof renderAdminNotificationDropdown === "function") {
+    renderAdminNotificationDropdown();
+  }
 }
 
 /**
@@ -57,9 +247,9 @@ function switchAdminTab(tabId) {
     }
     if (navBtn) {
       if (id === tabId) {
-        navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-amber-500 text-white shadow font-semibold transition text-left";
+        navBtn.className = "w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md sidebar-nav-item active bg-gray-100 text-gray-900 font-medium transition text-left";
       } else {
-        navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left";
+        navBtn.className = "w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md sidebar-nav-item text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left";
       }
     }
   });
@@ -98,7 +288,7 @@ function switchAdminTab(tabId) {
    ========================================================================== */
 
 function initCommandCenter() {
-  const inspections = getInspections();
+  const inspections = getAdminFilteredInspections();
   const users = Object.keys(getUsers()).length;
   const pending = inspections.filter(i => {
     const s = String(i.status || "").toUpperCase();
@@ -175,7 +365,7 @@ function renderMasterLedgerTable() {
   const tbody = document.getElementById("masterLedgerTableBody");
   if (!tbody) return;
 
-  let all = getInspections();
+  let all = getAdminFilteredInspections();
   const search = (document.getElementById("masterLedgerSearchInput")?.value || "").trim().toLowerCase();
 
   if (search) {
@@ -209,17 +399,17 @@ function renderMasterLedgerTable() {
     const isDismissed = s === "OFFICER_DISMISSED" || s === "REJECTED";
 
     const badgeClass = isCompliant 
-      ? "bg-emerald-100 text-emerald-800 border border-emerald-300" 
+      ? "status-pill-pass px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold" 
       : isNotice
-        ? "bg-amber-100 text-amber-800 border border-amber-300"
+        ? "status-pill-warn px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold"
         : isDismissed
-          ? "bg-slate-100 text-slate-700 border border-slate-300"
-          : "bg-red-100 text-red-800 border border-red-300";
+          ? "bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold"
+          : "status-pill-fail px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold";
 
     const label = typeof formatStatusLabel === "function" ? formatStatusLabel(item.status) : (item.status || "Submitted");
 
     return `
-      <tr class="hover:bg-slate-50 border-b border-slate-100 text-xs">
+      <tr class="hover:bg-slate-50/80 border-b border-slate-100 text-xs transition">
         <td class="px-3 py-3 font-mono font-bold text-amber-600">${item.id}</td>
         <td class="px-3 py-3 text-slate-500 font-mono">${item.date || "-"}</td>
         <td class="px-3 py-3 font-medium text-slate-700">${item.inspectorName || "Field Inspector"}</td>
@@ -227,11 +417,58 @@ function renderMasterLedgerTable() {
         <td class="px-3 py-3 text-slate-600">${ext.net_quantity || "-"}</td>
         <td class="px-3 py-3 font-mono text-slate-700">${ext.mrp || "-"}</td>
         <td class="px-3 py-3">${violCount > 0 ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">${violCount} Defect${violCount > 1 ? 's' : ''}</span>` : `<span class="text-emerald-600 font-medium">None</span>`}</td>
-        <td class="px-3 py-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${badgeClass}">${label}</span></td>
+        <td class="px-3 py-3"><span class="${badgeClass}">${label}</span></td>
         <td class="px-3 py-3 text-slate-500 italic max-w-xs truncate" title="${item.reviewComments || ''}">${item.reviewComments || "-"}</td>
       </tr>
     `;
   }).join("");
+
+  // Mobile / Small Tablet Card Rendering (Point 5 Responsiveness)
+  const cardContainer = document.getElementById("masterLedgerCards");
+  if (cardContainer) {
+    if (all.length === 0) {
+      cardContainer.innerHTML = `<div class="p-6 text-center text-slate-400 bg-white rounded-xl border border-slate-200 text-xs">No inspection records found.</div>`;
+    } else {
+      cardContainer.innerHTML = all.map(item => {
+        const ext = item.extractedData || {};
+        const violCount = (item.violations || []).length;
+        const s = String(item.status || "").toUpperCase();
+        const isCompliant = s === "COMPLIANT_LOGGED" || s === "APPROVED" || item.isCompliant === true;
+        const isNotice = s === "NOTICE_ISSUED" || s === "OFFICER_APPROVED";
+        const isDismissed = s === "OFFICER_DISMISSED" || s === "REJECTED";
+
+        const badgeClass = isCompliant 
+          ? "status-pill-pass px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold" 
+          : isNotice
+            ? "status-pill-warn px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold"
+            : isDismissed
+              ? "bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold"
+              : "status-pill-fail px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold";
+        const label = typeof formatStatusLabel === "function" ? formatStatusLabel(item.status) : (item.status || "Submitted");
+
+        return `
+          <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-mono font-bold text-amber-600">${item.id}</span>
+              <span class="${badgeClass}">${label}</span>
+            </div>
+            <div>
+              <p class="font-bold text-slate-900">${item.product || "-"}</p>
+              <p class="text-[11px] text-slate-500">${item.date || "-"} • ${item.inspectorName || "Inspector"}</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2 rounded-lg border border-slate-100">
+              <div><span class="text-slate-400">Net Qty:</span> <strong>${ext.net_quantity || "-"}</strong></div>
+              <div><span class="text-slate-400">MRP:</span> <strong>${ext.mrp || "-"}</strong></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] pt-1">
+              <span>${violCount > 0 ? `<span class="text-red-600 font-bold">⚠️ ${violCount} Defect${violCount > 1 ? 's' : ''}</span>` : `<span class="text-emerald-600 font-bold">✓ Compliant</span>`}</span>
+              <span class="text-slate-400 italic truncate max-w-[140px]">${item.reviewComments || "No notes"}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+  }
 }
 
 /* ==========================================================================
@@ -239,14 +476,98 @@ function renderMasterLedgerTable() {
    ========================================================================== */
 
 function renderAnalytics() {
-  const all = getInspections();
+  const all = getAdminFilteredInspections();
   const total = all.length;
-  const compliant = all.filter(i => i.isCompliant).length;
+  const compliant = all.filter(i => {
+    const s = String(i.status || "").toUpperCase();
+    return i.isCompliant === true || s === "COMPLIANT_LOGGED" || s === "APPROVED";
+  }).length;
   const nonCompliant = total - compliant;
   const compPercent = total > 0 ? Math.round((compliant / total) * 100) : 0;
+  const violPercent = total > 0 ? (100 - compPercent) : 0;
 
   const totalBadge = document.getElementById("analyticsTotalBadge");
-  if (totalBadge) totalBadge.textContent = `${total} cases`;
+  if (totalBadge) totalBadge.textContent = `${total} case${total === 1 ? "" : "s"}`;
+
+  // 1. Dynamic Conic-Gradient Pie Chart
+  const pieChart = document.getElementById("analyticsPieChart");
+  if (pieChart) {
+    if (total === 0) {
+      pieChart.style.background = "#e2e8f0";
+    } else {
+      pieChart.style.background = `conic-gradient(#059669 0% ${compPercent}%, #dc2626 ${compPercent}% 100%)`;
+    }
+  }
+
+  const compText = document.getElementById("analyticsCompliantText");
+  const violText = document.getElementById("analyticsViolationText");
+  if (compText) compText.textContent = `Compliant (${compPercent}%)`;
+  if (violText) violText.textContent = `Violations (${violPercent}%)`;
+
+  // 2. Dynamic Violation Frequency Progress Bars
+  const barsContainer = document.getElementById("analyticsViolationBarsContainer");
+  if (barsContainer) {
+    const counts = {};
+    let totalViolations = 0;
+    all.forEach(item => {
+      (item.violations || []).forEach(v => {
+        let label = typeof v === "object" ? (v.reason || v.rule || "Statutory Contravention") : String(v);
+        if (/consumer\s*care/i.test(label)) label = "Missing Consumer Care Details (Rule 6)";
+        else if (/mrp|retail\s*sale|currency/i.test(label)) label = "Defective MRP / Missing Currency Symbol (Rule 9)";
+        else if (/month|year|mfg/i.test(label)) label = "Missing Month/Year of Packaging (Rule 6)";
+        else if (/net\s*qty|quantity|underweight|tolerance/i.test(label)) label = "Underweight / Net Quantity Discrepancy (Rule 6/MAV)";
+        else if (/manufacturer|packer|address/i.test(label)) label = "Missing / Incomplete Manufacturer Address (Rule 6)";
+        else if (/commodity|generic/i.test(label)) label = "Missing Generic / Commodity Name (Rule 6)";
+        else if (/unit\s*sale/i.test(label)) label = "Missing Unit Sale Price (USP)";
+        else label = label.split(":")[0].trim();
+
+        counts[label] = (counts[label] || 0) + 1;
+        totalViolations++;
+      });
+    });
+
+    if (totalViolations === 0) {
+      barsContainer.innerHTML = `
+        <div class="py-6 text-center text-slate-400">
+          <span class="text-2xl">🎉</span>
+          <p class="font-bold text-slate-600 text-xs mt-1">Zero Recorded Violations</p>
+          <p class="text-[11px]">All evaluated packages satisfy Legal Metrology standards.</p>
+        </div>`;
+    } else {
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+      const barColors = ["bg-amber-500", "bg-red-500", "bg-blue-500", "bg-purple-500"];
+      const textColors = ["text-amber-600", "text-red-600", "text-blue-600", "text-purple-600"];
+
+      barsContainer.innerHTML = sorted.map(([name, count], index) => {
+        const pct = Math.round((count / totalViolations) * 100);
+        const barColor = barColors[index % barColors.length];
+        const textColor = textColors[index % textColors.length];
+
+        return `
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-slate-700 truncate mr-2" title="${name}">${name}</span>
+              <span class="${textColor} font-bold font-mono">${pct}% (${count})</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+              <div class="${barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+            </div>
+          </div>`;
+      }).join("");
+    }
+  }
+}
+
+function toggleAdminNotificationDropdown() {
+  if (typeof NotificationCenter !== "undefined") {
+    NotificationCenter.toggle("admin");
+  }
+}
+
+function renderAdminNotificationDropdown() {
+  if (typeof NotificationCenter !== "undefined") {
+    NotificationCenter.render("admin");
+  }
 }
 
 /* ==========================================================================
@@ -462,16 +783,26 @@ function deleteUserAction(uname) {
 
 function resetDemoData() {
   if (confirm("Reset all system data (inspections, commodities, users) to clean state?")) {
+    // Preserve current user session per Zonal Access Control requirements
+    const activeSession = localStorage.getItem("currentUser");
     localStorage.clear();
+    if (activeSession) {
+      try {
+        localStorage.setItem("currentUser", activeSession);
+      } catch (e) {}
+    }
     initStorage();
     getUsers();
-    alert("System storage cleared successfully!");
+    alert("System storage reset successfully while preserving active session!");
     window.location.reload();
   }
 }
 
 function triggerLoadSampleData() {
-  if (confirm("Load official sample inspection records for testing and demonstration?")) {
+  if (typeof DemoShowcase !== "undefined" && typeof DemoShowcase.openShowcaseDrawer === "function") {
+    DemoShowcase.enableAllDemos(true);
+    DemoShowcase.openShowcaseDrawer();
+  } else if (confirm("Load official sample inspection records for testing and demonstration?")) {
     loadSampleDemoData();
     alert("Sample inspection records loaded successfully!");
     window.location.reload();
@@ -520,3 +851,17 @@ function updatePolicySetting(key, val) {
   const label = key === "metro_strict_mode" ? "Strict Tolerance Enforcement" : "AI Vision OCR Fallback";
   showToast(`${label} is now ${val ? "ENABLED" : "DISABLED"}.`, "info");
 }
+
+/* ==========================================================================
+   DEBOUNCED SEARCH & FILTER HANDLERS FOR ADMIN CONSOLE
+   ========================================================================== */
+const debouncedRenderMasterLedgerTable = (typeof debounce === "function")
+  ? debounce(() => renderMasterLedgerTable(), 150)
+  : () => renderMasterLedgerTable();
+window.debouncedRenderMasterLedgerTable = debouncedRenderMasterLedgerTable;
+
+const debouncedRenderCommoditiesManager = (typeof debounce === "function")
+  ? debounce(() => renderCommoditiesManager(), 150)
+  : () => renderCommoditiesManager();
+window.debouncedRenderCommoditiesManager = debouncedRenderCommoditiesManager;
+

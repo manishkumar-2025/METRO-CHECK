@@ -34,11 +34,17 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
   }
 
   try {
-    const { jsPDF } = window.jspdf;
-    if (!jsPDF) {
-      throw new Error("jsPDF library is not loaded on this page.");
+    const jspdfLib = window.jspdf;
+    if (!jspdfLib || !jspdfLib.jsPDF) {
+      console.warn("jsPDF CDN library unreachable or offline. Falling back to browser print dialog.");
+      if (typeof showToast === "function") {
+        showToast("Offline environment: Generating statutory print / PDF export dialog...", "info");
+      }
+      window.print();
+      return;
     }
 
+    const { jsPDF } = jspdfLib;
     const doc = new jsPDF("p", "mm", "a4");
 
     // Case particulars normalization
@@ -47,6 +53,8 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     const user = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || {};
     const inspectorName = String(item.inspectorName || user.name || "Field Enforcement Inspector");
     const location = String(item.location || "Regional Metrology Division / Depot");
+    const zoneName = String(item.zone || user.zone || "North");
+    const stateName = String(item.state || user.state || "Delhi UT");
 
     const ext = item.extractedData || item.categorized_fields || item.fields || {};
     const commodityName = String(
@@ -89,22 +97,29 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
-    doc.text(`STATUTORY INSPECTION RECORD: ${caseId}`, 14, 40);
+    doc.text(`STATUTORY INSPECTION RECORD: ${caseId}`, 14, 39);
+
+    // Regional Zonal Traceability Line
+    doc.setFontSize(8.5);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(99, 102, 241); // Indigo regional scope indicator
+    doc.text(`Zone: ${zoneName} | State: ${stateName}`, 14, 44);
 
     doc.setFontSize(8.5);
     doc.setFont("helvetica", "normal");
-    doc.text(`Date & Time: ${dateStr}`, 14, 46);
-    doc.text(`Inspector: ${inspectorName}`, 14, 51);
-    doc.text(`Location: ${location.length > 38 ? location.substring(0, 38) + "..." : location}`, 14, 56);
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Date & Time: ${dateStr}`, 14, 49);
+    doc.text(`Inspector: ${inspectorName}`, 14, 54);
+    doc.text(`Location: ${location.length > 38 ? location.substring(0, 38) + "..." : location}`, 14, 59);
 
-    doc.text(`Commodity: ${commodityName.length > 36 ? commodityName.substring(0, 36) + "..." : commodityName}`, 110, 46);
-    doc.text(`Net Quantity: ${netQty.length > 25 ? netQty.substring(0, 25) : netQty}`, 110, 51);
-    doc.text(`Declared MRP: ${mrpVal.length > 25 ? mrpVal.substring(0, 25) : mrpVal}`, 110, 56);
+    doc.text(`Commodity: ${commodityName.length > 36 ? commodityName.substring(0, 36) + "..." : commodityName}`, 110, 49);
+    doc.text(`Net Quantity: ${netQty.length > 25 ? netQty.substring(0, 25) : netQty}`, 110, 54);
+    doc.text(`Declared MRP: ${mrpVal.length > 25 ? mrpVal.substring(0, 25) : mrpVal}`, 110, 59);
 
     // 3. Separator Line
     doc.setDrawColor(203, 213, 225);
     doc.setLineWidth(0.5);
-    doc.line(14, 62, 196, 62);
+    doc.line(14, 64, 196, 64);
 
     // 4. Mandatory Declarations (Rule 6 Matrix)
     doc.setFont("helvetica", "bold");
@@ -218,9 +233,11 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     doc.setTextColor(100, 116, 139);
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text("Authorized Metrology Inspector / Officer Signatory", 125, y + 10);
+    const sigName = options.signatoryName || "Authorized Metrology Inspector / Officer Signatory";
+    const sigDesig = options.signatoryDesignation || `Certified Audit Token: MC-INSP-${caseId}`;
+    doc.text(sigName, 125, y + 10);
     doc.line(125, y + 6, 196, y + 6);
-    doc.text(`Certified Audit Token: MC-INSP-${caseId}`, 125, y + 14);
+    doc.text(sigDesig, 125, y + 14);
 
     // 8. Watermark (Subtle diagonal official text across page)
     const totalPages = doc.internal.getNumberOfPages();

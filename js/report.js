@@ -27,6 +27,9 @@ function initReportView() {
   const dateDisplay = document.getElementById("reportDateDisplay");
   if (dateDisplay) dateDisplay.textContent = record.date || new Date().toISOString().split("T")[0];
 
+  // Extracted declarations with fallback to extractedData, extracted_fields, or fields
+  const extracted = record.extractedData || record.extracted_fields || record.fields || {};
+
   // 1. Inspector Details
   const inspName = document.getElementById("reportInspectorName");
   if (inspName) inspName.textContent = record.inspectorName || "Field Inspector";
@@ -39,7 +42,7 @@ function initReportView() {
 
   // 2. Product Information
   const prodNameEl = document.getElementById("reportProductName");
-  if (prodNameEl) prodNameEl.textContent = record.product || extracted.commodity_name || "Packaged Product";
+  if (prodNameEl) prodNameEl.textContent = record.product || extracted.commodity_name || extracted.generic_name || "Packaged Product";
   const prodCatEl = document.getElementById("reportProductCategory");
   if (prodCatEl) prodCatEl.textContent = "Packaged Commodity (Food / FMCG)";
   const thumbImg = document.getElementById("reportProductThumbnail");

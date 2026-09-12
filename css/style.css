@@ -6,21 +6,277 @@
 /* 1. Import Google Font (Inter for clean, modern readability) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-/* 2. Global Base Styles */
+/* ==========================================================================
+   2. Modern Sovereign Design Token System (Linear / Supabase / Apple Inspired)
+   ========================================================================== */
+:root {
+  /* Brand Foundations */
+  --gov-primary: #1a365d;            /* Sovereign State Navy */
+  --gov-primary-hover: #102a4e;      /* Deep Navy Hover */
+  --gov-primary-active: #0c1e38;     /* Pressed Navy */
+  --gov-primary-subtle: #ebf3fc;     /* Delicate Navy Wash */
+  --gov-primary-text: #ffffff;
+
+  /* Executive Secondary (Slate) */
+  --gov-secondary: #475569;          /* Slate 600 */
+  --gov-secondary-hover: #334155;    /* Slate 700 */
+  --gov-secondary-active: #1e293b;   /* Slate 800 */
+  --gov-secondary-subtle: #f1f5f9;   /* Slate 100 */
+
+  /* Sovereign Accent (Forensic AI & Active Reticle) */
+  --gov-accent: #d97706;             /* Saffron Gold / Deep Amber */
+  --gov-accent-hover: #b45309;       /* Deep Gold */
+  --gov-accent-subtle: #fffbeb;      /* Saffron Mist */
+  --gov-accent-border: #fcd34d;      /* Gold Focus Border */
+  --gov-accent-glow: rgba(217, 119, 6, 0.22);
+
+  /* Light Canvas & Surfaces */
+  --gov-bg: #f8fafc;                 /* Ultra-clean Slate Canvas */
+  --gov-bg-alt: #f1f5f9;             /* Secondary Canvas */
+  --gov-surface: #ffffff;            /* Card / Container */
+  --gov-surface-elevated: #ffffff;   /* Modal / Popover */
+  --gov-surface-sunken: #f8fafc;     /* Input Wells / Code Blocks */
+
+  /* Typography */
+  --gov-text-primary: #0f172a;       /* Slate 900 (AAA Contrast) */
+  --gov-text-secondary: #334155;     /* Slate 700 */
+  --gov-text-muted: #64748b;         /* Slate 500 (Accessible 4.9:1) */
+  --gov-text-inverse: #ffffff;
+
+  /* Borders & Dividers */
+  --gov-border: #e2e8f0;             /* Clean Card Border */
+  --gov-border-subtle: #f1f5f9;      /* Inner Row Divider */
+  --gov-border-strong: #cbd5e1;      /* Table / Input Border */
+
+  /* Decisive Semantics (100% WCAG AA / AAA) */
+  --gov-success: #059669;            /* Rule Compliant */
+  --gov-success-subtle: #ecfdf5;
+  --gov-success-text: #065f46;
+  --gov-success-border: #a7f3d0;
+
+  --gov-danger: #dc2626;             /* Statutory Violation / Seizure */
+  --gov-danger-subtle: #fef2f2;
+  --gov-danger-text: #991b1b;
+  --gov-danger-border: #fecaca;
+
+  --gov-warning: #d97706;            /* Judicial Adjudication / Pending */
+  --gov-warning-subtle: #fffbeb;
+  --gov-warning-text: #92400e;
+  --gov-warning-border: #fde68a;
+
+  --gov-info: #2563eb;               /* Schedule 2 Standards */
+  --gov-info-subtle: #eff6ff;
+  --gov-info-text: #1e40af;
+  --gov-info-border: #bfdbfe;
+}
+
+/* Modern Dark Theme Variables (Obsidian & Executive Slate) */
+body.theme-dark {
+  --gov-bg: #090d16;                 /* Obsidian Navy Canvas */
+  --gov-bg-alt: #0f172a;
+  --gov-surface: #111827;            /* Elevated Slate Navy Card */
+  --gov-surface-elevated: #1c263f;   /* Modal / Popover Wells */
+  --gov-surface-sunken: #090e1a;
+
+  --gov-text-primary: #f8fafc;
+  --gov-text-secondary: #cbd5e1;
+  --gov-text-muted: #94a3b8;
+
+  --gov-border: #1f293d;
+  --gov-border-subtle: #162033;
+  --gov-border-strong: #2e3d5c;
+
+  --gov-success-subtle: rgba(5, 150, 105, 0.16);
+  --gov-success-text: #34d399;
+  --gov-success-border: rgba(5, 150, 105, 0.32);
+
+  --gov-danger-subtle: rgba(220, 38, 38, 0.16);
+  --gov-danger-text: #f87171;
+  --gov-danger-border: rgba(220, 38, 38, 0.32);
+
+  --gov-warning-subtle: rgba(217, 119, 6, 0.16);
+  --gov-warning-text: #fbbf24;
+  --gov-warning-border: rgba(217, 119, 6, 0.32);
+
+  --gov-info-subtle: rgba(37, 99, 235, 0.16);
+  --gov-info-text: #60a5fa;
+  --gov-info-border: rgba(37, 99, 235, 0.32);
+}
+
+/* 3. Global Base Styles */
 * {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   box-sizing: border-box;
 }
 
 body {
-  background-color: #1a1f36;
-  color: #1e293b;
+  background-color: var(--gov-bg);
+  color: var(--gov-text-primary);
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  transition: background-color 0.25s ease;
 }
 
-/* 3. Smooth Transitions for Cards and Interactive Buttons */
+/* 4. Modern Interactive Component Utilities (Linear / Shadcn UI Card Standard) */
+.modern-card {
+  background: var(--gov-surface);
+  border: 1px solid var(--gov-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease;
+}
+
+.modern-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+}
+
+body.theme-dark .modern-card {
+  background: #09090B;
+  border-color: #27272A;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .modern-card:hover {
+  border-color: #3F3F46;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.6);
+}
+
+/* Linear/Shadcn KPI Metric Cards with Subtle Shadow-sm */
+.kpi-card {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #E4E4E7;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  padding: 1.25rem;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kpi-card:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  border-color: #CBD5E1;
+}
+
+body.theme-dark .kpi-card {
+  background: #09090B;
+  border-color: #27272A;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .kpi-card:hover {
+  border-color: #3F3F46;
+}
+
+/* Supabase/Linear-Style Glassmorphism Panel */
+.glass-panel-elevated {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 12px 36px -8px rgba(15, 23, 42, 0.08);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+body.theme-dark .glass-panel-elevated {
+  background: rgba(17, 24, 39, 0.88);
+  border-color: rgba(51, 65, 85, 0.7);
+  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.65);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Active Slot Glow Ring (Linear/Apple Active State) */
+.slot-card-active {
+  border-color: var(--gov-accent) !important;
+  box-shadow: 0 0 0 2px var(--gov-accent), 0 0 22px var(--gov-accent-glow) !important;
+  background-color: var(--gov-accent-subtle) !important;
+}
+
+body.theme-dark .slot-card-active {
+  background-color: rgba(217, 119, 6, 0.08) !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 2px #f59e0b, 0 0 24px rgba(245, 158, 11, 0.25) !important;
+}
+
+/* Linear-Style High Impact AI CTA Button */
+.btn-ai-scan {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+}
+
+.btn-ai-scan:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  filter: brightness(1.06);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.btn-ai-scan:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Scanner Dropzone Interactive Hover */
+.scanner-dropzone {
+  border: 2px dashed #E2E8F0;
+  border-radius: 1rem;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #ffffff;
+}
+
+.scanner-dropzone:hover {
+  border-color: #10B981 !important;
+  background-color: #F0FDF4 !important;
+  transform: translateY(-1px);
+}
+
+body.theme-dark .scanner-dropzone {
+  background: var(--gov-surface-sunken);
+  border-color: var(--gov-border-strong);
+}
+
+body.theme-dark .scanner-dropzone:hover {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+  border-color: #10B981 !important;
+}
+
+/* Modern Accessible Status Pills */
+.status-pill-pass {
+  background-color: var(--gov-success-subtle);
+  color: var(--gov-success-text);
+  border: 1px solid var(--gov-success-border);
+  font-weight: 700;
+}
+
+.status-pill-fail {
+  background-color: var(--gov-danger-subtle);
+  color: var(--gov-danger-text);
+  border: 1px solid var(--gov-danger-border);
+  font-weight: 700;
+}
+
+.status-pill-warn {
+  background-color: var(--gov-warning-subtle);
+  color: var(--gov-warning-text);
+  border: 1px solid var(--gov-warning-border);
+  font-weight: 700;
+}
+
+.status-pill-info {
+  background-color: var(--gov-info-subtle);
+  color: var(--gov-info-text);
+  border: 1px solid var(--gov-info-border);
+  font-weight: 700;
+}
+
+/* Smooth Transitions for Cards and Interactive Buttons */
 .card-hover-effect {
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
@@ -31,7 +287,7 @@ body {
 }
 
 .btn-hover-effect {
-  transition: all 0.2s ease-in-out;
+  transition: transform 0.18s ease-in-out, filter 0.18s ease-in-out, box-shadow 0.18s ease-in-out;
 }
 
 .btn-hover-effect:hover {
@@ -41,6 +297,28 @@ body {
 
 .btn-hover-effect:active {
   transform: translateY(0);
+}
+
+/* OCR Results Tab Indicator */
+.ocr-tab-btn {
+  padding: 0.625rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  color: #64748B;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.ocr-tab-btn.active {
+  color: #0F172A;
+  border-bottom-color: #10B981;
+  font-weight: 700;
+}
+
+body.theme-dark .ocr-tab-btn.active {
+  color: #F8FAFC;
+  border-bottom-color: #10B981;
 }
 
 /* 4. Custom Slim Scrollbar for Modern UI Look */
@@ -67,6 +345,7 @@ body {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -84,7 +363,8 @@ body {
 
 /* 6. Legal Metrology Statutory Text Highlight (Search Match) */
 mark.search-highlight {
-  background-color: #fef08a; /* Soft amber/yellow */
+  background-color: #fef08a;
+  /* Soft amber/yellow */
   color: #854d0e;
   font-weight: 700;
   padding: 1px 4px;
@@ -124,15 +404,27 @@ details.faq-accordion[open] {
   transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 10. Real-Time Camera Scanner Laser Animation */
+/* 10. Real-Time Camera Scanner Laser Animation (GPU-Accelerated, Zero Layout Reflow) */
 @keyframes laserSweep {
-  0% { top: 8%; opacity: 0.6; }
-  50% { top: 88%; opacity: 1; }
-  100% { top: 8%; opacity: 0.6; }
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translate3d(0, 260px, 0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.6;
+  }
 }
 
 .scanner-laser-line {
   position: absolute;
+  top: 12px;
   left: 6%;
   right: 6%;
   height: 3px;
@@ -140,6 +432,14 @@ details.faq-accordion[open] {
   box-shadow: 0 0 14px 3px rgba(16, 185, 129, 0.75);
   animation: laserSweep 2.8s ease-in-out infinite;
   pointer-events: none;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Idle state optimization: Pause laser animation when camera is offline */
+#cameraModeBox:not(.camera-streaming) .scanner-laser-line {
+  animation-play-state: paused;
+  opacity: 0;
 }
 
 /* ==========================================================================
@@ -159,6 +459,7 @@ details.faq-accordion[open] {
   justify-content: center;
   gap: 0.5rem;
 }
+
 .btn-primary:hover {
   background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
   transform: translateY(-1px);
@@ -178,6 +479,7 @@ details.faq-accordion[open] {
   justify-content: center;
   gap: 0.5rem;
 }
+
 .btn-secondary:hover {
   background: #f8fafc;
   border-color: #94a3b8;
@@ -195,6 +497,7 @@ details.faq-accordion[open] {
   justify-content: center;
   gap: 0.5rem;
 }
+
 .btn-danger:hover {
   background: #b91c1c;
 }
@@ -211,6 +514,7 @@ details.faq-accordion[open] {
   justify-content: center;
   gap: 0.5rem;
 }
+
 .btn-success:hover {
   background: #047857;
 }
@@ -219,6 +523,7 @@ details.faq-accordion[open] {
 .text-contrast-high {
   color: #f8fafc !important;
 }
+
 .text-contrast-muted {
   color: #cbd5e1 !important;
 }
@@ -227,18 +532,22 @@ details.faq-accordion[open] {
    12. Responsive 3-Pane Review Collapse for Tablets & Phones (< 992px)
    ========================================================================== */
 @media (max-width: 991px) {
+
   .three-pane-review-grid,
-  #officerView-review > div.flex-col.lg\:flex-row {
+  #officerView-review>div.flex-col.lg\:flex-row {
     flex-direction: column !important;
     gap: 1.25rem !important;
   }
-  .three-pane-review-grid > section,
+
+  .three-pane-review-grid>section,
   #officerView-review section {
     width: 100% !important;
   }
+
   #reviewSpecimenImage {
     max-height: 220px !important;
   }
+
   .dual-panel-grid {
     grid-template-columns: 1fr !important;
   }
@@ -304,10 +613,17 @@ body.gov-high-contrast #nationalGovMasthead * {
   border-color: #ffff00 !important;
 }
 
-body.gov-high-contrast #nationalGovMasthead svg path,
-body.gov-high-contrast #nationalGovMasthead svg text,
-body.gov-high-contrast #nationalGovMasthead svg rect {
+body.gov-high-contrast #nationalGovMasthead svg g {
   fill: #ffff00 !important;
+}
+
+body.gov-high-contrast #nationalGovMasthead svg text {
+  fill: #ffff00 !important;
+}
+
+body.gov-high-contrast #nationalGovMasthead svg path[fill="#f8fafc"],
+body.gov-high-contrast #nationalGovMasthead svg circle[fill="#f8fafc"] {
+  fill: #000000 !important;
 }
 
 body.gov-high-contrast .masthead-ist-clock {
@@ -346,6 +662,70 @@ body.gov-high-contrast button {
   border-color: #ffff00 !important;
 }
 
+/* Accessible Universal Focus Outlines */
+*:focus-visible {
+  outline: 2px solid #d97706;
+  outline-offset: 2px;
+}
+
+body.gov-high-contrast *:focus-visible {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 3px;
+}
+
+/* Global Executive Dark Theme (Smooth Transition from Login Canvas) */
+body.theme-dark {
+  background-color: var(--gov-bg) !important;
+  color: var(--gov-text-primary) !important;
+}
+
+body.theme-dark .bg-white {
+  background-color: var(--gov-surface) !important;
+  color: var(--gov-text-primary) !important;
+  border-color: var(--gov-border) !important;
+}
+
+body.theme-dark .bg-slate-50,
+body.theme-dark .bg-slate-100 {
+  background-color: var(--gov-surface-sunken) !important;
+  color: var(--gov-text-secondary) !important;
+  border-color: var(--gov-border-subtle) !important;
+}
+
+body.theme-dark .text-slate-900,
+body.theme-dark .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+body.theme-dark .text-slate-700,
+body.theme-dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+body.theme-dark .text-slate-500,
+body.theme-dark .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+body.theme-dark .border-slate-200,
+body.theme-dark .border-slate-300 {
+  border-color: var(--gov-border) !important;
+}
+
+body.theme-dark thead {
+  background-color: var(--gov-surface-elevated) !important;
+}
+
+body.theme-dark aside {
+  background-color: #0b1120 !important;
+  border-color: #1f293d !important;
+}
+
+body.theme-dark header {
+  background-color: #0c1424 !important;
+  border-color: #1f293d !important;
+}
+
 /* ==========================================================================
    15. View Transitions & Modern UI Micro-Animations
    ========================================================================== */
@@ -358,10 +738,22 @@ body.gov-high-contrast button {
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Subtle Error Shake for Authentication Feedback */
+@keyframes loginShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.login-shake {
+  animation: loginShake 0.4s ease-in-out;
 }
 
 /* Frosted Glass Utilities */
@@ -370,6 +762,8 @@ body.gov-high-contrast button {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(51, 65, 85, 0.7);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* ==========================================================================
@@ -394,10 +788,12 @@ body.gov-high-contrast button {
     transform: scale(1.4) rotate(10deg);
     opacity: 0;
   }
+
   75% {
     transform: scale(0.96) rotate(-4deg);
     opacity: 1;
   }
+
   100% {
     transform: scale(1) rotate(-3deg);
     opacity: 1;
@@ -422,15 +818,14 @@ body.gov-high-contrast button {
 .mav-gauge-track {
   height: 14px;
   border-radius: 9999px;
-  background: linear-gradient(90deg, 
-    #ef4444 0%, 
-    #f87171 25%, 
-    #fbbf24 38%, 
-    #10b981 44%, 
-    #10b981 56%, 
-    #34d399 70%, 
-    #38bdf8 100%
-  );
+  background: linear-gradient(90deg,
+      #ef4444 0%,
+      #f87171 25%,
+      #fbbf24 38%,
+      #10b981 44%,
+      #10b981 56%,
+      #34d399 70%,
+      #38bdf8 100%);
   position: relative;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
 }
@@ -446,19 +841,24 @@ body.gov-high-contrast button {
   transform: translateX(-50%);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: left;
 }
 
 /* ==========================================================================
    17. Modern Dark-Mode User Menu & Popover Component
    ========================================================================== */
 .user-menu-pill {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
 .user-menu-pill:hover {
+  background: #e2e8f0;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.08);
 }
 
 .user-menu-pill:active {
@@ -471,13 +871,30 @@ body.gov-high-contrast button {
 }
 
 .user-menu-popover {
-  background-color: rgba(15, 23, 42, 0.96);
+  background-color: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(51, 65, 85, 0.8);
-  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.03);
   animation: userPopoverSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transform-origin: top right;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+body.theme-dark .user-menu-pill {
+  background: #0F172A;
+  border-color: rgba(51, 65, 85, 0.8);
+  color: #f8fafc;
+}
+
+body.theme-dark .user-menu-popover {
+  background-color: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  color: #f8fafc;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
 }
 
 @keyframes userPopoverSlideDown {
@@ -485,6 +902,7 @@ body.gov-high-contrast button {
     opacity: 0;
     transform: translateY(-6px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -513,3 +931,1106 @@ body.gov-high-contrast .user-menu-popover * {
   border-color: #ffff00 !important;
 }
 
+/* ==========================================================================
+   18. Keyboard Accessibility Focus-Visible Utilities
+   ========================================================================== */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #f59e0b !important;
+  outline-offset: 2px !important;
+}
+
+/* ==========================================================================
+   19. Official Statutory Report Print Stylesheet (@media print)
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 15mm;
+  }
+
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Suppress screen-only chrome */
+  .print\:hidden,
+  header#nationalGovMasthead,
+  .tricolor-strip,
+  aside,
+  nav,
+  #globalToastContainer,
+  #serverDisconnectedBanner {
+    display: none !important;
+  }
+
+  /* Format printable main document sheet */
+  main#mainContent {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Retain authentic stamp & seal double border */
+  .official-gov-seal {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .seal-compliant {
+    border: 3px double #059669 !important;
+    color: #047857 !important;
+    background: rgba(16, 185, 129, 0.06) !important;
+  }
+
+  .seal-violation {
+    border: 3px double #dc2626 !important;
+    color: #b91c1c !important;
+    background: rgba(239, 68, 68, 0.06) !important;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}
+
+/* ==========================================================================
+   20. GPU Compositing & DOM Render Optimization
+   ========================================================================== */
+#nationalGovMasthead {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Performance containment to eliminate layout recalculation cascades */
+.perf-contain-paint {
+  contain: paint;
+}
+
+.perf-contain-card {
+  contain: layout style paint;
+}
+
+.perf-contain-table {
+  contain: layout style;
+}
+
+/* ==========================================================================
+   21. Modern Linear / Supabase / Apple Design System Tokens & Components
+   ========================================================================== */
+
+/* Porcelain Gradient Canvas */
+.porcelain-canvas {
+  background-color: #F7F8FA;
+  background-image: radial-gradient(1200px circle at 50% 0%, #FFFFFF 0%, #F7F8FA 60%, #EEF2F6 100%);
+}
+
+/* Clean Form Focus Ring */
+.ds-input-focus:focus {
+  outline: none;
+  border-color: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+/* Pill Badges */
+.badge-compliant {
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+.badge-pending {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.badge-violation {
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+
+.badge-ai {
+  background-color: #EEF2FF;
+  color: #4338CA;
+  border: 1px solid #C7D2FE;
+}
+
+/* ==========================================================================
+   Standardized GovTech Unified Design System Components
+   ========================================================================== */
+
+/* Standardized Form Inputs & Controls */
+.ds-input,
+.ds-select,
+.ds-textarea {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  color: #0F172A;
+  font-size: 0.8125rem;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ds-input:hover,
+.ds-select:hover,
+.ds-textarea:hover {
+  border-color: #CBD5E1;
+  background-color: #FFFFFF;
+}
+
+.ds-input:focus,
+.ds-select:focus,
+.ds-textarea:focus {
+  outline: none;
+  border-color: #10B981;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+}
+
+/* Standardized Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(16, 185, 129, 0.3);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.4);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  background-color: #FFFFFF;
+  color: #334155;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+}
+.btn-secondary:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #0F172A;
+  transform: translateY(-1px);
+}
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(239, 68, 68, 0.3);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.btn-danger:hover {
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.4);
+}
+
+.btn-warning {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(245, 158, 11, 0.3);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.btn-warning:hover {
+  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.4);
+}
+
+/* Status Pills */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.status-pill-pass {
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+.status-pill-fail {
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+.status-pill-warn {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+.status-pill-info {
+  background-color: #EEF2FF;
+  color: #4338CA;
+  border: 1px solid #C7D2FE;
+}
+.status-pill-neutral {
+  background-color: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+}
+
+/* Standardized Table Styles */
+.ds-table-container {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+.ds-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.ds-table-th {
+  background-color: #F8FAFC;
+  color: #64748B;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #E2E8F0;
+}
+.ds-table-td {
+  padding: 0.85rem 1rem;
+  font-size: 0.75rem;
+  color: #334155;
+  border-bottom: 1px solid #F1F5F9;
+  vertical-align: middle;
+}
+.ds-table-row {
+  transition: background-color 0.15s ease;
+}
+.ds-table-row:hover {
+  background-color: #F8FAFC;
+}
+
+/* Dark Theme Overrides for Core Surfaces */
+body.theme-dark .porcelain-canvas {
+  background-color: #090D16 !important;
+  background-image: none !important;
+}
+body.theme-dark .bg-white {
+  background-color: #111827 !important;
+  color: #F8FAFC;
+}
+body.theme-dark .border-\[\#E4E7EC\],
+body.theme-dark .border-slate-200,
+body.theme-dark .border-slate-300 {
+  border-color: #1F293D !important;
+}
+body.theme-dark .text-\[\#0F172A\],
+body.theme-dark .text-slate-900 {
+  color: #F8FAFC !important;
+}
+body.theme-dark .text-\[\#64748B\],
+body.theme-dark .text-slate-500 {
+  color: #94A3B8 !important;
+}
+body.theme-dark .bg-\[\#F7F8FA\],
+body.theme-dark .bg-\[\#F8FAFC\],
+body.theme-dark .bg-slate-50 {
+  background-color: #0F172A !important;
+}
+body.theme-dark .ds-input,
+body.theme-dark .ds-select,
+body.theme-dark .ds-textarea {
+  background-color: #0F172A !important;
+  border-color: #1F293D !important;
+  color: #F8FAFC !important;
+}
+body.theme-dark .btn-secondary {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+body.theme-dark .ds-table-container {
+  background-color: #111827 !important;
+  border-color: #1F293D !important;
+}
+body.theme-dark .ds-table-th {
+  background-color: #0F172A !important;
+  color: #94A3B8 !important;
+  border-bottom-color: #1F293D !important;
+}
+body.theme-dark .ds-table-td {
+  border-bottom-color: #162033 !important;
+  color: #CBD5E1 !important;
+}
+body.theme-dark .ds-table-row:hover {
+  background-color: #1E293B !important;
+}
+
+/* Inspector 2-Column AI Results Field Grid */
+#reportExtractedFieldsGrid > div {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E4E7EC !important;
+  border-radius: 0.75rem !important;
+  padding: 1rem !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#reportExtractedFieldsGrid > div:hover {
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Green Check Pills for Detected Declarations */
+#reportExtractedFieldsGrid .text-emerald-600 {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 0.15rem 0.6rem !important;
+  border-radius: 9999px !important;
+  background-color: #ECFDF5 !important;
+  color: #047857 !important;
+  border: 1px solid #A7F3D0 !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+}
+
+/* Red X Pills for Missing Declarations */
+#reportExtractedFieldsGrid .text-red-600 {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 0.15rem 0.6rem !important;
+  border-radius: 9999px !important;
+  background-color: #FEF2F2 !important;
+  color: #B91C1C !important;
+  border: 1px solid #FECACA !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+}
+
+/* Standardized Sidebar & Filter Overrides */
+.inspector-nav-btn,
+.officer-nav-btn {
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* AI Confidence Progress Bar Transition */
+#reportConfidenceProgressBar {
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tab & Filter Active State Overrides (Emerald instead of Amber) */
+.inspection-filter-tab.active,
+.inspection-filter-tab.bg-amber-500,
+.commodity-cat-pill.active,
+.commodity-cat-pill.bg-amber-500,
+.docket-tab.active,
+.docket-tab.bg-amber-500 {
+  background-color: #10B981 !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ==========================================================================
+   METROLOGY OFFICER ENFORCEMENT DESK DESIGN SYSTEM
+   ========================================================================== */
+
+/* Docket Table Row Hover & Typography */
+#officerDocketTableBody tr {
+  transition: background-color 0.15s ease;
+}
+
+#officerDocketTableBody tr:hover {
+  background-color: #F8FAFC !important;
+}
+
+/* Docket Table Status Badges (Pill Shape) */
+#officerDocketTableBody span.rounded-full {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 0.2rem 0.65rem !important;
+  border-radius: 9999px !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+}
+
+#officerDocketTableBody .bg-emerald-100 {
+  background-color: #ECFDF5 !important;
+  color: #047857 !important;
+  border: 1px solid #A7F3D0 !important;
+}
+
+#officerDocketTableBody .bg-amber-100 {
+  background-color: #FFFBEB !important;
+  color: #B45309 !important;
+  border: 1px solid #FDE68A !important;
+}
+
+#officerDocketTableBody .bg-red-100 {
+  background-color: #FEF2F2 !important;
+  color: #B91C1C !important;
+  border: 1px solid #FECACA !important;
+}
+
+#officerDocketTableBody .bg-slate-100,
+#officerDocketTableBody .bg-slate-200 {
+  background-color: #F1F5F9 !important;
+  color: #475569 !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+/* Action button inside Docket Table */
+#officerDocketTableBody button.bg-amber-500 {
+  background-color: #10B981 !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  border-radius: 0.5rem !important;
+  padding: 0.35rem 0.75rem !important;
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2) !important;
+  transition: background-color 0.15s ease, transform 0.1s ease !important;
+}
+
+#officerDocketTableBody button.bg-amber-500:hover {
+  background-color: #059669 !important;
+}
+
+/* Center Image Card: Indigo "OCR Overlay" Toggle */
+#btnToggleOcrFocus {
+  background-color: #EEF2FF !important;
+  color: #4F46E5 !important;
+  border: 1px solid #C7D2FE !important;
+  transition: all 0.15s ease !important;
+}
+
+#btnToggleOcrFocus:hover {
+  background-color: #E0E7FF !important;
+  border-color: #A5B4FC !important;
+  color: #4338CA !important;
+}
+
+#reviewExtractedCard.ring-amber-400 {
+  --tw-ring-color: #6366F1 !important;
+  background-color: rgba(238, 242, 255, 0.4) !important;
+}
+
+#ocrFocusIndicator {
+  background-color: #EEF2FF !important;
+  color: #4F46E5 !important;
+  border-color: #C7D2FE !important;
+}
+
+.ocr-field-row.bg-amber-100\/70 {
+  background-color: #EEF2FF !important;
+  border-color: #C7D2FE !important;
+}
+
+/* Right Panel: Clickable Bordered Violation Cards */
+.violation-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid #E4E7EC;
+  background-color: #FFFFFF;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.violation-card:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+.violation-card:has(input:checked) {
+  border-color: #FECACA !important;
+  background-color: #FEF2F2 !important;
+}
+
+.violation-card:has(input:checked) span {
+  color: #991B1B !important;
+  font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   National Command Center & Admin Oversight Styles
+   ========================================================================== */
+
+/* Unified Admin & Portal Sidebar Navigation Items */
+.sidebar-nav-item {
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* Master Ledger: Clean Zebra Striping */
+#masterLedgerTableBody tr:nth-child(even) {
+  background-color: #F8FAFC !important;
+}
+
+#masterLedgerTableBody tr:nth-child(odd) {
+  background-color: #FFFFFF !important;
+}
+
+#masterLedgerTableBody tr:hover {
+  background-color: #F1F5F9 !important;
+}
+
+/* Master Ledger: SHA hash in monospace gray text */
+#masterLedgerTableBody {
+  counter-reset: ledger-sha-counter;
+}
+
+#masterLedgerTableBody tr {
+  counter-increment: ledger-sha-counter;
+}
+
+#masterLedgerTableBody td:first-child {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  color: #0F172A !important;
+  font-weight: 600 !important;
+}
+
+#masterLedgerTableBody td:first-child::after {
+  content: "SHA: 7f8a" counter(ledger-sha-counter, decimal-leading-zero) "b3...e49c";
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  color: #94A3B8;
+  font-weight: 400;
+  margin-top: 2px;
+  letter-spacing: -0.01em;
+}
+
+/* Strict Color Palette for Violation Bars: ONLY emerald, amber, red, indigo */
+#analyticsViolationBarsContainer .bg-blue-500 {
+  background-color: #6366F1 !important; /* Indigo */
+}
+#analyticsViolationBarsContainer .text-blue-600 {
+  color: #4F46E5 !important;
+}
+
+#analyticsViolationBarsContainer .bg-purple-500 {
+  background-color: #10B981 !important; /* Emerald */
+}
+#analyticsViolationBarsContainer .text-purple-600 {
+  color: #059669 !important;
+}
+
+#analyticsViolationBarsContainer .bg-amber-500 {
+  background-color: #F59E0B !important; /* Amber */
+}
+#analyticsViolationBarsContainer .text-amber-600 {
+  color: #D97706 !important;
+}
+
+#analyticsViolationBarsContainer .bg-red-500 {
+  background-color: #EF4444 !important; /* Red */
+}
+#analyticsViolationBarsContainer .text-red-600 {
+  color: #DC2626 !important;
+}
+
+/* Analytics Trend Badges */
+.trend-up {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #059669;
+  background-color: #ECFDF5;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  border: 1px solid #A7F3D0;
+}
+
+.trend-neutral {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #4F46E5;
+  background-color: #EEF2FF;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  border: 1px solid #C7D2FE;
+}
+
+.trend-warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #D97706;
+  background-color: #FFFBEB;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  border: 1px solid #FDE68A;
+}
+
+/* ==========================================================================
+   19. Ultra-Refined Left Navigation Sidebar (GovTech Modern Executive System)
+   ========================================================================== */
+.sidebar-container {
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 2px 0 16px -2px rgba(15, 23, 42, 0.05);
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s ease-in-out;
+}
+
+body.theme-dark .sidebar-container {
+  background: linear-gradient(180deg, #0F172A 0%, #0B1120 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 4px 0 24px -2px rgba(0, 0, 0, 0.25);
+}
+
+/* Custom Sleek Scrollbar for Sidebar */
+.sidebar-container::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.sidebar-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Nav Item Base */
+.sidebar-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #475569;
+  border: 1px solid transparent;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Nav Item Icon Box */
+.sidebar-icon-box {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  transition: all 0.18s ease;
+}
+
+/* ==========================================================================
+   LINEAR / SHADCN UI MODERN SAAS SIDEBAR SPECIFICATION
+   ========================================================================== */
+
+/* 1. Sidebar Container: 250px Width, #FAFAFA (Light) / #09090B (Dark) */
+.sidebar-container {
+  width: 250px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
+  background-color: #FAFAFA !important;
+  border-right: 1px solid #E4E4E7 !important;
+}
+
+body.theme-dark .sidebar-container {
+  background-color: #09090B !important;
+  border-right-color: #27272A !important;
+}
+
+/* 2. Group Headers: text-xs font-semibold text-gray-500 uppercase */
+.sidebar-section-header {
+  font-size: 0.6875rem !important; /* text-xs equivalent */
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: #71717A !important; /* text-gray-500 / text-zinc-500 */
+  padding: 0.625rem 0.5rem 0.25rem 0.5rem !important;
+}
+
+body.theme-dark .sidebar-section-header {
+  color: #71717A !important;
+}
+
+/* 3. Navigation Items: rounded-md, subtle highlight (bg-gray-100 / bg-zinc-800) */
+.sidebar-nav-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.625rem !important;
+  width: 100% !important;
+  padding: 0.45rem 0.625rem !important;
+  border-radius: 0.375rem !important; /* rounded-md */
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  color: #52525B !important; /* text-gray-600 */
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  transition: background-color 0.15s ease, color 0.15s ease !important;
+  cursor: pointer !important;
+  text-align: left !important;
+}
+
+.sidebar-nav-item:not(.active):hover {
+  color: #18181B !important; /* text-gray-900 */
+  background-color: #F4F4F5 !important; /* bg-gray-100 / bg-zinc-100 */
+  transform: none !important;
+}
+
+.sidebar-nav-item.active {
+  background-color: #F4F4F5 !important; /* bg-gray-100 */
+  color: #18181B !important; /* text-gray-900 */
+  font-weight: 600 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.sidebar-nav-item.active::before {
+  display: none !important;
+}
+
+/* Dark Theme Overrides for Navigation Items */
+body.theme-dark .sidebar-nav-item {
+  color: #A1A1AA !important;
+}
+
+body.theme-dark .sidebar-nav-item:not(.active):hover {
+  color: #FAFAFA !important;
+  background-color: #27272A !important; /* bg-zinc-800 */
+}
+
+body.theme-dark .sidebar-nav-item.active {
+  background-color: #27272A !important; /* bg-zinc-800 */
+  color: #FAFAFA !important;
+  border-color: transparent !important;
+}
+
+/* Micro Live Badge */
+.sidebar-badge-pulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.625rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+  border-radius: 0.375rem;
+  background: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+body.theme-dark .sidebar-badge-pulse {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* 4. Pinned Bottom User Profile Widget: margin-top: auto */
+.sidebar-footer-pinned {
+  margin-top: auto !important;
+  padding-top: 0.75rem !important;
+  border-top: 1px solid #E4E4E7 !important; /* border-t border-gray-200 */
+  background-color: #FAFAFA !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 30 !important;
+}
+
+body.theme-dark .sidebar-footer-pinned {
+  background-color: #09090B !important;
+  border-top-color: #27272A !important;
+}
+
+/* Expandable User Popover Menu (Linear / Shadcn UI Dropdown) */
+.sidebar-user-dropdown {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E4E4E7 !important;
+  border-radius: 0.5rem !important; /* rounded-lg */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05) !important;
+  animation: dropdownFadeIn 0.12s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+body.theme-dark .sidebar-user-dropdown {
+  background-color: #18181B !important;
+  border-color: #27272A !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollable Nav Items in Sidebar */
+.sidebar-content-scrollable {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sidebar-content-scrollable::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-content-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(203, 213, 225, 0.5);
+  border-radius: 9999px;
+}
+
+body.theme-dark .sidebar-content-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.5);
+}
+
+/* Collapsed Sidebar Rules (Desktop 68px width) */
+@media (min-width: 768px) {
+  .sidebar-container.sidebar-collapsed {
+    width: 68px !important;
+    min-width: 68px !important;
+    max-width: 68px !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  .sidebar-container.sidebar-collapsed .sidebar-hide-on-collapse {
+    display: none !important;
+  }
+  .sidebar-container.sidebar-collapsed .sidebar-nav-item {
+    justify-content: center !important;
+    padding: 0.5rem 0 !important;
+  }
+  .sidebar-container.sidebar-collapsed .sidebar-badge-pulse {
+    display: none !important;
+  }
+  .sidebar-container.sidebar-collapsed .sidebar-section-header {
+    display: none !important;
+  }
+  .sidebar-container.sidebar-collapsed .sidebar-brand-wrapper {
+    justify-content: center !important;
+  }
+}
+
+/* ==========================================================================
+   25. Modern Notification Bell & Elevated Popover System
+   ========================================================================== */
+
+@keyframes bell-ring {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-12deg); }
+  45% { transform: rotate(8deg); }
+  60% { transform: rotate(-6deg); }
+  75% { transform: rotate(2deg); }
+  100% { transform: rotate(0); }
+}
+
+.notification-bell-btn:hover svg {
+  animation: bell-ring 0.8s ease-in-out;
+}
+
+.notification-popover-open {
+  animation: notificationEnter 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes notificationEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+#inspectorNotificationList::-webkit-scrollbar,
+#officerNotificationList::-webkit-scrollbar,
+#adminNotificationList::-webkit-scrollbar {
+  width: 5px;
+}
+
+#inspectorNotificationList::-webkit-scrollbar-track,
+#officerNotificationList::-webkit-scrollbar-track,
+#adminNotificationList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#inspectorNotificationList::-webkit-scrollbar-thumb,
+#officerNotificationList::-webkit-scrollbar-thumb,
+#adminNotificationList::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+
+#inspectorNotificationList::-webkit-scrollbar-thumb:hover,
+#officerNotificationList::-webkit-scrollbar-thumb:hover,
+#adminNotificationList::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+/* ==========================================================================
+   26. Comprehensive Mobile Responsiveness & Touch Utilities
+   ========================================================================== */
+
+/* Hide Scrollbar for Horizontal Pill Navs on Mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Touch-friendly Minimum Tap Size (44px) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Touch Momentum Scrolling for Tables on Mobile */
+.table-mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+  width: 100%;
+}
+
+/* Mobile Responsiveness Media Queries (<640px) */
+@media (max-width: 639px) {
+  /* Prevent horizontal page overflow on small phones */
+  html, body {
+    overflow-x: hidden;
+  }
+
+  /* Compact header masthead for screens < 640px */
+  #nationalGovMasthead {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+
+  /* CAPTCHA row mobile stacking on small devices (<400px) */
+  .captcha-row-container {
+    flex-wrap: wrap;
+  }
+  .captcha-row-container > .captcha-canvas-box {
+    width: 100% !important;
+    max-width: 160px;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Responsive Table Sizing */
+  .responsive-table th,
+  .responsive-table td {
+    padding-left: 0.625rem !important;
+    padding-right: 0.625rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Mobile Officer Desk Tab Visibility */
+  .officer-pane-hidden-mobile {
+    display: none !important;
+  }
+  .officer-pane-active-mobile {
+    display: flex !important;
+  }
+}

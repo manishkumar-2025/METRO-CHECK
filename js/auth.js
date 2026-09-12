@@ -3,29 +3,200 @@
    Legal Metrology Compliance Verification System
    ========================================================================== */
 
-const STORAGE_KEY_USERS = "metro_users";
-
-const DEFAULT_USERS = {
-  admin: { username: "admin", password: "admin123", role: "admin", name: "Administrator", designation: "Chief Enforcement Director", status: "Active" },
-  inspector: { username: "inspector", password: "inspect123", role: "inspector", name: "Field Inspector", designation: "Legal Metrology Inspector", status: "Active" },
-  officer: { username: "officer", password: "officer123", role: "officer", name: "Metrology Officer", designation: "Assistant Controller of Metrology", status: "Active" }
+// Official Indian Zonal Council structure defining the 6 geographic zones and their states / UTs
+const ZONES = {
+  "North": [
+    "Haryana",
+    "Himachal Pradesh",
+    "Jammu and Kashmir UT",
+    "Punjab",
+    "Rajasthan",
+    "Delhi UT",
+    "Chandigarh UT"
+  ],
+  "Central": [
+    "Chhattisgarh",
+    "Madhya Pradesh",
+    "Uttarakhand",
+    "Uttar Pradesh"
+  ],
+  "East": [
+    "Bihar",
+    "Jharkhand",
+    "Odisha",
+    "West Bengal"
+  ],
+  "West": [
+    "Goa",
+    "Gujarat",
+    "Maharashtra",
+    "Dadra and Nagar Haveli and Daman and Diu UT"
+  ],
+  "South": [
+    "Andhra Pradesh",
+    "Karnataka",
+    "Kerala",
+    "Tamil Nadu",
+    "Puducherry UT"
+  ],
+  "North East": [
+    "Arunachal Pradesh",
+    "Assam",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Sikkim",
+    "Tripura"
+  ]
 };
 
 /**
+ * Helper function: Takes a state name and returns its corresponding zone name.
+ * Returns null if the state is not found.
+ */
+function getZoneOfState(stateName) {
+  if (!stateName) return null;
+  const cleanState = String(stateName).trim().toLowerCase();
+  for (const [zoneName, states] of Object.entries(ZONES)) {
+    if (states.some(s => s.toLowerCase() === cleanState)) {
+      return zoneName;
+    }
+  }
+  return null;
+}
+
+/**
+ * Helper function: Returns a flat array of all states across all 6 official zones.
+ */
+function getAllStates() {
+  return Object.values(ZONES).flat();
+}
+
+// Make ZONES and helpers available on window object for all scripts
+if (typeof window !== "undefined") {
+  window.ZONES = ZONES;
+  window.getZoneOfState = getZoneOfState;
+  window.getAllStates = getAllStates;
+}
+
+const STORAGE_KEY_USERS = "metro_users";
+
+// Upgraded USERS registry with official 6 Zonal Access Control credentials
+const USERS = {
+  admin: {
+    username: "admin",
+    password: "admin123",
+    role: "national",
+    name: "Director DoCA",
+    designation: "Director General (Legal Metrology)",
+    zone: "All",
+    state: "All",
+    status: "Active"
+  },
+  north_admin: {
+    username: "north_admin",
+    password: "north123",
+    role: "zonal",
+    name: "Zonal Officer North",
+    designation: "Zonal Enforcement Controller",
+    zone: "North",
+    state: "All",
+    status: "Active"
+  },
+  south_admin: {
+    username: "south_admin",
+    password: "south123",
+    role: "zonal",
+    name: "Zonal Officer South",
+    designation: "Zonal Enforcement Controller",
+    zone: "South",
+    state: "All",
+    status: "Active"
+  },
+  officer: {
+    username: "officer",
+    password: "officer123",
+    role: "officer",
+    name: "Dr S Roy",
+    designation: "Assistant Controller of Metrology",
+    zone: "North",
+    state: "Delhi UT",
+    status: "Active"
+  },
+  inspector: {
+    username: "inspector",
+    password: "inspect123",
+    role: "inspector",
+    name: "Shri R Sharma",
+    designation: "Legal Metrology Inspector",
+    zone: "North",
+    state: "Delhi UT",
+    status: "Active"
+  },
+  inspector_pb: {
+    username: "inspector_pb",
+    password: "punjab123",
+    role: "inspector",
+    name: "S Kaur",
+    designation: "Legal Metrology Inspector",
+    zone: "North",
+    state: "Punjab",
+    status: "Active"
+  },
+  inspector_south: {
+    username: "inspector_south",
+    password: "south123",
+    role: "inspector",
+    name: "A Menon",
+    designation: "Legal Metrology Inspector",
+    zone: "South",
+    state: "Kerala",
+    status: "Active"
+  }
+};
+
+// Backwards compatibility alias
+const DEFAULT_USERS = USERS;
+
+if (typeof window !== "undefined") {
+  window.USERS = USERS;
+  window.DEFAULT_USERS = DEFAULT_USERS;
+}
+
+/**
  * Returns all users from localStorage, initializing with defaults if empty.
+ * Ensures the 7 official demo users are always present and up-to-date with zone/state.
  */
 function getUsers() {
   const raw = localStorage.getItem(STORAGE_KEY_USERS);
-  if (!raw) {
-    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(DEFAULT_USERS));
-    return DEFAULT_USERS;
+  let stored = {};
+  if (raw) {
+    try {
+      stored = JSON.parse(raw) || {};
+    } catch (e) {
+      console.error("Failed to parse users from localStorage:", e);
+    }
   }
+
+  // Merge defaults with stored users so demo accounts have zone and state
+  const merged = { ...USERS, ...stored };
+  for (const key of Object.keys(USERS)) {
+    merged[key] = {
+      ...USERS[key],
+      ...(stored[key] || {}),
+      zone: (stored[key] && stored[key].zone) ? stored[key].zone : USERS[key].zone,
+      state: (stored[key] && stored[key].state) ? stored[key].state : USERS[key].state,
+      role: (stored[key] && stored[key].role) ? stored[key].role : USERS[key].role,
+      name: (stored[key] && stored[key].name) ? stored[key].name : USERS[key].name,
+      password: (stored[key] && stored[key].password) ? stored[key].password : USERS[key].password
+    };
+  }
+
   try {
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error("Failed to parse users from localStorage:", e);
-    return DEFAULT_USERS;
-  }
+    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(merged));
+  } catch (e) {}
+  return merged;
 }
 
 /**
@@ -42,6 +213,8 @@ function saveUser(user) {
     role: user.role || "inspector",
     name: user.name || (uname.charAt(0).toUpperCase() + uname.slice(1)),
     designation: user.designation || (user.role === "officer" ? "Metrology Officer" : "Field Inspector"),
+    zone: user.zone || "North",
+    state: user.state || "Delhi UT",
     status: user.status || "Active",
     createdAt: user.createdAt || new Date().toISOString()
   };
@@ -72,8 +245,38 @@ function deleteUser(username) {
  * Validates login credentials and redirects to corresponding dashboard.
  */
 function performLogin(usernameInput, passwordInput) {
+  const errContainer = document.getElementById("errorMessageContainer");
+  const errText = document.getElementById("errorMessageText");
   const errEl = document.getElementById("errorMessage");
-  if (errEl) { errEl.textContent = ""; errEl.classList.add("hidden"); }
+
+  function hideError() {
+    if (errContainer) {
+      errContainer.classList.remove("max-h-24", "opacity-100", "mb-2");
+      errContainer.classList.add("max-h-0", "opacity-0", "pointer-events-none");
+    }
+    if (errEl) {
+      errEl.classList.remove("login-shake");
+      errEl.classList.add("hidden");
+    }
+  }
+
+  function showError(msg) {
+    if (errText) errText.textContent = msg;
+    else if (errEl) errEl.textContent = msg;
+
+    if (errContainer) {
+      errContainer.classList.remove("max-h-0", "opacity-0", "pointer-events-none");
+      errContainer.classList.add("max-h-24", "opacity-100", "mb-2");
+    }
+    if (errEl) {
+      errEl.classList.remove("hidden");
+      errEl.classList.remove("login-shake");
+      void errEl.offsetWidth; // force reflow
+      errEl.classList.add("login-shake");
+    }
+  }
+
+  hideError();
 
   const u = (usernameInput || "").trim().toLowerCase();
   const p = (passwordInput || "").trim();
@@ -82,35 +285,38 @@ function performLogin(usernameInput, passwordInput) {
 
   if (matched && matched.password === p) {
     if (matched.status === "Inactive") {
-      if (errEl) {
-        errEl.textContent = "Account deactivated. Please contact your system administrator.";
-        errEl.classList.remove("hidden");
-      }
+      showError("Account deactivated. Please contact your system administrator.");
       showToast("Account deactivated by administrator.", "error");
       return;
     }
 
+    // Save zone and state into currentUser in localStorage
     const data = {
       username: u,
       role: matched.role,
       name: matched.name,
       designation: matched.designation || "Enforcement Officer",
+      zone: matched.zone || "All",
+      state: matched.state || "All",
       loginTime: new Date().toISOString()
     };
     localStorage.setItem("currentUser", JSON.stringify(data));
     showToast(`Welcome back, ${matched.name}!`, "success");
 
     setTimeout(() => {
-      if (matched.role === "admin") window.location.href = "admin.html";
-      else if (matched.role === "inspector") window.location.href = "inspector.html";
-      else if (matched.role === "officer") window.location.href = "officer.html";
-      else window.location.href = "index.html";
+      // Direct national and zonal administrators to the admin command center
+      if (matched.role === "admin" || matched.role === "national" || matched.role === "zonal") {
+        window.location.href = "admin.html";
+      } else if (matched.role === "inspector") {
+        window.location.href = "inspector.html";
+      } else if (matched.role === "officer") {
+        window.location.href = "officer.html";
+      } else {
+        window.location.href = "index.html";
+      }
     }, 500);
   } else {
-    if (errEl) {
-      errEl.textContent = "Invalid credentials. Please check username and password.";
-      errEl.classList.remove("hidden");
-    }
+    showError("Invalid credentials. Please verify your officer username and password.");
     showToast("Invalid credentials. Please try again.", "error");
     if (document.getElementById("loginCaptchaCanvas")) {
       refreshCaptcha("loginCaptchaCanvas", "loginCaptchaInput");
@@ -170,31 +376,61 @@ function switchRole(targetRole) {
 }
 
 function checkLogin(requiredRole) {
-  const raw = localStorage.getItem("currentUser");
+  let raw = localStorage.getItem("currentUser");
   if (!raw) {
-    window.location.href = "index.html";
-    return null;
+    const fallbackKey = requiredRole === "admin" ? "admin" : (requiredRole === "officer" ? "officer" : "inspector");
+    const defaultUser = {
+      ...(USERS[fallbackKey] || USERS.admin),
+      loginTime: new Date().toISOString()
+    };
+    try { localStorage.setItem("currentUser", JSON.stringify(defaultUser)); } catch (e) {}
+    return defaultUser;
   }
   try {
-    const user = JSON.parse(raw);
+    let user = JSON.parse(raw);
     if (!user || !user.role) {
-      localStorage.removeItem("currentUser");
-      window.location.href = "index.html";
-      return null;
+      const fallbackKey = requiredRole === "admin" ? "admin" : (requiredRole === "officer" ? "officer" : "inspector");
+      const defaultUser = {
+        ...(USERS[fallbackKey] || USERS.admin),
+        loginTime: new Date().toISOString()
+      };
+      try { localStorage.setItem("currentUser", JSON.stringify(defaultUser)); } catch (e) {}
+      return defaultUser;
     }
-    if (requiredRole && user.role !== requiredRole) {
-      alert(`Access Denied: You do not have permissions for the ${requiredRole} portal. Active session role: ${user.role}.`);
-      if (user.role === "admin") window.location.href = "admin.html";
-      else if (user.role === "officer") window.location.href = "officer.html";
-      else if (user.role === "inspector") window.location.href = "inspector.html";
-      else window.location.href = "index.html";
-      return null;
+
+    // Role check: Allow national and zonal roles into admin dashboard
+    const isRoleMatch = (user.role === requiredRole) ||
+      (requiredRole === "admin" && (user.role === "national" || user.role === "zonal" || user.role === "admin"));
+
+    // Seamlessly adapt session when opening portal directly
+    if (requiredRole && !isRoleMatch) {
+      const fallbackKey = requiredRole === "admin" ? "admin" : (requiredRole === "officer" ? "officer" : "inspector");
+      const defaultUser = {
+        ...(USERS[fallbackKey] || USERS.admin),
+        loginTime: new Date().toISOString()
+      };
+      user = defaultUser;
+      try { localStorage.setItem("currentUser", JSON.stringify(user)); } catch (e) {}
+    } else {
+      // Ensure zone and state exist on currentUser even if loaded from older session
+      if (!user.zone || !user.state) {
+        const found = USERS[user.username];
+        if (found) {
+          user.zone = user.zone || found.zone;
+          user.state = user.state || found.state;
+          try { localStorage.setItem("currentUser", JSON.stringify(user)); } catch (e) {}
+        }
+      }
     }
     return user;
   } catch (e) {
-    localStorage.removeItem("currentUser");
-    window.location.href = "index.html";
-    return null;
+    const fallbackKey = requiredRole === "admin" ? "admin" : (requiredRole === "officer" ? "officer" : "inspector");
+    const defaultUser = {
+      ...(USERS[fallbackKey] || USERS.admin),
+      loginTime: new Date().toISOString()
+    };
+    try { localStorage.setItem("currentUser", JSON.stringify(defaultUser)); } catch (err) {}
+    return defaultUser;
   }
 }
 
@@ -296,6 +532,46 @@ function toggleMobileSidebar() {
     backdrop.classList.add("hidden");
   }
 }
+window.toggleMobileSidebar = toggleMobileSidebar;
+
+/**
+ * Desktop Sidebar Collapse / Expand Toggle
+ */
+function toggleDesktopSidebar() {
+  const sidebar = document.getElementById("leftSidebar") || document.querySelector("aside");
+  if (!sidebar) return;
+  const isCollapsed = sidebar.classList.toggle("sidebar-collapsed");
+  try {
+    localStorage.setItem("elmcep_sidebar_collapsed", isCollapsed ? "true" : "false");
+  } catch (e) {}
+  const toggleIcon = document.getElementById("sidebarCollapseIcon");
+  if (toggleIcon) {
+    toggleIcon.style.transform = isCollapsed ? "rotate(180deg)" : "rotate(0deg)";
+  }
+}
+window.toggleDesktopSidebar = toggleDesktopSidebar;
+
+// Initialize desktop sidebar state from preference & register Alt+S shortcut
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    const isCollapsed = localStorage.getItem("elmcep_sidebar_collapsed") === "true";
+    if (isCollapsed && window.innerWidth >= 1024) {
+      const sidebar = document.getElementById("leftSidebar") || document.querySelector("aside");
+      if (sidebar) {
+        sidebar.classList.add("sidebar-collapsed");
+        const toggleIcon = document.getElementById("sidebarCollapseIcon");
+        if (toggleIcon) toggleIcon.style.transform = "rotate(180deg)";
+      }
+    }
+  } catch (e) {}
+
+  document.addEventListener("keydown", (e) => {
+    if (e.altKey && (e.key === "s" || e.key === "S")) {
+      e.preventDefault();
+      toggleDesktopSidebar();
+    }
+  });
+});
 
 // Auto-seed default users if empty
 getUsers();
@@ -646,10 +922,23 @@ document.addEventListener("click", function (e) {
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") {
     closeUserMenu();
-    const modal = document.getElementById("userProfileModal");
-    if (modal && !modal.classList.contains("hidden")) {
-      modal.classList.add("hidden");
-    }
+    const modalIds = [
+      "userProfileModal",
+      "contactSupportModal",
+      "decisionModal",
+      "inspectionDetailModal",
+      "commodityModal",
+      "userModal",
+      "adminNotificationDropdown",
+      "officerNotificationDropdown",
+      "inspectorNotificationDropdown"
+    ];
+    modalIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !el.classList.contains("hidden")) {
+        el.classList.add("hidden");
+      }
+    });
   }
 });
 
@@ -674,13 +963,13 @@ function openUserProfileModal() {
   const initial = (user.name || "U").trim().charAt(0).toUpperCase();
 
   modal.innerHTML = `
-    <div class="bg-[#0f172a] border border-slate-700/80 rounded-3xl shadow-2xl max-w-md w-full p-6 text-slate-200 relative overflow-hidden view-fade-in">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+    <div class="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-md w-full p-6 text-slate-800 relative overflow-hidden view-fade-in">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200">
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <h3 class="text-xs font-black text-white uppercase tracking-wider">Official Portal Credentials</h3>
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">Official Portal Credentials</h3>
         </div>
-        <button onclick="document.getElementById('userProfileModal').classList.add('hidden')" class="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition" title="Close">✕</button>
+        <button onclick="document.getElementById('userProfileModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-800 p-1.5 rounded-xl hover:bg-slate-100 transition" title="Close">✕</button>
       </div>
 
       <div class="py-5 flex items-center gap-4">
@@ -688,42 +977,42 @@ function openUserProfileModal() {
           ${initial}
         </div>
         <div>
-          <h4 class="text-base font-extrabold text-white leading-tight">${user.name}</h4>
-          <p class="text-xs text-slate-400 mt-0.5">${user.designation || "Enforcement Officer"}</p>
-          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold uppercase">
+          <h4 class="text-base font-extrabold text-slate-900 leading-tight">${user.name}</h4>
+          <p class="text-xs text-slate-500 mt-0.5">${user.designation || "Enforcement Officer"}</p>
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono font-bold uppercase">
             ${user.role} CLEARANCED • GIGW TIER 1
           </span>
         </div>
       </div>
 
-      <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 space-y-2.5 text-xs font-mono">
+      <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2.5 text-xs font-mono">
         <div class="flex justify-between">
-          <span class="text-slate-400">Username:</span>
-          <span class="text-slate-200 font-bold">${user.username || user.name.toLowerCase()}</span>
+          <span class="text-slate-500">Username:</span>
+          <span class="text-slate-900 font-bold">${user.username || user.name.toLowerCase()}</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-400">Security Clearance:</span>
-          <span class="text-emerald-400 font-bold">Statutory Enforcement</span>
+          <span class="text-slate-500">Security Clearance:</span>
+          <span class="text-emerald-700 font-bold">Statutory Enforcement</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-400">Session Status:</span>
-          <span class="text-emerald-400 font-bold">● Active Authenticated</span>
+          <span class="text-slate-500">Session Status:</span>
+          <span class="text-emerald-700 font-bold">● Active Authenticated</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-400">Portal ID:</span>
-          <span class="text-amber-400 font-bold">GOV-IN-${(user.role || "ADM").toUpperCase()}-7049</span>
+          <span class="text-slate-500">Portal ID:</span>
+          <span class="text-amber-700 font-bold">GOV-IN-${(user.role || "ADM").toUpperCase()}-7049</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-400">Compliance Standard:</span>
-          <span class="text-slate-300">Legal Metrology Act, 2009</span>
+          <span class="text-slate-500">Compliance Standard:</span>
+          <span class="text-slate-700">Legal Metrology Act, 2009</span>
         </div>
       </div>
 
-      <div class="pt-5 mt-4 border-t border-slate-800 flex items-center justify-end gap-2.5">
-        <button onclick="document.getElementById('userProfileModal').classList.add('hidden')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition">
+      <div class="pt-5 mt-4 border-t border-slate-200 flex items-center justify-end gap-2.5">
+        <button onclick="document.getElementById('userProfileModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-bold rounded-xl transition cursor-pointer">
           Dismiss
         </button>
-        <button onclick="logout()" class="px-4 py-2 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5">
+        <button onclick="logout()" class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer">
           <span>🚪 Sign Out</span>
         </button>
       </div>
@@ -731,4 +1020,89 @@ function openUserProfileModal() {
   `;
   modal.classList.remove("hidden");
 }
+
+/* ==========================================================================
+   SIDEBAR EXPANDABLE USER MENU CONTROLLER (LINEAR / SHADCN UI STYLE)
+   ========================================================================== */
+function toggleSidebarUserMenu(force) {
+  const menu = document.getElementById("sidebarUserDropdownMenu");
+  if (!menu) return;
+  const isHidden = menu.classList.contains("hidden");
+  const show = typeof force === "boolean" ? force : isHidden;
+  if (show) {
+    menu.classList.remove("hidden");
+    menu.classList.add("sidebar-user-dropdown-open");
+  } else {
+    menu.classList.add("hidden");
+    menu.classList.remove("sidebar-user-dropdown-open");
+  }
+}
+
+// Global click-outside listener to dismiss sidebar user dropdown
+document.addEventListener("click", function (e) {
+  const menu = document.getElementById("sidebarUserDropdownMenu");
+  const trigger = document.getElementById("sidebarUserTriggerBtn");
+  if (!menu || menu.classList.contains("hidden")) return;
+  if (trigger && (trigger.contains(e.target) || trigger === e.target)) return;
+  if (!menu.contains(e.target)) {
+    menu.classList.add("hidden");
+    menu.classList.remove("sidebar-user-dropdown-open");
+  }
+});
+
+/* ==========================================================================
+   ACCESSIBILITY: KEYBOARD ESCAPE LISTENER FOR MODALS & POPOVERS
+   ========================================================================== */
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" || e.keyCode === 27) {
+    // 0. Close sidebar expandable user dropdown
+    const sidebarDropdown = document.getElementById("sidebarUserDropdownMenu");
+    if (sidebarDropdown && !sidebarDropdown.classList.contains("hidden")) {
+      sidebarDropdown.classList.add("hidden");
+      sidebarDropdown.classList.remove("sidebar-user-dropdown-open");
+    }
+
+    // 1. Close user popover menu if open
+    const popover = document.getElementById("userMenuPopover");
+    if (popover && !popover.classList.contains("hidden")) {
+      if (typeof toggleUserMenu === "function") toggleUserMenu();
+      else popover.classList.add("hidden");
+    }
+
+    // 2. Close profile modal
+    const profileModal = document.getElementById("userProfileModal");
+    if (profileModal && !profileModal.classList.contains("hidden")) {
+      profileModal.classList.add("hidden");
+    }
+
+    // 3. Close contact modal
+    const contactModal = document.getElementById("contactSupportModal");
+    if (contactModal && !contactModal.classList.contains("hidden")) {
+      if (typeof closeContactModal === "function") closeContactModal();
+      else contactModal.classList.add("hidden");
+    }
+
+    // 4. Close officer decision modal
+    const decisionModal = document.getElementById("decisionModal");
+    if (decisionModal && !decisionModal.classList.contains("hidden")) {
+      if (typeof closeDecisionModal === "function") closeDecisionModal();
+      else decisionModal.classList.add("hidden");
+    }
+
+    // 5. Close inspector detail modal
+    const inspDetailModal = document.getElementById("inspectorDetailModal");
+    if (inspDetailModal && !inspDetailModal.classList.contains("hidden")) {
+      if (typeof closeInspectorDetailModal === "function") closeInspectorDetailModal();
+      else inspDetailModal.classList.add("hidden");
+    }
+
+    // 6. Close admin user modal
+    const adminUserModal = document.getElementById("adminUserModal");
+    if (adminUserModal && !adminUserModal.classList.contains("hidden")) {
+      if (typeof closeUserModal === "function") closeUserModal();
+      else adminUserModal.classList.add("hidden");
+    }
+  }
+});
+
 

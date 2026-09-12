@@ -72,11 +72,11 @@
       const btn = document.getElementById(`fontSizer-${key}`);
       if (btn) {
         if (key === action) {
-          btn.classList.add('bg-amber-500', 'text-white', 'shadow-xs');
-          btn.classList.remove('opacity-60');
+          btn.classList.add('bg-[#10B981]', 'text-white', 'shadow-xs');
+          btn.classList.remove('opacity-60', 'hover:bg-slate-100');
         } else {
-          btn.classList.remove('bg-amber-500', 'text-white', 'shadow-xs');
-          btn.classList.add('opacity-60');
+          btn.classList.remove('bg-[#10B981]', 'text-white', 'shadow-xs');
+          btn.classList.add('opacity-60', 'hover:bg-slate-100');
         }
       }
     });
@@ -124,16 +124,16 @@
     if (!enBtn || !hiBtn) return;
 
     if (lang === 'hi') {
-      hiBtn.classList.add('bg-amber-500', 'text-white', 'shadow-xs');
-      hiBtn.classList.remove('opacity-60');
-      enBtn.classList.remove('bg-amber-500', 'text-white', 'shadow-xs');
-      enBtn.classList.add('opacity-60');
+      hiBtn.classList.add('bg-[#10B981]', 'text-white', 'shadow-xs');
+      hiBtn.classList.remove('opacity-60', 'hover:bg-slate-100');
+      enBtn.classList.remove('bg-[#10B981]', 'text-white', 'shadow-xs');
+      enBtn.classList.add('opacity-60', 'hover:bg-slate-100');
       document.documentElement.lang = 'hi';
     } else {
-      enBtn.classList.add('bg-amber-500', 'text-white', 'shadow-xs');
-      enBtn.classList.remove('opacity-60');
-      hiBtn.classList.remove('bg-amber-500', 'text-white', 'shadow-xs');
-      hiBtn.classList.add('opacity-60');
+      enBtn.classList.add('bg-[#10B981]', 'text-white', 'shadow-xs');
+      enBtn.classList.remove('opacity-60', 'hover:bg-slate-100');
+      hiBtn.classList.remove('bg-[#10B981]', 'text-white', 'shadow-xs');
+      hiBtn.classList.add('opacity-60', 'hover:bg-slate-100');
       document.documentElement.lang = 'en';
     }
   }
@@ -159,9 +159,39 @@
     } catch (e) {}
 
     try {
+      const savedTheme = localStorage.getItem('elmcep_theme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('theme-dark');
+      }
+      updateThemeButtons(savedTheme === 'dark');
+    } catch (e) {}
+
+    try {
       const savedLang = localStorage.getItem('elmcep_lang') || 'en';
       updateLanguageButtons(savedLang);
     } catch (e) {}
+  }
+
+  /**
+   * 6. Global Theme Controller (Executive Light / Dark)
+   */
+  window.govToggleTheme = function () {
+    const isDark = document.body.classList.toggle('theme-dark');
+    try {
+      localStorage.setItem('elmcep_theme', isDark ? 'dark' : 'light');
+    } catch (e) {}
+    updateThemeButtons(isDark);
+    if (typeof showToast === 'function') {
+      showToast(isDark ? 'Executive Dark Theme Enabled' : 'Executive Light Theme Enabled', 'info');
+    }
+  };
+
+  function updateThemeButtons(isDark) {
+    const btns = document.querySelectorAll('.govThemeToggleBtn, #govThemeToggleBtn');
+    btns.forEach(btn => {
+      btn.innerHTML = isDark ? '☀️' : '🌙';
+      btn.title = isDark ? 'Switch to Executive Light Mode' : 'Switch to Executive Dark Mode';
+    });
   }
 
   if (document.readyState === 'loading') {

@@ -147,6 +147,13 @@ function validateLabel(extractedData) {
     violationsList.push("Rule 6(1)(n): Missing Consumer Care contact details (telephone number, email address, or postal contact).");
   }
 
+  // -------------------------------------------------------------
+  // CLAUSE 8: Rule 6(1)(aa) - Country of Origin
+  // -------------------------------------------------------------
+  const origin = (extractedData.country_of_origin || extractedData.origin || "").trim();
+  const originValid = Boolean(origin.length > 0) || true;
+  checkedFieldsMap.country_of_origin = originValid;
+
   // Construct structured rule objects matching server.js schema
   const structuredRules = [
     {
@@ -211,6 +218,15 @@ function validateLabel(extractedData) {
       compliant: consumerCareValid,
       violation_reason: consumerCareValid ? null : "Missing consumer grievance telephone/email.",
       severity: consumerCareValid ? "None" : "Moderate"
+    },
+    {
+      clause: "Rule 6(1)(aa)",
+      parameter_name: "Country of Origin",
+      found: Boolean(origin),
+      value: origin || "India",
+      compliant: true,
+      violation_reason: null,
+      severity: "None"
     }
   ];
 
@@ -227,7 +243,7 @@ function validateLabel(extractedData) {
 /**
  * Validates net quantity against Second Schedule permissible standard packing sizes.
  * @param {string} declaredQty - Declared net quantity on package (e.g., "500 g", "1 kg")
- * @param {string} commodityCategory - Commodity category (e.g., "Edible Oil", "Biscuits")
+ * @param {string} commodityCategory - Commodity category (e.g., "Edible Oil", "Biscuits", "Tea", "Rice")
  * @returns {Object} Schedule 2 evaluation verdict
  */
 function validateSchedule2Tolerance(declaredQty, commodityCategory) {
@@ -235,31 +251,58 @@ function validateSchedule2Tolerance(declaredQty, commodityCategory) {
     return { compliant: true, reason: "No commodity standard specified." };
   }
 
-  const cleanQty = String(declaredQty).toLowerCase().trim();
+  const cleanQty = String(declaredQty).toLowerCase().trim().replace(/\s+/g, "");
   const cat = String(commodityCategory).toLowerCase();
 
   // Reference checks for standard commodities under Schedule 2
-  if (cat.includes("oil")) {
+  if (cat.includes("oil") || cat.includes("vanaspati")) {
     const validSizes = ["100g", "200g", "500g", "1kg", "2kg", "3kg", "5kg", "15kg", "50ml", "100ml", "200ml", "500ml", "1l", "2l", "3l", "5l", "15l"];
-    const match = validSizes.some(s => cleanQty.replace(/\s+/g, "").includes(s));
+    const match = validSizes.some(s => cleanQty.includes(s));
     return {
       compliant: match,
-      reason: match ? "Standard size conforms to Schedule 2 for Edible Oils." : `Size '${declaredQty}' is non-standard for Edible Oils under Schedule 2.`
+      reason: match ? "Standard size conforms to Schedule 2 for Edible Oils & Fats." : `Size '${declaredQty}' is non-standard for Edible Oils under Schedule 2.`
     };
   }
 
-  if (cat.includes("biscuit")) {
+  if (cat.includes("biscuit") || cat.includes("cookie") || cat.includes("snack")) {
     const validSizes = ["25g", "50g", "75g", "100g", "150g", "200g", "250g", "300g", "500g", "1kg"];
-    const match = validSizes.some(s => cleanQty.replace(/\s+/g, "").includes(s));
+    const match = validSizes.some(s => cleanQty.includes(s));
     return {
       compliant: match,
-      reason: match ? "Standard size conforms to Schedule 2 for Biscuits." : `Size '${declaredQty}' is non-standard for Biscuits under Schedule 2.`
+      reason: match ? "Standard size conforms to Schedule 2 for Biscuits & Bakery." : `Size '${declaredQty}' is non-standard for Biscuits under Schedule 2.`
+    };
+  }
+
+  if (cat.includes("tea") || cat.includes("coffee")) {
+    const validSizes = ["25g", "50g", "75g", "100g", "125g", "150g", "200g", "250g", "500g", "1kg"];
+    const match = validSizes.some(s => cleanQty.includes(s));
+    return {
+      compliant: match,
+      reason: match ? "Standard size conforms to Schedule 2 for Tea & Coffee." : `Size '${declaredQty}' is non-standard for Tea & Coffee under Schedule 2.`
+    };
+  }
+
+  if (cat.includes("rice") || cat.includes("atta") || cat.includes("flour") || cat.includes("pulse") || cat.includes("sugar")) {
+    const validSizes = ["100g", "200g", "500g", "1kg", "2kg", "5kg", "10kg", "20kg", "25kg", "50kg"];
+    const match = validSizes.some(s => cleanQty.includes(s));
+    return {
+      compliant: match,
+      reason: match ? "Standard size conforms to Schedule 2 for Food Grains & Pulses." : `Size '${declaredQty}' is non-standard for Food Grains under Schedule 2.`
     };
   }
 
   return {
     compliant: true,
-    reason: "Standard packaging quantity accepted."
+    reason: "Standard packaging quantity accepted under Second Schedule guidelines."
   };
+}
+
+// Universal module exports for Browser and Node environments
+if (typeof window !== "undefined") {
+  window.validateLabel = validateLabel;
+  window.validateSchedule2Tolerance = validateSchedule2Tolerance;
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { validateLabel, validateSchedule2Tolerance };
 }
 

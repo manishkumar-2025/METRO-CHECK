@@ -6,6 +6,17 @@
 const STORAGE_KEY_INSPECTIONS = "inspections";
 const STORAGE_KEY_COMMODITIES = "metro_commodities";
 
+const STORAGE_API_BASE = (() => {
+  if (typeof window === "undefined" || !window.location || !window.location.protocol || !window.location.protocol.startsWith("http")) {
+    return "http://localhost:3000";
+  }
+  const isLocalDevServer = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && window.location.port !== "3000";
+  if (isLocalDevServer) {
+    return "http://localhost:3000";
+  }
+  return window.location.origin;
+})();
+
 /**
  * Generates a unique Inspection ID like "INS-4821".
  */
@@ -14,18 +25,117 @@ function generateId(prefix = "INS-") {
   return prefix + randomDigits;
 }
 
+// In-memory cache to eliminate repetitive synchronous JSON.parse & localStorage disk I/O stalls
+let _inspectionsCache = null;
+let _commoditiesCache = null;
+
 /**
- * Retrieves all saved inspection records from localStorage.
+ * Invalidates the in-memory cache when external storage changes occur
+ */
+function invalidateStorageCache() {
+  _inspectionsCache = null;
+  _commoditiesCache = null;
+}
+
+/**
+ * High-performance global debounce utility to keep UI interactive and eliminate typing lag
+ */
+function debounce(func, wait = 150) {
+  let timeout;
+  return function executedFunction(...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func.apply(context, args);
+    }, wait);
+  };
+}
+if (typeof window !== "undefined") {
+  window.debounce = debounce;
+  window.invalidateStorageCache = invalidateStorageCache;
+}
+
+/**
+ * Retrieves all saved inspection records with in-memory memoization.
  */
 function getInspections() {
+  if (_inspectionsCache !== null) {
+    return _inspectionsCache.slice();
+  }
   const rawData = localStorage.getItem(STORAGE_KEY_INSPECTIONS);
-  if (!rawData) return [];
-  try {
-    return JSON.parse(rawData);
-  } catch (error) {
-    console.error("Failed to parse inspections from localStorage:", error);
+  if (!rawData) {
+    _inspectionsCache = [];
     return [];
   }
+  try {
+    _inspectionsCache = JSON.parse(rawData);
+    return _inspectionsCache.slice();
+  } catch (error) {
+    console.error("Failed to parse inspections from localStorage:", error);
+    _inspectionsCache = [];
+    return [];
+  }
+}
+
+/**
+ * Filters an array of inspections based on the current user's role and zonal access scope:
+ * - If current user role is national: return all inspections.
+ * - If current user role is zonal: return only inspections where inspection zone matches user zone.
+ * - If current user role is officer: return only inspections where inspection zone matches user zone, regardless of state.
+ * - If current user role is inspector: return only inspections where inspectorId matches current user username.
+ * - If no user is found: return an empty array.
+ */
+function filterByZoneAccess(inspections) {
+  if (!Array.isArray(inspections)) return [];
+
+  let currentUser = null;
+  try {
+    const raw = localStorage.getItem("currentUser");
+    if (raw) currentUser = JSON.parse(raw);
+  } catch (e) {
+    currentUser = null;
+  }
+
+  if (!currentUser) return [];
+
+  const role = (currentUser.role || "").trim().toLowerCase();
+  const userZone = (currentUser.zone || "").trim().toLowerCase();
+  const username = (currentUser.username || "").trim().toLowerCase();
+
+  // 1. National Admin / Director DoCA: sees all 6 zones
+  if (role === "national" || role === "admin" || userZone === "all") {
+    return inspections;
+  }
+
+  // 2. Zonal Admin: sees only inspections where zone matches user zone
+  if (role === "zonal") {
+    return inspections.filter(function(item) {
+      const itemZone = (item.zone || "").trim().toLowerCase();
+      return itemZone === userZone;
+    });
+  }
+
+  // 3. Officer: sees all inspections where zone matches user zone, regardless of state
+  if (role === "officer") {
+    return inspections.filter(function(item) {
+      const itemZone = (item.zone || "").trim().toLowerCase();
+      return itemZone === userZone;
+    });
+  }
+
+  // 4. Inspector: sees only inspections where inspectorId matches their username
+  if (role === "inspector") {
+    return inspections.filter(function(item) {
+      const inspId = (item.inspectorId || item.inspector || item.username || "").trim().toLowerCase();
+      return inspId === username;
+    });
+  }
+
+  return [];
+}
+
+if (typeof window !== "undefined") {
+  window.filterByZoneAccess = filterByZoneAccess;
 }
 
 /**
@@ -37,7 +147,7 @@ function getInspectionById(inspectionId) {
 }
 
 /**
- * Saves a new inspection or updates an existing one in localStorage.
+ * Saves a new inspection or updates an existing one in localStorage with cache sync.
  */
 function saveInspection(inspectionData) {
   const allInspections = getInspections();
@@ -54,8 +164,102 @@ function saveInspection(inspectionData) {
     allInspections.unshift(inspectionData);
   }
 
-  localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(allInspections));
+  _inspectionsCache = allInspections.slice();
+
+  try {
+    localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(allInspections));
+  } catch (err) {
+    console.warn("[METRO-CHECK] localStorage quota warning:", err.message);
+    // Quota optimization: Strip heavy base64 images from older records to preserve database integrity
+    try {
+      const pruned = allInspections.map((rec, idx) => {
+        if (idx > 2) {
+          const shallow = { ...rec };
+          delete shallow.image;
+          delete shallow.imageFront;
+          delete shallow.imageBack;
+          return shallow;
+        }
+        return rec;
+      });
+      localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(pruned));
+      if (typeof showToast === "function") {
+        showToast("Storage quota preserved: Archived older specimen images.", "warning");
+      }
+    } catch (criticalErr) {
+      console.error("[METRO-CHECK] Critical storage failure:", criticalErr);
+      if (typeof showToast === "function") {
+        showToast("Storage full: Please export CSV and clear old records.", "error");
+      }
+    }
+  }
+
+  // Background sync with central server (enables live handoff from mobile inspector to desktop officer)
+  if (typeof fetch !== "undefined") {
+    fetch(`${STORAGE_API_BASE}/api/inspections`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(inspectionData)
+    }).catch(e => {
+      // Offline / server offline - safely ignored as localStorage acts as primary offline cache
+    });
+  }
+
+  try {
+    if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+      window.dispatchEvent(new CustomEvent("metro:notificationsUpdated"));
+    }
+  } catch (e) {}
+
   return inspectionData;
+}
+
+/**
+ * Syncs central inspection dockets from server into local store
+ */
+async function syncInspectionsWithServer(onSyncComplete) {
+  if (typeof fetch === "undefined") return;
+  try {
+    const res = await fetch(`${STORAGE_API_BASE}/api/inspections`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json && Array.isArray(json.data) && json.data.length > 0) {
+        const local = getInspections();
+        const localMap = new Map(local.map(i => [i.id, i]));
+        let hasNew = false;
+        json.data.forEach(remoteItem => {
+          if (!localMap.has(remoteItem.id)) {
+            local.unshift(remoteItem);
+            hasNew = true;
+          } else {
+            const existing = localMap.get(remoteItem.id);
+            if (remoteItem.reviewedAt && (!existing.reviewedAt || remoteItem.reviewedAt > existing.reviewedAt)) {
+              Object.assign(existing, remoteItem);
+              hasNew = true;
+            }
+          }
+        });
+        if (hasNew) {
+          _inspectionsCache = local.slice();
+          try {
+            localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(local));
+          } catch (e) {}
+        }
+        if (onSyncComplete) onSyncComplete(local);
+      }
+    }
+  } catch (err) {
+    // Offline / silent fallback
+  }
+}
+
+// Auto-sync with server on document load if online
+if (typeof window !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => syncInspectionsWithServer());
+  } else {
+    syncInspectionsWithServer();
+  }
 }
 
 /* ==========================================================================
@@ -90,7 +294,20 @@ function updateInspectionStatus(inspectionId, newStatus, comments) {
     target.status = newStatus;
     if (comments) target.reviewComments = comments;
     target.reviewedAt = new Date().toISOString();
-    localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(allInspections));
+    _inspectionsCache = allInspections.slice();
+    try {
+      localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(allInspections));
+    } catch (e) {}
+
+    // Background server status sync
+    if (typeof fetch !== "undefined") {
+      fetch(`${STORAGE_API_BASE}/api/inspections/${inspectionId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus, reviewComments: comments })
+      }).catch(e => {});
+    }
+
     return target;
   }
   return null;
@@ -100,7 +317,7 @@ function updateInspectionStatus(inspectionId, newStatus, comments) {
  * Calculates summary metrics for the dashboard matching the standardized state machine.
  */
 function getStats() {
-  const allInspections = getInspections();
+  const allInspections = filterByZoneAccess(getInspections());
   let compliantCount = 0, violationsCount = 0, pendingReviewCount = 0;
 
   allInspections.forEach(function(item) {
@@ -126,7 +343,7 @@ function getStats() {
  * Returns completed inspections (approved, dismissed, or notice issued).
  */
 function getCompletedInspections() {
-  const all = getInspections();
+  const all = filterByZoneAccess(getInspections());
   return all.filter(item => {
     const s = String(item.status || "").toUpperCase();
     return s === "OFFICER_APPROVED" || s === "OFFICER_DISMISSED" || s === "NOTICE_ISSUED" || s === "APPROVED" || s === "REJECTED";
@@ -137,7 +354,7 @@ function getCompletedInspections() {
  * Converts all inspection records to CSV string and initiates browser download.
  */
 function exportInspectionsToCSV() {
-  const all = getInspections();
+  const all = filterByZoneAccess(getInspections());
   if (all.length === 0) {
     alert("No inspection records available to export.");
     return;
@@ -318,24 +535,32 @@ const DEFAULT_COMMODITIES = [
 ];
 
 /**
- * Retrieves all commodities from localStorage.
+ * Retrieves all commodities from localStorage with in-memory memoization.
  */
 function getCommodities() {
+  if (_commoditiesCache !== null) {
+    return _commoditiesCache.slice();
+  }
   const raw = localStorage.getItem(STORAGE_KEY_COMMODITIES);
   if (!raw) {
-    localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(DEFAULT_COMMODITIES));
-    return DEFAULT_COMMODITIES;
+    _commoditiesCache = DEFAULT_COMMODITIES;
+    try {
+      localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(DEFAULT_COMMODITIES));
+    } catch (e) {}
+    return _commoditiesCache.slice();
   }
   try {
-    return JSON.parse(raw);
+    _commoditiesCache = JSON.parse(raw);
+    return _commoditiesCache.slice();
   } catch (e) {
     console.error("Error parsing commodities:", e);
-    return DEFAULT_COMMODITIES;
+    _commoditiesCache = DEFAULT_COMMODITIES;
+    return _commoditiesCache.slice();
   }
 }
 
 /**
- * Saves or updates a commodity in localStorage.
+ * Saves or updates a commodity in localStorage with cache sync.
  */
 function saveCommodity(commodityData) {
   const list = getCommodities();
@@ -350,206 +575,106 @@ function saveCommodity(commodityData) {
     list.unshift(commodityData);
   }
 
-  localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(list));
+  _commoditiesCache = list.slice();
+  try {
+    localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(list));
+  } catch (e) {}
   return commodityData;
 }
 
 /**
- * Deletes a commodity by ID.
+ * Deletes a commodity by ID with cache sync.
  */
 function deleteCommodity(id) {
   let list = getCommodities();
   list = list.filter(c => c.id !== id);
-  localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(list));
+  _commoditiesCache = list.slice();
+  try {
+    localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(list));
+  } catch (e) {}
   return list;
 }
 
 /**
- * Resets commodities to default standards.
+ * Resets commodities to default standards with cache sync.
  */
 function resetCommodities() {
-  localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(DEFAULT_COMMODITIES));
+  _commoditiesCache = DEFAULT_COMMODITIES.slice();
+  try {
+    localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(DEFAULT_COMMODITIES));
+  } catch (e) {}
   return DEFAULT_COMMODITIES;
 }
 
 /**
- * Seeds demo inspections only when explicitly requested (e.g. from Admin console).
- * Does NOT auto-pollute storage on production loads.
+ * Seeds official demo inspections spread across all 6 Indian Zonal Councils.
+ * Cleanly delegated to isolated js/demo-data.js engine.
  */
 function seedDemoData(force = false) {
-  const existing = getInspections();
-  if (force || existing.length === 0) {
-    const demoRecords = [
-      {
-        id: "INS-1024",
-        date: "2025-01-15",
-        product: "Basmati Rice Premium 5kg",
-        status: INSPECTION_STATUS.NON_COMPLIANT_PENDING,
-        priority: "Urgent",
-        location: "Warehouse 4, Delhi",
-        extractedData: {
-          commodity_name: "Basmati Rice Premium",
-          generic_name: "Basmati Rice Premium",
-          net_quantity: "5 kg",
-          mrp: "₹450.00",
-          mrp_tax_inclusive: "₹450.00",
-          manufacturer: "ABC Foods Pvt Ltd, Mumbai",
-          manufacturer_name_address: "ABC Foods Pvt Ltd, Mumbai",
-          mfg_date: "01/2025",
-          mfg_month_year: "01/2025",
-          consumer_care: null,
-          consumer_care_contact: null
-        },
-        violations: ["Rule 6(1)(n): Missing Consumer Care Details"],
-        isCompliant: false,
-        inspectorName: "Field Inspector"
-      },
-      {
-        id: "INS-1025",
-        date: "2025-01-15",
-        product: "Refined Sunflower Oil 1L",
-        status: INSPECTION_STATUS.COMPLIANT_LOGGED,
-        priority: "Low",
-        location: "Reliance Mart, Mumbai",
-        reviewComments: "Fully compliant with Legal Metrology Packaged Commodities Rules 2011.",
-        extractedData: {
-          commodity_name: "Refined Sunflower Oil",
-          generic_name: "Refined Sunflower Oil",
-          net_quantity: "1 L",
-          mrp: "₹160.00",
-          mrp_tax_inclusive: "₹160.00",
-          manufacturer: "Sun Agro Oils Ltd, Gujarat",
-          manufacturer_name_address: "Sun Agro Oils Ltd, Gujarat",
-          mfg_date: "12/2024",
-          mfg_month_year: "12/2024",
-          consumer_care: "care@sunagro.com",
-          consumer_care_contact: "care@sunagro.com"
-        },
-        violations: [],
-        isCompliant: true,
-        inspectorName: "Field Inspector"
-      },
-      {
-        id: "INS-1026",
-        date: "2025-01-14",
-        product: "Packaged Wheat Flour 10kg",
-        status: INSPECTION_STATUS.COMPLIANT_LOGGED,
-        priority: "Standard",
-        location: "Big Bazaar, Pune",
-        extractedData: {
-          commodity_name: "Packaged Wheat Flour",
-          generic_name: "Packaged Wheat Flour",
-          net_quantity: "10 kg",
-          mrp: "₹380.00",
-          mrp_tax_inclusive: "₹380.00",
-          manufacturer: "Grain Mills Corp, Punjab",
-          manufacturer_name_address: "Grain Mills Corp, Punjab",
-          mfg_date: "11/2024",
-          mfg_month_year: "11/2024",
-          consumer_care: "1800-444-555",
-          consumer_care_contact: "1800-444-555"
-        },
-        violations: [],
-        isCompliant: true,
-        inspectorName: "Field Inspector"
-      },
-      {
-        id: "INS-1027",
-        date: "2025-01-14",
-        product: "Pure Cow Ghee 500ml",
-        status: INSPECTION_STATUS.NOTICE_ISSUED,
-        priority: "Urgent",
-        location: "Modern Bazaar, Delhi",
-        reviewComments: "Statutory notice issued under Rule 32 for missing currency symbol on MRP and substandard font height.",
-        extractedData: {
-          commodity_name: "Pure Cow Ghee",
-          generic_name: "Pure Cow Ghee",
-          net_quantity: "500 ml",
-          mrp: "420",
-          mrp_tax_inclusive: "420",
-          manufacturer: "Dairy Valley Ltd, Karnal",
-          manufacturer_name_address: "Dairy Valley Ltd, Karnal",
-          mfg_date: "10/2024",
-          mfg_month_year: "10/2024",
-          consumer_care: "support@dairyvalley.in",
-          consumer_care_contact: "support@dairyvalley.in"
-        },
-        violations: ["Rule 6(1)(e): Defective MRP format (missing currency symbol)", "Incorrect Font Size"],
-        isCompliant: false,
-        inspectorName: "Field Inspector"
-      },
-      {
-        id: "INS-1028",
-        date: "2025-01-13",
-        product: "Iodized Table Salt 1kg",
-        status: INSPECTION_STATUS.COMPLIANT_LOGGED,
-        priority: "Low",
-        location: "City Retail, Kolkata",
-        reviewComments: "All mandatory markings verified as per Schedule 2.",
-        extractedData: {
-          commodity_name: "Iodized Table Salt",
-          generic_name: "Iodized Table Salt",
-          net_quantity: "1 kg",
-          mrp: "₹28.00",
-          mrp_tax_inclusive: "₹28.00",
-          manufacturer: "Salt Works India Ltd, Tuticorin",
-          manufacturer_name_address: "Salt Works India Ltd, Tuticorin",
-          mfg_date: "12/2024",
-          mfg_month_year: "12/2024",
-          consumer_care: "salt@works.in",
-          consumer_care_contact: "salt@works.in"
-        },
-        violations: [],
-        isCompliant: true,
-        inspectorName: "Field Inspector"
-      },
-      {
-        id: "INS-1029",
-        date: "2025-01-13",
-        product: "Detergent Powder 2kg",
-        status: "DRAFT",
-        priority: "Standard",
-        location: "Depot 2, Bangalore",
-        extractedData: {
-          commodity_name: "Detergent Powder",
-          generic_name: "Detergent Powder",
-          net_quantity: "2 kg",
-          mrp: "₹190.00",
-          mrp_tax_inclusive: "₹190.00",
-          manufacturer: "Clean Care Chem, Chennai",
-          manufacturer_name_address: "Clean Care Chem, Chennai",
-          mfg_date: null,
-          mfg_month_year: null,
-          consumer_care: "care@cleancare.in",
-          consumer_care_contact: "care@cleancare.in"
-        },
-        violations: ["Rule 6(1)(d): Missing Month/Year of Packaging"],
-        isCompliant: false,
-        inspectorName: "Field Inspector"
+  let demoDataModule = (typeof DemoData !== "undefined") ? DemoData : null;
+  if (!demoDataModule && typeof require === "function") {
+    try {
+      demoDataModule = require("./demo-data.js");
+    } catch (e1) {
+      try {
+        demoDataModule = require("./js/demo-data.js");
+      } catch (e2) {
+        try {
+          demoDataModule = require("../js/demo-data.js");
+        } catch (e3) {
+          try {
+            const path = require("path");
+            demoDataModule = require(path.join(process.cwd(), "js", "demo-data.js"));
+          } catch (e4) {}
+        }
       }
-    ];
-    localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(demoRecords));
+    }
+  }
+
+  if (demoDataModule && typeof demoDataModule.seed === "function") {
+    const records = demoDataModule.seed(force);
+    _inspectionsCache = records.slice();
+    getCommodities();
+    return records;
   }
 
   // Ensure commodities exist
   getCommodities();
+  return getInspections();
 }
 
 /**
  * Explicit user-triggered loader for demo/testing data.
  */
 function loadSampleDemoData() {
-  seedDemoData(true);
-  return getInspections();
+  return seedDemoData(true);
 }
 
 /**
- * Initializes baseline storage references without injecting fake inspection data.
+ * Initializes baseline storage references and seeds 6-zone demo records if in prototype demo mode.
  */
 function initStorage() {
   getCommodities();
+  const isDemoMode = (typeof localStorage !== "undefined" && localStorage.getItem("metro_demo_mode") !== "false");
+  const raw = (typeof localStorage !== "undefined") ? localStorage.getItem(STORAGE_KEY_INSPECTIONS) : null;
+  if (!raw) {
+    if (isDemoMode) {
+      seedDemoData(false);
+    }
+  } else if (isDemoMode) {
+    try {
+      const records = JSON.parse(raw);
+      const needsUpgrade = !Array.isArray(records) || records.length === 0 || records.some(r => !r.zone || !r.state);
+      if (needsUpgrade) {
+        seedDemoData(true);
+      }
+    } catch (e) {
+      seedDemoData(true);
+    }
+  }
 }
 
-// Initialize system standards (commodities/rules) on script load
+// Initialize system standards (commodities/rules) and zonal data on script load
 initStorage();
+
 

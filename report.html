@@ -5,62 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>METRO-CHECK | Legal Metrology Compliance Inspection Report</title>
   
-  <!-- Tailwind CSS via CDN -->
+  <!-- Tailwind CSS via CDN with Extended Sovereign GovTech Tokens -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#F7F8FA',
+            ink: '#0F172A',
+            body: '#64748B',
+            border: '#E4E7EC',
+            primary: {
+              DEFAULT: '#10B981',
+              hover: '#059669',
+            },
+            slate: {
+              850: '#152033',
+              900: '#0F172A',
+              950: '#080D1A',
+            },
+            emerald: {
+              500: '#10B981',
+              600: '#059669',
+              700: '#047857',
+            },
+            amber: {
+              500: '#F59E0B',
+              600: '#D97706',
+            },
+            rose: {
+              500: '#F43F5E',
+              600: '#E11D48',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <link rel="stylesheet" href="css/style.css">
 
   <!-- PDF Generation Library via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 antialiased p-0" onload="initReportView()">
+<body class="bg-slate-100 dark:bg-slate-950 min-h-screen text-slate-800 dark:text-slate-200 antialiased p-0" onload="initReportView()">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
-  <a href="#mainContent" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-amber-500 focus:text-slate-950 focus:rounded-xl focus:shadow-2xl focus:font-black focus:outline-none focus:ring-2 focus:ring-amber-300 text-xs">
+  <a href="#mainContent" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#10B981] focus:text-white focus:rounded-xl focus:shadow-2xl focus:font-bold focus:outline-none focus:ring-2 focus:ring-[#059669] text-xs">
     Skip to Main Content / मुख्य सामग्री पर जाएं
   </a>
 
   <!-- 1. OFFICIAL NATIONAL MASTHEAD & TRICOLOR HEADER BAR (Screen Only) -->
   <div class="tricolor-strip print:hidden"></div>
 
-  <header id="nationalGovMasthead" class="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 z-30 flex-shrink-0 select-none text-slate-800 print:hidden shadow-xs">
+  <header id="nationalGovMasthead" class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 z-30 flex-shrink-0 select-none text-slate-800 dark:text-slate-200 print:hidden shadow-xs">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-3">
       
       <!-- Left: Sovereign Emblem & Bilingual Hierarchy -->
       <div class="flex items-center gap-3 min-w-0">
-        <div class="flex-shrink-0 w-8 h-10 sm:w-9 sm:h-11 flex items-center justify-center">
-          <svg viewBox="0 0 100 125" class="w-full h-full drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="State Emblem of India">
-            <defs>
-              <linearGradient id="emblemGoldLightReport" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#b45309"/>
-                <stop offset="45%" stop-color="#d97706"/>
-                <stop offset="100%" stop-color="#92400e"/>
-              </linearGradient>
-            </defs>
-            <g fill="url(#emblemGoldLightReport)">
-              <path d="M50 7 C43 7 38 12 38 20 C38 25 40 29 43 33 C41 37 40 42 41 47 C41 53 43 56 46 59 C47 57 48 54 50 54 C52 54 53 57 54 59 C57 56 59 53 59 47 C60 42 59 37 57 33 C60 29 62 25 62 20 C62 12 57 7 50 7 Z"/>
-              <path d="M38 17 C32 16 27 20 26 26 C25 31 27 36 30 39 C29 43 29 48 31 53 C33 57 36 60 40 62 C38 58 38 54 38 50 C36 47 35 43 36 39 C33 37 32 33 33 29 C34 25 37 21 40 20 Z"/>
-              <path d="M62 17 C68 16 73 20 74 26 C75 31 73 36 70 39 C71 43 71 48 69 53 C67 57 64 60 60 62 C62 58 62 54 62 50 C64 47 65 43 64 39 C67 37 68 33 67 29 C66 25 63 21 60 20 Z"/>
-              <rect x="22" y="65" width="56" height="3.5" rx="1.5"/>
-              <rect x="24" y="69.5" width="52" height="13"/>
-              <circle cx="50" cy="76" r="5.5" fill="#ffffff" stroke="url(#emblemGoldLightReport)" stroke-width="0.9"/>
-              <circle cx="50" cy="76" r="1.5" fill="url(#emblemGoldLightReport)"/>
-              <rect x="20" y="83.5" width="60" height="3.5" rx="1.5"/>
-              <path d="M26 88 C26 88 34 100 50 100 C66 100 74 88 74 88 Z"/>
-              <rect x="18" y="101" width="64" height="3.5" rx="1.5"/>
-              <text x="50" y="115" text-anchor="middle" font-family="'Inter', sans-serif" font-size="8.5" font-weight="900" fill="url(#emblemGoldLightReport)" letter-spacing="1">सत्यमेव जयते</text>
-              <text x="50" y="123" text-anchor="middle" font-family="'Inter', sans-serif" font-size="5.5" font-weight="700" fill="#64748b" letter-spacing="0.5">SATYAMEVA JAYATE</text>
-            </g>
-          </svg>
-        </div>
+        <!-- Official State Emblem of India (Ashoka Lion Capital) -->
+        <a href="index.html" class="flex-shrink-0 flex items-center justify-center focus:outline-none group" title="Government of India • State Emblem of India • सत्यमेव जयते">
+          <img src="logo/header-logo-emblem.png" 
+               alt="State Emblem of India" 
+               class="h-9 sm:h-11 w-auto object-contain select-none drop-shadow-xs transition-transform group-hover:scale-105" />
+          <span class="sr-only">सत्यमेव जयते / State Emblem of India</span>
+        </a>
+
+        <div class="w-[1px] h-8 bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
 
         <!-- Hierarchy & Official Portal Indicator -->
         <div class="flex flex-col justify-center min-w-0">
-          <div class="text-[12px] sm:text-[13.5px] font-black leading-tight tracking-tight text-slate-900">
+          <div class="text-[12px] sm:text-[13.5px] font-bold leading-tight tracking-tight text-slate-900 dark:text-white">
             उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय
           </div>
-          <div class="text-[10px] sm:text-[11.5px] font-semibold leading-tight mt-0.5 text-slate-600 flex flex-wrap items-center gap-x-1.5">
+          <div class="text-[10px] sm:text-[11.5px] font-medium leading-tight mt-0.5 text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5">
             <span>Ministry of Consumer Affairs, Food & Public Distribution</span>
-            <span class="px-1.5 py-0.2 rounded text-[8.5px] font-black bg-amber-500/15 text-amber-700 border border-amber-500/30 font-mono ml-1">e-LMCEP</span>
+            <span class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono ml-1">e-LMCEP</span>
             <span class="text-slate-400 font-normal hidden lg:inline">(e-Legal Metrology Compliance & Enforcement Portal)</span>
           </div>
         </div>
@@ -70,7 +94,7 @@
       <div class="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
         
         <!-- Live IST Clock Ticker -->
-        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[10px] sm:text-[11px] font-bold shadow-xs">
+        <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-mono text-[10px] sm:text-[11px] font-bold shadow-xs">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span class="masthead-ist-clock tracking-tight">-- --- ---- | --:--:-- IST</span>
         </div>
@@ -78,25 +102,32 @@
         <!-- Accessibility Pill Dock -->
         <div class="masthead-pill-dock">
           <!-- Font Sizer -->
-          <div class="flex items-center text-[10px] font-black rounded-full overflow-hidden p-0.5">
-            <button type="button" onclick="govChangeFontSize('decrease')" id="fontSizer-decrease" title="Decrease Font (A-)" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 transition opacity-60">A-</button>
-            <button type="button" onclick="govChangeFontSize('normal')" id="fontSizer-normal" title="Normal Font (A)" class="px-1.5 py-0.5 rounded-full bg-amber-500 text-white shadow-xs transition">A</button>
-            <button type="button" onclick="govChangeFontSize('increase')" id="fontSizer-increase" title="Increase Font (A+)" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 transition opacity-60">A+</button>
+          <div class="flex items-center text-[10px] font-bold rounded-full overflow-hidden p-0.5">
+            <button type="button" onclick="govChangeFontSize('decrease')" id="fontSizer-decrease" title="Decrease Font (A-)" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">A-</button>
+            <button type="button" onclick="govChangeFontSize('normal')" id="fontSizer-normal" title="Normal Font (A)" class="px-1.5 py-0.5 rounded-full bg-[#10B981] text-white shadow-xs transition">A</button>
+            <button type="button" onclick="govChangeFontSize('increase')" id="fontSizer-increase" title="Increase Font (A+)" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">A+</button>
           </div>
 
-          <div class="w-[1px] h-3 bg-slate-300/80"></div>
+          <div class="w-[1px] h-3 bg-slate-300/80 dark:bg-slate-700"></div>
 
           <!-- High-Contrast Toggle -->
-          <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn" title="Toggle High-Contrast Mode" class="p-1 rounded-full hover:bg-slate-200/70 text-xs transition">
+          <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn" title="Toggle High-Contrast Mode" class="p-1 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs transition">
             🌓
           </button>
+
+          <div class="w-[1px] h-3 bg-slate-300/80 dark:bg-slate-700"></div>
+
+          <!-- Language Toggle -->
+          <div class="flex items-center text-[9.5px] font-bold rounded-full overflow-hidden p-0.5">
+            <button type="button" onclick="govSetLanguage('en')" id="govLangEn" class="px-1.5 py-0.5 rounded-full bg-[#10B981] text-white transition shadow-xs">EN</button>
+            <button type="button" onclick="govSetLanguage('hi')" id="govLangHi" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">हि</button>
+          </div>
         </div>
 
-        <!-- Digital India & NIC Badge -->
-        <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50/80 border border-blue-200 text-[9.5px] font-extrabold text-[#003366] shadow-xs">
-          <span>🇮🇳</span>
-          <span class="tracking-tight">Digital India</span>
-        </div>
+        <!-- Digital India Logo Link -->
+        <a href="https://www.digitalindia.gov.in" target="_blank" rel="noopener noreferrer" title="Digital India - Power to Empower | Government of India" class="hidden sm:flex items-center hover:opacity-85 transition group">
+          <img src="logo/digital-india.png" alt="Digital India Logo" class="h-8 sm:h-9 w-auto object-contain select-none transition-transform group-hover:scale-105" />
+        </a>
 
       </div>
 
@@ -105,21 +136,21 @@
 
   <!-- Top Action Bar (Hidden automatically when printing) -->
   <div class="max-w-4xl mx-auto my-5 px-4 sm:px-0 flex items-center justify-between print:hidden">
-    <button type="button" onclick="window.history.back()" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl shadow-xs border border-slate-300 transition flex items-center gap-1.5">
+    <button type="button" onclick="window.history.back()" class="btn-secondary text-xs flex items-center gap-1.5">
       <span>←</span> <span>Back</span>
     </button>
     <div class="flex items-center gap-3">
-      <button type="button" onclick="printReport()" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl shadow-xs border border-slate-300 transition flex items-center gap-2">
+      <button type="button" onclick="printReport()" class="btn-secondary text-xs flex items-center gap-2">
         <span>🖨️</span> <span>Print Official Report</span>
       </button>
-      <button type="button" id="downloadPdfButton" onclick="generatePDF()" class="px-5 py-2 bg-[#f59e0b] hover:bg-[#d97706] text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-2 btn-hover-effect">
+      <button type="button" id="downloadPdfButton" onclick="generatePDF()" class="btn-primary text-xs flex items-center gap-2 shadow-sm cursor-pointer">
         <span>📥</span> <span>Download PDF</span>
       </button>
     </div>
   </div>
 
   <!-- Printable A4 Document Sheet -->
-  <main id="mainContent" class="max-w-4xl mx-auto bg-white p-8 sm:p-10 rounded-2xl shadow-xl border border-slate-300 space-y-6 my-4">
+  <main id="mainContent" class="max-w-4xl mx-auto bg-white dark:bg-slate-900 p-8 sm:p-10 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 space-y-6 my-4 print:shadow-none print:border-none print:p-0 print:my-0">
     
     <!-- Report Document Header with Official Emblem & Ministry Credentials -->
     <header class="border-b-2 border-slate-800 pb-4 flex items-center justify-between">
@@ -272,6 +303,8 @@
   </footer>
 
   <!-- Scripts -->
+  <script src="js/demo-data.js"></script>
+  <script src="js/demo-showcase.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/pdfService.js"></script>

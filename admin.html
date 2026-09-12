@@ -3,20 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>METRO-CHECK | System Administrator Oversight</title>
+  <title>METRO-CHECK | National Command Center</title>
   
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <!-- Security check: Ensure only admin can access -->
   <script src="js/auth.js"></script>
   <script>checkLogin("admin");</script>
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#F8FAFC',
+            ink: '#0F172A',
+            body: '#64748B',
+            border: '#E2E8F0',
+            primary: {
+              DEFAULT: '#10B981',
+              50: '#ECFDF5',
+              100: '#D1FAE5',
+              500: '#10B981',
+              600: '#059669',
+              700: '#047857',
+              hover: '#059669',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-slate-100 min-h-screen flex flex-col text-slate-800 antialiased" onload="initAdminApp()">
+<body class="porcelain-canvas min-h-screen flex flex-col text-[#0F172A] antialiased" onload="initAdminApp()">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
-  <a href="#mainContent" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-amber-500 focus:text-slate-950 focus:rounded-xl focus:shadow-2xl focus:font-black focus:outline-none focus:ring-2 focus:ring-amber-300 text-xs">
+  <a href="#mainContent" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#10B981] focus:text-white focus:rounded-lg focus:shadow-lg focus:font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-400 text-xs">
     Skip to Main Content / मुख्य सामग्री पर जाएं
   </a>
 
@@ -27,74 +59,50 @@
        ========================================================================= -->
   <div class="tricolor-strip"></div>
 
-  <header id="nationalGovMasthead" class="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 z-30 flex-shrink-0 select-none text-slate-800">
+  <header id="nationalGovMasthead" class="w-full bg-white/95 backdrop-blur-md border-b border-[#E4E7EC] z-30 flex-shrink-0 select-none text-[#0F172A]">
     <div class="w-full px-3 sm:px-6 py-2 flex items-center justify-between gap-3">
       
       <!-- Left: Sovereign Emblem & Bilingual Hierarchy -->
       <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-        <!-- High-Precision Gold Metallic Lion Capital of Ashoka -->
-        <div class="flex-shrink-0 w-8 h-10 sm:w-9 sm:h-11 flex items-center justify-center">
-          <svg viewBox="0 0 100 125" class="w-full h-full drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="State Emblem of India">
-            <defs>
-              <linearGradient id="emblemGoldLight" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#b45309"/>
-                <stop offset="50%" stop-color="#d97706"/>
-                <stop offset="100%" stop-color="#92400e"/>
-              </linearGradient>
-            </defs>
-            <g fill="url(#emblemGoldLight)">
-              <!-- Lions Silhouette -->
-              <path d="M50 7 C43 7 38 12 38 20 C38 25 40 29 43 33 C41 37 40 42 41 47 C41 53 43 56 46 59 C47 57 48 54 50 54 C52 54 53 57 54 59 C57 56 59 53 59 47 C60 42 59 37 57 33 C60 29 62 25 62 20 C62 12 57 7 50 7 Z"/>
-              <path d="M38 17 C32 16 27 20 26 26 C25 31 27 36 30 39 C29 43 29 48 31 53 C33 57 36 60 40 62 C38 58 38 54 38 50 C36 47 35 43 36 39 C33 37 32 33 33 29 C34 25 37 21 40 20 Z"/>
-              <path d="M62 17 C68 16 73 20 74 26 C75 31 73 36 70 39 C71 43 71 48 69 53 C67 57 64 60 60 62 C62 58 62 54 62 50 C64 47 65 43 64 39 C67 37 68 33 67 29 C66 25 63 21 60 20 Z"/>
-              <!-- Abacus Rim & Frieze -->
-              <rect x="22" y="65" width="56" height="3.5" rx="1.5"/>
-              <rect x="24" y="69.5" width="52" height="13"/>
-              <!-- Chakra & Wheel -->
-              <circle cx="50" cy="76" r="5.5" fill="#f8fafc" stroke="url(#emblemGoldLight)" stroke-width="0.9"/>
-              <circle cx="50" cy="76" r="1.5" fill="url(#emblemGoldLight)"/>
-              <!-- Horse & Bull Silhouettes -->
-              <path d="M30 78 Q32 73 36 74 Q37 77 36 79 L34 81 Z" fill="#f8fafc"/>
-              <path d="M64 78 Q66 73 70 74 Q71 77 70 79 L68 81 Z" fill="#f8fafc"/>
-              <!-- Base Lotus & Pedestal -->
-              <rect x="20" y="83.5" width="60" height="3.5" rx="1.5"/>
-              <path d="M26 88 C26 88 34 100 50 100 C66 100 74 88 74 88 Z"/>
-              <rect x="18" y="101" width="64" height="3.5" rx="1.5"/>
-              <!-- Satyameva Jayate Motto -->
-              <text x="50" y="115" text-anchor="middle" font-family="'Inter', sans-serif" font-size="8.5" font-weight="900" fill="url(#emblemGoldLight)" letter-spacing="1">सत्यमेव जयते</text>
-              <text x="50" y="123" text-anchor="middle" font-family="'Inter', sans-serif" font-size="5.5" font-weight="700" fill="#64748b" letter-spacing="0.5">SATYAMEVA JAYATE</text>
-            </g>
-          </svg>
-        </div>
+        <!-- Official State Emblem of India (Ashoka Lion Capital) -->
+        <a href="index.html" class="flex-shrink-0 flex items-center justify-center focus:outline-none group" title="Government of India • State Emblem of India • सत्यमेव जयते">
+          <img src="logo/header-logo-emblem.png" 
+               alt="State Emblem of India" 
+               class="h-9 sm:h-11 w-auto object-contain select-none drop-shadow-xs transition-transform group-hover:scale-105" />
+          <span class="sr-only">सत्यमेव जयते / State Emblem of India</span>
+          <span id="emblemGoldLight" class="hidden"></span>
+        </a>
+
+        <div class="w-[1px] h-8 bg-[#E4E7EC] hidden sm:block"></div>
 
         <!-- Hierarchy & Official Portal Indicator -->
         <div class="flex flex-col justify-center min-w-0">
-          <div class="text-[12px] sm:text-[13.5px] font-black leading-tight tracking-tight text-slate-900">
+          <div class="text-[12px] sm:text-[13.5px] font-bold leading-tight tracking-tight text-[#0F172A]">
             उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय
           </div>
-          <div class="text-[10px] sm:text-[11.5px] font-semibold leading-tight mt-0.5 text-slate-600 flex flex-wrap items-center gap-x-1.5">
+          <div class="text-[10px] sm:text-[11.5px] font-medium leading-tight mt-0.5 text-[#64748B] flex flex-wrap items-center gap-x-1.5">
             <span>Ministry of Consumer Affairs, Food & Public Distribution</span>
-            <span class="px-1.5 py-0.2 rounded text-[8.5px] font-black bg-amber-500/15 text-amber-700 border border-amber-500/30 font-mono ml-1">e-LMCEP</span>
+            <span class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono ml-1">e-LMCEP</span>
             <span class="text-slate-400 font-normal hidden lg:inline">(e-Legal Metrology Compliance & Enforcement Portal / METRO-CHECK)</span>
           </div>
         </div>
       </div>
 
-      <!-- Right: Modern Floating Glass Pill Dock -->
+      <!-- Right: Modern Floating Pill Dock -->
       <div class="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
         
         <!-- Live IST Clock Ticker -->
-        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[10px] sm:text-[11px] font-bold shadow-xs">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F7F8FA] border border-[#E4E7EC] text-[#0F172A] font-mono text-[10px] sm:text-[11px] font-medium shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
           <span class="masthead-ist-clock tracking-tight">-- --- ---- | --:--:-- IST</span>
         </div>
 
         <!-- Accessibility Pill Dock -->
         <div class="masthead-pill-dock">
           <!-- Font Sizer -->
-          <div class="flex items-center text-[10px] font-black rounded-full overflow-hidden p-0.5">
+          <div class="flex items-center text-[10px] font-bold rounded-full overflow-hidden p-0.5">
             <button type="button" onclick="govChangeFontSize('decrease')" id="fontSizer-decrease" title="Decrease Font (A-)" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 transition opacity-60">A-</button>
-            <button type="button" onclick="govChangeFontSize('normal')" id="fontSizer-normal" title="Normal Font (A)" class="px-1.5 py-0.5 rounded-full bg-amber-500 text-white shadow-xs transition">A</button>
+            <button type="button" onclick="govChangeFontSize('normal')" id="fontSizer-normal" title="Normal Font (A)" class="px-1.5 py-0.5 rounded-full bg-[#10B981] text-white shadow-xs transition">A</button>
             <button type="button" onclick="govChangeFontSize('increase')" id="fontSizer-increase" title="Increase Font (A+)" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 transition opacity-60">A+</button>
           </div>
 
@@ -107,20 +115,24 @@
 
           <div class="w-[1px] h-3 bg-slate-300/80"></div>
 
+          <!-- Theme Toggle (Executive Light / Dark) -->
+          <button type="button" onclick="govToggleTheme()" id="govThemeToggleBtn" title="Switch Theme (Light / Dark)" class="p-1 rounded-full hover:bg-slate-200/70 text-xs transition">
+            🌙
+          </button>
+
+          <div class="w-[1px] h-3 bg-slate-300/80"></div>
+
           <!-- Language Toggle -->
           <div class="flex items-center text-[9.5px] font-bold rounded-full overflow-hidden p-0.5">
-            <button type="button" onclick="govSetLanguage('en')" id="govLangEn" class="px-2 py-0.5 rounded-full bg-amber-500 text-white transition shadow-xs">EN</button>
+            <button type="button" onclick="govSetLanguage('en')" id="govLangEn" class="px-2 py-0.5 rounded-full bg-[#10B981] text-white transition shadow-xs">EN</button>
             <button type="button" onclick="govSetLanguage('hi')" id="govLangHi" class="px-2 py-0.5 rounded-full hover:bg-slate-200/70 transition opacity-60">हि</button>
           </div>
         </div>
 
-        <!-- Digital India & NIC Badge -->
-        <div class="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50/80 border border-blue-200 text-[9.5px] font-extrabold text-[#003366] shadow-xs">
-          <span>🇮🇳</span>
-          <span class="tracking-tight">Digital India</span>
-          <span class="opacity-30">•</span>
-          <span class="text-slate-500">NIC Initiative</span>
-        </div>
+        <!-- Digital India Logo Link -->
+        <a href="https://www.digitalindia.gov.in" target="_blank" rel="noopener noreferrer" title="Digital India - Power to Empower | Government of India" class="hidden sm:flex items-center hover:opacity-85 transition group">
+          <img src="logo/digital-india.png" alt="Digital India Logo" class="h-8 sm:h-9 w-auto object-contain select-none transition-transform group-hover:scale-105" />
+        </a>
 
       </div>
 
@@ -133,84 +145,138 @@
   <!-- Mobile Drawer Backdrop -->
   <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden transition-opacity"></div>
 
-  <!-- Left Navigation Sidebar (280px wide, Dark Navy #1a1f36, Responsive Mobile Drawer) -->
-  <aside class="fixed inset-y-0 left-0 z-40 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-200 ease-in-out w-[280px] bg-[#1a1f36] text-slate-300 flex flex-col justify-between flex-shrink-0 min-h-full p-5 shadow-2xl md:shadow-none">
-    <div>
-      <!-- Brand Logo -->
-      <div class="flex items-center justify-between pb-5 border-b border-slate-700/60">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 text-xl font-black">
+  <!-- Left Navigation Sidebar (Linear / Shadcn UI 250px SaaS Style) -->
+  <aside id="leftSidebar" class="sidebar-container fixed inset-y-0 left-0 z-40 transform -translate-x-full md:sticky md:top-0 md:h-[calc(100vh-48px)] md:translate-x-0 w-[250px] text-slate-700 flex flex-col justify-between flex-shrink-0 p-3.5 shadow-2xl md:shadow-none select-none bg-[#FAFAFA] border-r border-gray-200">
+    <div class="sidebar-content-scrollable flex-1 overflow-y-auto pr-0.5 space-y-3">
+      <!-- Brand Logo Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <div class="flex items-center gap-2.5 sidebar-brand-wrapper min-w-0">
+          <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-xs flex-shrink-0">
             ⚖️
           </div>
-          <div>
-            <h1 class="text-white font-black text-base tracking-wider">METRO-CHECK</h1>
-            <p class="text-[10px] text-amber-400 font-semibold uppercase tracking-wider">Legal Metrology Portal</p>
+          <div class="min-w-0 sidebar-hide-on-collapse">
+            <h1 class="text-gray-900 font-semibold text-xs tracking-tight truncate">METRO-CHECK</h1>
+            <p class="text-[10px] text-gray-500 font-medium tracking-wide uppercase font-mono truncate">Command Center</p>
           </div>
         </div>
-        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800" title="Close Menu">✕</button>
-      </div>
 
-      <!-- Admin Status Indicator -->
-      <div class="mt-4 px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-between text-xs">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="text-slate-300 font-semibold text-[11px]">System Oversight</span>
+        <!-- Controls: Desktop Collapse Toggle + Mobile Close Button -->
+        <div class="flex items-center gap-1">
+          <button type="button" onclick="toggleDesktopSidebar()" id="sidebarCollapseBtn" class="hidden md:flex items-center justify-center w-6 h-6 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer" title="Collapse / Expand Sidebar">
+            <svg id="sidebarCollapseIcon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+            </svg>
+          </button>
+          <button type="button" onclick="toggleMobileSidebar()" class="md:hidden text-gray-400 hover:text-gray-700 p-1 rounded hover:bg-gray-100 transition cursor-pointer" title="Close Menu">✕</button>
         </div>
-        <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold text-[10px] border border-amber-500/30">ADMIN</span>
       </div>
 
-      <!-- Admin Navigation Menu: 5 Modules -->
-      <nav class="mt-5 space-y-1 text-sm font-medium">
-        <!-- 1. Command Center -->
-        <button type="button" onclick="switchAdminTab('command')" id="adminNavBtn-command" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-amber-500 text-white shadow font-semibold transition text-left">
-          <span>📊</span> <span>Command Center</span>
-        </button>
+      <!-- Live Status Indicator -->
+      <div class="px-2.5 py-1.5 rounded-md bg-white border border-gray-200/80 flex items-center justify-between text-xs sidebar-hide-on-collapse shadow-xs">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="relative flex h-2 w-2 flex-shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="text-gray-700 font-medium text-[11px] truncate">Command Core Active</span>
+        </div>
+        <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-gray-100 text-gray-700 border border-gray-200 uppercase font-mono flex-shrink-0">ADMIN</span>
+      </div>
 
-        <!-- 2. Master Ledger -->
-        <button type="button" onclick="switchAdminTab('ledger')" id="adminNavBtn-ledger" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-          <span>📒</span> <span>Master Ledger</span>
-        </button>
+      <!-- Navigation Menu Grouped into Clear Sections -->
+      <nav class="space-y-3 text-xs font-medium pt-1">
+        <!-- SECTION 1: OVERSIGHT -->
+        <div>
+          <p class="sidebar-section-header px-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider sidebar-hide-on-collapse mb-1">Oversight</p>
+          <div class="space-y-0.5">
+            <!-- 1. Command Center -->
+            <button type="button" onclick="switchAdminTab('command')" id="adminNavBtn-command" class="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md sidebar-nav-item active bg-gray-100 text-gray-900 font-medium transition text-left" title="Command Center">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="text-sm flex-shrink-0">📊</span>
+                <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Command Center</span>
+              </div>
+            </button>
 
-        <!-- 3. Reports & Analytics -->
-        <button type="button" onclick="switchAdminTab('analytics')" id="adminNavBtn-analytics" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-          <span>📈</span> <span>Reports & Analytics</span>
-        </button>
+            <!-- 2. Master Ledger -->
+            <button type="button" onclick="switchAdminTab('ledger')" id="adminNavBtn-ledger" class="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md sidebar-nav-item text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left" title="Master Ledger">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="text-sm flex-shrink-0">📒</span>
+                <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Master Ledger</span>
+              </div>
+            </button>
 
-        <!-- 4. Commodity Management -->
-        <button type="button" onclick="switchAdminTab('commodities')" id="adminNavBtn-commodities" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-          <span>📦</span> <span>Commodity Management</span>
-        </button>
+            <!-- 3. Reports & Analytics -->
+            <button type="button" onclick="switchAdminTab('analytics')" id="adminNavBtn-analytics" class="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md sidebar-nav-item text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left" title="Reports & Analytics">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="text-sm flex-shrink-0">📈</span>
+                <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Reports & Analytics</span>
+              </div>
+            </button>
+          </div>
+        </div>
 
-        <!-- 5. Platform Settings -->
-        <button type="button" onclick="switchAdminTab('settings')" id="adminNavBtn-settings" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-          <span>⚙️</span> <span>Platform Settings</span>
-        </button>
+        <!-- SECTION 2: MANAGEMENT -->
+        <div>
+          <p class="sidebar-section-header px-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider sidebar-hide-on-collapse mb-1">Management</p>
+          <div class="space-y-0.5">
+            <!-- 4. Commodity Standards -->
+            <button type="button" onclick="switchAdminTab('commodities')" id="adminNavBtn-commodities" class="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md sidebar-nav-item text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left" title="Commodity Standards">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="text-sm flex-shrink-0">📦</span>
+                <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Commodity Standards</span>
+              </div>
+            </button>
+
+            <!-- 5. Platform Settings -->
+            <button type="button" onclick="switchAdminTab('settings')" id="adminNavBtn-settings" class="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md sidebar-nav-item text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left" title="Platform Settings">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="text-sm flex-shrink-0">⚙️</span>
+                <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Platform Settings</span>
+              </div>
+            </button>
+          </div>
+        </div>
       </nav>
     </div>
 
-    <!-- Bottom Sidebar: User & Logout (Modern Dark Pill Style) -->
-    <div class="pt-4 border-t border-slate-700/60">
-      <div class="flex items-center justify-between mb-3 px-1">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <!-- Rounded Green Avatar Icon -->
-          <div class="user-menu-avatar-green relative flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-black text-xs ring-2 ring-emerald-400/40 shadow-sm">
-            <span class="user-menu-avatar-letter">A</span>
-            <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 border border-slate-900"></span>
-          </div>
-          <div class="min-w-0 flex-1">
-            <p id="adminUserName" class="user-menu-display-name text-xs font-bold text-white leading-tight truncate">Administrator</p>
-            <span class="user-menu-popover-badge inline-block px-1.5 py-0.2 text-[9px] font-bold rounded bg-amber-500/20 text-amber-400 mt-0.5">
-              CHIEF DIRECTOR
-            </span>
-          </div>
+    <!-- Pinned Bottom User Profile Widget: margin-top: auto with Expandable Dropdown Menu -->
+    <div class="sidebar-footer-pinned mt-auto pt-3 border-t border-gray-200 relative">
+      <!-- Expandable User Menu Dropdown (Linear / Shadcn UI Floating Popover) -->
+      <div id="sidebarUserDropdownMenu" class="sidebar-user-dropdown hidden absolute bottom-full mb-2 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg p-1 z-50 transition-all">
+        <div class="px-2.5 py-2 border-b border-gray-100 mb-1">
+          <p class="text-xs font-semibold text-gray-900 truncate">Administrator</p>
+          <p class="text-[10px] text-gray-500 truncate font-mono">national.director@metrology.gov.in</p>
         </div>
-        <button type="button" onclick="openUserProfileModal()" title="View Profile" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <button type="button" onclick="openUserProfileModal(); toggleSidebarUserMenu(false);" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition text-left cursor-pointer">
+          <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <span>Account Settings</span>
+        </button>
+        <button type="button" onclick="govToggleTheme(); toggleSidebarUserMenu(false);" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition text-left cursor-pointer">
+          <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <span>Toggle Theme</span>
+        </button>
+        <div class="h-[1px] bg-gray-100 my-1"></div>
+        <button type="button" onclick="logout()" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition text-left cursor-pointer">
+          <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Sign Out</span>
         </button>
       </div>
-      <button type="button" onclick="logout()" class="w-full py-2 px-3 bg-red-600/15 hover:bg-red-600/30 text-red-300 hover:text-white border border-red-500/30 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-        <span>Sign Out</span>
+
+      <!-- Trigger Card (Rounded, clean divider above) -->
+      <button type="button" id="sidebarUserTriggerBtn" onclick="toggleSidebarUserMenu()" class="w-full flex items-center justify-between p-1.5 rounded-lg hover:bg-gray-100 transition group cursor-pointer text-left focus:outline-none focus:ring-1 focus:ring-gray-300">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-7 h-7 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 relative">
+            <span class="user-menu-avatar-letter">A</span>
+            <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-white"></span>
+          </div>
+          <div class="min-w-0 flex-1 sidebar-hide-on-collapse">
+            <p id="adminUserName" class="user-menu-display-name text-xs font-semibold text-gray-900 leading-tight truncate">Administrator</p>
+            <p class="text-[10px] text-gray-500 font-medium truncate leading-tight uppercase font-mono">National Director</p>
+          </div>
+        </div>
+        <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600 sidebar-hide-on-collapse flex-shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+        </svg>
       </button>
     </div>
   </aside>
@@ -219,36 +285,101 @@
   <div class="flex-1 flex flex-col min-w-0">
     
     <!-- Top Header Bar -->
-    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-20 shadow-xs">
+    <header class="bg-white border-b border-[#E4E7EC] px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-20 shadow-xs">
       <div class="flex items-center gap-3">
-        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-xl hover:bg-slate-100 text-slate-700 border border-slate-200" title="Toggle Navigation">
+        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-lg hover:bg-slate-100 text-[#0F172A] border border-[#E4E7EC]" title="Toggle Navigation">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <div>
-          <div class="text-[11px] font-semibold text-slate-400">
-            <span>Admin Oversight</span> <span class="mx-1 text-slate-300">&gt;</span> <span id="adminBreadcrumb" class="text-slate-800 font-bold">Command Center</span>
+          <div class="text-[11px] font-medium text-[#64748B]">
+            <span>Admin Oversight</span> <span class="mx-1 text-slate-300">&gt;</span> <span id="adminBreadcrumb" class="text-[#0F172A] font-semibold">Command Center</span>
           </div>
-          <h2 id="adminPageTitle" class="text-sm font-extrabold text-slate-900 leading-tight">System Health & Live Inspection Stats</h2>
+          <h2 id="adminPageTitle" class="text-sm font-semibold text-[#0F172A] leading-tight">National Command Center</h2>
         </div>
       </div>
 
       <div class="flex items-center gap-2 sm:gap-3">
-        <span class="hidden lg:inline-flex text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
-          ● All Systems Nominal (100% SLA)
-        </span>
-        
-        <!-- Notifications Bell -->
-        <button onclick="showToast('System operational telemetry verified.', 'success')" class="p-2 rounded-full hover:bg-slate-100 text-slate-600 border border-slate-200 relative transition shadow-xs" title="Notifications">
-          <span>🔔</span>
-          <span class="w-2 h-2 rounded-full bg-emerald-500 absolute top-1.5 right-1.5 ring-1 ring-white"></span>
+        <!-- Master Demo / Prototype Showcase Trigger Button -->
+        <button type="button" 
+                id="btnMasterDemoShowcase" 
+                onclick="DemoShowcase.openShowcaseDrawer()" 
+                class="group relative inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-50 via-emerald-50 to-teal-50 hover:from-amber-100 hover:to-emerald-100 text-[#0F172A] border border-amber-300 hover:border-amber-400 font-semibold text-xs transition shadow-xs cursor-pointer select-none"
+                title="Launch Master Demo & Prototype Showcase Center">
+          <span class="flex h-2 w-2 relative">
+            <span id="demoStatusPulse" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span id="demoStatusDot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="text-xs">⚡</span>
+            <span class="font-bold tracking-tight">Master Demo Showcase</span>
+          </span>
+          <span id="demoStatusPill" class="text-[9.5px] px-1.5 py-0.2 rounded font-mono font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+            DEMO ACTIVE
+          </span>
         </button>
 
-        <div class="w-[1px] h-6 bg-slate-200 hidden sm:block"></div>
+        <!-- Notifications Bell & Dropdown -->
+        <div class="relative">
+          <button type="button" 
+                  id="adminNotificationBellBtn" 
+                  onclick="NotificationCenter.toggle('admin')" 
+                  aria-expanded="false" 
+                  aria-haspopup="true" 
+                  aria-label="Enforcement Notifications" 
+                  class="notification-bell-btn relative p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 hover:text-slate-900 shadow-xs transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30 group" 
+                  title="Enforcement Notifications">
+            <!-- Modern Lucide Vector Bell SVG -->
+            <svg class="w-4.5 h-4.5 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <!-- Animated Ping Glow for Active Infractions -->
+            <span id="adminNotificationPing" class="hidden absolute top-0.5 right-0.5 w-3 h-3 rounded-full bg-rose-500 animate-ping opacity-75"></span>
+            <!-- Smart Unread Count Badge -->
+            <span id="adminNotificationBadgeCount" class="hidden absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 bg-gradient-to-r from-rose-600 to-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center ring-2 ring-white shadow-sm leading-none">0</span>
+            <!-- Legacy Dot for backward compatibility -->
+            <span id="adminNotificationDot" class="hidden"></span>
+          </button>
+          
+          <!-- Modern Floating Dropdown Card -->
+          <div id="adminNotificationDropdown" class="hidden absolute right-0 mt-2.5 w-84 sm:w-[410px] bg-white rounded-2xl shadow-2xl border border-slate-200 py-0 z-50 overflow-hidden transition-all transform origin-top-right">
+            <!-- Header -->
+            <div class="px-4 py-3 bg-gradient-to-r from-slate-50 via-white to-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Enforcement Alerts</h4>
+                <span id="adminNotificationBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-200/80">0 New</span>
+              </div>
+              <button type="button" onclick="NotificationCenter.markAllRead('admin')" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1 cursor-pointer transition">
+                <span>✓</span> <span>Mark all read</span>
+              </button>
+            </div>
 
-        <!-- ===================================================================
-             MODERN DARK-MODE POPOVER USER MENU
-             Compact Pill Button Trigger + Rounded Green Avatar + Dark Floating Card
-             =================================================================== -->
+            <!-- Filter Pills -->
+            <div class="px-4 py-2 bg-slate-50/80 border-b border-slate-200 flex items-center gap-1.5 text-[11px]">
+              <button type="button" onclick="NotificationCenter.setFilter('admin', 'unread')" id="adminFilterUnread" class="px-3 py-1 rounded-lg font-bold bg-slate-900 text-white shadow-xs border border-slate-900 transition text-[11px]">Unread</button>
+              <button type="button" onclick="NotificationCenter.setFilter('admin', 'all')" id="adminFilterAll" class="px-3 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 transition text-[11px]">All Alerts</button>
+              <button type="button" onclick="NotificationCenter.setFilter('admin', 'critical')" id="adminFilterCritical" class="px-3 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 transition text-[11px]">Critical Only</button>
+            </div>
+
+            <!-- List Container -->
+            <div id="adminNotificationList" class="divide-y divide-slate-100 max-h-80 overflow-y-auto text-xs p-1.5 space-y-1">
+              <!-- Dynamically rendered via NotificationCenter -->
+            </div>
+
+            <!-- Footer -->
+            <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[10.5px]">
+              <span class="text-slate-500 font-medium">Master Enforcement Ledger</span>
+              <a href="javascript:void(0)" onclick="NotificationCenter.viewDocket('admin')" class="font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1">
+                <span>View Full Ledger</span> <span>→</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-[1px] h-6 bg-[#E4E7EC] hidden sm:block"></div>
+
+        <!-- Popover User Menu -->
         <div class="relative user-menu-wrapper" id="userMenuWrapper">
           <!-- Compact Pill Button Trigger -->
           <button type="button" 
@@ -256,82 +387,63 @@
                   onclick="toggleUserMenu()" 
                   aria-expanded="false" 
                   aria-haspopup="true" 
-                  class="user-menu-pill group flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-slate-600 shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer select-none" 
+                  class="user-menu-pill group flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 shadow-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer select-none" 
                   title="Account & Security Controls">
             <!-- Rounded Green Avatar Icon -->
-            <div class="user-menu-avatar-green relative flex items-center justify-center w-7 h-7 rounded-full text-white font-black text-xs shadow-xs ring-1 ring-emerald-400/40 flex-shrink-0">
+            <div class="user-menu-avatar-green relative flex items-center justify-center w-7 h-7 rounded-full text-white font-bold text-xs shadow-xs ring-1 ring-emerald-400/40 flex-shrink-0 bg-[#10B981]">
               <span class="user-menu-avatar-letter">A</span>
-              <!-- Online Status Indicator -->
-              <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border-[1.5px] border-slate-900"></span>
+              <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border-[1.5px] border-white"></span>
             </div>
-            <!-- Compact Display Name & Subtle Animated Chevron -->
             <div class="flex items-center gap-1.5">
-              <span class="user-menu-display-name text-xs font-bold text-slate-100 tracking-tight max-w-[100px] truncate">Admin</span>
-              <svg class="user-menu-chevron w-3.5 h-3.5 text-slate-400 group-hover:text-slate-200 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <span class="user-menu-display-name text-xs font-semibold text-slate-800 tracking-tight max-w-[100px] truncate">Admin</span>
+              <svg class="user-menu-chevron w-3.5 h-3.5 text-slate-500 group-hover:text-slate-800 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </div>
           </button>
 
-          <!-- Dark Floating Card (Popover Menu) with Rounded Corners & Subtle Dark Borders -->
+          <!-- Popover Menu -->
           <div id="userMenuPopover" 
-               class="hidden user-menu-popover absolute right-0 top-full mt-2 w-72 sm:w-80 bg-[#0f172a]/95 backdrop-blur-xl border border-slate-700/80 rounded-2xl shadow-2xl shadow-black/60 z-50 overflow-hidden text-slate-200 divide-y divide-slate-800/80" 
+               class="hidden user-menu-popover absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 overflow-hidden text-slate-800 divide-y divide-slate-100" 
                role="menu" 
                aria-label="User Menu">
             
-            <!-- Popover Header: User Details & Active Role -->
-            <div class="p-3.5 bg-gradient-to-b from-slate-800/60 to-transparent">
+            <div class="p-3.5 bg-gradient-to-b from-slate-50 to-transparent">
               <div class="flex items-center gap-3">
-                <!-- Large Rounded Green Avatar Icon -->
-                <div class="user-menu-avatar-green relative flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-full text-white font-black text-sm shadow-md ring-2 ring-emerald-500/40">
+                <div class="user-menu-avatar-green relative flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-full text-white font-bold text-sm shadow-md ring-2 ring-emerald-500/40 bg-[#10B981]">
                   <span class="user-menu-avatar-letter-lg">A</span>
-                  <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-slate-900"></span>
+                  <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white"></span>
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between gap-1">
-                    <h4 class="user-menu-popover-name text-xs font-bold text-white tracking-tight truncate">Administrator</h4>
-                    <span class="user-menu-popover-badge text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">ADMIN</span>
+                    <h4 class="user-menu-popover-name text-xs font-bold text-slate-900 tracking-tight truncate">Administrator</h4>
+                    <span class="user-menu-popover-badge text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">ADMIN</span>
                   </div>
-                  <p class="user-menu-popover-designation text-[11px] text-slate-400 truncate mt-0.5">Chief Enforcement Director</p>
-                  <div class="flex items-center gap-1.5 mt-1 text-[10px] text-slate-400 font-mono">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-emerald-400 font-semibold">Active Session</span>
-                    <span class="text-slate-600">•</span>
-                    <span class="user-menu-popover-id text-slate-400">ID: MC-ADM-7049</span>
+                  <p class="user-menu-popover-designation text-[11px] text-slate-500 truncate mt-0.5">National Enforcement Director</p>
+                  <div class="flex items-center gap-1.5 mt-1 text-[10px] text-slate-500 font-mono">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-emerald-700 font-semibold">Active Session</span>
+                    <span class="text-slate-400">•</span>
+                    <span class="user-menu-popover-id text-slate-500">ID: MC-ADM-7049</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Popover Menu Items with Clean Line Icons -->
             <div class="p-1.5 space-y-0.5 text-xs font-medium">
-              <!-- 1. Account Profile Details -->
-              <button type="button" onclick="openUserProfileModal(); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all text-left group">
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button type="button" onclick="openUserProfileModal(); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all text-left group">
+                <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
                 <div class="flex-1 min-w-0">
-                  <p class="font-semibold text-slate-200 group-hover:text-white leading-tight">My Profile & ID</p>
-                  <p class="text-[10.5px] text-slate-400 leading-tight">Official credentials & verified status</p>
+                  <p class="font-semibold text-slate-800 group-hover:text-slate-900 leading-tight">My Profile & ID</p>
+                  <p class="text-[10.5px] text-slate-500 leading-tight">Official credentials & verified status</p>
                 </div>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-emerald-500/30">Verified</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Verified</span>
               </button>
 
-              <!-- 2. Security & RBAC Access Scope -->
-              <button type="button" onclick="showToast('Active RBAC Scope: Verified Level-1 Controller', 'info'); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all text-left group">
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                </svg>
-                <div class="flex-1 min-w-0">
-                  <p class="font-semibold text-slate-200 group-hover:text-white leading-tight">Security & RBAC Scope</p>
-                  <p class="text-[10.5px] text-slate-400 leading-tight">Strict role-based access enforcement</p>
-                </div>
-                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-              </button>
-
-              <!-- 3. Audit Activity / Telemetry -->
-              <button type="button" onclick="switchAdminTab('analytics'); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all text-left group">
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button type="button" onclick="switchAdminTab('analytics'); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all text-left group">
+                <svg class="w-4 h-4 text-slate-400 group-hover:text-indigo-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                 </svg>
                 <div class="flex-1 min-w-0">
@@ -341,9 +453,8 @@
                 <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
               </button>
 
-              <!-- 4. High-Contrast Accessibility Mode -->
-              <button type="button" onclick="govToggleHighContrast(); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all text-left group">
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-purple-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button type="button" onclick="govToggleHighContrast(); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all text-left group">
+                <svg class="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
                 </svg>
                 <div class="flex-1 min-w-0">
@@ -354,9 +465,8 @@
               </button>
             </div>
 
-            <!-- Popover Footer: Sign Out with clean line icon -->
             <div class="p-1.5">
-              <button type="button" onclick="logout()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-red-400 hover:text-red-200 hover:bg-red-500/15 transition-all text-left group">
+              <button type="button" onclick="logout()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-red-400 hover:text-red-200 hover:bg-red-500/15 transition-all text-left group">
                 <svg class="w-4 h-4 text-red-400 group-hover:text-red-300 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
@@ -374,146 +484,252 @@
       </div>
     </header>
 
-    <!-- Main Content Container with 5 Switchable Module Views -->
-    <main id="mainContent" class="p-4 sm:p-6 space-y-6 overflow-y-auto max-w-7xl w-full mx-auto">
+    <!-- Main Content Container with 5 Switchable Module Views (Linear / Shadcn p-6 padding) -->
+    <main id="mainContent" class="p-6 space-y-6 overflow-y-auto max-w-7xl w-full mx-auto">
       
       <!-- ===================================================================
-           VIEW 1: 📊 COMMAND CENTER (KPI Cards + Pure CSS Bar Chart + Gauge + Logs)
+           VIEW 1: 📊 COMMAND CENTER (White Cards + Trend Arrows + CSS Charts)
            =================================================================== -->
       <section id="adminView-command" class="space-y-6">
         
-        <!-- ROW 1: 6 Summary Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          <!-- Card 1: Total Scans -->
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm card-hover-effect">
-            <p id="adminTotalInspections" class="text-2xl font-black text-slate-900">0</p>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Total Scans</p>
-          </div>
-
-          <!-- Card 2: Registered Users -->
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm card-hover-effect">
-            <p id="adminTotalUsers" class="text-2xl font-black text-amber-500">3</p>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Total Users</p>
-          </div>
-
-          <!-- Card 3: Pending Reviews -->
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm card-hover-effect">
-            <p id="adminPendingReviews" class="text-2xl font-black text-blue-600">0</p>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Pending Reviews</p>
-          </div>
-
-          <!-- Card 4: System Status -->
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm card-hover-effect">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <p class="text-lg font-black text-emerald-600">Operational</p>
+        <!-- ZONAL ACCESS CONTROL: Regional Zone Scope Selector -->
+        <div class="bg-white rounded-xl p-4 sm:p-5 border border-[#E4E7EC] shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-[#10B981] flex items-center justify-center text-lg shadow-2xs">
+              🏛️
             </div>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">System Status</p>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm font-bold text-[#0F172A]">Official Zonal Council Enforcement Scope</h3>
+                <span id="adminZoneRoleBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wider font-mono">
+                  National Oversight
+                </span>
+              </div>
+              <p id="adminZoneScopeSubtitle" class="text-xs text-[#64748B]">
+                Select an official Zonal Council to filter command metrics, compliance ratios, and ledger records.
+              </p>
+            </div>
           </div>
 
-          <!-- Card 5: Response Time -->
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm card-hover-effect">
-            <p class="text-2xl font-black text-slate-900">1.2s</p>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Avg Response</p>
-          </div>
-
-          <!-- Card 6: Error Rate -->
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm card-hover-effect">
-            <p class="text-2xl font-black text-emerald-600">0.1%</p>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Error Rate</p>
+          <div class="flex items-center gap-2.5">
+            <label for="adminZoneFilterSelect" class="text-xs font-semibold text-[#64748B] whitespace-nowrap">Zone Scope:</label>
+            <div class="relative">
+              <select 
+                id="adminZoneFilterSelect" 
+                onchange="onAdminZoneFilterChange(this.value)"
+                class="bg-slate-50 hover:bg-white text-xs font-bold text-[#0F172A] border border-[#E4E7EC] focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] rounded-lg pl-3 pr-8 py-2 outline-none transition cursor-pointer disabled:opacity-80 disabled:cursor-not-allowed disabled:bg-slate-100"
+              >
+                <option value="All">All India</option>
+                <option value="North">North</option>
+                <option value="Central">Central</option>
+                <option value="East">East</option>
+                <option value="West">West</option>
+                <option value="South">South</option>
+                <option value="North East">North East</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <!-- ROW 2: Pure CSS Charts Area (Bar Chart + Circular Progress) -->
+        <!-- ROW 1: 6 Standardized KPI Metric Cards (gap-4) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <!-- Card 1: Total Scans -->
+          <div class="kpi-card" style="--kpi-accent: #64748B;">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Total Scans</span>
+              <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-xs font-semibold shadow-xs">📦</span>
+            </div>
+            <p id="adminTotalInspections" class="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mt-2">0</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-[11px] text-[#64748B]">All Modules</span>
+              <span class="trend-up" title="Weekly trajectory">↑ +14.2%</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Registered Users -->
+          <div class="kpi-card" style="--kpi-accent: #10B981;">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Active Officers</span>
+              <span class="w-7 h-7 rounded-lg bg-emerald-50 text-[#10B981] flex items-center justify-center text-xs font-semibold shadow-xs">👥</span>
+            </div>
+            <p id="adminTotalUsers" class="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mt-2">3</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-[11px] text-[#64748B]">Field & Desk</span>
+              <span class="trend-neutral" title="Total active field & desk users">↑ +2</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Pending Reviews -->
+          <div class="kpi-card" style="--kpi-accent: #F59E0B;">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Pending Queue</span>
+              <span class="w-7 h-7 rounded-lg bg-amber-50 text-[#F59E0B] flex items-center justify-center text-xs font-semibold shadow-xs">⏳</span>
+            </div>
+            <p id="adminPendingReviews" class="text-2xl sm:text-3xl font-extrabold text-[#F59E0B] mt-2">0</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-[11px] text-[#64748B]">Awaiting Action</span>
+              <span class="trend-warn" title="Awaiting Metrology Officer adjudication">⚡ Live</span>
+            </div>
+          </div>
+
+          <!-- Card 4: System Status -->
+          <div class="kpi-card" style="--kpi-accent: #10B981;">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">SLA Status</span>
+              <span class="w-7 h-7 rounded-lg bg-emerald-50 text-[#10B981] flex items-center justify-center text-xs font-semibold shadow-xs">🛡️</span>
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse"></span>
+              <p class="text-xl sm:text-2xl font-bold text-[#10B981]">Active</p>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-[11px] text-[#64748B]">Uptime</span>
+              <span class="trend-up">99.98%</span>
+            </div>
+          </div>
+
+          <!-- Card 5: Response Time -->
+          <div class="kpi-card" style="--kpi-accent: #6366F1;">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">AI Vision Avg</span>
+              <span class="w-7 h-7 rounded-lg bg-indigo-50 text-[#6366F1] flex items-center justify-center text-xs font-semibold shadow-xs">⚡</span>
+            </div>
+            <p class="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mt-2">1.2s</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-[11px] text-[#64748B]">Latency</span>
+              <span class="trend-up" title="Average OCR processing latency">↓ -180ms</span>
+            </div>
+          </div>
+
+          <!-- Card 6: Error Rate -->
+          <div class="kpi-card" style="--kpi-accent: #10B981;">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Error Rate</span>
+              <span class="w-7 h-7 rounded-lg bg-emerald-50 text-[#10B981] flex items-center justify-center text-xs font-semibold shadow-xs">🎯</span>
+            </div>
+            <p class="text-2xl sm:text-3xl font-extrabold text-[#10B981] mt-2">0.05%</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-[11px] text-[#64748B]">Telemetry</span>
+              <span class="trend-up" title="Low system error index">↓ 0.05%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 1.5: 6 Official Zone Summary Cards (Above Charts, Click to filter dashboard) -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-[#0F172A] tracking-wider uppercase">6 Official Zonal Councils</span>
+              <span class="text-[11px] text-[#64748B] font-mono hidden sm:inline">(Click any card to filter entire dashboard)</span>
+            </div>
+            <span id="activeZoneFilterDisplay" class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              Active: All India
+            </span>
+          </div>
+
+          <!-- Grid of 6 Zone Summary Cards -->
+          <div id="adminZoneSummaryCardsRow" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <!-- Dynamically populated by renderZoneSummaryCards() -->
+          </div>
+        </div>
+
+        <!-- ROW 2: Pure CSS Charts Area (Using ONLY Emerald, Amber, Red, Indigo) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Left: Pure CSS Bar Chart (Mon-Sun Volume) -->
-          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div class="bg-white rounded-xl p-6 border border-[#E4E7EC] shadow-sm">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="font-extrabold text-slate-900 text-sm">Inspection Volumes This Week</h3>
-              <span class="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Pure CSS Chart</span>
+              <h3 class="font-semibold text-[#0F172A] text-sm">Inspection Volumes This Week</h3>
+              <span class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">Weekly Throughput</span>
             </div>
-            <p class="text-xs text-slate-400 mb-4">Daily scan throughput across enforcement jurisdictions (Mon - Sun)</p>
+            <p class="text-xs text-[#64748B] mb-5">Daily scan throughput across enforcement jurisdictions (Mon - Sun)</p>
             
-            <div class="h-44 flex items-end justify-between gap-3 pt-6 pb-2 border-b border-slate-200">
+            <div class="h-44 flex items-end justify-between gap-3 pt-6 pb-2 border-b border-[#E4E7EC]">
               <div class="flex-1 flex flex-col items-center gap-1.5">
                 <span class="text-[10px] font-bold text-slate-500">18</span>
-                <div class="w-full bg-amber-400 rounded-t-md hover:bg-amber-500 transition chart-bar-anim" style="height: 45%" title="Mon: 18 scans"></div>
-                <span class="text-[11px] font-bold text-slate-400">Mon</span>
+                <div class="w-full bg-[#6366F1] rounded-t-md hover:opacity-90 transition chart-bar-anim" style="height: 45%" title="Mon: 18 scans (Indigo)"></div>
+                <span class="text-[11px] font-medium text-[#64748B]">Mon</span>
               </div>
               <div class="flex-1 flex flex-col items-center gap-1.5">
                 <span class="text-[10px] font-bold text-slate-500">26</span>
-                <div class="w-full bg-amber-400 rounded-t-md hover:bg-amber-500 transition chart-bar-anim" style="height: 65%" title="Tue: 26 scans"></div>
-                <span class="text-[11px] font-bold text-slate-400">Tue</span>
+                <div class="w-full bg-[#6366F1] rounded-t-md hover:opacity-90 transition chart-bar-anim" style="height: 65%" title="Tue: 26 scans (Indigo)"></div>
+                <span class="text-[11px] font-medium text-[#64748B]">Tue</span>
               </div>
               <div class="flex-1 flex flex-col items-center gap-1.5">
                 <span class="text-[10px] font-bold text-slate-500">34</span>
-                <div class="w-full bg-amber-400 rounded-t-md hover:bg-amber-500 transition chart-bar-anim" style="height: 85%" title="Wed: 34 scans"></div>
-                <span class="text-[11px] font-bold text-slate-400">Wed</span>
+                <div class="w-full bg-[#10B981] rounded-t-md hover:opacity-90 transition chart-bar-anim" style="height: 85%" title="Wed: 34 scans (Emerald)"></div>
+                <span class="text-[11px] font-medium text-[#64748B]">Wed</span>
               </div>
               <div class="flex-1 flex flex-col items-center gap-1.5">
                 <span class="text-[10px] font-bold text-slate-500">24</span>
-                <div class="w-full bg-amber-400 rounded-t-md hover:bg-amber-500 transition chart-bar-anim" style="height: 60%" title="Thu: 24 scans"></div>
-                <span class="text-[11px] font-bold text-slate-400">Thu</span>
+                <div class="w-full bg-[#6366F1] rounded-t-md hover:opacity-90 transition chart-bar-anim" style="height: 60%" title="Thu: 24 scans (Indigo)"></div>
+                <span class="text-[11px] font-medium text-[#64748B]">Thu</span>
               </div>
               <div class="flex-1 flex flex-col items-center gap-1.5">
                 <span class="text-[10px] font-bold text-slate-500">38</span>
-                <div class="w-full bg-amber-500 rounded-t-md hover:bg-amber-600 transition chart-bar-anim" style="height: 95%" title="Fri: 38 scans"></div>
-                <span class="text-[11px] font-bold text-slate-400">Fri</span>
+                <div class="w-full bg-[#10B981] rounded-t-md hover:opacity-90 transition chart-bar-anim" style="height: 95%" title="Fri: 38 scans (Emerald)"></div>
+                <span class="text-[11px] font-medium text-[#64748B]">Fri</span>
               </div>
               <div class="flex-1 flex flex-col items-center gap-1.5">
                 <span class="text-[10px] font-bold text-slate-500">16</span>
-                <div class="w-full bg-amber-300 rounded-t-md hover:bg-amber-400 transition chart-bar-anim" style="height: 40%" title="Sat: 16 scans"></div>
-                <span class="text-[11px] font-bold text-slate-400">Sat</span>
+                <div class="w-full bg-[#F59E0B] rounded-t-md hover:opacity-90 transition chart-bar-anim" style="height: 40%" title="Sat: 16 scans (Amber)"></div>
+                <span class="text-[11px] font-medium text-[#64748B]">Sat</span>
               </div>
               <div class="flex-1 flex flex-col items-center gap-1.5">
                 <span class="text-[10px] font-bold text-slate-500">12</span>
-                <div class="w-full bg-amber-300 rounded-t-md hover:bg-amber-400 transition chart-bar-anim" style="height: 30%" title="Sun: 12 scans"></div>
-                <span class="text-[11px] font-bold text-slate-400">Sun</span>
+                <div class="w-full bg-[#EF4444] rounded-t-md hover:opacity-90 transition chart-bar-anim" style="height: 30%" title="Sun: 12 scans (Red)"></div>
+                <span class="text-[11px] font-medium text-[#64748B]">Sun</span>
               </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-center gap-4 mt-3.5 text-[11px] font-medium text-[#64748B]">
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#6366F1]"></span> Standard (Indigo)</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span> Peak Volume (Emerald)</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span> Normal (Amber)</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span> Low Volume (Red)</span>
             </div>
           </div>
 
           <!-- Right: Pure CSS Circular Progress -->
-          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col items-center justify-center">
+          <div class="bg-white rounded-xl p-6 border border-[#E4E7EC] shadow-sm flex flex-col items-center justify-center">
             <div class="flex items-center justify-between w-full mb-1">
-              <h3 class="font-extrabold text-slate-900 text-sm">Overall Compliance Rate</h3>
-              <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Live Ratio</span>
+              <h3 class="font-semibold text-[#0F172A] text-sm">Overall Compliance Rate</h3>
+              <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Live Ratio</span>
             </div>
-            <p class="text-xs text-slate-400 mb-4 w-full">Percentage of inspected packages conforming to Legal Metrology Rule 6</p>
+            <p class="text-xs text-[#64748B] mb-5 w-full">Percentage of inspected packages conforming to Legal Metrology Rule 6</p>
             
-            <div id="complianceCircleProgress" class="w-36 h-36 rounded-full flex items-center justify-center shadow-inner transition-all duration-500" style="background: conic-gradient(#10b981 0% 75%, #e2e8f0 75% 100%);">
+            <div id="complianceCircleProgress" class="w-36 h-36 rounded-full flex items-center justify-center shadow-inner transition-all duration-500" style="background: conic-gradient(#10B981 0% 75%, #EF4444 75% 100%);">
               <div class="w-28 h-28 bg-white rounded-full flex flex-col items-center justify-center shadow-sm">
-                <span id="complianceRatePercent" class="text-2xl font-black text-slate-900">75%</span>
-                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">Compliant</span>
+                <span id="complianceRatePercent" class="text-2xl font-bold text-[#0F172A]">75%</span>
+                <span class="text-[10px] font-semibold text-[#10B981] uppercase tracking-wide">Compliant</span>
               </div>
             </div>
 
-            <div class="flex items-center gap-4 mt-4 text-xs font-semibold">
-              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Compliant Packages</span>
-              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-200"></span> Non-Compliant</span>
+            <div class="flex items-center gap-4 mt-5 text-xs font-semibold">
+              <span class="flex items-center gap-1.5 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span> Compliant (Emerald)</span>
+              <span class="flex items-center gap-1.5 text-red-700"><span class="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span> Non-Compliant (Red)</span>
             </div>
           </div>
         </div>
 
         <!-- ROW 3: Recent Activity Table -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+        <div class="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden">
+          <div class="px-5 py-4 border-b border-[#E4E7EC] flex items-center justify-between">
             <div>
-              <h3 class="font-extrabold text-slate-900 text-sm">System Activity Audit Log</h3>
-              <p class="text-xs text-slate-400">Live operational ledger logs across inspector and officer sessions</p>
+              <h3 class="font-semibold text-[#0F172A] text-sm">System Activity Audit Log</h3>
+              <p class="text-xs text-[#64748B]">Live operational ledger logs across inspector and officer sessions</p>
             </div>
-            <button onclick="switchAdminTab('ledger')" class="text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline">
+            <button onclick="switchAdminTab('ledger')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline">
               View Master Ledger →
             </button>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left">
-              <thead class="bg-slate-50 text-slate-400 text-xs uppercase font-semibold border-b border-slate-200">
+              <thead class="bg-[#F8FAFC] text-[#64748B] text-xs uppercase font-semibold border-b border-[#E4E7EC]">
                 <tr>
-                  <th class="px-4 py-2.5">Timestamp</th>
-                  <th class="px-4 py-2.5">User</th>
-                  <th class="px-4 py-2.5">Event Action</th>
-                  <th class="px-4 py-2.5">Audit Particulars</th>
+                  <th class="px-4 py-3">Timestamp</th>
+                  <th class="px-4 py-3">User</th>
+                  <th class="px-4 py-3">Event Action</th>
+                  <th class="px-4 py-3">Audit Particulars</th>
                 </tr>
               </thead>
               <tbody id="adminActivityTableBody"></tbody>
@@ -523,31 +739,31 @@
 
         <!-- ROW 4: Quick Action Controls -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <button type="button" onclick="triggerLoadSampleData()" class="py-3 px-4 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs rounded-xl shadow-sm transition btn-hover-effect">
-            📦 Load Sample Data (Demo Records)
+          <button type="button" onclick="DemoShowcase.openShowcaseDrawer()" class="btn-secondary py-2.5 px-4 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border-emerald-300 text-emerald-800 bg-emerald-50/50 hover:bg-emerald-50 shadow-xs">
+            <span class="text-emerald-600 font-bold">⚡</span> <span>Master Demo / Showcase</span>
           </button>
-          <button type="button" onclick="resetDemoData()" class="py-3 px-4 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs rounded-xl shadow-sm transition btn-hover-effect">
-            🗑️ Clear / Reset Storage
+          <button type="button" onclick="resetDemoData()" class="btn-secondary py-2.5 px-4 text-red-600 border-red-200 hover:bg-red-50 font-semibold text-xs flex items-center justify-center gap-2 shadow-xs">
+            <span>🗑️</span> <span>Clear / Reset Storage</span>
           </button>
-          <button type="button" onclick="exportAllData()" class="py-3 px-4 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs rounded-xl shadow-sm transition btn-hover-effect">
-            📥 Export All Data (JSON Snapshot)
+          <button type="button" onclick="exportAllData()" class="btn-secondary py-2.5 px-4 text-indigo-600 border-indigo-200 hover:bg-indigo-50 font-semibold text-xs flex items-center justify-center gap-2 shadow-xs">
+            <span>📥</span> <span>Export System Snapshot</span>
           </button>
-          <button type="button" onclick="exportInspectionsToCSV()" class="py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs rounded-xl shadow-sm transition btn-hover-effect">
-            📊 Export Master Ledger (CSV)
+          <button type="button" onclick="exportInspectionsToCSV()" class="btn-primary py-2.5 px-4 font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-xs">
+            <span>📊</span> <span>Export MIS Dossier (CSV)</span>
           </button>
         </div>
 
       </section>
 
       <!-- ===================================================================
-           VIEW 2: 📒 MASTER LEDGER (Immutable Sortable Table + Export to CSV)
+           VIEW 2: 📒 MASTER LEDGER (Zebra Table + Monospace Gray SHA Hash)
            =================================================================== -->
       <section id="adminView-ledger" class="hidden space-y-5">
         
-        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="bg-white rounded-xl p-5 border border-[#E4E7EC] shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h3 class="font-extrabold text-slate-900 text-base">Master Inspection Ledger</h3>
-            <p class="text-xs text-slate-500">Immutable audit log of all legal metrology inspections recorded in the system</p>
+            <h3 class="font-semibold text-[#0F172A] text-base">Master Inspection Ledger</h3>
+            <p class="text-xs text-[#64748B]">Cryptographically verified immutable audit trail of all legal metrology inspections</p>
           </div>
 
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -556,135 +772,95 @@
               <input 
                 type="text" 
                 id="masterLedgerSearchInput" 
-                oninput="renderMasterLedgerTable()" 
-                placeholder="Search ledger..." 
-                class="pl-8 pr-3 py-2 text-xs bg-slate-50 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 w-full sm:w-60"
+                oninput="debouncedRenderMasterLedgerTable()" 
+                placeholder="Search case, product, inspector..." 
+                class="ds-input pl-8 pr-3 py-2 text-xs w-full sm:w-64"
               >
-              <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
+              <span class="absolute left-2.5 top-2.5 text-[#64748B] text-xs">🔍</span>
             </div>
 
-            <!-- Export to CSV Button -->
-            <button type="button" onclick="exportInspectionsToCSV()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow transition flex items-center justify-center gap-1.5 btn-hover-effect">
-              <span>📥</span> <span>Export to CSV</span>
+            <!-- Emerald Export MIS Dossier Button -->
+            <button type="button" onclick="exportInspectionsToCSV()" class="btn-primary py-2 px-4 text-xs font-semibold" title="Export Official Legal Metrology MIS Dossier (CSV)">
+              <span>📊</span> <span>Export MIS Dossier</span>
             </button>
           </div>
         </div>
 
-        <!-- Sortable Ledger Data Table -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <!-- Sortable Ledger Data Table (Zebra Pattern + Monospace SHA Hash) -->
+        <div class="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden" aria-live="polite" aria-atomic="true">
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200 text-[11px]">
+            <table class="w-full text-left text-xs min-w-[850px]">
+              <thead class="bg-[#F8FAFC] text-[#64748B] uppercase font-semibold border-b border-[#E4E7EC] text-[11px] tracking-wider">
                 <tr>
-                  <th class="px-3 py-3 cursor-pointer hover:text-amber-600" onclick="sortLedger('id')">Case ID ↕</th>
-                  <th class="px-3 py-3 cursor-pointer hover:text-amber-600" onclick="sortLedger('date')">Date ↕</th>
-                  <th class="px-3 py-3">Inspector</th>
-                  <th class="px-3 py-3 cursor-pointer hover:text-amber-600" onclick="sortLedger('product')">Product Name ↕</th>
-                  <th class="px-3 py-3">Net Quantity</th>
-                  <th class="px-3 py-3">MRP</th>
-                  <th class="px-3 py-3">Violations</th>
-                  <th class="px-3 py-3 cursor-pointer hover:text-amber-600" onclick="sortLedger('status')">Status ↕</th>
-                  <th class="px-3 py-3">Officer Remarks</th>
+                  <th class="px-3.5 py-3 cursor-pointer hover:text-[#10B981] transition" onclick="sortLedger('id')">Case ID / SHA ↕</th>
+                  <th class="px-3.5 py-3 cursor-pointer hover:text-[#10B981] transition" onclick="sortLedger('date')">Timestamp ↕</th>
+                  <th class="px-3.5 py-3">Inspector</th>
+                  <th class="px-3.5 py-3 cursor-pointer hover:text-[#10B981] transition" onclick="sortLedger('product')">Product ↕</th>
+                  <th class="px-3.5 py-3">Net Qty</th>
+                  <th class="px-3.5 py-3">Declared MRP</th>
+                  <th class="px-3.5 py-3">Defects</th>
+                  <th class="px-3.5 py-3 cursor-pointer hover:text-[#10B981] transition" onclick="sortLedger('status')">Status ↕</th>
+                  <th class="px-3.5 py-3">Audit Remarks</th>
                 </tr>
               </thead>
-              <tbody id="masterLedgerTableBody">
-                <!-- Dynamically populated from admin.js -->
+              <tbody id="masterLedgerTableBody" class="divide-y divide-[#E4E7EC]">
+                <!-- Dynamically populated from admin.js with automatic zebra striping & SHA hash -->
               </tbody>
             </table>
           </div>
         </div>
 
+        <!-- Mobile & Small Tablet Alternative Card Deck -->
+        <div id="masterLedgerCards" class="grid grid-cols-1 md:hidden gap-3 mt-3" aria-live="polite"></div>
+
       </section>
 
       <!-- ===================================================================
-           VIEW 3: 📈 REPORTS & ANALYTICS (Pure CSS Charts & Heatmaps, No Libraries)
+           VIEW 3: 📈 REPORTS & ANALYTICS (Using ONLY Emerald, Amber, Red, Indigo)
            =================================================================== -->
       <section id="adminView-analytics" class="hidden space-y-6">
         
-        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-          <h3 class="font-extrabold text-slate-900 text-base">System Compliance Trends & Analytics</h3>
-          <p class="text-xs text-slate-500 mt-0.5">High-level statutory compliance metrics calculated dynamically using pure CSS/HTML</p>
+        <div class="bg-white rounded-xl p-5 border border-[#E4E7EC] shadow-sm">
+          <h3 class="font-semibold text-[#0F172A] text-base">System Compliance Trends & Analytics</h3>
+          <p class="text-xs text-[#64748B] mt-0.5">High-level statutory compliance metrics calculated dynamically using pure CSS/HTML</p>
         </div>
 
         <!-- Analytics Grid: Pie Chart + Top Violation Breakdown Bars -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
-          <!-- Chart 1: Pure CSS Pie Chart (Conic Gradient) -->
-          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col items-center">
-            <h4 class="font-bold text-slate-900 text-sm w-full text-left mb-1">Compliance vs Violation Distribution</h4>
-            <p class="text-xs text-slate-400 w-full text-left mb-6">Aggregate compliance proportions across all recorded packages</p>
+          <!-- Chart 1: Pure CSS Pie Chart (Conic Gradient in Emerald & Red) -->
+          <div class="bg-white rounded-xl p-6 border border-[#E4E7EC] shadow-sm flex flex-col items-center">
+            <h4 class="font-semibold text-[#0F172A] text-sm w-full text-left mb-1">Compliance vs Violation Distribution</h4>
+            <p class="text-xs text-[#64748B] w-full text-left mb-6">Aggregate compliance proportions across all recorded packages</p>
 
-            <div class="w-44 h-44 rounded-full shadow-md flex items-center justify-center relative transition-all duration-500" style="background: conic-gradient(#10b981 0% 67%, #ef4444 67% 100%);">
+            <div id="analyticsPieChart" class="w-44 h-44 rounded-full shadow-md flex items-center justify-center relative transition-all duration-500" style="background: conic-gradient(#10B981 0% 50%, #EF4444 50% 100%);">
               <div class="w-24 h-24 bg-white rounded-full flex flex-col items-center justify-center shadow-inner">
-                <span class="text-lg font-black text-slate-900">Total</span>
-                <span id="analyticsTotalBadge" class="text-xs font-bold text-slate-500 font-mono">6 cases</span>
+                <span class="text-sm font-semibold text-[#64748B]">Total</span>
+                <span id="analyticsTotalBadge" class="text-base font-bold text-[#0F172A] font-mono">0 cases</span>
               </div>
             </div>
 
-            <div class="flex justify-around w-full mt-6 text-xs font-bold">
+            <div class="flex justify-around w-full mt-6 text-xs font-semibold">
               <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                <span>Compliant (67%)</span>
+                <span class="w-3 h-3 rounded-full bg-[#10B981]"></span>
+                <span id="analyticsCompliantText" class="text-emerald-700">Compliant (0%)</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                <span>Violations (33%)</span>
+                <span class="w-3 h-3 rounded-full bg-[#EF4444]"></span>
+                <span id="analyticsViolationText" class="text-red-700">Violations (0%)</span>
               </div>
             </div>
           </div>
 
-          <!-- Chart 2: Top Violation Types (Pure CSS Progress Bars) -->
-          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
-            <h4 class="font-bold text-slate-900 text-sm">Top Statutory Violation Frequency</h4>
-            <p class="text-xs text-slate-400">Distribution of rule contraventions flagged by AI vision scanner and officer reviews</p>
+          <!-- Chart 2: Top Violation Types (Pure CSS Progress Bars Restricted to 4 Colors) -->
+          <div class="bg-white rounded-xl p-6 border border-[#E4E7EC] shadow-sm space-y-4">
+            <h4 class="font-semibold text-[#0F172A] text-sm">Top Statutory Violation Frequency</h4>
+            <p class="text-xs text-[#64748B]">Distribution of rule contraventions flagged by AI vision scanner and officer reviews</p>
 
-            <div class="space-y-3 pt-2">
-              <!-- Bar 1 -->
-              <div>
-                <div class="flex justify-between text-xs font-semibold mb-1">
-                  <span class="text-slate-700">Missing Consumer Care Details (Rule 6)</span>
-                  <span class="text-amber-600 font-bold">38%</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                  <div class="bg-amber-500 h-2.5 rounded-full" style="width: 38%"></div>
-                </div>
-              </div>
-
-              <!-- Bar 2 -->
-              <div>
-                <div class="flex justify-between text-xs font-semibold mb-1">
-                  <span class="text-slate-700">Defective MRP / Missing Currency Symbol (Rule 9)</span>
-                  <span class="text-red-600 font-bold">27%</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                  <div class="bg-red-500 h-2.5 rounded-full" style="width: 27%"></div>
-                </div>
-              </div>
-
-              <!-- Bar 3 -->
-              <div>
-                <div class="flex justify-between text-xs font-semibold mb-1">
-                  <span class="text-slate-700">Missing Month/Year of Packaging (Rule 6)</span>
-                  <span class="text-blue-600 font-bold">20%</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                  <div class="bg-blue-500 h-2.5 rounded-full" style="width: 20%"></div>
-                </div>
-              </div>
-
-              <!-- Bar 4 -->
-              <div>
-                <div class="flex justify-between text-xs font-semibold mb-1">
-                  <span class="text-slate-700">Underweight / Net Quantity Discrepancy</span>
-                  <span class="text-purple-600 font-bold">15%</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                  <div class="bg-purple-500 h-2.5 rounded-full" style="width: 15%"></div>
-                </div>
-              </div>
+            <div id="analyticsViolationBarsContainer" class="space-y-3 pt-2">
+              <!-- Dynamically populated from admin.js -->
             </div>
           </div>
-
         </div>
 
       </section>
@@ -694,22 +870,22 @@
            =================================================================== -->
       <section id="adminView-commodities" class="hidden space-y-5">
         
-        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="bg-white rounded-xl p-5 border border-[#E4E7EC] shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h3 class="font-extrabold text-slate-900 text-base">Commodity Category & Rules Management</h3>
-            <p class="text-xs text-slate-500">Configure legal tolerances, packaging rules, and statutory standards stored in localStorage</p>
+            <h3 class="font-semibold text-[#0F172A] text-base">Commodity Category & Rules Management</h3>
+            <p class="text-xs text-[#64748B]">Configure legal tolerances, packaging rules, and statutory standards stored in localStorage</p>
           </div>
 
-          <button type="button" onclick="openCommodityModal()" class="px-4 py-2 bg-[#f59e0b] hover:bg-[#d97706] text-white font-extrabold text-xs rounded-xl shadow transition flex items-center justify-center gap-1.5 btn-hover-effect">
+          <button type="button" onclick="openCommodityModal()" class="btn-primary py-2 px-3.5 text-xs font-semibold">
             <span>➕</span> <span>Add New Commodity</span>
           </button>
         </div>
 
         <!-- Commodities Data Table -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200 text-[11px]">
+              <thead class="bg-[#F8FAFC] text-[#64748B] uppercase font-semibold border-b border-[#E4E7EC] text-[11px]">
                 <tr>
                   <th class="px-4 py-3">ID</th>
                   <th class="px-4 py-3">Commodity Name</th>
@@ -720,7 +896,7 @@
                   <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody id="adminCommoditiesTableBody">
+              <tbody id="adminCommoditiesTableBody" class="divide-y divide-[#E4E7EC]">
                 <!-- Dynamically populated from admin.js -->
               </tbody>
             </table>
@@ -734,22 +910,22 @@
            =================================================================== -->
       <section id="adminView-settings" class="hidden space-y-6">
         
-        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="bg-white rounded-xl p-5 border border-[#E4E7EC] shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h3 class="font-extrabold text-slate-900 text-base">User & Role Management</h3>
-            <p class="text-xs text-slate-500">Add, edit, or deactivate Field Inspector and Metrology Officer user accounts</p>
+            <h3 class="font-semibold text-[#0F172A] text-base">User & Role Management</h3>
+            <p class="text-xs text-[#64748B]">Add, edit, or deactivate Field Inspector and Metrology Officer user accounts</p>
           </div>
 
-          <button type="button" onclick="openUserModal()" class="px-4 py-2 bg-[#f59e0b] hover:bg-[#d97706] text-white font-extrabold text-xs rounded-xl shadow transition flex items-center justify-center gap-1.5 btn-hover-effect">
+          <button type="button" onclick="openUserModal()" class="btn-primary py-2 px-3.5 text-xs font-semibold">
             <span>👤➕</span> <span>Register New User</span>
           </button>
         </div>
 
         <!-- Users Table -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200 text-[11px]">
+              <thead class="bg-[#F8FAFC] text-[#64748B] uppercase font-semibold border-b border-[#E4E7EC] text-[11px]">
                 <tr>
                   <th class="px-4 py-3">Username</th>
                   <th class="px-4 py-3">Full Name</th>
@@ -759,7 +935,7 @@
                   <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody id="adminUsersTableBody">
+              <tbody id="adminUsersTableBody" class="divide-y divide-[#E4E7EC]">
                 <!-- Dynamically populated from admin.js -->
               </tbody>
             </table>
@@ -767,23 +943,23 @@
         </div>
 
         <!-- System Configuration Policies -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
-          <h4 class="font-extrabold text-slate-900 text-sm">System Compliance Engine Policies</h4>
+        <div class="bg-white rounded-xl p-6 border border-[#E4E7EC] shadow-sm space-y-4">
+          <h4 class="font-semibold text-[#0F172A] text-sm">System Compliance Engine Policies</h4>
           <div class="space-y-3 text-xs">
-            <label class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50 cursor-pointer">
+            <label class="flex items-center justify-between p-3.5 rounded-lg border border-[#E4E7EC] bg-[#F7F8FA] cursor-pointer hover:bg-slate-100 transition">
               <div>
-                <p class="font-bold text-slate-800">Strict Tolerance Enforcement Mode</p>
-                <p class="text-[11px] text-slate-400">Enforce zero-tolerance rule on packages deviating beyond twice the MAV.</p>
+                <p class="font-semibold text-[#0F172A]">Strict Tolerance Enforcement Mode</p>
+                <p class="text-[11px] text-[#64748B] mt-0.5">Enforce zero-tolerance rule on packages deviating beyond twice the MAV.</p>
               </div>
-              <input type="checkbox" id="settingStrictMode" onchange="updatePolicySetting('metro_strict_mode', this.checked)" class="w-4 h-4 text-amber-500 rounded">
+              <input type="checkbox" id="settingStrictMode" onchange="updatePolicySetting('metro_strict_mode', this.checked)" class="w-4 h-4 text-[#10B981] focus:ring-[#10B981] rounded">
             </label>
 
-            <label class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50 cursor-pointer">
+            <label class="flex items-center justify-between p-3.5 rounded-lg border border-[#E4E7EC] bg-[#F7F8FA] cursor-pointer hover:bg-slate-100 transition">
               <div>
-                <p class="font-bold text-slate-800">AI Vision OCR Fallback Mode</p>
-                <p class="text-[11px] text-slate-400">Use pre-cached OCR recognition heuristics if backend AI proxy is offline.</p>
+                <p class="font-semibold text-[#0F172A]">AI Vision OCR Fallback Mode</p>
+                <p class="text-[11px] text-[#64748B] mt-0.5">Use pre-cached OCR recognition heuristics if backend AI proxy is offline.</p>
               </div>
-              <input type="checkbox" id="settingOcrFallback" onchange="updatePolicySetting('metro_ocr_fallback', this.checked)" class="w-4 h-4 text-amber-500 rounded">
+              <input type="checkbox" id="settingOcrFallback" onchange="updatePolicySetting('metro_ocr_fallback', this.checked)" class="w-4 h-4 text-[#10B981] focus:ring-[#10B981] rounded">
             </label>
           </div>
         </div>
@@ -791,9 +967,9 @@
       </section>
 
       <!-- Footer Information -->
-      <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 mt-6">
+      <footer class="py-5 text-center text-xs text-[#64748B] border-t border-[#E4E7EC] mt-6">
         <p>© 2026 e-LMCEP (METRO-CHECK) | Ministry of Consumer Affairs, Food & Public Distribution, Govt. of India</p>
-        <p class="text-[11px] text-slate-400 mt-0.5">Enforcement & Compliance Division • Administrator Command Center</p>
+        <p class="text-[11px] text-[#64748B] mt-0.5">Legal Metrology Compliance & Enforcement Division • National Command Center</p>
       </footer>
 
     </main>
@@ -801,25 +977,25 @@
   </div>
 
   <!-- Modal: Add / Edit Commodity -->
-  <div id="commodityModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <h3 id="commodityModalTitle" class="text-base font-extrabold text-slate-900">Add New Commodity Standard</h3>
-        <button type="button" onclick="closeCommodityModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+  <div id="commodityModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto border border-[#E4E7EC]">
+      <div class="flex items-center justify-between border-b border-[#E4E7EC] pb-3">
+        <h3 id="commodityModalTitle" class="text-base font-semibold text-[#0F172A]">Add New Commodity Standard</h3>
+        <button type="button" onclick="closeCommodityModal()" class="text-[#64748B] hover:text-[#0F172A] font-bold p-1">✕</button>
       </div>
 
       <form id="commodityForm" onsubmit="handleSaveCommodityForm(event)" class="space-y-3 text-xs">
         <input type="hidden" id="commodityFormId">
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Commodity Name</label>
-          <input type="text" id="commodityFormName" required placeholder="e.g. Pure Honey in Glass Jars" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none">
+          <label class="block font-semibold text-[#0F172A] mb-1">Commodity Name</label>
+          <input type="text" id="commodityFormName" required placeholder="e.g. Pure Honey in Glass Jars" class="ds-input w-full p-2.5">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Category</label>
-            <select id="commodityFormCategory" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block font-semibold text-[#0F172A] mb-1">Category</label>
+            <select id="commodityFormCategory" class="ds-select w-full p-2.5">
               <option value="Food">Food & Grains</option>
               <option value="FMCG">FMCG & Cleaning</option>
               <option value="Electronics">Electronics</option>
@@ -827,83 +1003,365 @@
             </select>
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Sub-Category</label>
-            <input type="text" id="commodityFormSubCategory" placeholder="e.g. Sweeteners" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block font-semibold text-[#0F172A] mb-1">Sub-Category</label>
+            <input type="text" id="commodityFormSubCategory" placeholder="e.g. Sweeteners" class="ds-input w-full p-2.5">
           </div>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Legal Tolerance (MAV)</label>
-          <input type="text" id="commodityFormTolerance" required placeholder="e.g. ± 1.5% (for 500g–1kg)" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none">
+          <label class="block font-semibold text-[#0F172A] mb-1">Legal Tolerance (MAV)</label>
+          <input type="text" id="commodityFormTolerance" required placeholder="e.g. ± 1.5% (for 500g–1kg)" class="ds-input w-full p-2.5">
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Permissible Standard Package Sizes</label>
-          <input type="text" id="commodityFormSizes" placeholder="e.g. 100g, 250g, 500g, 1kg" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none">
+          <label class="block font-semibold text-[#0F172A] mb-1">Permissible Standard Package Sizes</label>
+          <input type="text" id="commodityFormSizes" placeholder="e.g. 100g, 250g, 500g, 1kg" class="ds-input w-full p-2.5">
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Statutory Rule Reference</label>
-          <input type="text" id="commodityFormRule" placeholder="e.g. PCR 2011 Rule 6 & Second Schedule" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none">
+          <label class="block font-semibold text-[#0F172A] mb-1">Statutory Rule Reference</label>
+          <input type="text" id="commodityFormRule" placeholder="e.g. PCR 2011 Rule 6 & Second Schedule" class="ds-input w-full p-2.5">
         </div>
 
-        <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
-          <button type="button" onclick="closeCommodityModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Cancel</button>
-          <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow">Save Standard</button>
+        <div class="flex justify-end gap-2 pt-3 border-t border-[#E4E7EC]">
+          <button type="button" onclick="closeCommodityModal()" class="btn-secondary px-4 py-2 text-xs">Cancel</button>
+          <button type="submit" class="btn-primary px-5 py-2 text-xs">Save Standard</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- Modal: Add New User -->
-  <div id="userModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <h3 class="text-base font-extrabold text-slate-900">Register New System User</h3>
-        <button type="button" onclick="closeUserModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+  <div id="userModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-[#E4E7EC] max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-[#E4E7EC] pb-3">
+        <h3 class="text-base font-semibold text-[#0F172A]">Register New System User</h3>
+        <button type="button" onclick="closeUserModal()" class="text-[#64748B] hover:text-[#0F172A] font-bold p-1">✕</button>
       </div>
 
       <form id="userForm" onsubmit="handleSaveUserForm(event)" class="space-y-3 text-xs">
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Username (Login ID)</label>
-          <input type="text" id="userFormUsername" required placeholder="e.g. inspector2" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none font-mono">
+          <label class="block font-semibold text-[#0F172A] mb-1">Username (Login ID)</label>
+          <input type="text" id="userFormUsername" required placeholder="e.g. inspector2" class="ds-input w-full p-2.5 font-mono">
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Password</label>
-          <input type="password" id="userFormPassword" required placeholder="••••••••" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none font-mono">
+          <label class="block font-semibold text-[#0F172A] mb-1">Password</label>
+          <input type="password" id="userFormPassword" required placeholder="••••••••" class="ds-input w-full p-2.5 font-mono">
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Full Name</label>
-          <input type="text" id="userFormName" required placeholder="e.g. Priya Sharma" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none">
+          <label class="block font-semibold text-[#0F172A] mb-1">Full Name</label>
+          <input type="text" id="userFormName" required placeholder="e.g. Priya Sharma" class="ds-input w-full p-2.5">
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Role</label>
-          <select id="userFormRole" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none">
+          <label class="block font-semibold text-[#0F172A] mb-1">Role</label>
+          <select id="userFormRole" class="ds-select w-full p-2.5">
             <option value="inspector">Field Inspector (Mobile-First)</option>
             <option value="officer">Metrology Officer (Enforcement Docket)</option>
           </select>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Designation Title</label>
-          <input type="text" id="userFormDesignation" placeholder="e.g. Legal Metrology Inspector - Zone 2" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none">
+          <label class="block font-semibold text-[#0F172A] mb-1">Designation Title</label>
+          <input type="text" id="userFormDesignation" placeholder="e.g. Legal Metrology Inspector - Zone 2" class="ds-input w-full p-2.5">
         </div>
 
-        <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
-          <button type="button" onclick="closeUserModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Cancel</button>
-          <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow">Save & Authorize</button>
+        <div class="flex justify-end gap-2 pt-3 border-t border-[#E4E7EC]">
+          <button type="button" onclick="closeUserModal()" class="btn-secondary px-4 py-2 text-xs">Cancel</button>
+          <button type="submit" class="btn-primary px-5 py-2 text-xs">Save & Authorize</button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- ===================================================================
+       MASTER DEMO & PROTOTYPE SHOWCASE DRAWER (Embedded directly in admin.html)
+       =================================================================== -->
+  <div id="demoShowcaseDrawer" class="hidden fixed inset-0 z-50 overflow-hidden" aria-labelledby="showcaseTitle" role="dialog" aria-modal="true">
+    <!-- Backdrop Overlay -->
+    <div onclick="DemoShowcase.closeShowcaseDrawer()" class="showcase-backdrop fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 opacity-0 cursor-pointer"></div>
+
+    <div class="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10 pointer-events-none">
+      <div class="showcase-panel pointer-events-auto w-screen max-w-2xl lg:max-w-3xl bg-[#F7F8FA] border-l border-[#E4E7EC] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+        
+        <!-- Drawer Header -->
+        <div class="p-4 sm:p-5 bg-white border-b border-[#E4E7EC] flex items-center justify-between gap-4 flex-shrink-0">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 via-emerald-500/10 to-transparent border border-amber-500/30 flex items-center justify-center text-amber-500 font-bold text-lg shadow-2xs flex-shrink-0">
+              ⚡
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 id="showcaseTitle" class="text-sm sm:text-base font-bold text-[#0F172A] tracking-tight">Master Demo & Prototype Showcase</h3>
+                <span class="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  ALL 6 ZONES LIVE
+                </span>
+              </div>
+              <p class="text-xs text-[#64748B] truncate mt-0.5">
+                Overview of Legal Metrology inspection dockets, AI specimens & multi-role governance.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button type="button" 
+                    onclick="DemoShowcase.enableAllDemos()" 
+                    class="px-3 py-1.5 rounded-lg bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    title="Enable and re-seed all demo cases">
+              <span>⚡</span> <span>Enable All Cases</span>
+            </button>
+            <button type="button" 
+                    onclick="DemoShowcase.closeShowcaseDrawer()" 
+                    class="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition cursor-pointer" 
+                    title="Close Drawer (ESC)">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Drawer Scrollable Body -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+          
+          <!-- SECTION 1: PROTOTYPE EXECUTIVE OVERVIEW -->
+          <div class="bg-white rounded-xl p-4 sm:p-5 border border-[#E4E7EC] shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-[#0F172A] uppercase tracking-wider flex items-center gap-1.5">
+                <span>📊</span> <span>Prototype Overview & Telemetry Metrics</span>
+              </h4>
+              <span class="text-[11px] font-mono text-[#64748B]">Legal Metrology (Packaged Commodities) Rules 2011</span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div class="bg-[#F7F8FA] p-3 rounded-lg border border-[#E4E7EC]">
+                <p class="text-2xl font-extrabold text-[#0F172A]">10</p>
+                <p class="text-[11px] font-medium text-[#64748B] mt-0.5">Total Zonal Cases</p>
+                <span class="text-[9.5px] font-bold text-indigo-600">All 6 Zones Covered</span>
+              </div>
+              <div class="bg-[#F7F8FA] p-3 rounded-lg border border-[#E4E7EC]">
+                <p class="text-2xl font-extrabold text-red-600">3</p>
+                <p class="text-[11px] font-medium text-[#64748B] mt-0.5">Defect Reviews</p>
+                <span class="text-[9.5px] font-bold text-red-600">Pending Officer Action</span>
+              </div>
+              <div class="bg-[#F7F8FA] p-3 rounded-lg border border-[#E4E7EC]">
+                <p class="text-2xl font-extrabold text-amber-600">3</p>
+                <p class="text-[11px] font-medium text-[#64748B] mt-0.5">Notices Issued</p>
+                <span class="text-[9.5px] font-bold text-amber-600">Rule 32 Enforcement</span>
+              </div>
+              <div class="bg-[#F7F8FA] p-3 rounded-lg border border-[#E4E7EC]">
+                <p class="text-2xl font-extrabold text-[#10B981]">4</p>
+                <p class="text-[11px] font-medium text-[#64748B] mt-0.5">100% Compliant</p>
+                <span class="text-[9.5px] font-bold text-emerald-600">Gold Standards Verified</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: 7 OFFICIAL DEMO PERSONAS (1-Click Switch & Launch) -->
+          <div class="bg-white rounded-xl p-4 sm:p-5 border border-[#E4E7EC] shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-[#0F172A] uppercase tracking-wider flex items-center gap-1.5">
+                <span>👥</span> <span>7 Official Demo Personas (1-Click Switch & Test)</span>
+              </h4>
+              <span class="text-[11px] text-slate-400">Click to switch persona & launch view</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <!-- National Admin -->
+              <div onclick="DemoShowcase.switchPersonaAndNavigate('admin')" class="p-3 rounded-lg border border-[#E4E7EC] hover:border-emerald-300 hover:bg-emerald-50/40 transition cursor-pointer group flex items-center justify-between">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-lg">🏛️</span>
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-[#0F172A] group-hover:text-emerald-700 truncate">Director DoCA (National Admin)</p>
+                    <p class="text-[10.5px] text-[#64748B]">All 6 Zones Oversight • Command Center</p>
+                  </div>
+                </div>
+                <span class="text-slate-400 group-hover:text-emerald-600 text-xs font-bold">→</span>
+              </div>
+
+              <!-- Zonal North -->
+              <div onclick="DemoShowcase.switchPersonaAndNavigate('north_admin')" class="p-3 rounded-lg border border-[#E4E7EC] hover:border-emerald-300 hover:bg-emerald-50/40 transition cursor-pointer group flex items-center justify-between">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-lg">🧭</span>
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-[#0F172A] group-hover:text-emerald-700 truncate">Zonal Officer North</p>
+                    <p class="text-[10.5px] text-[#64748B]">North Zone Jurisdiction • 7 States/UTs</p>
+                  </div>
+                </div>
+                <span class="text-slate-400 group-hover:text-emerald-600 text-xs font-bold">→</span>
+              </div>
+
+              <!-- Zonal South -->
+              <div onclick="DemoShowcase.switchPersonaAndNavigate('south_admin')" class="p-3 rounded-lg border border-[#E4E7EC] hover:border-emerald-300 hover:bg-emerald-50/40 transition cursor-pointer group flex items-center justify-between">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-lg">🧭</span>
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-[#0F172A] group-hover:text-emerald-700 truncate">Zonal Officer South</p>
+                    <p class="text-[10.5px] text-[#64748B]">South Zone Jurisdiction • 5 States/UTs</p>
+                  </div>
+                </div>
+                <span class="text-slate-400 group-hover:text-emerald-600 text-xs font-bold">→</span>
+              </div>
+
+              <!-- Officer Dr S Roy -->
+              <div onclick="DemoShowcase.switchPersonaAndNavigate('officer')" class="p-3 rounded-lg border border-[#E4E7EC] hover:border-emerald-300 hover:bg-emerald-50/40 transition cursor-pointer group flex items-center justify-between">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-lg">⚖️</span>
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-[#0F172A] group-hover:text-emerald-700 truncate">Dr S Roy (Enforcement Officer)</p>
+                    <p class="text-[10.5px] text-[#64748B]">Delhi UT Docket • Show-Cause Notices</p>
+                  </div>
+                </div>
+                <span class="text-slate-400 group-hover:text-emerald-600 text-xs font-bold">→</span>
+              </div>
+
+              <!-- Inspector Delhi -->
+              <div onclick="DemoShowcase.switchPersonaAndNavigate('inspector')" class="p-3 rounded-lg border border-[#E4E7EC] hover:border-emerald-300 hover:bg-emerald-50/40 transition cursor-pointer group flex items-center justify-between">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-lg">🔍</span>
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-[#0F172A] group-hover:text-emerald-700 truncate">Shri R Sharma (Field Inspector)</p>
+                    <p class="text-[10.5px] text-[#64748B]">Delhi UT Field Scans • AI OCR Camera</p>
+                  </div>
+                </div>
+                <span class="text-slate-400 group-hover:text-emerald-600 text-xs font-bold">→</span>
+              </div>
+
+              <!-- Inspector Punjab -->
+              <div onclick="DemoShowcase.switchPersonaAndNavigate('inspector_pb')" class="p-3 rounded-lg border border-[#E4E7EC] hover:border-emerald-300 hover:bg-emerald-50/40 transition cursor-pointer group flex items-center justify-between">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-lg">🔍</span>
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-[#0F172A] group-hover:text-emerald-700 truncate">S Kaur (Field Inspector)</p>
+                    <p class="text-[10.5px] text-[#64748B]">Punjab Mandi Scans • Ludhiana</p>
+                  </div>
+                </div>
+                <span class="text-slate-400 group-hover:text-emerald-600 text-xs font-bold">→</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 3: 1-CLICK AI SCANNER SPECIMEN TESTING -->
+          <div class="bg-white rounded-xl p-4 sm:p-5 border border-[#E4E7EC] shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-[#0F172A] uppercase tracking-wider flex items-center gap-1.5">
+                <span>📷</span> <span>1-Click AI Scanner Specimen Presets</span>
+              </h4>
+              <span class="text-[11px] text-slate-400">Launches Inspector with live OCR testing</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div onclick="DemoShowcase.launchDemoSpecimenInScanner('rice')" class="p-3 rounded-lg border border-red-200 bg-red-50/30 hover:bg-red-50/70 transition cursor-pointer flex items-center justify-between">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-red-900 truncate">Basmati Rice 5kg</p>
+                  <p class="text-[10.5px] text-red-700">Missing Consumer Care Contact (Rule 6(1)(n))</p>
+                </div>
+                <span class="px-2 py-1 bg-red-600 text-white rounded text-[10px] font-bold shadow-2xs">Test OCR →</span>
+              </div>
+
+              <div onclick="DemoShowcase.launchDemoSpecimenInScanner('oil')" class="p-3 rounded-lg border border-amber-200 bg-amber-50/30 hover:bg-amber-50/70 transition cursor-pointer flex items-center justify-between">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-amber-900 truncate">Pure Coconut Oil 500ml</p>
+                  <p class="text-[10.5px] text-amber-700">Missing Unit Sale Price USP (Rule 6(1)(e))</p>
+                </div>
+                <span class="px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-bold shadow-2xs">Test OCR →</span>
+              </div>
+
+              <div onclick="DemoShowcase.launchDemoSpecimenInScanner('tea')" class="p-3 rounded-lg border border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50/70 transition cursor-pointer flex items-center justify-between">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-emerald-900 truncate">Organic Wheat Atta 10kg</p>
+                  <p class="text-[10.5px] text-emerald-700">100% Compliant Gold Standard Packaging</p>
+                </div>
+                <span class="px-2 py-1 bg-[#10B981] text-white rounded text-[10px] font-bold shadow-2xs">Test OCR →</span>
+              </div>
+
+              <div onclick="DemoShowcase.launchDemoSpecimenInScanner('chips')" class="p-3 rounded-lg border border-amber-200 bg-amber-50/30 hover:bg-amber-50/70 transition cursor-pointer flex items-center justify-between">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-amber-900 truncate">Darjeeling Green Tea 100g</p>
+                  <p class="text-[10.5px] text-amber-700">Incomplete Postal Address (Rule 6(1)(a))</p>
+                </div>
+                <span class="px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-bold shadow-2xs">Test OCR →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 4: ZONE-BY-ZONE DEMO CASE EXPLORER -->
+          <div class="bg-white rounded-xl p-4 sm:p-5 border border-[#E4E7EC] shadow-xs space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-[#E4E7EC]">
+              <div>
+                <h4 class="text-xs font-bold text-[#0F172A] uppercase tracking-wider flex items-center gap-1.5">
+                  <span>🗺️</span> <span>Official 6 Zonal Council Cases Explorer</span>
+                </h4>
+                <p class="text-[11px] text-[#64748B]">Select a Zonal Council to inspect jurisdiction records</p>
+              </div>
+
+              <!-- Zone Filter Pill Tabs -->
+              <div class="flex items-center gap-1 flex-wrap">
+                <button type="button" data-zone="All" onclick="DemoShowcase.filterDrawerCases('All')" class="showcase-zone-tab px-2.5 py-1 rounded-lg text-xs font-bold bg-[#10B981] text-white shadow-xs transition">
+                  All (10)
+                </button>
+                <button type="button" data-zone="North" onclick="DemoShowcase.filterDrawerCases('North')" class="showcase-zone-tab px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
+                  North (3)
+                </button>
+                <button type="button" data-zone="Central" onclick="DemoShowcase.filterDrawerCases('Central')" class="showcase-zone-tab px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
+                  Central (1)
+                </button>
+                <button type="button" data-zone="East" onclick="DemoShowcase.filterDrawerCases('East')" class="showcase-zone-tab px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
+                  East (1)
+                </button>
+                <button type="button" data-zone="West" onclick="DemoShowcase.filterDrawerCases('West')" class="showcase-zone-tab px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
+                  West (2)
+                </button>
+                <button type="button" data-zone="South" onclick="DemoShowcase.filterDrawerCases('South')" class="showcase-zone-tab px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
+                  South (2)
+                </button>
+                <button type="button" data-zone="North East" onclick="DemoShowcase.filterDrawerCases('North East')" class="showcase-zone-tab px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
+                  NE (1)
+                </button>
+              </div>
+            </div>
+
+            <!-- Case Cards Container -->
+            <div id="showcaseCasesList" class="space-y-3">
+              <!-- Dynamically rendered by DemoShowcase.renderDrawerCases() -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Drawer Footer Action Bar -->
+        <div class="p-4 bg-white border-t border-[#E4E7EC] flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
+          <button type="button" 
+                  onclick="DemoShowcase.resetToCleanProduction()" 
+                  class="px-3.5 py-2 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 transition cursor-pointer">
+            <span>🧹</span> <span>Reset to Clean Production Storage</span>
+          </button>
+
+          <div class="flex items-center gap-2">
+            <button type="button" 
+                    onclick="DemoShowcase.enableAllDemos()" 
+                    class="px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-lg shadow-xs transition cursor-pointer">
+              <span>⚡</span> <span>Re-Seed All Demo Data</span>
+            </button>
+            <button type="button" 
+                    onclick="DemoShowcase.closeShowcaseDrawer()" 
+                    class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition cursor-pointer">
+              Close
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
+  <script src="js/demo-data.js"></script>
+  <script src="js/demo-showcase.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/rules.js"></script>
   <script src="js/pdfService.js"></script>
+  <script src="js/notifications.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/masthead.js"></script>
 </body>

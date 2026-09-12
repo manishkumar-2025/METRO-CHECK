@@ -11,6 +11,17 @@ let activeDocketFilter = "all";
 let currentReviewId = null;
 let currentPendingDecision = null;
 
+function escapeHtml(str) {
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+window.escapeHtml = escapeHtml;
+
 /* ==========================================================================
    FIELD INSPECTOR CONTROLLER (Mobile-First)
    ========================================================================== */
@@ -68,12 +79,22 @@ function switchInspectorTab(tabId) {
     }
     if (navBtn) {
       if (id === tabId) {
-        navBtn.className = "inspector-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-amber-500 text-white shadow font-semibold transition text-left";
+        navBtn.className = "inspector-nav-btn sidebar-nav-item active w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md bg-gray-100 text-gray-900 font-medium transition text-left";
       } else {
-        navBtn.className = "inspector-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left";
+        navBtn.className = "inspector-nav-btn sidebar-nav-item w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left";
       }
     }
   });
+
+  // Auto-close mobile sidebar drawer on selection
+  if (window.innerWidth < 768) {
+    const sidebar = document.getElementById("leftSidebar") || document.querySelector("aside");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    if (sidebar && !sidebar.classList.contains("-translate-x-full")) {
+      sidebar.classList.add("-translate-x-full");
+      if (backdrop) backdrop.classList.add("hidden");
+    }
+  }
 
   // Update breadcrumb & header title
   const titles = {
@@ -95,6 +116,18 @@ function switchInspectorTab(tabId) {
   if (readyBadge) {
     if (tabId === "ocr") readyBadge.classList.remove("hidden");
     else readyBadge.classList.add("hidden");
+  }
+
+  // Hide redundant header quick button when on OCR tab; show on other tabs
+  const headerOcrBtn = document.getElementById("headerQuickOcrBtn");
+  if (headerOcrBtn) {
+    if (tabId === "ocr") headerOcrBtn.classList.add("hidden");
+    else headerOcrBtn.classList.remove("hidden");
+  }
+
+  // Camera hardware stream cleanup when leaving OCR tab
+  if (tabId !== "ocr" && typeof stopLiveCamera === "function") {
+    stopLiveCamera();
   }
 
   // Refresh active tab contents
@@ -144,7 +177,7 @@ function renderStats() {
  * 1. Dashboard: Renders recent inspections table.
  */
 function renderRecentDashboardTable() {
-  const list = getInspections();
+  const list = filterByZoneAccess(getInspections());
   const tbody = document.getElementById("inspectionsTableBody");
   const empty = document.getElementById("emptyStateBanner");
   if (!tbody) return;
@@ -186,9 +219,16 @@ function setInspectionTab(tab) {
   document.querySelectorAll(".inspection-filter-tab").forEach(btn => {
     const isCurrent = btn.getAttribute("data-inspection-tab") === tab;
     btn.className = isCurrent
-      ? "inspection-filter-tab px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-white shadow transition"
-      : "inspection-filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-200 transition";
+      ? "inspection-filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#10B981] text-white shadow-xs transition"
+      : "inspection-filter-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-200 transition";
   });
+  renderMyInspections();
+}
+
+function resetMyInspectionsSearch() {
+  setInspectionTab("all");
+  const si = document.getElementById("inspectionsSearchInput");
+  if (si) si.value = "";
   renderMyInspections();
 }
 
@@ -196,7 +236,7 @@ function setInspectionTab(tab) {
  * 2. My Inspections: Renders responsive cards with real-time search.
  */
 function renderMyInspections() {
-  const all = getInspections();
+  const all = filterByZoneAccess(getInspections());
   const search = (document.getElementById("inspectionsSearchInput")?.value || "").trim().toLowerCase();
 
   const isPendingStatus = (s) => s === "submitted" || s === "pending" || s === "NON_COMPLIANT_PENDING";
@@ -290,7 +330,7 @@ function renderMyInspections() {
               <span>📥</span> <span>PDF</span>
             </button>
           ` : `
-            <button onclick="openInspectorDetailModal('${item.id}')" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition text-center">
+            <button onclick="openInspectorDetailModal('${item.id}')" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-bold rounded-xl transition text-center cursor-pointer">
               ${item.status === 'draft' ? 'Resume' : 'View'}
             </button>
           `}
@@ -311,8 +351,8 @@ function setCommodityCategoryFilter(cat) {
   document.querySelectorAll(".commodity-cat-pill").forEach(pill => {
     const isMatch = pill.textContent.includes(cat) || (cat === "All" && pill.textContent.includes("All"));
     pill.className = isMatch
-      ? "commodity-cat-pill px-3 py-1.5 rounded-lg bg-amber-500 text-white font-bold shadow"
-      : "commodity-cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200";
+      ? "commodity-cat-pill px-3 py-1.5 rounded-lg bg-[#10B981] text-white font-semibold shadow-xs transition"
+      : "commodity-cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
   });
   renderCommodityLookup();
 }
@@ -416,9 +456,18 @@ function startInspectionForCommodity(commodityName) {
   }
   if (typeof switchInspectorTab === "function") {
     switchInspectorTab("ocr");
-    const commInput = document.getElementById("ocrCommoditySelect");
+    const commInput = document.getElementById("ocrCommodityCategorySelect") || document.getElementById("ocrCommoditySelect");
     if (commInput && commodityName) {
-      commInput.value = commodityName;
+      for (let i = 0; i < commInput.options.length; i++) {
+        if (commInput.options[i].text.toLowerCase().includes(commodityName.toLowerCase()) || 
+            commInput.options[i].value.toLowerCase().includes(commodityName.toLowerCase())) {
+          commInput.selectedIndex = i;
+          break;
+        }
+      }
+      if (typeof handleOcrCommodityChange === "function") {
+        handleOcrCommodityChange();
+      }
     }
   } else {
     window.location.href = `inspector.html?view=ocr&commodity=${encodeURIComponent(commodityName || "")}`;
@@ -490,10 +539,10 @@ function calculateInteractiveMav() {
     if (devEl) devEl.className = "text-red-400 font-bold";
   } else {
     if (badgeEl) {
-      badgeEl.className = "px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 font-extrabold text-xs text-center flex items-center justify-center gap-1.5 h-[38px] shadow-md";
+      badgeEl.className = "px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-extrabold text-xs text-center flex items-center justify-center gap-1.5 h-[38px] shadow-xs";
       badgeEl.innerHTML = "<span>✅</span> <span>WITHIN PERMISSIBLE MAV</span>";
     }
-    if (devEl) devEl.className = "text-emerald-400 font-bold";
+    if (devEl) devEl.className = "text-emerald-700 font-bold";
   }
 }
 window.calculateInteractiveMav = calculateInteractiveMav;
@@ -516,6 +565,7 @@ function renderCompletedReports() {
   if (empty) empty.classList.add("hidden");
 
   container.innerHTML = completed.map(item => {
+    const ext = item.extractedData || {};
     const statusLabel = typeof formatStatusLabel === "function" ? formatStatusLabel(item.status) : (item.status || "Completed");
     const badgeStyle = typeof getStatusBadgeClass === "function" ? getStatusBadgeClass(item.status) : "bg-slate-100 text-slate-800 border border-slate-300";
 
@@ -562,184 +612,11 @@ function downloadInspectionPDF(inspectionId) {
   }
   const item = getInspectionById(inspectionId);
   if (!item) {
-    alert("Record not found.");
+    if (typeof showToast === "function") showToast("Record not found.", "warning");
+    else alert("Record not found.");
     return;
   }
-
-  if (typeof showToast === "function") showToast(`Generating PDF for ${item.id}...`, "warning");
-
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF("p", "mm", "a4");
-
-    // Header Background
-    doc.setFillColor(26, 31, 54); // Dark navy
-    doc.rect(0, 0, 210, 30, "F");
-
-    // Header Titles
-    doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.text("METRO-CHECK | LEGAL METROLOGY VERIFICATION SYSTEM", 14, 14);
-
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(245, 158, 11);
-    doc.text("Government of India • Ministry of Consumer Affairs, Food & Public Distribution", 14, 22);
-
-    // Case Details Banner
-    doc.setTextColor(30, 41, 59);
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("STATUTORY COMPLIANCE INSPECTION REPORT", 14, 40);
-
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Case ID: ${String(item.id || "N/A")}`, 14, 48);
-    doc.text(`Inspection Date: ${String(item.date || "N/A")}`, 14, 54);
-    doc.text(`Field Inspector: ${String(item.inspectorName || "Field Inspector")}`, 14, 60);
-    doc.text(`Inspection Location: ${String(item.location || "Regional Enforcement Unit")}`, 14, 66);
-
-    const prodName = String(item.product || "N/A");
-    doc.text(`Product Name: ${prodName.length > 40 ? prodName.substring(0, 40) + "..." : prodName}`, 110, 48);
-    doc.text(`Adjudication Status: ${String(item.status || "N/A").toUpperCase()}`, 110, 54);
-    doc.text(`Priority Level: ${String(item.priority || "Standard")}`, 110, 60);
-
-    // Separator Line
-    doc.setDrawColor(203, 213, 225);
-    doc.setLineWidth(0.5);
-    doc.line(14, 72, 196, 72);
-
-    // AI Extracted Mandatory Declarations (Rule 6)
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("Mandatory Label Declarations (Legal Metrology Rules 2011)", 14, 80);
-
-    const ext = item.extractedData || {};
-    const mfgResolved = typeof ext.manufacturer === "string" && ext.manufacturer.trim().length > 0
-      ? ext.manufacturer
-      : ([ext.manufacturer_name, ext.manufacturer_address].filter(Boolean).join(", ") || (ext.manufacturer && typeof ext.manufacturer === "object" ? ext.manufacturer.name : "MISSING"));
-
-    const declarations = [
-      ["1. Commodity Generic Name", ext.commodity_name || "MISSING"],
-      ["2. Net Quantity", ext.net_quantity || "MISSING"],
-      ["3. Retail Sale Price (MRP)", ext.mrp || "MISSING"],
-      ["4. Manufacturer / Packer Address", mfgResolved || "MISSING"],
-      ["5. Month & Year of Packaging", ext.mfg_date || "MISSING"],
-      ["6. Consumer Care Helpline", ext.consumer_care || "MISSING"]
-    ];
-
-    let y = 88;
-    doc.setFontSize(9);
-    declarations.forEach(([label, value]) => {
-      if (y > 270) {
-        doc.addPage();
-        y = 20;
-      }
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(71, 85, 105);
-      doc.text(String(label), 16, y);
-
-      const valStr = String(value != null && value !== "" ? value : "MISSING");
-      const isMissing = !valStr || valStr === "MISSING" || valStr === "null" || valStr === "undefined";
-      doc.setFont("helvetica", isMissing ? "bold" : "normal");
-      doc.setTextColor(isMissing ? 220 : 15, isMissing ? 38 : 23, isMissing ? 38 : 42);
-
-      const splitVal = doc.splitTextToSize(valStr, 105);
-      doc.text(splitVal, 90, y);
-      const rowHeight = Math.max(splitVal.length * 4.5, 6.5);
-      y += rowHeight;
-    });
-
-    // Violations Section
-    if (y > 260) { doc.addPage(); y = 20; }
-    y += 2;
-    doc.setDrawColor(203, 213, 225);
-    doc.line(14, y, 196, y);
-    y += 7;
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(30, 41, 59);
-    doc.text("Detected Statutory Violations", 14, y);
-    y += 6;
-
-    const viols = Array.isArray(item.violations) ? item.violations : [];
-    doc.setFontSize(9);
-    if (viols.length === 0) {
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(16, 185, 129);
-      doc.text("✓ Zero statutory violations found. Package complies with Legal Metrology Packaged Commodities Rules 2011.", 16, y);
-      y += 8;
-    } else {
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(220, 38, 38);
-      viols.forEach((v, idx) => {
-        if (y > 270) { doc.addPage(); y = 20; }
-        const vText = typeof v === "object" ? (v?.reason || v?.rule || v?.violation || JSON.stringify(v)) : String(v || "Statutory Violation");
-        const fullLine = `${idx + 1}. ${vText} — (Per Legal Metrology PCR 2011)`;
-        const splitViol = doc.splitTextToSize(fullLine, 180);
-        doc.text(splitViol, 16, y);
-        y += Math.max(splitViol.length * 4.5, 5.5);
-      });
-    }
-
-    // Verdict Stamp & Officer Comments
-    if (y > 250) { doc.addPage(); y = 20; }
-    y += 2;
-    doc.setDrawColor(203, 213, 225);
-    doc.line(14, y, 196, y);
-    y += 7;
-
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(30, 41, 59);
-    doc.text("Judicial Findings & Enforcement Directive", 14, y);
-    y += 6;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(71, 85, 105);
-    const commentStr = `Official Comments: ${String(item.reviewComments || "Inspection recorded and verified.")}`;
-    const splitComment = doc.splitTextToSize(commentStr, 180);
-    doc.text(splitComment, 16, y);
-    y += Math.max(splitComment.length * 4.5 + 4, 10);
-
-    if (y > 245) { doc.addPage(); y = 20; }
-
-    // Stamp box
-    doc.setDrawColor(item.isCompliant ? 16 : 220, item.isCompliant ? 185 : 38, item.isCompliant ? 129 : 38);
-    doc.setLineWidth(1);
-    doc.rect(14, y, 60, 16);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(item.isCompliant ? 16 : 220, item.isCompliant ? 185 : 38, item.isCompliant ? 129 : 38);
-    doc.text(item.isCompliant ? "COMPLIANT" : "NON-COMPLIANT", 18, y + 11);
-
-    // Official Signature Line
-    doc.setTextColor(100, 116, 139);
-    doc.setFontSize(8);
-    doc.text("Authorized Metrology Inspector / Officer Signatory", 130, y + 10);
-    doc.line(130, y + 6, 196, y + 6);
-    doc.text("Digitally Certified Audit Token: MC-INSP-2025-SEC", 130, y + 14);
-
-    // Watermark
-    doc.setTextColor(230, 235, 240);
-    doc.setFontSize(40);
-    doc.setFont("helvetica", "bold");
-    doc.text("OFFICIAL INSPECTION RECORD", 20, 240, { angle: 30 });
-
-    // Footer
-    doc.setFontSize(8);
-    doc.setTextColor(148, 163, 184);
-    doc.text("Department of Consumer Affairs, Government of India • Smart India Hackathon 2025 Verification Report", 14, 285);
-
-    doc.save(`METRO-CHECK_Report_${String(item.id || "Report")}.pdf`);
-    if (typeof showToast === "function") showToast("Compliance Report PDF downloaded successfully!", "success");
-  } catch (err) {
-    console.error("PDF download failed:", err);
-    if (typeof showToast === "function") showToast("Failed to generate PDF: " + (err.message || "Unknown error"), "error");
-    alert("Failed to generate PDF: " + (err.message || "Unknown error"));
-  }
+  window.print();
 }
 
 /**
@@ -824,6 +701,12 @@ function loadReviewDocket() {
   if (user) {
     const nameEl = document.getElementById("officerUserName");
     if (nameEl) nameEl.textContent = user.name || "Metrology Officer";
+
+    // Regional scope badge
+    const zoneNameEl = document.getElementById("officerZoneName");
+    if (zoneNameEl) zoneNameEl.textContent = user.zone || "North";
+    const zoneBadgeEl = document.getElementById("officerZoneBadge");
+    if (zoneBadgeEl) zoneBadgeEl.title = `Viewing Zone: ${user.zone || "North"} (Regional Scope)`;
   }
 
   // Check URL param or hash (?view=reports, ?view=legal, ?view=standards)
@@ -861,12 +744,22 @@ function switchOfficerTab(tabId) {
     }
     if (navBtn) {
       if (id === tabId) {
-        navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-amber-500 text-white shadow font-semibold transition text-left";
+        navBtn.className = "officer-nav-btn sidebar-nav-item active w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md bg-gray-100 text-gray-900 font-medium transition text-left";
       } else {
-        navBtn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition text-left";
+        navBtn.className = "officer-nav-btn sidebar-nav-item w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left";
       }
     }
   });
+
+  // Auto-close mobile sidebar drawer on selection
+  if (window.innerWidth < 768) {
+    const sidebar = document.getElementById("leftSidebar") || document.querySelector("aside");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    if (sidebar && !sidebar.classList.contains("-translate-x-full")) {
+      sidebar.classList.add("-translate-x-full");
+      if (backdrop) backdrop.classList.add("hidden");
+    }
+  }
 
   const titles = {
     docket: { bc: "Review Docket", title: "Enforcement Review Docket" },
@@ -883,7 +776,7 @@ function switchOfficerTab(tabId) {
 
   if (tabId === "review") {
     if (!currentReviewId) {
-      const all = getInspections();
+      const all = filterByZoneAccess(getInspections());
       const firstTarget = all.find(i => i.status === "submitted" || i.status === "pending") || all[0];
       if (firstTarget) loadCaseDetails(firstTarget.id);
     } else {
@@ -899,11 +792,11 @@ function filterByStatus(status) {
   document.querySelectorAll(".docket-tab").forEach(tab => {
     const isCurrent = tab.getAttribute("data-tab") === status;
     tab.className = isCurrent 
-      ? "docket-tab px-4 py-2 font-bold text-xs rounded-xl bg-amber-500 text-white shadow" 
-      : "docket-tab px-4 py-2 font-semibold text-xs rounded-xl text-slate-600 hover:bg-slate-200";
+      ? "docket-tab px-4 py-2 font-semibold text-xs rounded-xl bg-[#10B981] text-white shadow-xs" 
+      : "docket-tab px-4 py-2 font-medium text-xs rounded-xl text-slate-600 hover:bg-slate-200 transition";
   });
 
-  const all = getInspections();
+  const all = filterByZoneAccess(getInspections());
   const isPendingStatus = (s) => {
     const u = String(s || "").toUpperCase();
     return u === "SUBMITTED" || u === "PENDING" || u === "NON_COMPLIANT_PENDING";
@@ -920,6 +813,15 @@ function filterByStatus(status) {
   const pendingCount = all.filter(i => isPendingStatus(i.status)).length;
   const countEl = document.getElementById("pendingCasesCount");
   if (countEl) countEl.textContent = `${pendingCount} cases pending review`;
+
+  const statTotalEl = document.getElementById("officerStatTotal");
+  const statPendingEl = document.getElementById("officerStatPending");
+  const statApprovedEl = document.getElementById("officerStatApproved");
+  const statDismissedEl = document.getElementById("officerStatDismissed");
+  if (statTotalEl) statTotalEl.textContent = all.length;
+  if (statPendingEl) statPendingEl.textContent = pendingCount;
+  if (statApprovedEl) statApprovedEl.textContent = all.filter(i => isApprovedStatus(i.status)).length;
+  if (statDismissedEl) statDismissedEl.textContent = all.filter(i => isRejectedStatus(i.status)).length;
 
   let filtered = all;
   if (status === "pending") filtered = all.filter(i => isPendingStatus(i.status));
@@ -967,13 +869,14 @@ function renderTable(inspections) {
       <tr class="hover:bg-slate-50 border-b border-slate-100 text-xs sm:text-sm">
         <td class="px-3 py-3 font-mono font-bold text-slate-700">${item.id}</td>
         <td class="px-3 py-3 text-slate-600">${item.inspectorName || "Inspector"}</td>
+        <td class="px-3 py-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">${item.state || "Delhi UT"}</span></td>
         <td class="px-3 py-3 font-semibold text-slate-900">${item.product || "-"}</td>
         <td class="px-3 py-3 text-slate-500 font-mono text-xs">${item.date || "-"}</td>
         <td class="px-3 py-3">${violCount > 0 ? `<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700">${violCount} Found</span>` : `<span class="text-emerald-600 font-medium text-xs">None</span>`}</td>
         <td class="px-3 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${pBadge}">${pIcon} ${item.priority || "Standard"}</span></td>
         <td class="px-3 py-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(item.status)}">${displayStatus}</span></td>
         <td class="px-3 py-3">
-          <button onclick="openCase('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${canReview ? 'bg-amber-500 hover:bg-amber-600 text-white shadow' : 'bg-slate-200 hover:bg-slate-300 text-slate-700'} transition">
+          <button onclick="openCase('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold ${canReview ? 'bg-[#10B981] hover:bg-[#059669] text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'} transition cursor-pointer">
             ${canReview ? "Review →" : "View"}
           </button>
         </td>
@@ -990,7 +893,7 @@ function openCase(id) {
  * Traverses forward or backward through cases in the officer review workspace.
  */
 function navigateCase(direction) {
-  const all = getInspections();
+  const all = filterByZoneAccess(getInspections());
   if (!all || !all.length) {
     if (typeof showToast === "function") showToast("No cases available in docket.", "warning");
     return;
@@ -1032,20 +935,80 @@ window.seedAndReloadDocket = seedAndReloadDocket;
    CASE EVIDENCE 3-PANE WORKSPACE (Integrated inside officer.html)
    ========================================================================== */
 
+function switchThreePaneTab(activeTab) {
+  const tabs = ["center", "left", "right"];
+  const isMobileOrTablet = window.innerWidth < 1024;
+
+  tabs.forEach(t => {
+    const pane = document.getElementById(`reviewPane-${t}`);
+    const btn = document.getElementById(`threePaneTab-${t}`);
+
+    if (pane) {
+      if (isMobileOrTablet) {
+        if (t === activeTab) {
+          pane.classList.remove("hidden");
+        } else {
+          pane.classList.add("hidden");
+        }
+      } else {
+        pane.classList.remove("hidden");
+      }
+    }
+
+    if (btn) {
+      if (t === activeTab) {
+        btn.className = "flex-1 py-2 px-2.5 rounded-xl bg-[#10B981] text-white shadow-xs text-center transition flex items-center justify-center gap-1.5 font-semibold";
+      } else {
+        btn.className = "flex-1 py-2 px-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-center transition flex items-center justify-center gap-1.5 font-medium";
+      }
+    }
+  });
+}
+window.switchThreePaneTab = switchThreePaneTab;
+
+// Throttled responsive pane handler for smooth window resizing
+let _resizeScheduled = false;
+window.addEventListener("resize", () => {
+  if (_resizeScheduled) return;
+  _resizeScheduled = true;
+  requestAnimationFrame(() => {
+    _resizeScheduled = false;
+    if (window.innerWidth >= 1024) {
+      ["left", "center", "right"].forEach(t => {
+        const pane = document.getElementById(`reviewPane-${t}`);
+        if (pane) pane.classList.remove("hidden");
+      });
+    }
+  });
+}, { passive: true });
+
 function loadCaseDetails(id) {
   if (!id) {
     id = new URLSearchParams(window.location.search).get("id");
   }
   if (!id) {
-    const inspections = getInspections();
+    const inspections = filterByZoneAccess(getInspections());
     const pending = inspections.find(i => i.status === "submitted" || i.status === "pending" || !i.isCompliant);
     id = (pending && pending.id) || (inspections[0] && inspections[0].id) || "INS-1024";
   }
   currentReviewId = id;
   const item = getInspectionById(id);
+  const emptyEl = document.getElementById("reviewEmptyState");
+  const activeContentEl = document.getElementById("reviewActiveContent");
+
   if (!item) {
-    if (typeof showToast === "function") showToast(`Case ${id} not found.`, "warning");
+    if (emptyEl) emptyEl.classList.remove("hidden");
+    if (activeContentEl) activeContentEl.classList.add("hidden");
+    if (typeof showToast === "function") showToast(`Case ${id || 'record'} not found in docket.`, "warning");
     return;
+  }
+
+  if (emptyEl) emptyEl.classList.add("hidden");
+  if (activeContentEl) activeContentEl.classList.remove("hidden");
+
+  // If on tablet or mobile, ensure central evidence pane is open
+  if (window.innerWidth < 1024) {
+    switchThreePaneTab("center");
   }
 
   // Left Panel: Metadata
@@ -1098,8 +1061,8 @@ function loadCaseDetails(id) {
     ];
     listEl.innerHTML = rows.map(([lbl, val]) => `
       <div class="ocr-field-row flex justify-between py-1.5 px-2 rounded-lg border-b border-slate-100 text-xs transition-colors duration-200">
-        <span class="text-slate-500 font-medium">${lbl}:</span>
-        <span class="${val ? 'font-semibold text-slate-800' : 'text-red-600 font-bold bg-red-50 px-1.5 rounded'}">${val || "MISSING"}</span>
+        <span class="text-slate-500 font-medium">${escapeHtml(lbl)}:</span>
+        <span class="${val ? 'font-semibold text-slate-800' : 'text-red-600 font-bold bg-red-50 px-1.5 rounded'}">${escapeHtml(val || "MISSING")}</span>
       </div>`).join("");
   }
 
@@ -1254,7 +1217,7 @@ function initOfficerOfficialReports() {
   const caseSelect = document.getElementById("officialReportCaseSelect");
   if (!caseSelect) return;
 
-  const inspections = getInspections();
+  const inspections = filterByZoneAccess(getInspections());
   caseSelect.innerHTML = inspections.map(i => `
     <option value="${i.id}">${i.id} - ${i.product} (${(i.status || "submitted").toUpperCase()})</option>
   `).join("");
@@ -1298,114 +1261,19 @@ function generateOfficialNoticePDF() {
   const caseSelect = document.getElementById("officialReportCaseSelect");
   const selectedId = caseSelect?.value;
   const item = getInspectionById(selectedId);
-  if (!item) { alert("Case not selected."); return; }
+  if (!item) {
+    if (typeof showToast === "function") showToast("Please select an inspection case first.", "warning");
+    else alert("Case not selected.");
+    return;
+  }
 
   const sig = document.getElementById("officerSignatureInput")?.value || "A. K. Sharma";
   const desig = document.getElementById("officerDesignationInput")?.value || "Assistant Controller of Legal Metrology";
-  const ext = item.extractedData || {};
 
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF("p", "mm", "a4");
-
-    // Header Emblem & Details
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.setTextColor(15, 23, 42);
-    doc.text("GOVERNMENT OF INDIA", 105, 20, { align: "center" });
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("MINISTRY OF CONSUMER AFFAIRS, FOOD AND PUBLIC DISTRIBUTION", 105, 26, { align: "center" });
-    doc.text("LEGAL METROLOGY DIVISION • CONTROLLER OF WEIGHTS & MEASURES", 105, 31, { align: "center" });
-
-    doc.setLineWidth(0.7);
-    doc.setDrawColor(30, 41, 59);
-    doc.line(14, 36, 196, 36);
-
-    // Notice Ref & Date
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.text(`NOTICE NO: LM/DCA/2025/${item.id}`, 14, 45);
-    doc.text(`DATED: ${new Date().toISOString().split("T")[0]}`, 150, 45);
-
-    // Subject
-    doc.setFontSize(11);
-    doc.text("STATUTORY NOTICE UNDER SECTION 36 OF LEGAL METROLOGY ACT, 2009", 105, 56, { align: "center" });
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "italic");
-    doc.text("Read with Rule 32 of Legal Metrology (Packaged Commodities) Rules, 2011", 105, 62, { align: "center" });
-
-    // Body
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(51, 65, 85);
-    doc.setFontSize(9.5);
-    
-    let y = 74;
-    const mfgResolved = typeof ext.manufacturer === "string" && ext.manufacturer.trim().length > 0
-      ? ext.manufacturer
-      : ([ext.manufacturer_name, ext.manufacturer_address].filter(Boolean).join(", ") || (ext.manufacturer && typeof ext.manufacturer === "object" ? ext.manufacturer.name : "The Principal Officer / Packer / Manufacturer"));
-    doc.text(`TO: ${mfgResolved.length > 70 ? mfgResolved.substring(0, 70) + "..." : mfgResolved}`, 14, y);
-    y += 8;
-    doc.text(`WHEREAS an official inspection was conducted under Case ID ${String(item.id || "N/A")} regarding the pre-packaged`, 14, y);
-    y += 6;
-    const prodTitle = String(item.product || ext.commodity_name || "Specimen");
-    doc.text(`commodity "${prodTitle.length > 50 ? prodTitle.substring(0, 50) + "..." : prodTitle}"; and`, 14, y);
-    y += 8;
-    doc.text("WHEREAS optical character recognition and physical audit detected non-compliance with statutory declarations:", 14, y);
-    y += 8;
-
-    // Violations List
-    const viols = Array.isArray(item.violations) ? item.violations : [];
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(185, 28, 28);
-    if (viols.length === 0) {
-      doc.text("• No major violations detected during baseline audit.", 20, y);
-      y += 8;
-    } else {
-      viols.forEach((v, idx) => {
-        const vText = typeof v === "object" ? (v?.reason || v?.rule || v?.violation || JSON.stringify(v)) : String(v || "Statutory Violation");
-        doc.text(`(${idx + 1}) Non-compliance with Rule 6/9: ${vText.length > 80 ? vText.substring(0, 80) + "..." : vText}`, 20, y);
-        y += 7;
-      });
-    }
-
-    y += 6;
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(51, 65, 85);
-    doc.text("NOW THEREFORE, in exercise of powers vested under Section 36 of the Legal Metrology Act, 2009,", 14, y);
-    y += 6;
-    doc.text("you are hereby directed to show cause within 15 days of receipt of this notice why compounding proceedings", 14, y);
-    y += 6;
-    doc.text("or statutory prosecution should not be initiated before the Competent Judicial Magistrate.", 14, y);
-    y += 10;
-    doc.text("Given under my official hand and seal of this office.", 14, y);
-
-    // Official Signature Block
-    y += 24;
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(15, 23, 42);
-    doc.text(String(sig || "A. K. Sharma"), 140, y);
-    y += 5;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8.5);
-    doc.text(String(desig || "Assistant Controller of Legal Metrology"), 140, y);
-    y += 5;
-    doc.text("Legal Metrology Enforcement Directorate", 140, y);
-    y += 5;
-    doc.text("Digital Signature Token: GOI-OFFICER-VERIFIED-AUTH", 140, y);
-
-    // Watermark
-    doc.setTextColor(230, 235, 240);
-    doc.setFontSize(36);
-    doc.setFont("helvetica", "bold");
-    doc.text("OFFICIAL LEGAL NOTICE", 30, 180, { angle: 35 });
-
-    doc.save(`METRO-CHECK_Official_Notice_${item.id}.pdf`);
-    if (typeof showToast === "function") showToast("Official Violation Notice PDF Generated!", "success");
-  } catch (e) {
-    console.error("Notice PDF generation error:", e);
-    alert("Notice PDF generation failed.");
+  if (typeof generateStatutoryNoticePDF === "function") {
+    generateStatutoryNoticePDF(item, { signatoryName: sig, signatoryDesignation: desig });
+  } else {
+    window.print();
   }
 }
 
@@ -1476,81 +1344,43 @@ function renderOfficerCommodityStandards() {
    ========================================================================== */
 
 function toggleNotificationDropdown(role = "inspector") {
-  const dropdownId = role === "officer" ? "officerNotificationDropdown" : "inspectorNotificationDropdown";
-  const dropdown = document.getElementById(dropdownId);
-  if (!dropdown) return;
-  const isHidden = dropdown.classList.contains("hidden");
-  if (isHidden) {
-    renderNotificationDropdown(role);
-    dropdown.classList.remove("hidden");
-  } else {
-    dropdown.classList.add("hidden");
+  if (typeof NotificationCenter !== "undefined") {
+    NotificationCenter.toggle(role);
   }
 }
 
 function renderNotificationDropdown(role = "inspector") {
-  const listId = role === "officer" ? "officerNotificationList" : "inspectorNotificationList";
-  const badgeId = role === "officer" ? "officerNotificationBadge" : "inspectorNotificationBadge";
-  const dotId = role === "officer" ? "officerNotificationDot" : "inspectorNotificationDot";
-  
-  const listEl = document.getElementById(listId);
-  const badgeEl = document.getElementById(badgeId);
-  const dotEl = document.getElementById(dotId);
-
-  const allInspections = getInspections();
-  const nonCompliant = allInspections.filter(item => !item.isCompliant || (item.violations && item.violations.length > 0) || item.status === "rejected");
-  const topAlerts = nonCompliant.slice(0, 3);
-
-  if (badgeEl) badgeEl.textContent = `${nonCompliant.length} Alert${nonCompliant.length === 1 ? "" : "s"}`;
-  if (dotEl) {
-    if (nonCompliant.length > 0) dotEl.classList.remove("hidden");
-    else dotEl.classList.add("hidden");
+  if (typeof NotificationCenter !== "undefined") {
+    NotificationCenter.render(role);
   }
-
-  if (!listEl) return;
-
-  if (topAlerts.length === 0) {
-    listEl.innerHTML = `
-      <div class="py-4 text-center text-slate-400">
-        <span class="text-xl">✅</span>
-        <p class="font-bold mt-1 text-slate-600">All Scans Compliant</p>
-        <p class="text-[11px]">No active statutory infractions recorded.</p>
-      </div>`;
-    return;
-  }
-
-  listEl.innerHTML = topAlerts.map(item => {
-    const viol = (item.violations && item.violations[0]) || "Rule 6 Non-Compliance";
-    const violText = typeof viol === "object" ? (viol.reason || viol.rule || "Violation") : String(viol);
-    const actionClick = role === "officer"
-      ? `openCase('${item.id}'); toggleNotificationDropdown('officer');`
-      : `openInspectorDetailModal('${item.id}'); toggleNotificationDropdown('inspector');`;
-
-    return `
-      <div onclick="${actionClick}" class="py-2.5 px-2 hover:bg-slate-50 cursor-pointer rounded-xl transition flex items-start gap-2.5">
-        <span class="text-base mt-0.5">🚨</span>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center justify-between">
-            <span class="font-mono font-bold text-slate-900">${item.id}</span>
-            <span class="text-[10px] font-bold text-red-600 uppercase">${item.priority || "Urgent"}</span>
-          </div>
-          <p class="font-semibold text-slate-800 truncate">${item.product || "Pre-Packed Commodity"}</p>
-          <p class="text-[11px] text-red-500 font-medium truncate">⚠️ ${violText}</p>
-        </div>
-      </div>`;
-  }).join("");
 }
 
-// Global click handler to close dropdown when clicking outside
-document.addEventListener("click", (e) => {
-  ["inspector", "officer"].forEach(role => {
-    const btn = document.getElementById(role === "officer" ? "officerNotificationBellBtn" : "inspectorNotificationBellBtn");
-    const dropdown = document.getElementById(role === "officer" ? "officerNotificationDropdown" : "inspectorNotificationDropdown");
-    if (dropdown && !dropdown.classList.contains("hidden")) {
-      if (btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.classList.add("hidden");
-      }
-    }
-  });
-});
+/* ==========================================================================
+   21. Debounced Search & Live Input Event Handlers
+   ========================================================================== */
+const debouncedFilterByStatus = (typeof debounce === "function")
+  ? debounce((status) => filterByStatus(status), 150)
+  : (status) => filterByStatus(status);
+window.debouncedFilterByStatus = debouncedFilterByStatus;
+
+const debouncedFilterMyInspections = (typeof debounce === "function")
+  ? debounce(() => filterMyInspections(), 150)
+  : () => filterMyInspections();
+window.debouncedFilterMyInspections = debouncedFilterMyInspections;
+
+const debouncedFilterCommodityLookup = (typeof debounce === "function")
+  ? debounce(() => filterCommodityLookup(), 150)
+  : () => filterCommodityLookup();
+window.debouncedFilterCommodityLookup = debouncedFilterCommodityLookup;
+
+const debouncedSearchLegalReference = (typeof debounce === "function")
+  ? debounce(() => searchLegalReference(), 180)
+  : () => searchLegalReference();
+window.debouncedSearchLegalReference = debouncedSearchLegalReference;
+
+const debouncedUpdateOfficialReportPreview = (typeof debounce === "function")
+  ? debounce(() => updateOfficialReportPreview(), 120)
+  : () => updateOfficialReportPreview();
+window.debouncedUpdateOfficialReportPreview = debouncedUpdateOfficialReportPreview;
+
 

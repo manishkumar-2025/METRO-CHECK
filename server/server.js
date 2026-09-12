@@ -3,8 +3,10 @@
    Real-Time Legal Metrology Compliance Inspection AI using Gemini Vision
    ========================================================================== */
 
-require("dotenv").config();
 const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
+require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
+const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
@@ -13,9 +15,63 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+function getGeminiApiKey() {
+  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim().length > 10) {
+    return process.env.GEMINI_API_KEY.trim();
+  }
+  try {
+    const envPaths = [path.join(__dirname, ".env"), path.join(__dirname, "..", ".env")];
+    for (const p of envPaths) {
+      if (fs.existsSync(p)) {
+        const content = fs.readFileSync(p, "utf8");
+        const match = content.match(/GEMINI_API_KEY\s*=\s*([^\r\n#]+)/);
+        if (match && match[1] && match[1].trim().length > 10) {
+          process.env.GEMINI_API_KEY = match[1].trim();
+          return process.env.GEMINI_API_KEY;
+        }
+      }
+    }
+  } catch (e) {}
+  return "";
+}
+
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+// Persistent Data Storage Directory (for multi-device syncing)
+const DATA_DIR = process.env.VERCEL ? "/tmp" : path.join(__dirname, "data");
+if (!fs.existsSync(DATA_DIR)) {
+  try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch (e) {}
+}
+const INSPECTIONS_FILE = path.join(DATA_DIR, "inspections.json");
+const COMMODITIES_FILE = path.join(DATA_DIR, "commodities.json");
+
+function loadJsonFile(filePath, defaultVal = []) {
+  try {
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    }
+    // Fallback for Vercel serverless runtime: read bundled seed file
+    const bundledFallback = path.join(__dirname, "data", path.basename(filePath));
+    if (fs.existsSync(bundledFallback)) {
+      return JSON.parse(fs.readFileSync(bundledFallback, "utf8"));
+    }
+  } catch (e) {
+    console.error(`[METRO-CHECK] Error reading ${filePath}:`, e.message);
+  }
+  return defaultVal;
+}
+
+function saveJsonFile(filePath, data) {
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+    return true;
+  } catch (e) {
+    console.error(`[METRO-CHECK] Error writing ${filePath}:`, e.message);
+    return false;
+  }
+}
 
 // Serve frontend static files (HTML, CSS, JS, Assets) from workspace root
 app.use(express.static(path.join(__dirname, "..")));
@@ -24,8 +80,14 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 } });
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const PRIMARY_MODEL = "gemini-3.5-flash";
-const FALLBACK_MODEL = "gemini-3.6-flash";
+const CANDIDATE_MODELS = [
+  "gemini-flash-lite-latest",
+  "gemini-3.1-flash-lite",
+  "gemini-3.5-flash-lite",
+  "gemini-flash-latest"
+];
+const PRIMARY_MODEL = CANDIDATE_MODELS[0];
+const FALLBACK_MODEL = CANDIDATE_MODELS[1];
 
 const LEGAL_METROLOGY_SYSTEM_PROMPT = `You are a Senior Legal Metrology Compliance Officer and Optical Inspection AI for the Department of Consumer Affairs, Government of India.
 
@@ -187,14 +249,141 @@ function getRequiredStandardForRule(rule) {
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
+  const key = getGeminiApiKey();
   res.json({
     system: "METRO-CHECK Legal Metrology AI Engine",
     status: "online",
     primaryModel: PRIMARY_MODEL,
     fallbackModel: FALLBACK_MODEL,
-    geminiConfigured: Boolean(GEMINI_API_KEY && GEMINI_API_KEY.length > 10)
+    geminiConfigured: Boolean(key && key.length > 10)
   });
 });
+
+/* ==========================================================================
+   CENTRAL PERSISTENT REST API (Enables multi-device sync between Field & Quorum)
+   ========================================================================== */
+
+// 1. Fetch all inspections from central registry
+app.get("/api/inspections", (req, res) => {
+  const inspections = loadJsonFile(INSPECTIONS_FILE, []);
+  res.json({ success: true, count: inspections.length, data: inspections });
+});
+
+// 2. Create or update inspection record(s) (supports single object or batch array)
+app.post(["/api/inspections", "/api/inspections/sync"], (req, res) => {
+  const payload = req.body;
+  const items = Array.isArray(payload) ? payload : (payload ? [payload] : []);
+  if (items.length === 0 || !items[0].id) {
+    return res.status(400).json({ error: "Inspection record must specify an ID." });
+  }
+
+  const inspections = loadJsonFile(INSPECTIONS_FILE, []);
+  items.forEach(item => {
+    if (!item || !item.id) return;
+    const existingIdx = inspections.findIndex(i => i.id === item.id);
+    if (existingIdx >= 0) {
+      inspections[existingIdx] = { ...inspections[existingIdx], ...item, updatedAt: new Date().toISOString() };
+    } else {
+      inspections.unshift({ ...item, createdAt: item.date || new Date().toISOString() });
+    }
+  });
+
+  saveJsonFile(INSPECTIONS_FILE, inspections);
+  res.json({ success: true, count: items.length, total: inspections.length, data: items[0] });
+});
+
+// 3. Update adjudication status of an inspection
+app.patch("/api/inspections/:id/status", (req, res) => {
+  const { id } = req.params;
+  const { status, reviewComments } = req.body;
+
+  const inspections = loadJsonFile(INSPECTIONS_FILE, []);
+  const target = inspections.find(i => i.id === id);
+  if (target) {
+    if (status) target.status = status;
+    if (reviewComments) target.reviewComments = reviewComments;
+    target.reviewedAt = new Date().toISOString();
+    saveJsonFile(INSPECTIONS_FILE, inspections);
+    return res.json({ success: true, data: target });
+  }
+
+  res.status(404).json({ error: "Inspection case " + id + " not found." });
+});
+
+// 4. Fetch statutory commodities
+app.get("/api/commodities", (req, res) => {
+  const commodities = loadJsonFile(COMMODITIES_FILE, null);
+  res.json({ success: true, data: commodities });
+});
+
+// 5. Update statutory commodities
+app.post("/api/commodities", (req, res) => {
+  const list = req.body;
+  if (Array.isArray(list)) {
+    saveJsonFile(COMMODITIES_FILE, list);
+    return res.json({ success: true, count: list.length });
+  }
+  res.status(400).json({ error: "Payload must be array of commodity specifications." });
+});
+
+/**
+ * Real-Time Gemini Vision Inspection Engine via Google Generative Language v1beta API
+ * Iterates through active candidate models with automatic failover if high-demand spikes occur.
+ * Never returns mock or hardcoded demo data.
+ */
+async function callGeminiVisionApi({ apiKey, prompt, imagesToProcess }) {
+  let lastError = null;
+
+  for (const modelName of CANDIDATE_MODELS) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+      const payload = {
+        contents: [
+          {
+            parts: [
+              { text: prompt },
+              ...imagesToProcess.map(img => ({
+                inlineData: {
+                  mimeType: img.mimeType || "image/jpeg",
+                  data: img.data
+                }
+              }))
+            ]
+          }
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.1
+        }
+      };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        const errorMsg = data.error ? data.error.message : `HTTP ${res.status}`;
+        console.warn(`[METRO-CHECK] Model ${modelName} notice: ${errorMsg}. Trying next model...`);
+        lastError = new Error(errorMsg);
+        continue;
+      }
+
+      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (rawText && rawText.trim().length > 0) {
+        console.log(`[METRO-CHECK] Real-Time Inspection OCR succeeded using model: ${modelName}`);
+        return { rawText, usedModel: modelName };
+      }
+    } catch (err) {
+      console.warn(`[METRO-CHECK] Execution error calling ${modelName}:`, err.message);
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error("All candidate Gemini Vision models were unavailable. Please check your network and API key.");
+}
 
 /**
  * Main Real-Time AI OCR & Compliance Endpoint
@@ -299,33 +488,23 @@ app.post("/api/scan", upload.fields([
       return res.status(400).json({ error: "No image provided. Please upload front and/or back package label images." });
     }
 
-    if (!GEMINI_API_KEY || GEMINI_API_KEY.length < 10) {
+    const apiKey = getGeminiApiKey();
+    if (!apiKey || apiKey.length < 10) {
       return res.status(500).json({
         error: "GEMINI_API_KEY is missing or unconfigured in server/.env. Real-time inspection requires a valid Gemini API key."
       });
     }
 
-    console.log(`[METRO-CHECK] Processing real-time inspection for ${imagesToProcess.length} label image(s).`);
-
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    let textOutput = null;
-    let usedModel = PRIMARY_MODEL;
-
-    const imageParts = imagesToProcess.map(img => ({
-      inlineData: {
-        data: img.data,
-        mimeType: img.mimeType
-      }
-    }));
+    console.log(`[METRO-CHECK] Processing real-time inspection for ${imagesToProcess.length} label image(s)...`);
 
     // Extract commodity category, standard packs, and tolerance from request body (Admin Commodity Tolerances)
     const commodityCategory = (req.body && (req.body.commodityCategory || req.body.commodity || req.body.category)) || null;
     const standardPacks = (req.body && (req.body.standardPacks || req.body.sizes)) || null;
     const tolerance = (req.body && req.body.tolerance) || null;
 
-  let commodityDirective = "";
-  if (commodityCategory) {
-    commodityDirective = `\n\nSCHEDULE 2 COMMODITY STANDARD SPECIFICATION:
+    let commodityDirective = "";
+    if (commodityCategory) {
+      commodityDirective = `\n\nSCHEDULE 2 COMMODITY STANDARD SPECIFICATION:
 - Target Commodity Category: ${commodityCategory}
 ${standardPacks ? `- Prescribed Schedule 2 Standard Packing Sizes: ${standardPacks}` : ""}
 ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""}
@@ -340,7 +519,7 @@ ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""
     "violation_reason": null,
     "severity": "Moderate"
   }`;
-  }
+    }
 
     const dualImageDirective = imagesToProcess.length > 1
       ? `\n\nIMPORTANT: You have been provided ${imagesToProcess.length} images of the same product (Panel 1: Front Facing and Panel 2: Back/Side Panel). Combine declarations from both panels to perform a complete Legal Metrology (Packaged Commodities) Rules, 2011 inspection.`
@@ -348,40 +527,31 @@ ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""
 
     const inspectionPrompt = `${LEGAL_METROLOGY_SYSTEM_PROMPT}${dualImageDirective}${commodityDirective}`;
 
-    const contents = [inspectionPrompt, ...imageParts];
+    const { rawText, usedModel } = await callGeminiVisionApi({
+      apiKey,
+      prompt: inspectionPrompt,
+      imagesToProcess
+    });
 
-    // Attempt primary model, fallback to secondary if necessary (temperature: 0.0 for deterministic output)
+    let parsedData = null;
     try {
-      const model = genAI.getGenerativeModel(
-        { model: PRIMARY_MODEL, generationConfig: { responseMimeType: "application/json", temperature: 0.0 } },
-        { apiVersion: "v1beta" }
-      );
-      const result = await model.generateContent(contents);
-      textOutput = result.response.text();
-    } catch (primaryErr) {
-      console.warn(`[METRO-CHECK] Primary model ${PRIMARY_MODEL} error: ${primaryErr.message}. Attempting ${FALLBACK_MODEL}...`);
-      usedModel = FALLBACK_MODEL;
-      const fallbackModel = genAI.getGenerativeModel(
-        { model: FALLBACK_MODEL, generationConfig: { responseMimeType: "application/json", temperature: 0.0 } },
-        { apiVersion: "v1beta" }
-      );
-      const result = await fallbackModel.generateContent(contents);
-      textOutput = result.response.text();
-    }
-
-    if (!textOutput) {
-      return res.status(502).json({ error: "Empty OCR output received from Gemini Vision AI model." });
-    }
-
-    const cleanedJson = cleanJsonOutput(textOutput);
-    let parsedData;
-    try {
-      parsedData = JSON.parse(cleanedJson);
+      const cleaned = cleanJsonOutput(rawText);
+      parsedData = JSON.parse(cleaned);
     } catch (parseErr) {
-      console.error("[METRO-CHECK] Failed to parse JSON from AI response:", textOutput);
-      return res.status(502).json({
-        error: "Gemini Vision returned invalid JSON structure.",
-        raw_output: textOutput
+      console.warn("[METRO-CHECK] Gemini Vision returned non-JSON text, attempting extraction:", parseErr.message);
+      const firstBrace = rawText.indexOf("{");
+      const lastBrace = rawText.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        try {
+          parsedData = JSON.parse(rawText.substring(firstBrace, lastBrace + 1));
+        } catch (e) {}
+      }
+    }
+
+    if (!parsedData) {
+      return res.status(500).json({
+        error: "Real-time AI OCR could not parse compliance output. Please upload a sharper image of the package.",
+        rawText: rawText ? rawText.substring(0, 300) : null
       });
     }
 
@@ -499,11 +669,16 @@ ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""
   }
 });
 
-app.listen(PORT, () => {
-  console.log("==========================================================");
-  console.log(`METRO-CHECK Legal Metrology AI Server listening on port ${PORT}`);
-  console.log(`Models: ${PRIMARY_MODEL} (Primary) / ${FALLBACK_MODEL} (Fallback)`);
-  console.log(`API Key configured: ${Boolean(GEMINI_API_KEY && GEMINI_API_KEY.length > 10)}`);
-  console.log("Mode: STRICT REAL-TIME INSPECTION (NO DEMO / NO MOCK FALLBACKS)");
-  console.log("==========================================================");
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    const key = getGeminiApiKey();
+    console.log("==========================================================");
+    console.log(`METRO-CHECK Legal Metrology AI Server listening on port ${PORT}`);
+    console.log(`Models: ${PRIMARY_MODEL} (Primary) / ${FALLBACK_MODEL} (Fallback)`);
+    console.log(`API Key configured: ${Boolean(key && key.length > 10)}`);
+    console.log("Mode: STRICT REAL-TIME INSPECTION (NO DEMO / NO MOCK FALLBACKS)");
+    console.log("==========================================================");
+  });
+}
+
+module.exports = app;

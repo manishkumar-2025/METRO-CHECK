@@ -15,8 +15,55 @@ let currentCaseId = null;
 /* ==========================================================================
    SERVER HEALTH BANNER & CONNECTIVITY MONITOR
    ========================================================================== */
-const SERVER_BASE_URL = "http://localhost:3000";
+const SERVER_BASE_URL = (() => {
+  if (typeof window === "undefined" || !window.location || !window.location.protocol || !window.location.protocol.startsWith("http")) {
+    return "http://localhost:3000";
+  }
+  // When running on local static dev servers (e.g. VS Code Live Server on port 5500/5501 or Live Preview),
+  // route backend API calls to the Express server running on port 3000.
+  const isLocalDevServer = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && window.location.port !== "3000";
+  if (isLocalDevServer) {
+    return "http://localhost:3000";
+  }
+  return window.location.origin;
+})();
 let isBackendServerOnline = false;
+
+/**
+ * Toggles capture mode between Live Camera and File Upload with active visual indicators.
+ */
+function switchCaptureMode(mode) {
+  const cameraBox = document.getElementById("cameraModeBox");
+  const uploadBox = document.getElementById("uploadModeBox");
+  const btnCamera = document.getElementById("modeBtnCamera");
+  const btnUpload = document.getElementById("modeBtnUpload");
+
+  if (mode === "camera") {
+    if (cameraBox) cameraBox.classList.remove("hidden");
+    if (uploadBox) uploadBox.classList.add("hidden");
+    if (btnCamera) {
+      btnCamera.className = "px-3 py-1.5 rounded-lg font-bold bg-white text-slate-900 shadow-sm transition flex items-center gap-1.5";
+      btnCamera.setAttribute("aria-selected", "true");
+    }
+    if (btnUpload) {
+      btnUpload.className = "px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5";
+      btnUpload.setAttribute("aria-selected", "false");
+    }
+    if (typeof startLiveCamera === "function") startLiveCamera();
+  } else {
+    if (cameraBox) cameraBox.classList.add("hidden");
+    if (uploadBox) uploadBox.classList.remove("hidden");
+    if (btnUpload) {
+      btnUpload.className = "px-3 py-1.5 rounded-lg font-bold bg-white text-slate-900 shadow-sm transition flex items-center gap-1.5";
+      btnUpload.setAttribute("aria-selected", "true");
+    }
+    if (btnCamera) {
+      btnCamera.className = "px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5";
+      btnCamera.setAttribute("aria-selected", "false");
+    }
+    if (typeof stopLiveCamera === "function") stopLiveCamera();
+  }
+}
 
 /**
  * Pings /api/health to verify connectivity with Node.js backend.
@@ -102,19 +149,98 @@ function setActiveCaptureSlot(slot) {
   
   if (slotFrontBtn && slotBackBtn) {
     if (slot === "front") {
-      slotFrontBtn.className = "py-1 px-3 rounded-lg font-bold text-xs bg-amber-500 text-white shadow transition";
-      slotBackBtn.className = "py-1 px-3 rounded-lg font-semibold text-xs bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+      slotFrontBtn.className = "py-1 px-3 rounded-md font-semibold text-xs bg-[#10B981] text-white shadow-xs transition flex items-center gap-1";
+      slotBackBtn.className = "py-1 px-3 rounded-md font-medium text-xs bg-white text-[#64748B] hover:bg-slate-100 transition border border-[#E4E7EC] flex items-center gap-1";
       if (targetLabel) targetLabel.textContent = "[TARGET: PANEL 1 - FRONT FACING]";
-      if (slotCardFront) slotCardFront.classList.add("border-amber-400", "ring-1", "ring-amber-400");
-      if (slotCardBack) slotCardBack.classList.remove("border-amber-400", "ring-1", "ring-amber-400");
+      if (slotCardFront) {
+        slotCardFront.classList.add("slot-card-active");
+      }
+      if (slotCardBack) {
+        slotCardBack.classList.remove("slot-card-active");
+      }
     } else {
-      slotFrontBtn.className = "py-1 px-3 rounded-lg font-semibold text-xs bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
-      slotBackBtn.className = "py-1 px-3 rounded-lg font-bold text-xs bg-amber-500 text-white shadow transition";
+      slotFrontBtn.className = "py-1 px-3 rounded-md font-medium text-xs bg-white text-[#64748B] hover:bg-slate-100 transition border border-[#E4E7EC] flex items-center gap-1";
+      slotBackBtn.className = "py-1 px-3 rounded-md font-semibold text-xs bg-[#10B981] text-white shadow-xs transition flex items-center gap-1";
       if (targetLabel) targetLabel.textContent = "[TARGET: PANEL 2 - BACK/SIDE DECLARATIONS]";
-      if (slotCardBack) slotCardBack.classList.add("border-amber-400", "ring-1", "ring-amber-400");
-      if (slotCardFront) slotCardFront.classList.remove("border-amber-400", "ring-1", "ring-amber-400");
+      if (slotCardBack) {
+        slotCardBack.classList.add("slot-card-active");
+      }
+      if (slotCardFront) {
+        slotCardFront.classList.remove("slot-card-active");
+      }
     }
   }
+}
+
+/**
+ * Downscales and compresses base64 image data URLs to prevent browser memory & quota limits
+ */
+function compressImageDataUrl(dataUrl, maxDimension = 1280, quality = 0.78, callback) {
+  if (!dataUrl || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
+    if (callback) callback(dataUrl);
+    return;
+  }
+  const img = new Image();
+  img.onload = function() {
+    let width = img.naturalWidth || img.width;
+    let height = img.naturalHeight || img.height;
+    if (width > maxDimension || height > maxDimension) {
+      if (width > height) {
+        height = Math.round((height * maxDimension) / width);
+        width = maxDimension;
+      } else {
+        width = Math.round((width * maxDimension) / height);
+        height = maxDimension;
+      }
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, width, height);
+    const compressed = canvas.toDataURL("image/jpeg", quality);
+    if (callback) callback(compressed);
+  };
+  img.onerror = function() {
+    if (callback) callback(dataUrl);
+  };
+  img.src = dataUrl;
+}
+
+/**
+ * Downscales image strings to lightweight ~20KB thumbnails for localStorage persistence
+ */
+function createLightweightThumbnail(dataUrl, callback) {
+  if (!dataUrl || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
+    if (callback) callback(dataUrl);
+    return;
+  }
+  const img = new Image();
+  img.onload = function() {
+    const maxDim = 360;
+    let width = img.naturalWidth || img.width;
+    let height = img.naturalHeight || img.height;
+    if (width > maxDim || height > maxDim) {
+      if (width > height) {
+        height = Math.round((height * maxDim) / width);
+        width = maxDim;
+      } else {
+        width = Math.round((width * maxDim) / height);
+        height = maxDim;
+      }
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, width, height);
+    const thumb = canvas.toDataURL("image/jpeg", 0.6);
+    if (callback) callback(thumb);
+  };
+  img.onerror = function() {
+    if (callback) callback(dataUrl);
+  };
+  img.src = dataUrl;
 }
 
 function setSlotImage(slot, dataUrl) {
@@ -170,8 +296,7 @@ function clearSlotImage(slot) {
   }
 }
 
-function handleSlotFileChange(slot, event) {
-  const file = event.target.files && event.target.files[0];
+function processUploadedSlotFile(slot, file) {
   if (!file) return;
   if (!file.type.startsWith("image/")) {
     alert("Please upload a valid image file (JPG, PNG, or WEBP).");
@@ -179,9 +304,18 @@ function handleSlotFileChange(slot, event) {
   }
   const reader = new FileReader();
   reader.onload = function(e) {
-    setSlotImage(slot, e.target.result);
+    compressImageDataUrl(e.target.result, 1280, 0.78, function(compressed) {
+      setSlotImage(slot, compressed);
+    });
   };
   reader.readAsDataURL(file);
+}
+
+function handleSlotFileChange(slot, event) {
+  const file = event.target.files && event.target.files[0];
+  if (file) {
+    processUploadedSlotFile(slot, file);
+  }
 }
 
 /**
@@ -222,7 +356,41 @@ function initAiScanner() {
     }
   }
 
-  // Setup drag & drop listeners if dropzone exists
+  // Setup drag & drop listeners for both uploader slot cards
+  const setupSlotDropzone = (slotName, elementId) => {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    ["dragenter", "dragover"].forEach(eventName => {
+      el.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        el.classList.add("border-amber-500", "bg-amber-50/40");
+      }, false);
+    });
+
+    ["dragleave", "drop"].forEach(eventName => {
+      el.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        el.classList.remove("border-amber-500", "bg-amber-50/40");
+      }, false);
+    });
+
+    el.addEventListener("drop", (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files && files[0]) {
+        processUploadedSlotFile(slotName, files[0]);
+      }
+    }, false);
+  };
+
+  setupSlotDropzone("front", "slotEmptyFront");
+  setupSlotDropzone("front", "slotCardFront");
+  setupSlotDropzone("back", "slotEmptyBack");
+  setupSlotDropzone("back", "slotCardBack");
+
+  // Setup generic dropzone if present
   const dropzone = document.getElementById("ocrDropzone");
   if (dropzone) {
     ["dragenter", "dragover"].forEach(eventName => {
@@ -245,7 +413,7 @@ function initAiScanner() {
       const dt = e.dataTransfer;
       const files = dt.files;
       if (files && files[0]) {
-        processUploadedImageFile(files[0]);
+        processUploadedSlotFile(activeCaptureSlot || "front", files[0]);
       }
     }, false);
   }
@@ -310,10 +478,15 @@ async function startLiveCamera() {
     if (controls) controls.classList.remove("hidden");
     if (startBtn) startBtn.classList.add("hidden");
 
+    const cameraBox = document.getElementById("cameraModeBox");
+    if (cameraBox) cameraBox.classList.add("camera-streaming");
+
     if (typeof showToast === "function") showToast("Live OCR camera initialized. Frame package label inside target.", "success");
   } catch (err) {
     console.warn("Camera access failed or unavailable:", err);
-    alert("Unable to access camera directly. Please grant camera permission or use the File Upload mode.");
+    if (typeof alert === "function") {
+      alert("Unable to access camera directly. Please grant camera permission or use the File Upload mode.");
+    }
   }
 }
 
@@ -337,6 +510,9 @@ function stopLiveCamera() {
     cancelAnimationFrame(window._scannerAnimFrame);
     window._scannerAnimFrame = null;
   }
+
+  const cameraBox = document.getElementById("cameraModeBox");
+  if (cameraBox) cameraBox.classList.remove("camera-streaming");
 
   const videoEl = document.getElementById("cameraVideoFeed");
   const placeholder = document.getElementById("cameraPlaceholder");
@@ -369,13 +545,25 @@ function captureCameraSnapshot() {
   const videoEl = document.getElementById("cameraVideoFeed");
   if (!videoEl || !activeCameraStream) return;
 
-  const canvas = document.createElement("canvas");
-  canvas.width = videoEl.videoWidth || 1280;
-  canvas.height = videoEl.videoHeight || 720;
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+  let width = videoEl.videoWidth || 1280;
+  let height = videoEl.videoHeight || 720;
+  if (width > 1280 || height > 1280) {
+    if (width > height) {
+      height = Math.round((height * 1280) / width);
+      width = 1280;
+    } else {
+      width = Math.round((width * 1280) / height);
+      height = 1280;
+    }
+  }
 
-  const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(videoEl, 0, 0, width, height);
+
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
   setSlotImage(activeCaptureSlot, dataUrl);
   setSpecimenImage(dataUrl);
 
@@ -409,7 +597,10 @@ function processUploadedImageFile(file) {
 
   const reader = new FileReader();
   reader.onload = function(e) {
-    setSpecimenImage(e.target.result);
+    compressImageDataUrl(e.target.result, 1280, 0.78, function(compressed) {
+      setSpecimenImage(compressed);
+      setSlotImage("front", compressed);
+    });
   };
   reader.readAsDataURL(file);
 }
@@ -469,8 +660,22 @@ function loadDemoSpecimen(type) {
     }
   };
   img.onerror = function() {
-    console.warn("Failed to load specimen image:", target.url);
-    alert("Unable to load specimen image from " + target.url);
+    fetch(target.url)
+      .then(r => r.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setSlotImage("front", reader.result);
+          setSlotImage("back", reader.result);
+          setSpecimenImage(reader.result);
+          if (typeof showToast === "function") showToast(`Loaded label specimen: ${target.name}`, "info");
+        };
+        reader.readAsDataURL(blob);
+      })
+      .catch(err => {
+        console.warn("Failed to load specimen image:", target.url, err);
+        if (typeof showToast === "function") showToast("Unable to load specimen image from " + target.url, "error");
+      });
   };
   img.src = target.url;
 }
@@ -575,26 +780,35 @@ async function executeGeminiVisionInspection(imageDataUrl) {
 
   // Backend Express proxy server (port 3000)
   try {
-    const res = await fetch("http://localhost:3000/api/scan", {
+    const res = await fetch(`${SERVER_BASE_URL}/api/scan`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      data = { error: `Invalid response from AI server (${res.status} ${res.statusText})` };
+    }
+
     if (res.ok && data && (data.compliance || data.compliance_tests)) {
       return data;
     }
 
     if (data && data.error) {
-      console.warn("[METRO-CHECK] Backend proxy error:", data.error);
+      console.error("[METRO-CHECK] Backend proxy error:", data.error);
+      throw new Error(data.error);
     }
+    throw new Error("AI analysis did not return compliance results.");
   } catch (proxyErr) {
-    console.warn("[METRO-CHECK] Backend server at localhost:3000 unreachable:", proxyErr);
+    if (proxyErr.message && !proxyErr.message.includes("fetch") && !proxyErr.message.includes("Failed to fetch")) {
+      throw proxyErr;
+    }
+    console.warn("[METRO-CHECK] Backend server unreachable:", proxyErr);
+    return performDirectBrowserScan();
   }
-
-  // If backend is unreachable, do not call Google's API directly from the client.
-  return performDirectBrowserScan();
 }
 
 /**
@@ -610,13 +824,9 @@ async function startAiOcrInspection() {
     return;
   }
 
-  // Server health preflight check
-  const isHealthy = await checkServerHealth();
-  if (!isHealthy) {
-    const msg = "Backend Server Disconnected — Check terminal running 'node server.js'";
-    if (typeof showToast === "function") showToast(msg, "error");
-    alert(msg);
-    return;
+  // Non-blocking server health ping
+  if (!isBackendServerOnline) {
+    checkServerHealth().catch(() => {});
   }
 
   const analyzeBtn = document.getElementById("btnRunAiAnalysis");
@@ -658,52 +868,54 @@ async function startAiOcrInspection() {
       .filter(t => (t.status || "").toLowerCase() === "fail" || t.compliant === false)
       .map(t => `${t.parameter_name || t.rule || "Statutory Rule"}: ${t.observations || t.violation_reason || t.reason || "Non-compliant"}`);
 
-    // Step C: If compliant → auto-saved to localStorage under "Compliant Logs" (COMPLIANT_LOGGED)
-    // Step D: If non-compliant → flagged for officer review (NON_COMPLIANT_PENDING)
     const autoStatus = isCompliant
       ? (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.COMPLIANT_LOGGED : "COMPLIANT_LOGGED")
       : (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.NON_COMPLIANT_PENDING : "NON_COMPLIANT_PENDING");
 
-    const record = {
-      id: currentCaseId,
-      date: new Date().toISOString().split("T")[0],
-      product: fields.generic_name || fields.commodity_name || fields.brand_name || "Packaged Commodity",
-      status: autoStatus,
-      priority: isCompliant ? "Low" : (violations.length > 1 ? "Urgent" : "Standard"),
-      location: "Field Inspection Unit",
-      image: currentFrontImageDataUrl || currentUploadedImageDataUrl || currentBackImageDataUrl,
-      imageFront: currentFrontImageDataUrl || null,
-      imageBack: currentBackImageDataUrl || null,
-      extractedData: {
-        commodity_name: fields.generic_name || fields.commodity_name || "Packaged Commodity",
-        net_quantity: fields.net_quantity,
-        mrp: fields.mrp_tax_inclusive || fields.mrp,
-        manufacturer: fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || fields.manufacturer,
-        mfg_date: fields.mfg_month_year || fields.mfg_date,
-        consumer_care: fields.consumer_care_contact || fields.consumer_care,
-        unit_sale_price: fields.unit_sale_price,
-        country_of_origin: fields.country_of_origin
-      },
-      compliance: analysis.compliance,
-      complianceTests: analysis.compliance_tests,
-      confidence: analysis.confidence,
-      overallStatus: isCompliant ? "Compliant" : "Non-Compliant",
-      violations: violations,
-      isCompliant: isCompliant,
-      inspectorName: (typeof getCurrentUser === "function" && getCurrentUser()?.name) || "Field Inspector",
-      rawOcrText: analysis.extracted_text || analysis.raw_ocr_text,
-      executiveSummary: analysis.executive_summary,
-      recommendedAction: analysis.recommended_action
-    };
+    const rawImage = currentFrontImageDataUrl || currentUploadedImageDataUrl || currentBackImageDataUrl;
 
-    if (typeof saveInspection === "function") {
-      saveInspection(record);
-    }
-    if (typeof updateDashboardStats === "function") updateDashboardStats();
-    if (typeof loadRecentInspectionsTable === "function") loadRecentInspectionsTable();
-    if (typeof loadMyInspectionsCards === "function") loadMyInspectionsCards();
-    if (typeof renderMyInspections === "function") renderMyInspections();
-    if (typeof renderStats === "function") renderStats();
+    createLightweightThumbnail(rawImage, (thumbImage) => {
+      const record = {
+        id: currentCaseId,
+        date: new Date().toISOString().split("T")[0],
+        product: fields.generic_name || fields.commodity_name || fields.brand_name || "Packaged Commodity",
+        status: autoStatus,
+        priority: isCompliant ? "Low" : (violations.length > 1 ? "Urgent" : "Standard"),
+        location: "Field Inspection Unit",
+        image: thumbImage || rawImage,
+        imageFront: thumbImage || currentFrontImageDataUrl || null,
+        imageBack: currentBackImageDataUrl ? thumbImage : null,
+        extractedData: {
+          commodity_name: fields.generic_name || fields.commodity_name || "Packaged Commodity",
+          net_quantity: fields.net_quantity,
+          mrp: fields.mrp_tax_inclusive || fields.mrp,
+          manufacturer: fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || fields.manufacturer,
+          mfg_date: fields.mfg_month_year || fields.mfg_date,
+          consumer_care: fields.consumer_care_contact || fields.consumer_care,
+          unit_sale_price: fields.unit_sale_price,
+          country_of_origin: fields.country_of_origin
+        },
+        compliance: analysis.compliance,
+        complianceTests: analysis.compliance_tests,
+        confidence: analysis.confidence,
+        overallStatus: isCompliant ? "Compliant" : "Non-Compliant",
+        violations: violations,
+        isCompliant: isCompliant,
+        inspectorName: (typeof getCurrentUser === "function" && getCurrentUser()?.name) || "Field Inspector",
+        rawOcrText: analysis.extracted_text || analysis.raw_ocr_text,
+        executiveSummary: analysis.executive_summary,
+        recommendedAction: analysis.recommended_action
+      };
+
+      if (typeof saveInspection === "function") {
+        saveInspection(record);
+      }
+      if (typeof updateDashboardStats === "function") updateDashboardStats();
+      if (typeof loadRecentInspectionsTable === "function") loadRecentInspectionsTable();
+      if (typeof loadMyInspectionsCards === "function") loadMyInspectionsCards();
+      if (typeof renderMyInspections === "function") renderMyInspections();
+      if (typeof renderStats === "function") renderStats();
+    });
     if (typeof renderRecentDashboardTable === "function") renderRecentDashboardTable();
 
     if (typeof showToast === "function") {
@@ -989,10 +1201,18 @@ function handleSaveOcrInspection(statusType) {
     violations: violations,
     isCompliant: isCompliant,
     inspectorName: user.name,
+    zone: user.zone || "North",
+    state: user.state || "Delhi UT",
+    inspectorId: user.username || "inspector",
     rawOcrText: currentInspectionResult.extracted_text || currentInspectionResult.raw_ocr_text,
     executiveSummary: currentInspectionResult.executive_summary,
     recommendedAction: currentInspectionResult.recommended_action
   };
+
+  // Traceable zonal tagging
+  record.zone = user.zone || "North";
+  record.state = user.state || "Delhi UT";
+  record.inspectorId = user.username || "inspector";
 
   saveInspection(record);
 
@@ -1136,9 +1356,17 @@ function handleManualInspectionSubmit(event) {
     violations: [],
     isCompliant: true,
     inspectorName: user.name || "Field Inspector",
+    zone: user.zone || "North",
+    state: user.state || "Delhi UT",
+    inspectorId: user.username || "inspector",
     executiveSummary: `Manual inspection recorded for ${commodity}. All mandatory declarations verified compliant under Legal Metrology Rules, 2011.`,
     recommendedAction: "Package compliant. Record in audit registry."
   };
+
+  // Traceable zonal tagging
+  record.zone = user.zone || "North";
+  record.state = user.state || "Delhi UT";
+  record.inspectorId = user.username || "inspector";
 
   saveInspection(record);
   if (typeof showToast === "function") {
@@ -1187,3 +1415,80 @@ window.addEventListener("pagehide", stopLiveCamera);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) stopLiveCamera();
 });
+
+function openInspectorWalkthroughModal() {
+  const m = document.getElementById("inspectorOnboardingModal");
+  if (m) m.classList.remove("hidden");
+}
+
+function closeInspectorWalkthroughModal() {
+  const m = document.getElementById("inspectorOnboardingModal");
+  if (m) m.classList.add("hidden");
+  const chk = document.getElementById("dontShowOnboardingAgain");
+  if (chk && chk.checked) {
+    try { localStorage.setItem("elmcep_hide_onboarding", "true"); } catch (e) {}
+  }
+}
+window.openInspectorWalkthroughModal = openInspectorWalkthroughModal;
+window.closeInspectorWalkthroughModal = closeInspectorWalkthroughModal;
+
+// Auto-prompt onboarding for new inspectors if not previously dismissed
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    const isDismissed = localStorage.getItem("elmcep_hide_onboarding") === "true";
+    if (!isDismissed && window.location.pathname.includes("inspector.html")) {
+      setTimeout(() => {
+        const m = document.getElementById("inspectorOnboardingModal");
+        if (m && !currentInspectionResult) {
+          m.classList.remove("hidden");
+        }
+      }, 1200);
+    }
+  } catch (e) {}
+});
+
+/**
+ * Tab switcher for segmented inspection results display
+ */
+function switchOcrResultTab(tab) {
+  const tabs = ['all', 'checklist', 'declarations', 'transcript'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`ocrTabBtn-${t}`);
+    if (btn) {
+      if (t === tab) {
+        btn.className = "ocr-tab-btn px-3.5 py-1.5 rounded-lg bg-[#10B981] text-white shadow-xs transition flex items-center gap-1.5 cursor-pointer font-semibold";
+      } else {
+        btn.className = "ocr-tab-btn px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition flex items-center gap-1.5 cursor-pointer font-medium";
+      }
+    }
+  });
+
+  const pParticulars = document.getElementById('ocrResultPanel-particulars');
+  const pDeclarations = document.getElementById('ocrResultPanel-declarations');
+  const pChecklist = document.getElementById('ocrResultPanel-checklist');
+  const pTranscript = document.getElementById('ocrResultPanel-transcript');
+
+  if (tab === 'all') {
+    if (pParticulars) pParticulars.classList.remove('hidden');
+    if (pDeclarations) pDeclarations.classList.remove('hidden');
+    if (pChecklist) pChecklist.classList.remove('hidden');
+    if (pTranscript) pTranscript.classList.remove('hidden');
+  } else if (tab === 'checklist') {
+    if (pParticulars) pParticulars.classList.add('hidden');
+    if (pDeclarations) pDeclarations.classList.add('hidden');
+    if (pChecklist) pChecklist.classList.remove('hidden');
+    if (pTranscript) pTranscript.classList.add('hidden');
+  } else if (tab === 'declarations') {
+    if (pParticulars) pParticulars.classList.remove('hidden');
+    if (pDeclarations) pDeclarations.classList.remove('hidden');
+    if (pChecklist) pChecklist.classList.add('hidden');
+    if (pTranscript) pTranscript.classList.add('hidden');
+  } else if (tab === 'transcript') {
+    if (pParticulars) pParticulars.classList.add('hidden');
+    if (pDeclarations) pDeclarations.classList.add('hidden');
+    if (pChecklist) pChecklist.classList.add('hidden');
+    if (pTranscript) pTranscript.classList.remove('hidden');
+  }
+}
+window.switchOcrResultTab = switchOcrResultTab;
+
