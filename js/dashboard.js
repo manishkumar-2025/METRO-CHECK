@@ -1178,7 +1178,20 @@ function submitDecision(id, decision, comments) {
     }
   }
 
-  updateInspectionStatus(id, targetStatus, comments);
+  // Read the checked .violation-check checkboxes and the #officerPrivateNotes textarea
+  const checkedViolations = [];
+  document.querySelectorAll(".violation-check:checked").forEach(cb => {
+    const rule = cb.getAttribute("data-rule") || "";
+    const parentLabel = cb.closest(".violation-card")?.textContent?.trim() || rule;
+    checkedViolations.push(parentLabel || rule);
+  });
+  const privateNotes = (document.getElementById("officerPrivateNotes")?.value || "").trim();
+
+  updateInspectionStatus(id, targetStatus, comments, {
+    violationsChecked: checkedViolations,
+    officerPrivateNotes: privateNotes,
+    confirmedViolations: checkedViolations.length > 0 ? checkedViolations : undefined
+  });
   closeDecisionModal();
 
   if (decision === "approved" || decision === "approve_notice") {

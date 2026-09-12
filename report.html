@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>METRO-CHECK | Legal Metrology Compliance Inspection Report</title>
   
+  <!-- Prevent theme flicker / white flash on initial load -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('elmcep_theme') === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+        if (localStorage.getItem('elmcep_high_contrast') === 'true') {
+          document.documentElement.classList.add('gov-high-contrast');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Tailwind CSS via CDN with Extended Sovereign GovTech Tokens -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -62,7 +76,7 @@
   <!-- 1. OFFICIAL NATIONAL MASTHEAD & TRICOLOR HEADER BAR (Screen Only) -->
   <div class="tricolor-strip print:hidden"></div>
 
-  <header id="nationalGovMasthead" class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 z-30 flex-shrink-0 select-none text-slate-800 dark:text-slate-200 print:hidden shadow-xs">
+  <header id="nationalGovMasthead" class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 z-30 flex-shrink-0 select-none text-slate-800 dark:text-slate-200 print:hidden shadow-xs glass-header">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-3">
       
       <!-- Left: Sovereign Emblem & Bilingual Hierarchy -->
@@ -111,8 +125,15 @@
           <div class="w-[1px] h-3 bg-slate-300/80 dark:bg-slate-700"></div>
 
           <!-- High-Contrast Toggle -->
-          <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn" title="Toggle High-Contrast Mode" class="p-1 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs transition">
+          <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn" title="Toggle High-Contrast Mode" class="p-1 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs transition cursor-pointer">
             🌓
+          </button>
+
+          <div class="w-[1px] h-3 bg-slate-300/80 dark:bg-slate-700"></div>
+
+          <!-- Theme Toggle (Executive Light / Dark) -->
+          <button type="button" onclick="govToggleTheme()" id="govThemeToggleBtn" title="Switch Theme (Light / Dark)" class="p-1 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs transition cursor-pointer">
+            🌙
           </button>
 
           <div class="w-[1px] h-3 bg-slate-300/80 dark:bg-slate-700"></div>
@@ -143,7 +164,7 @@
       <button type="button" onclick="printReport()" class="btn-secondary text-xs flex items-center gap-2">
         <span>🖨️</span> <span>Print Official Report</span>
       </button>
-      <button type="button" id="downloadPdfButton" onclick="generatePDF()" class="btn-primary text-xs flex items-center gap-2 shadow-sm cursor-pointer">
+      <button type="button" id="downloadPdfButton" onclick="generatePDF()" class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center gap-2 shadow-sm cursor-pointer">
         <span>📥</span> <span>Download PDF</span>
       </button>
     </div>

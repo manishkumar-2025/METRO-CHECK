@@ -84,14 +84,17 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     // Header Typography
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
-    doc.text("METRO-CHECK | LEGAL METROLOGY COMPLIANCE VERIFICATION SYSTEM", 14, 13);
+    doc.setFontSize(12);
+    doc.text("GOVERNMENT OF INDIA, MINISTRY OF CONSUMER AFFAIRS, Krishi Bhawan, New Delhi", 14, 11);
 
-    doc.setFontSize(8.5);
-    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
     doc.setTextColor(245, 158, 11);
-    doc.text("Ministry of Consumer Affairs, Food & Public Distribution • Government of India", 14, 21);
-    doc.text("Statutory Enforcement & Label Verification Notice (Packaged Commodities Rules, 2011)", 14, 27);
+    doc.text("METRO-CHECK (e-LMCEP) • LEGAL METROLOGY COMPLIANCE VERIFICATION SYSTEM", 14, 18);
+
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(226, 232, 240);
+    doc.text("Department of Consumer Affairs • Statutory Enforcement & Label Verification Notice (PCR, 2011)", 14, 25);
 
     // 2. Case Particulars Box
     doc.setTextColor(30, 41, 59);

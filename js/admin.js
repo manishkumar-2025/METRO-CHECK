@@ -782,17 +782,20 @@ function deleteUserAction(uname) {
    ========================================================================== */
 
 function resetDemoData() {
-  if (confirm("Reset all system data (inspections, commodities, users) to clean state?")) {
+  if (confirm("Reset all system data (inspections, commodities) to clean state?")) {
     // Preserve current user session per Zonal Access Control requirements
     const activeSession = localStorage.getItem("currentUser");
-    localStorage.clear();
-    if (activeSession) {
-      try {
+    try {
+      localStorage.removeItem("inspections");
+      localStorage.removeItem("metro_commodities");
+      localStorage.removeItem("metro_inspections");
+      if (activeSession) {
         localStorage.setItem("currentUser", activeSession);
-      } catch (e) {}
-    }
+      }
+    } catch (e) {}
+
     initStorage();
-    getUsers();
+    if (typeof getUsers === "function") getUsers();
     alert("System storage reset successfully while preserving active session!");
     window.location.reload();
   }

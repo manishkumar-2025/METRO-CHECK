@@ -83,26 +83,37 @@
   };
 
   /**
-   * 3. Accessibility: High-Contrast Mode Toggle
+   * 3. Accessibility: High-Contrast Mode Toggle (GIGW / WCAG AAA Compliant)
    */
   window.govToggleHighContrast = function () {
     const isContrast = document.body.classList.toggle('gov-high-contrast');
+    document.documentElement.classList.toggle('gov-high-contrast', isContrast);
     try {
       localStorage.setItem('elmcep_high_contrast', isContrast ? 'true' : 'false');
     } catch (e) {}
     updateContrastButton(isContrast);
+
+    const event = new CustomEvent('elmcepContrastChanged', { detail: { isContrast } });
+    document.dispatchEvent(event);
+
+    if (typeof showToast === 'function') {
+      showToast(isContrast ? 'High Contrast Accessibility Mode Enabled (WCAG AAA)' : 'Standard Contrast Mode Restored', 'info');
+    }
   };
 
   function updateContrastButton(isActive) {
-    const btn = document.getElementById('govHighContrastBtn');
-    if (!btn) return;
-    if (isActive) {
-      btn.classList.add('bg-yellow-400', 'text-black', 'border-yellow-500', 'font-black');
-      btn.setAttribute('aria-pressed', 'true');
-    } else {
-      btn.classList.remove('bg-yellow-400', 'text-black', 'border-yellow-500', 'font-black');
-      btn.setAttribute('aria-pressed', 'false');
-    }
+    const btns = document.querySelectorAll('#govHighContrastBtn, .govHighContrastBtn');
+    btns.forEach(btn => {
+      if (isActive) {
+        btn.classList.add('bg-yellow-400', 'text-black', 'border-yellow-500', 'font-black', 'ring-2', 'ring-yellow-400');
+        btn.setAttribute('aria-pressed', 'true');
+        btn.title = 'Disable High-Contrast Mode (Current: High Contrast)';
+      } else {
+        btn.classList.remove('bg-yellow-400', 'text-black', 'border-yellow-500', 'font-black', 'ring-2', 'ring-yellow-400');
+        btn.setAttribute('aria-pressed', 'false');
+        btn.title = 'Enable High-Contrast Mode (GIGW / WCAG AAA)';
+      }
+    });
   }
 
   /**
@@ -154,16 +165,25 @@
       const savedContrast = localStorage.getItem('elmcep_high_contrast') === 'true';
       if (savedContrast) {
         document.body.classList.add('gov-high-contrast');
+        document.documentElement.classList.add('gov-high-contrast');
+      } else {
+        document.body.classList.remove('gov-high-contrast');
+        document.documentElement.classList.remove('gov-high-contrast');
       }
       updateContrastButton(savedContrast);
     } catch (e) {}
 
     try {
       const savedTheme = localStorage.getItem('elmcep_theme');
-      if (savedTheme === 'dark') {
-        document.body.classList.add('theme-dark');
+      const isDark = savedTheme === 'dark';
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('theme-dark', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('theme-dark', 'dark');
       }
-      updateThemeButtons(savedTheme === 'dark');
+      updateThemeButtons(isDark);
     } catch (e) {}
 
     try {
@@ -173,24 +193,98 @@
   }
 
   /**
-   * 6. Global Theme Controller (Executive Light / Dark)
+   * 6. Interactive Executive Theme Controller (Sovereign Light / Obsidian Dark)
    */
+  function playThemeHapticAudio(isDark) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      const now = ctx.currentTime;
+      if (isDark) {
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.05);
+      } else {
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.exponentialRampToValueAtTime(440, now + 0.05);
+      }
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.06);
+    } catch (e) {}
+  }
+
   window.govToggleTheme = function () {
-    const isDark = document.body.classList.toggle('theme-dark');
+    // 1. Activate smooth zero-snap transition class across the page
+    document.documentElement.classList.add('theme-transitioning');
+    window.setTimeout(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+    }, 400);
+
+    const isDark = document.documentElement.classList.toggle('dark');
+    document.body.classList.toggle('theme-dark', isDark);
+    document.body.classList.toggle('dark', isDark);
+
     try {
       localStorage.setItem('elmcep_theme', isDark ? 'dark' : 'light');
     } catch (e) {}
+
+    playThemeHapticAudio(isDark);
     updateThemeButtons(isDark);
+
+    const event = new CustomEvent('elmcepThemeChanged', { detail: { isDark } });
+    document.dispatchEvent(event);
+
     if (typeof showToast === 'function') {
-      showToast(isDark ? 'Executive Dark Theme Enabled' : 'Executive Light Theme Enabled', 'info');
+      showToast(isDark ? 'Executive Obsidian Dark Mode Activated' : 'Executive Sovereign Light Mode Activated', 'info');
     }
   };
 
   function updateThemeButtons(isDark) {
     const btns = document.querySelectorAll('.govThemeToggleBtn, #govThemeToggleBtn');
     btns.forEach(btn => {
-      btn.innerHTML = isDark ? '☀️' : '🌙';
-      btn.title = isDark ? 'Switch to Executive Light Mode' : 'Switch to Executive Dark Mode';
+      btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+      btn.title = isDark ? 'Switch to Executive Light Mode (Day)' : 'Switch to Executive Dark Mode (Night)';
+      
+      // Modern SVG Animated Icons instead of plain emojis
+      btn.innerHTML = isDark
+        ? `<svg class="w-3.5 h-3.5 text-amber-400 transform transition-transform duration-300 rotate-0 hover:rotate-45 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`
+        : `<svg class="w-3.5 h-3.5 text-slate-700 hover:text-indigo-600 transition-colors transform hover:-rotate-12 duration-200" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>`;
+      
+      btn.classList.add('theme-toggle-btn-anim');
+    });
+
+    // Update modern sliding switch pills in menus
+    const switchPills = document.querySelectorAll('.theme-switch-pill');
+    switchPills.forEach(pill => {
+      const thumb = pill.querySelector('.theme-switch-thumb');
+      if (isDark) {
+        pill.classList.remove('bg-slate-200');
+        pill.classList.add('bg-emerald-500');
+        if (thumb) {
+          thumb.classList.remove('translate-x-0');
+          thumb.classList.add('translate-x-3.5');
+        }
+      } else {
+        pill.classList.add('bg-slate-200');
+        pill.classList.remove('bg-emerald-500');
+        if (thumb) {
+          thumb.classList.add('translate-x-0');
+          thumb.classList.remove('translate-x-3.5');
+        }
+      }
+    });
+
+    const labelTexts = document.querySelectorAll('.theme-toggle-label');
+    labelTexts.forEach(lbl => {
+      lbl.textContent = isDark ? 'Light Mode' : 'Dark Mode';
     });
   }
 

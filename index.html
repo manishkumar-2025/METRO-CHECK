@@ -10,6 +10,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
+  <!-- Prevent theme flicker / white flash on initial load -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('elmcep_theme') === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+        if (localStorage.getItem('elmcep_high_contrast') === 'true') {
+          document.documentElement.classList.add('gov-high-contrast');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- 2. Tailwind CSS via CDN with Extended Sovereign GovTech Tokens -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -57,7 +71,7 @@
   <!-- 3. Custom Stylesheet (Design Tokens, Animations, Utilities) -->
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-[#F7F8FA] min-h-screen flex flex-col justify-between text-[#64748B] font-sans antialiased text-sm porcelain-canvas" data-theme-tokens="bg-[#090d16] backdrop-blur-2xl from-amber-500 via-amber-600 to-amber-700" style="background-image: radial-gradient(1200px circle at 50% 0%, #FFFFFF 0%, #F7F8FA 60%, #EEF2F6 100%);">
+<body class="bg-[#F7F8FA] min-h-screen flex flex-col justify-between text-[#64748B] font-sans antialiased text-sm porcelain-canvas" data-theme-tokens="bg-[#090d16] backdrop-blur-2xl from-amber-500 via-amber-600 to-amber-700">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
   <a href="#mainContent" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#10B981] focus:text-white focus:rounded-lg focus:shadow-lg focus:font-semibold focus:outline-none focus:ring-2 focus:ring-[#059669] text-xs">
@@ -71,7 +85,7 @@
        ========================================================================= -->
   <div class="tricolor-strip"></div>
 
-  <header id="nationalGovMasthead" class="w-full bg-white/85 backdrop-blur-md border-b border-[#E4E7EC] z-30 flex-shrink-0 select-none text-[#0F172A]">
+  <header id="nationalGovMasthead" class="w-full bg-white/85 backdrop-blur-md border-b border-[#E4E7EC] z-30 flex-shrink-0 select-none text-[#0F172A] glass-header">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
       
       <!-- Left: Sovereign Emblem & Bilingual Navy Ministry Text -->
@@ -121,8 +135,15 @@
           <div class="w-[1px] h-3 bg-[#E4E7EC]"></div>
 
           <!-- High-Contrast Toggle -->
-          <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn" title="Toggle High-Contrast Mode" class="p-1 rounded-full hover:bg-slate-100 text-xs transition text-[#0F172A]">
+          <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn" title="Toggle High-Contrast Mode" class="p-1 rounded-full hover:bg-slate-100 text-xs transition text-[#0F172A] cursor-pointer">
             🌓
+          </button>
+
+          <div class="w-[1px] h-3 bg-[#E4E7EC]"></div>
+
+          <!-- Theme Toggle (Executive Light / Dark) -->
+          <button type="button" onclick="govToggleTheme()" id="govThemeToggleBtn" title="Switch Theme (Light / Dark)" class="p-1 rounded-full hover:bg-slate-100 text-xs transition text-[#0F172A] cursor-pointer">
+            🌙
           </button>
 
           <div class="w-[1px] h-3 bg-[#E4E7EC]"></div>
@@ -263,7 +284,7 @@
         <button 
           type="submit" 
           id="loginSubmitButton"
-          class="btn-primary w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 mt-4 cursor-pointer"
+          class="btn-primary active:scale-95 transition-transform duration-100 w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 mt-4 cursor-pointer"
         >
           <span>Sign In to Portal</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -562,7 +583,7 @@
           <button type="button" onclick="closeContactModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#0F172A] font-medium rounded-lg transition">
             Cancel
           </button>
-          <button type="submit" class="px-5 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+          <button type="submit" class="px-5 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95 transition-transform duration-100">
             <span>✉️ Submit Grievance Ticket</span>
           </button>
         </div>

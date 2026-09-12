@@ -147,9 +147,49 @@ function getInspectionById(inspectionId) {
 }
 
 /**
+ * Compresses an image data URL to max-width 350px and 0.6 JPEG quality to prevent QuotaExceededError
+ */
+function compressImageForStorage(dataUrl, maxWidth = 350, quality = 0.6) {
+  if (!dataUrl || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
+    return dataUrl;
+  }
+  if (typeof document === "undefined") return dataUrl;
+  try {
+    const img = new Image();
+    img.src = dataUrl;
+    if (img.width && img.height) {
+      let w = img.width;
+      let h = img.height;
+      if (w > maxWidth) {
+        h = Math.round((h * maxWidth) / w);
+        w = maxWidth;
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      return canvas.toDataURL("image/jpeg", quality);
+    }
+  } catch (e) {}
+  return dataUrl;
+}
+
+/**
  * Saves a new inspection or updates an existing one in localStorage with cache sync.
  */
 function saveInspection(inspectionData) {
+  // Compress images to max-width 350px and 0.6 JPEG quality before saving to localStorage
+  if (inspectionData.image && inspectionData.image.length > 50000) {
+    inspectionData.image = compressImageForStorage(inspectionData.image, 350, 0.6);
+  }
+  if (inspectionData.imageFront && inspectionData.imageFront.length > 50000) {
+    inspectionData.imageFront = compressImageForStorage(inspectionData.imageFront, 350, 0.6);
+  }
+  if (inspectionData.imageBack && inspectionData.imageBack.length > 50000) {
+    inspectionData.imageBack = compressImageForStorage(inspectionData.imageBack, 350, 0.6);
+  }
+
   const allInspections = getInspections();
   if (!inspectionData.id) inspectionData.id = generateId("INS-");
   if (!inspectionData.date) inspectionData.date = new Date().toISOString().split("T")[0];
@@ -287,12 +327,15 @@ function formatStatusLabel(status) {
 /**
  * Updates status and optional review fields of an inspection.
  */
-function updateInspectionStatus(inspectionId, newStatus, comments) {
+function updateInspectionStatus(inspectionId, newStatus, comments, reviewFields = {}) {
   const allInspections = getInspections();
   const target = allInspections.find(function(item) { return item.id === inspectionId; });
   if (target) {
     target.status = newStatus;
     if (comments) target.reviewComments = comments;
+    if (reviewFields.violationsChecked) target.violationsChecked = reviewFields.violationsChecked;
+    if (reviewFields.officerPrivateNotes) target.officerPrivateNotes = reviewFields.officerPrivateNotes;
+    if (reviewFields.confirmedViolations) target.violations = reviewFields.confirmedViolations;
     target.reviewedAt = new Date().toISOString();
     _inspectionsCache = allInspections.slice();
     try {
@@ -304,7 +347,12 @@ function updateInspectionStatus(inspectionId, newStatus, comments) {
       fetch(`${STORAGE_API_BASE}/api/inspections/${inspectionId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus, reviewComments: comments })
+        body: JSON.stringify({ 
+          status: newStatus, 
+          reviewComments: comments,
+          violationsChecked: reviewFields.violationsChecked,
+          officerPrivateNotes: reviewFields.officerPrivateNotes
+        })
       }).catch(e => {});
     }
 

@@ -116,6 +116,53 @@ body {
   padding: 0;
   min-height: 100vh;
   transition: background-color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom slim webkit scrollbar (track #F7F8FA, thumb #CBD5E1) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7F8FA;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Firefox standard scrollbar support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 #F7F8FA;
+}
+
+/* Global focus-visible */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #F7F8FA, 0 0 0 4px #10B981 !important;
+  border-radius: 4px;
+}
+
+/* Glass Header Class */
+.glass-header {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+body.theme-dark .glass-header {
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
 }
 
 /* 4. Modern Interactive Component Utilities (Linear / Shadcn UI Card Standard) */
@@ -596,28 +643,33 @@ details.faq-accordion[open] {
 }
 
 /* ==========================================================================
-   14. Official GIGW / NIC High-Contrast Mode for Accessibility
+   14. Official GIGW / NIC High-Contrast Mode for Accessibility (WCAG AAA)
    ========================================================================== */
-body.gov-high-contrast {
+body.gov-high-contrast,
+html.gov-high-contrast,
+html.gov-high-contrast body {
+  background: #000000 !important;
   background-color: #000000 !important;
+  background-image: none !important;
   color: #ffff00 !important;
 }
 
-body.gov-high-contrast #nationalGovMasthead {
+body.gov-high-contrast #nationalGovMasthead,
+html.gov-high-contrast #nationalGovMasthead {
   background-color: #000000 !important;
   border-bottom: 2px solid #ffff00 !important;
 }
 
-body.gov-high-contrast #nationalGovMasthead * {
+body.gov-high-contrast #nationalGovMasthead *,
+html.gov-high-contrast #nationalGovMasthead * {
   color: #ffffff !important;
   border-color: #ffff00 !important;
 }
 
-body.gov-high-contrast #nationalGovMasthead svg g {
-  fill: #ffff00 !important;
-}
-
-body.gov-high-contrast #nationalGovMasthead svg text {
+body.gov-high-contrast #nationalGovMasthead svg g,
+html.gov-high-contrast #nationalGovMasthead svg g,
+body.gov-high-contrast #nationalGovMasthead svg text,
+html.gov-high-contrast #nationalGovMasthead svg text {
   fill: #ffff00 !important;
 }
 
@@ -628,102 +680,667 @@ body.gov-high-contrast #nationalGovMasthead svg circle[fill="#f8fafc"] {
 
 body.gov-high-contrast .masthead-ist-clock {
   color: #ffff00 !important;
+  font-weight: 700 !important;
 }
 
-body.gov-high-contrast aside {
+body.gov-high-contrast aside,
+html.gov-high-contrast aside,
+body.gov-high-contrast .sidebar-container {
   background-color: #000000 !important;
   border-right: 2px solid #ffff00 !important;
 }
 
-body.gov-high-contrast aside * {
+body.gov-high-contrast aside *,
+html.gov-high-contrast aside * {
   color: #ffffff !important;
 }
 
-body.gov-high-contrast header {
-  background-color: #0a0a0a !important;
+body.gov-high-contrast header,
+html.gov-high-contrast header,
+body.gov-high-contrast .glass-header {
+  background-color: #000000 !important;
   border-bottom: 2px solid #ffff00 !important;
+  backdrop-filter: none !important;
 }
 
-body.gov-high-contrast header * {
+body.gov-high-contrast header *,
+html.gov-high-contrast header * {
   color: #ffff00 !important;
 }
 
+/* Universal High Contrast Surface Overrides */
 body.gov-high-contrast .bg-white,
+body.gov-high-contrast [class*="bg-white"],
 body.gov-high-contrast .bg-slate-50,
 body.gov-high-contrast .bg-slate-100,
+body.gov-high-contrast .bg-gray-50,
+body.gov-high-contrast .bg-gray-100,
+body.gov-high-contrast .bg-\[\#F7F8FA\],
+body.gov-high-contrast .bg-\[\#F8FAFC\],
+body.gov-high-contrast .bg-\[\#FAFAFA\],
+body.gov-high-contrast .porcelain-canvas,
+body.gov-high-contrast .modern-card,
+body.gov-high-contrast .kpi-card,
 body.gov-high-contrast .masthead-pill-dock,
-body.gov-high-contrast .masthead-pill-dock-dark {
-  background-color: #050505 !important;
-  border-color: #ffff00 !important;
+body.gov-high-contrast .masthead-pill-dock-dark,
+body.gov-high-contrast .ds-table-container,
+html.gov-high-contrast .bg-white,
+html.gov-high-contrast [class*="bg-white"],
+html.gov-high-contrast .porcelain-canvas,
+html.gov-high-contrast .modern-card,
+html.gov-high-contrast .kpi-card {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* High Contrast Headings & Text */
+body.gov-high-contrast h1,
+body.gov-high-contrast h2,
+body.gov-high-contrast h3,
+body.gov-high-contrast h4,
+body.gov-high-contrast h5,
+body.gov-high-contrast h6,
+body.gov-high-contrast .text-slate-900,
+body.gov-high-contrast .text-slate-800,
+body.gov-high-contrast .text-gray-900,
+body.gov-high-contrast .text-\[\#0F172A\],
+body.gov-high-contrast .font-bold,
+body.gov-high-contrast .font-semibold,
+html.gov-high-contrast h1,
+html.gov-high-contrast h2,
+html.gov-high-contrast h3,
+html.gov-high-contrast .font-bold {
+  color: #ffff00 !important;
+}
+
+body.gov-high-contrast p,
+body.gov-high-contrast span,
+body.gov-high-contrast div,
+body.gov-high-contrast td,
+body.gov-high-contrast label,
+body.gov-high-contrast .text-slate-600,
+body.gov-high-contrast .text-slate-500,
+body.gov-high-contrast .text-slate-400,
+body.gov-high-contrast .text-\[\#64748B\] {
   color: #ffffff !important;
 }
 
-body.gov-high-contrast button {
-  border-color: #ffff00 !important;
+body.gov-high-contrast a {
+  color: #ffff00 !important;
+  text-decoration: underline !important;
+}
+
+/* High Contrast Buttons */
+body.gov-high-contrast button,
+body.gov-high-contrast .btn-secondary,
+html.gov-high-contrast button {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+  font-weight: 700 !important;
+}
+
+body.gov-high-contrast button:hover,
+body.gov-high-contrast .btn-secondary:hover,
+html.gov-high-contrast button:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+body.gov-high-contrast .btn-primary,
+body.gov-high-contrast button[class*="bg-emerald"],
+body.gov-high-contrast button[class*="bg-[#10B981]"],
+body.gov-high-contrast button[aria-pressed="true"],
+body.gov-high-contrast .active {
+  background-color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+}
+
+/* High Contrast Form Controls */
+body.gov-high-contrast input,
+body.gov-high-contrast select,
+body.gov-high-contrast textarea,
+body.gov-high-contrast .ds-input,
+body.gov-high-contrast .ds-select,
+body.gov-high-contrast .ds-textarea,
+html.gov-high-contrast input,
+html.gov-high-contrast select,
+html.gov-high-contrast textarea {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffffff !important;
+}
+
+body.gov-high-contrast input::placeholder,
+body.gov-high-contrast textarea::placeholder {
+  color: #ffff00 !important;
+  opacity: 0.8 !important;
+}
+
+/* High Contrast Tables */
+body.gov-high-contrast table,
+html.gov-high-contrast table {
+  border: 2px solid #ffff00 !important;
+}
+
+body.gov-high-contrast thead,
+body.gov-high-contrast th,
+body.gov-high-contrast .ds-table-th,
+html.gov-high-contrast thead,
+html.gov-high-contrast th {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-bottom: 2px solid #ffff00 !important;
+  font-weight: 800 !important;
+}
+
+body.gov-high-contrast td,
+body.gov-high-contrast .ds-table-td,
+html.gov-high-contrast td {
+  border-bottom: 1px solid #ffff00 !important;
+  color: #ffffff !important;
+}
+
+body.gov-high-contrast tbody tr:hover,
+body.gov-high-contrast #officerDocketTableBody tr:hover {
+  background-color: #1a1a00 !important;
+}
+
+/* High Contrast Modals & Popovers */
+body.gov-high-contrast #sidebarUserDropdownMenu,
+body.gov-high-contrast #userMenuPopover,
+body.gov-high-contrast .sidebar-user-dropdown,
+body.gov-high-contrast .user-menu-popover,
+body.gov-high-contrast #userProfileModal > div,
+body.gov-high-contrast .modal-content,
+html.gov-high-contrast #sidebarUserDropdownMenu,
+html.gov-high-contrast #userMenuPopover {
+  background-color: #000000 !important;
+  border: 3px solid #ffff00 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(255, 255, 0, 0.4) !important;
+}
+
+/* High Contrast Inspector Fields Grid */
+body.gov-high-contrast #reportExtractedFieldsGrid > div,
+html.gov-high-contrast #reportExtractedFieldsGrid > div {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffffff !important;
+}
+
+/* High Contrast Badges */
+body.gov-high-contrast .badge-compliant,
+body.gov-high-contrast .badge-violation,
+body.gov-high-contrast [class*="badge"],
+body.gov-high-contrast span.rounded-full {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+  font-weight: 800 !important;
 }
 
 /* Accessible Universal Focus Outlines */
 *:focus-visible {
-  outline: 2px solid #d97706;
-  outline-offset: 2px;
+  outline: 2px solid #10B981 !important;
+  outline-offset: 2px !important;
 }
 
-body.gov-high-contrast *:focus-visible {
+body.gov-high-contrast *:focus-visible,
+html.gov-high-contrast *:focus-visible {
   outline: 3px solid #ffff00 !important;
-  outline-offset: 3px;
+  outline-offset: 3px !important;
 }
 
-/* Global Executive Dark Theme (Smooth Transition from Login Canvas) */
-body.theme-dark {
-  background-color: var(--gov-bg) !important;
-  color: var(--gov-text-primary) !important;
+/* ==========================================================================
+   Modern Theme Transition Controller (Zero Snapping, Ultra-Smooth Ease)
+   ========================================================================== */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition: background-color 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              fill 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              stroke 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-delay: 0s !important;
 }
 
-body.theme-dark .bg-white {
-  background-color: var(--gov-surface) !important;
-  color: var(--gov-text-primary) !important;
-  border-color: var(--gov-border) !important;
+/* Theme Toggle Button Spring Animation */
+.theme-toggle-btn-anim,
+#govThemeToggleBtn,
+.govThemeToggleBtn {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.2s ease,
+              box-shadow 0.2s ease !important;
+  cursor: pointer;
+}
+#govThemeToggleBtn:hover,
+.govThemeToggleBtn:hover {
+  transform: scale(1.12);
+}
+#govThemeToggleBtn:active,
+.govThemeToggleBtn:active {
+  transform: scale(0.9) rotate(15deg);
 }
 
-body.theme-dark .bg-slate-50,
-body.theme-dark .bg-slate-100 {
-  background-color: var(--gov-surface-sunken) !important;
-  color: var(--gov-text-secondary) !important;
-  border-color: var(--gov-border-subtle) !important;
-}
-
-body.theme-dark .text-slate-900,
-body.theme-dark .text-slate-800 {
+/* ==========================================================================
+   Global Executive Dark Theme (Linear / Supabase / Vercel Modern Aesthetic)
+   ========================================================================== */
+html.dark,
+html.dark body,
+body.theme-dark,
+body.theme-dark.porcelain-canvas,
+html.dark .porcelain-canvas {
+  background-color: #070b14 !important;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.09) 0px, transparent 45%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 45%),
+    radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+    radial-gradient(circle at 50% 0%, #0c1424 0%, #070b14 100%) !important;
+  background-attachment: fixed !important;
   color: #f8fafc !important;
 }
 
-body.theme-dark .text-slate-700,
-body.theme-dark .text-slate-600 {
-  color: #cbd5e1 !important;
+/* Modern Glassmorphic Cards & Elevating Panels */
+body.theme-dark .bg-white,
+html.dark .bg-white,
+body.theme-dark [class*="bg-white/"],
+html.dark [class*="bg-white/"],
+body.theme-dark .modern-card,
+html.dark .modern-card,
+body.theme-dark .kpi-card,
+html.dark .kpi-card,
+body.theme-dark .ds-table-container,
+html.dark .ds-table-container {
+  background-color: rgba(15, 23, 42, 0.82) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
+  position: relative;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s ease !important;
 }
 
+body.theme-dark .modern-card:hover,
+html.dark .modern-card:hover,
+body.theme-dark .kpi-card:hover,
+html.dark .kpi-card:hover {
+  transform: translateY(-2.5px) !important;
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  box-shadow: 0 14px 32px -5px rgba(0, 0, 0, 0.75),
+              0 0 25px -4px rgba(16, 185, 129, 0.22),
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Modern Dark Sunken Backgrounds */
+body.theme-dark .bg-slate-50,
+body.theme-dark .bg-slate-100,
+body.theme-dark .bg-gray-50,
+body.theme-dark .bg-gray-100,
+body.theme-dark .bg-\[\#F7F8FA\],
+body.theme-dark .bg-\[\#F8FAFC\],
+body.theme-dark .bg-\[\#FAFAFA\],
+body.theme-dark .bg-\[\#F1F5F9\],
+html.dark .bg-slate-50,
+html.dark .bg-slate-100,
+html.dark .bg-gray-50,
+html.dark .bg-\[\#F7F8FA\],
+html.dark .bg-\[\#F8FAFC\],
+html.dark .bg-\[\#FAFAFA\] {
+  background-color: rgba(22, 32, 51, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Modern Frosted Top Masthead */
+body.theme-dark #nationalGovMasthead,
+html.dark #nationalGovMasthead {
+  background-color: rgba(11, 17, 32, 0.85) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+}
+
+body.theme-dark #nationalGovMasthead *,
+html.dark #nationalGovMasthead * {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Modern Frosted Header Bar */
+body.theme-dark header,
+html.dark header,
+body.theme-dark .glass-header,
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.82) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+}
+
+/* Modern Sidebar */
+body.theme-dark aside,
+html.dark aside,
+body.theme-dark .sidebar-container,
+html.dark .sidebar-container {
+  background-color: rgba(11, 17, 32, 0.95) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Active Nav Button with Neon Indicator */
+body.theme-dark .sidebar-nav-btn.active,
+html.dark .sidebar-nav-btn.active,
+body.theme-dark .inspector-nav-btn.active,
+html.dark .inspector-nav-btn.active,
+body.theme-dark .officer-nav-btn.active,
+html.dark .officer-nav-btn.active {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.18) 0%, rgba(16, 185, 129, 0.04) 100%) !important;
+  border-left: 3px solid #10B981 !important;
+  color: #10B981 !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Dark Masthead Pill Dock */
+body.theme-dark .masthead-pill-dock,
+html.dark .masthead-pill-dock {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  backdrop-filter: blur(12px) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Monospace IST Live Clock Glow in Dark Mode */
+body.theme-dark .masthead-ist-clock,
+html.dark .masthead-ist-clock {
+  color: #34d399 !important;
+  text-shadow: 0 0 10px rgba(52, 211, 153, 0.45);
+}
+
+/* Dark Headings & Primary Text */
+body.theme-dark h1,
+body.theme-dark h2,
+body.theme-dark h3,
+body.theme-dark h4,
+body.theme-dark h5,
+body.theme-dark h6,
+body.theme-dark .text-slate-900,
+body.theme-dark .text-slate-800,
+body.theme-dark .text-gray-900,
+body.theme-dark .text-gray-800,
+body.theme-dark .text-\[\#0F172A\],
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-gray-900,
+html.dark .text-\[\#0F172A\] {
+  color: #f8fafc !important;
+}
+
+/* Dark Secondary & Body Text */
+body.theme-dark .text-slate-700,
+body.theme-dark .text-slate-600,
 body.theme-dark .text-slate-500,
-body.theme-dark .text-slate-400 {
+body.theme-dark .text-gray-600,
+body.theme-dark .text-gray-500,
+body.theme-dark .text-\[\#64748B\],
+html.dark .text-slate-700,
+html.dark .text-slate-600,
+html.dark .text-slate-500,
+html.dark .text-\[\#64748B\] {
   color: #94a3b8 !important;
 }
 
+body.theme-dark .text-slate-400,
+body.theme-dark .text-gray-400,
+html.dark .text-slate-400,
+html.dark .text-gray-400 {
+  color: #64748b !important;
+}
+
+/* Dark Borders */
 body.theme-dark .border-slate-200,
-body.theme-dark .border-slate-300 {
-  border-color: var(--gov-border) !important;
+body.theme-dark .border-slate-100,
+body.theme-dark .border-slate-300,
+body.theme-dark .border-gray-200,
+body.theme-dark .border-gray-100,
+body.theme-dark .border-\[\#E4E7EC\],
+body.theme-dark .border-\[\#E2E8F0\],
+html.dark .border-slate-200,
+html.dark .border-slate-100,
+html.dark .border-\[\#E4E7EC\],
+html.dark .border-\[\#E2E8F0\] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-body.theme-dark thead {
-  background-color: var(--gov-surface-elevated) !important;
+body.theme-dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+body.theme-dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-body.theme-dark aside {
-  background-color: #0b1120 !important;
-  border-color: #1f293d !important;
+/* Dark Form Controls with Focus Glow Beam */
+body.theme-dark input:not([type="checkbox"]):not([type="radio"]),
+body.theme-dark select,
+body.theme-dark textarea,
+body.theme-dark .ds-input,
+body.theme-dark .ds-select,
+body.theme-dark .ds-textarea,
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea,
+html.dark .ds-input,
+html.dark .ds-select,
+html.dark .ds-textarea {
+  background-color: rgba(17, 24, 39, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
-body.theme-dark header {
-  background-color: #0c1424 !important;
-  border-color: #1f293d !important;
+body.theme-dark select option,
+html.dark select option {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+}
+
+body.theme-dark input::placeholder,
+body.theme-dark textarea::placeholder,
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+body.theme-dark input:focus,
+body.theme-dark select:focus,
+body.theme-dark textarea:focus,
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25),
+              0 0 16px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Dark Tables & Grids with Interactive Leading Highlight */
+body.theme-dark thead,
+body.theme-dark th,
+body.theme-dark .ds-table-th,
+html.dark thead,
+html.dark th,
+html.dark .ds-table-th {
+  background-color: rgba(11, 17, 32, 0.9) !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.theme-dark td,
+body.theme-dark .ds-table-td,
+html.dark td,
+html.dark .ds-table-td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #cbd5e1 !important;
+}
+
+body.theme-dark tbody tr,
+html.dark tbody tr {
+  transition: background-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+body.theme-dark tbody tr:hover,
+html.dark tbody tr:hover,
+body.theme-dark .ds-table-row:hover,
+body.theme-dark #officerDocketTableBody tr:hover,
+html.dark #officerDocketTableBody tr:hover {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(30, 41, 59, 0.7) 100%) !important;
+  box-shadow: inset 3px 0 0 #10b981, 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Dark Floating Popovers & Modals (Linear Spring Entry) */
+body.theme-dark #sidebarUserDropdownMenu,
+body.theme-dark #userMenuPopover,
+body.theme-dark .sidebar-user-dropdown,
+body.theme-dark .user-menu-popover,
+body.theme-dark #userProfileModal > div,
+body.theme-dark .modal-content,
+html.dark #sidebarUserDropdownMenu,
+html.dark #userMenuPopover,
+html.dark .sidebar-user-dropdown,
+html.dark .user-menu-popover,
+html.dark #userProfileModal > div,
+html.dark .modal-content {
+  background: rgba(15, 23, 42, 0.94) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85),
+              0 0 0 1px rgba(255, 255, 255, 0.06),
+              0 0 35px rgba(16, 185, 129, 0.08) !important;
+  animation: modernMenuSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modernMenuSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+body.theme-dark #sidebarUserDropdownMenu button:hover,
+body.theme-dark #userMenuPopover button:hover,
+html.dark #sidebarUserDropdownMenu button:hover,
+html.dark #userMenuPopover button:hover {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+  color: #ffffff !important;
+}
+
+/* Primary Action Buttons with Emerald Glow */
+body.theme-dark .btn-primary,
+html.dark .btn-primary,
+body.theme-dark button[class*="bg-emerald-600"],
+html.dark button[class*="bg-emerald-600"],
+body.theme-dark button[class*="bg-[#10B981]"],
+html.dark button[class*="bg-[#10B981]"] {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.35),
+              0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+body.theme-dark .btn-primary:hover,
+html.dark .btn-primary:hover,
+body.theme-dark button[class*="bg-emerald-600"]:hover,
+html.dark button[class*="bg-emerald-600"]:hover {
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.5),
+              0 6px 14px -2px rgba(0, 0, 0, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+/* Dark Secondary Actions */
+body.theme-dark .btn-secondary,
+html.dark .btn-secondary {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+  transition: all 0.15s ease !important;
+}
+
+body.theme-dark .btn-secondary:hover,
+html.dark .btn-secondary:hover {
+  background-color: rgba(51, 65, 85, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+}
+
+/* Dark Inspector AI Extracted Fields Grid */
+body.theme-dark #reportExtractedFieldsGrid > div,
+html.dark #reportExtractedFieldsGrid > div {
+  background-color: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+  backdrop-filter: blur(12px) !important;
+  transition: all 0.18s ease !important;
+}
+
+body.theme-dark #reportExtractedFieldsGrid > div:hover,
+html.dark #reportExtractedFieldsGrid > div:hover {
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.6),
+              0 0 15px -2px rgba(16, 185, 129, 0.15) !important;
+  transform: translateY(-1.5px);
+}
+
+/* Luminous Dark Badges & Pills */
+body.theme-dark .badge-compliant,
+html.dark .badge-compliant,
+body.theme-dark .bg-emerald-50,
+html.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.15) !important;
+}
+
+body.theme-dark .bg-red-50,
+html.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.18) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.4) !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.15) !important;
+}
+
+body.theme-dark .bg-amber-50,
+html.dark .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.15) !important;
+}
+
+body.theme-dark .bg-blue-50,
+html.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.18) !important;
+  color: #60a5fa !important;
+  border: 1px solid rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.15) !important;
 }
 
 /* ==========================================================================
@@ -1140,7 +1757,8 @@ textarea:focus-visible {
   box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.4);
 }
 .btn-primary:active {
-  transform: translateY(0);
+  transform: scale(0.95);
+  transition-duration: 100ms;
 }
 
 .btn-secondary {
@@ -1290,75 +1908,19 @@ textarea:focus-visible {
   background-color: #F8FAFC;
 }
 
-/* Dark Theme Overrides for Core Surfaces */
-body.theme-dark .porcelain-canvas {
-  background-color: #090D16 !important;
-  background-image: none !important;
-}
-body.theme-dark .bg-white {
-  background-color: #111827 !important;
-  color: #F8FAFC;
-}
-body.theme-dark .border-\[\#E4E7EC\],
-body.theme-dark .border-slate-200,
-body.theme-dark .border-slate-300 {
-  border-color: #1F293D !important;
-}
-body.theme-dark .text-\[\#0F172A\],
-body.theme-dark .text-slate-900 {
-  color: #F8FAFC !important;
-}
-body.theme-dark .text-\[\#64748B\],
-body.theme-dark .text-slate-500 {
-  color: #94A3B8 !important;
-}
-body.theme-dark .bg-\[\#F7F8FA\],
-body.theme-dark .bg-\[\#F8FAFC\],
-body.theme-dark .bg-slate-50 {
-  background-color: #0F172A !important;
-}
-body.theme-dark .ds-input,
-body.theme-dark .ds-select,
-body.theme-dark .ds-textarea {
-  background-color: #0F172A !important;
-  border-color: #1F293D !important;
-  color: #F8FAFC !important;
-}
-body.theme-dark .btn-secondary {
-  background-color: #1E293B !important;
-  border-color: #334155 !important;
-  color: #F8FAFC !important;
-}
-body.theme-dark .ds-table-container {
-  background-color: #111827 !important;
-  border-color: #1F293D !important;
-}
-body.theme-dark .ds-table-th {
-  background-color: #0F172A !important;
-  color: #94A3B8 !important;
-  border-bottom-color: #1F293D !important;
-}
-body.theme-dark .ds-table-td {
-  border-bottom-color: #162033 !important;
-  color: #CBD5E1 !important;
-}
-body.theme-dark .ds-table-row:hover {
-  background-color: #1E293B !important;
-}
-
 /* Inspector 2-Column AI Results Field Grid */
 #reportExtractedFieldsGrid > div {
-  background-color: #FFFFFF !important;
-  border: 1px solid #E4E7EC !important;
-  border-radius: 0.75rem !important;
-  padding: 1rem !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  background-color: #FFFFFF;
+  border: 1px solid #E4E7EC;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
 #reportExtractedFieldsGrid > div:hover {
-  border-color: #CBD5E1 !important;
-  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06) !important;
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
 }
 
 /* Green Check Pills for Detected Declarations */

@@ -9,6 +9,20 @@
   <script src="js/auth.js"></script>
   <script>checkLogin("inspector");</script>
 
+  <!-- Prevent theme flicker / white flash on initial load -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('elmcep_theme') === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+        if (localStorage.getItem('elmcep_high_contrast') === 'true') {
+          document.documentElement.classList.add('gov-high-contrast');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Google Font: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -75,7 +89,7 @@
        ========================================================================= -->
   <div class="tricolor-strip"></div>
 
-  <header id="nationalGovMasthead" class="w-full bg-white/85 backdrop-blur-md border-b border-[#E4E7EC] z-30 flex-shrink-0 select-none text-[#0F172A]">
+  <header id="nationalGovMasthead" class="w-full bg-white/85 backdrop-blur-md border-b border-[#E4E7EC] z-30 flex-shrink-0 select-none text-[#0F172A] glass-header">
     <div class="w-full px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3">
       
       <!-- Left: Sovereign Emblem & Bilingual Hierarchy -->
@@ -257,57 +271,55 @@
     </div>
 
     <!-- Pinned Bottom User Profile Widget: margin-top: auto with 24px (1.5rem) bottom gap -->
-    <div class="sidebar-footer-pinned mt-auto pt-4 px-3 pb-6 border-t border-slate-200 relative">
+    <div class="sidebar-footer-pinned mt-auto pt-2.5 border-t border-slate-200/90 relative">
       <!-- Expandable User Menu Dropdown (Linear / Shadcn UI Floating Popover) -->
-      <div id="sidebarUserDropdownMenu" class="sidebar-user-dropdown hidden absolute bottom-full mb-2 left-3 right-3 bg-white border border-gray-200 rounded-lg shadow-lg p-1 z-50 transition-all">
-        <div class="px-2.5 py-2 border-b border-gray-100 mb-1">
-          <p class="text-xs font-semibold text-gray-900 truncate">Field Inspector</p>
-          <p class="text-[10px] text-gray-500 truncate font-mono">inspector.north@metrology.gov.in</p>
+      <div id="sidebarUserDropdownMenu" class="sidebar-user-dropdown hidden absolute bottom-full mb-2 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-xl p-1.5 z-50 transition-all text-slate-800 divide-y divide-slate-100">
+        <div class="px-2.5 py-2">
+          <p class="text-xs font-bold text-slate-900 truncate">Field Inspector</p>
+          <p class="text-[10px] text-slate-500 truncate font-mono">inspector.north@metrology.gov.in</p>
         </div>
-        <button type="button" onclick="openUserProfileModal(); toggleSidebarUserMenu(false);" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition text-left cursor-pointer">
-          <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-          <span>Account Settings</span>
-        </button>
-        <button type="button" onclick="govToggleTheme(); toggleSidebarUserMenu(false);" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition text-left cursor-pointer">
-          <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-          <span>Toggle Theme</span>
-        </button>
-        <div class="h-[1px] bg-gray-100 my-1"></div>
-        <button type="button" onclick="logout()" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition text-left cursor-pointer">
-          <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-          <span>Sign Out</span>
-        </button>
+        <div class="py-1 space-y-0.5">
+          <button type="button" onclick="openUserProfileModal(); toggleSidebarUserMenu(false);" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition text-left cursor-pointer">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <span>Account Settings</span>
+          </button>
+          <button type="button" onclick="govToggleTheme(); toggleSidebarUserMenu(false);" class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition text-left cursor-pointer">
+            <div class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+              <span>Dark Mode</span>
+            </div>
+            <div class="theme-switch-pill w-7 h-4 bg-slate-200 dark:bg-emerald-500 rounded-full p-0.5 transition-colors duration-200 flex items-center flex-shrink-0">
+              <div class="theme-switch-thumb w-3 h-3 bg-white rounded-full shadow-xs transform transition-transform duration-200 translate-x-0 dark:translate-x-3"></div>
+            </div>
+          </button>
+        </div>
+        <div class="pt-1">
+          <button type="button" onclick="logout()" class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 transition text-left cursor-pointer group">
+            <div class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-red-500 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+              <span>Sign Out</span>
+            </div>
+            <span class="text-[9px] text-red-400 font-mono">ESC</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Dedicated Rounded Card Component: bg-slate-50 rounded-lg p-3 border border-slate-200 flex justify-between items-center -->
-      <div class="sidebar-profile-card bg-slate-50 rounded-lg p-3 border border-slate-200 flex justify-between items-center gap-2 shadow-xs group">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <!-- Avatar: Circle badge with high-contrast text (bg-teal-600 text-white font-bold w-9 h-9 rounded-full flex items-center justify-center) -->
-          <div class="bg-teal-600 text-white font-bold w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm shadow-xs relative">
+      <!-- Compact Avatar Trigger Card with Tooltip -->
+      <button type="button" id="sidebarUserTriggerBtn" onclick="toggleSidebarUserMenu()" title="Field Inspector • DL-04 (Click for account actions)" aria-label="Field Inspector profile actions" class="w-full flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-200/60 border border-transparent hover:border-slate-200 transition-all duration-150 group cursor-pointer text-left focus:outline-none focus:ring-1 focus:ring-emerald-500/40">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-7 h-7 rounded-full bg-teal-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 relative shadow-xs ring-1 ring-teal-500/30">
             <span class="user-menu-avatar-letter">I</span>
-            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-white"></span>
+            <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-white"></span>
           </div>
-          <!-- Typography: Username text color #0F172A font-semibold (600), secondary role text #64748B text-xs -->
           <div class="min-w-0 flex-1 sidebar-hide-on-collapse">
-            <p id="sidebarUserName" class="user-menu-display-name text-[#0F172A] font-semibold text-xs leading-tight truncate">Field Inspector</p>
-            <p class="sidebar-user-role text-[#64748B] text-xs font-medium leading-tight truncate mt-0.5">Inspector • DL-04</p>
+            <p id="sidebarUserName" class="user-menu-display-name text-xs font-semibold text-slate-800 leading-tight truncate">Field Inspector</p>
+            <p class="text-[10px] text-slate-500 font-medium truncate leading-tight uppercase font-mono">Inspector • DL-04</p>
           </div>
         </div>
-
-        <!-- Actions & Dropdown: 3-dot action button (...) & logout icon button aligned to far right inside profile card -->
-        <div class="flex items-center gap-1 flex-shrink-0 sidebar-hide-on-collapse">
-          <button type="button" id="sidebarUserTriggerBtn" onclick="toggleSidebarUserMenu()" class="p-1.5 rounded-md text-slate-400 hover:text-[#0F172A] hover:bg-slate-200/70 transition cursor-pointer" title="Options" aria-label="Options">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-            </svg>
-          </button>
-          <button type="button" onclick="logout()" class="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer" title="Sign Out" aria-label="Sign Out">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-          </button>
-        </div>
-      </div>
+        <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 sidebar-hide-on-collapse flex-shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+        </svg>
+      </button>
     </div>
   </aside>
 
@@ -315,7 +327,7 @@
   <div class="flex-1 flex flex-col min-w-0">
     
     <!-- Top Header Bar -->
-    <header class="bg-white border-b border-[#E4E7EC] px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-20 shadow-xs">
+    <header class="bg-white border-b border-[#E4E7EC] px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-20 shadow-xs glass-header">
       <div class="flex items-center gap-3">
         <button type="button" onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-lg hover:bg-slate-100 text-[#0F172A] border border-[#E4E7EC]" title="Toggle Navigation">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -324,7 +336,7 @@
           <div class="text-[11px] font-medium text-[#64748B] flex items-center gap-1">
             <span>INSPECTOR</span> <span class="mx-1 text-[#CBD5E1]">&gt;</span> <span id="currentViewBreadcrumb" class="text-[#0F172A] font-semibold">Dashboard</span>
           </div>
-          <h2 id="currentViewHeaderTitle" class="text-sm font-semibold text-[#0F172A] leading-tight">Daily Inspection Overview</h2>
+          <h2 id="currentViewHeaderTitle" class="text-sm font-semibold text-[#0F172A] leading-tight tracking-tight">Daily Inspection Overview</h2>
         </div>
       </div>
 
@@ -335,7 +347,7 @@
           <span>AI Engine Ready</span>
         </div>
 
-        <button type="button" id="headerQuickOcrBtn" onclick="switchInspectorTab('ocr')" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-semibold rounded-lg shadow-sm transition duration-150 cursor-pointer">
+        <button type="button" id="headerQuickOcrBtn" onclick="switchInspectorTab('ocr')" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-semibold rounded-lg shadow-sm transition duration-150 cursor-pointer active:scale-95 transition-transform duration-100">
           <span>⚡ Live AI OCR</span>
         </button>
 
@@ -485,41 +497,55 @@
               </button>
 
               <!-- 3. Field Inspection Records -->
-              <button type="button" onclick="switchInspectorTab('history'); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all text-left group">
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button type="button" onclick="switchInspectorTab('history'); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all text-left group">
+                <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                 </svg>
                 <div class="flex-1 min-w-0">
-                  <p class="font-semibold text-slate-200 group-hover:text-white leading-tight">Inspection History</p>
-                  <p class="text-[10.5px] text-slate-400 leading-tight">Past label audits & case dossiers</p>
+                  <p class="font-semibold text-slate-800 group-hover:text-slate-900 leading-tight">Inspection History</p>
+                  <p class="text-[10.5px] text-slate-500 leading-tight">Past label audits & case dossiers</p>
                 </div>
-                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
               </button>
 
-              <!-- 4. High-Contrast Accessibility Mode -->
-              <button type="button" onclick="govToggleHighContrast(); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all text-left group">
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-purple-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <!-- 4. Executive Dark Mode -->
+              <button type="button" onclick="govToggleTheme(); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all text-left group cursor-pointer">
+                <svg class="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                </svg>
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-slate-800 group-hover:text-slate-900 leading-tight">Executive Dark Mode</p>
+                  <p class="text-[10.5px] text-slate-500 leading-tight">Switch Obsidian / Sovereign Light</p>
+                </div>
+                <div class="theme-switch-pill w-8 h-4.5 bg-slate-200 dark:bg-emerald-500 rounded-full p-0.5 transition-colors duration-200 flex items-center flex-shrink-0">
+                  <div class="theme-switch-thumb w-3.5 h-3.5 bg-white rounded-full shadow-xs transform transition-transform duration-200 translate-x-0 dark:translate-x-3.5"></div>
+                </div>
+              </button>
+
+              <!-- 5. High-Contrast Accessibility Mode -->
+              <button type="button" onclick="govToggleHighContrast(); toggleUserMenu();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all text-left group cursor-pointer">
+                <svg class="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
                 </svg>
                 <div class="flex-1 min-w-0">
-                  <p class="font-semibold text-slate-200 group-hover:text-white leading-tight">High Contrast Mode</p>
-                  <p class="text-[10.5px] text-slate-400 leading-tight">GIGW AA Contrast View</p>
+                  <p class="font-semibold text-slate-800 group-hover:text-slate-900 leading-tight">High Contrast Mode</p>
+                  <p class="text-[10.5px] text-slate-500 leading-tight">GIGW AA Contrast View</p>
                 </div>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">🌓 Toggle</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">🌓 Toggle</span>
               </button>
             </div>
 
             <!-- Popover Footer: Sign Out with clean line icon -->
             <div class="p-1.5">
-              <button type="button" onclick="logout()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-red-400 hover:text-red-200 hover:bg-red-500/15 transition-all text-left group">
-                <svg class="w-4 h-4 text-red-400 group-hover:text-red-300 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button type="button" onclick="logout()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 transition-all text-left group">
+                <svg class="w-4 h-4 text-red-500 group-hover:text-red-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
                 <div class="flex-1 min-w-0">
-                  <p class="font-bold text-red-400 group-hover:text-red-300 leading-tight">Sign Out</p>
-                  <p class="text-[10px] text-red-400/70 leading-tight">Safely terminate active session</p>
+                  <p class="font-bold text-red-600 group-hover:text-red-700 leading-tight">Sign Out</p>
+                  <p class="text-[10px] text-red-500/80 leading-tight">Safely terminate active session</p>
                 </div>
-                <span class="text-[10px] text-red-400 font-mono">ESC</span>
+                <span class="text-[10px] text-red-500 font-mono">ESC</span>
               </button>
             </div>
 
@@ -549,7 +575,7 @@
               Capture or upload packaged commodity labels for instant Rule 6 statutory declaration extraction, Net Quantity tolerance checks, and automated docket routing.
             </p>
           </div>
-          <button type="button" onclick="switchInspectorTab('ocr')" class="btn-ai-scan px-6 py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2.5 shadow-md cursor-pointer self-start md:self-auto shrink-0 transition group">
+          <button type="button" onclick="switchInspectorTab('ocr')" class="btn-ai-scan px-6 py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2.5 shadow-md cursor-pointer self-start md:self-auto shrink-0 transition group active:scale-95 transition-transform duration-100">
             <span>📸 Launch AI Scanner</span>
             <span class="transition-transform group-hover:translate-x-1">➔</span>
           </button>
@@ -558,48 +584,48 @@
         <!-- 4 Modern Dynamic KPI Cards (gap-4) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Total Scans -->
-          <div class="kpi-card" style="--kpi-accent: #64748B;">
+          <div class="kpi-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" style="--kpi-accent: #64748B;">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Total Scans</span>
               <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-semibold shadow-xs">📦</span>
             </div>
-            <h2 id="statTotalScans" class="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight mt-2.5">0</h2>
+            <h2 id="statTotalScans" class="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight tabular-nums mt-2.5">0</h2>
             <p class="text-[11px] text-[#64748B] mt-1 font-medium flex items-center gap-1">
               <span class="text-slate-400">●</span> All logged inspections
             </p>
           </div>
 
           <!-- Compliant -->
-          <div class="kpi-card" style="--kpi-accent: #10B981;">
+          <div class="kpi-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" style="--kpi-accent: #10B981;">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Compliant</span>
               <span class="w-8 h-8 rounded-lg bg-emerald-50 text-[#10B981] border border-emerald-200/80 flex items-center justify-center text-sm font-bold shadow-xs">✓</span>
             </div>
-            <h2 id="statCompliant" class="text-3xl sm:text-4xl font-extrabold text-[#10B981] tracking-tight mt-2.5">0</h2>
+            <h2 id="statCompliant" class="text-3xl sm:text-4xl font-extrabold text-[#10B981] tracking-tight tabular-nums mt-2.5">0</h2>
             <p class="text-[11px] text-emerald-600 mt-1 font-semibold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Zero rule defects
             </p>
           </div>
 
           <!-- Violations -->
-          <div class="kpi-card" style="--kpi-accent: #EF4444;">
+          <div class="kpi-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" style="--kpi-accent: #EF4444;">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Violations</span>
               <span class="w-8 h-8 rounded-lg bg-red-50 text-[#EF4444] border border-red-200/80 flex items-center justify-center text-sm font-bold shadow-xs">✕</span>
             </div>
-            <h2 id="statViolations" class="text-3xl sm:text-4xl font-extrabold text-[#EF4444] tracking-tight mt-2.5">0</h2>
+            <h2 id="statViolations" class="text-3xl sm:text-4xl font-extrabold text-[#EF4444] tracking-tight tabular-nums mt-2.5">0</h2>
             <p class="text-[11px] text-red-600 mt-1 font-semibold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Non-compliant packages
             </p>
           </div>
 
           <!-- Pending Review -->
-          <div class="kpi-card" style="--kpi-accent: #F59E0B;">
+          <div class="kpi-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" style="--kpi-accent: #F59E0B;">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Pending</span>
               <span class="w-8 h-8 rounded-lg bg-amber-50 text-[#F59E0B] border border-amber-200/80 flex items-center justify-center text-sm font-bold shadow-xs">⏳</span>
             </div>
-            <h2 id="statPending" class="text-3xl sm:text-4xl font-extrabold text-[#F59E0B] tracking-tight mt-2.5">0</h2>
+            <h2 id="statPending" class="text-3xl sm:text-4xl font-extrabold text-[#F59E0B] tracking-tight tabular-nums mt-2.5">0</h2>
             <p class="text-[11px] text-amber-600 mt-1 font-semibold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Awaiting legal docket
             </p>
@@ -607,11 +633,11 @@
         </div>
 
         <!-- Recent Inspections Live Feed -->
-        <div class="modern-card bg-white rounded-2xl border border-[#E4E7EC] shadow-xs overflow-hidden">
+        <div class="modern-card bg-white rounded-2xl border border-[#E4E7EC] shadow-xs overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <div class="px-5 py-4 border-b border-[#E4E7EC] flex items-center justify-between">
             <div>
               <h3 class="font-semibold text-[#0F172A] text-sm">Today's Inspection Log</h3>
-              <p class="text-xs text-[#64748B]">Live feed of package compliance verification records</p>
+              <p class="uppercase tracking-wider text-xs font-semibold text-[#64748B] mt-0.5">Live feed of package compliance verification records</p>
             </div>
             <button onclick="switchInspectorTab('inspections')" class="text-xs font-semibold text-[#10B981] hover:text-[#059669] hover:underline cursor-pointer">
               View All Inspections →
@@ -637,15 +663,19 @@
 
             <!-- Empty State -->
             <div id="emptyStateBanner" class="hidden p-8 text-center bg-slate-50/50 rounded-xl border border-dashed border-[#E4E7EC] m-4">
-              <div class="w-12 h-12 rounded-xl bg-slate-100 text-[#64748B] flex items-center justify-center text-xl mx-auto mb-3 shadow-xs">
-                📦
-              </div>
-              <h4 class="text-sm font-semibold text-[#0F172A]">No inspections recorded yet</h4>
-              <p class="text-xs text-[#64748B] mt-1 max-w-sm mx-auto">All logged inspections are up to date. Start a live dual-panel AI scan or manual entry to log your first inspection.</p>
-              <div class="mt-4 flex items-center justify-center gap-2">
-                <button type="button" onclick="switchInspectorTab('ocr')" class="btn-primary text-xs flex items-center gap-1.5">
-                  <span>📸</span> <span>Start New Scan</span>
-                </button>
+              <div class="flex flex-col items-center justify-center text-center">
+                <div class="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 mb-3 shadow-xs">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <h4 class="text-sm font-bold text-[#0F172A]">No records found</h4>
+                <p class="text-xs text-[#64748B] mt-1 max-w-sm mx-auto">All logged inspections are up to date. Start a live dual-panel AI scan or manual entry to log your first inspection.</p>
+                <div class="mt-4 flex items-center justify-center gap-2">
+                  <button type="button" onclick="switchInspectorTab('ocr')" class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center gap-1.5">
+                    <span>📸</span> <span>Start New Scan</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1002,7 +1032,7 @@
 
             <div class="flex items-center justify-between pt-3 border-t border-slate-100">
               <button type="reset" class="btn-secondary text-xs">Clear Fields</button>
-              <button type="submit" class="btn-primary text-xs flex items-center gap-2 shadow-sm">
+              <button type="submit" class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center gap-2 shadow-sm">
                 <span>✓</span> <span>Validate & Record Inspection</span>
               </button>
             </div>
@@ -1236,18 +1266,22 @@
 
         <!-- Empty State -->
         <div id="myInspectionsEmptyState" class="hidden bg-white rounded-2xl p-8 text-center border border-slate-200 shadow-sm">
-          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center text-xl mx-auto mb-3">
-            🔍
-          </div>
-          <h4 class="font-bold text-slate-800 text-sm">No inspections found</h4>
-          <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">No records match your active search or tab filter. Clear search terms or reset the filter view.</p>
-          <div class="mt-4 flex items-center justify-center gap-2">
-            <button type="button" onclick="resetMyInspectionsSearch()" class="btn-secondary text-xs flex items-center gap-1.5">
-              <span>🔄</span> <span>Show All Inspections</span>
-            </button>
-            <button type="button" onclick="switchInspectorTab('ocr')" class="btn-primary text-xs flex items-center gap-1.5">
-              <span>📸</span> <span>Start New Scan</span>
-            </button>
+          <div class="flex flex-col items-center justify-center text-center">
+            <div class="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 mb-3 shadow-xs">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <h4 class="font-bold text-[#0F172A] text-sm">No records found</h4>
+            <p class="text-xs text-[#64748B] mt-1 max-w-sm mx-auto">No records match your active search or tab filter. Clear search terms or reset the filter view.</p>
+            <div class="mt-4 flex items-center justify-center gap-2">
+              <button type="button" onclick="resetMyInspectionsSearch()" class="btn-secondary text-xs flex items-center gap-1.5">
+                <span>🔄</span> <span>Show All Inspections</span>
+              </button>
+              <button type="button" onclick="switchInspectorTab('ocr')" class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center gap-1.5">
+                <span>📸</span> <span>Start New Scan</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1596,7 +1630,7 @@
             </div>
 
             <div class="flex justify-end pt-1">
-              <button type="submit" class="btn-primary text-xs flex items-center gap-2 shadow-sm">
+              <button type="submit" class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center gap-2 shadow-sm">
                 <span>✉️</span> <span>Dispatch Helpdesk Ticket</span>
               </button>
             </div>
@@ -1644,7 +1678,7 @@
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
         <button type="button" onclick="closeInspectorDetailModal()" class="btn-secondary text-xs">Close</button>
-        <button type="button" id="modalDownloadPdfBtn" class="btn-primary text-xs">Download PDF</button>
+        <button type="button" id="modalDownloadPdfBtn" class="btn-primary active:scale-95 transition-transform duration-100 text-xs">Download PDF</button>
       </div>
     </div>
   </div>
@@ -1694,7 +1728,7 @@
           <input type="checkbox" id="dontShowOnboardingAgain" class="rounded text-emerald-500">
           <span>Don't show automatically</span>
         </label>
-        <button type="button" onclick="closeInspectorWalkthroughModal()" class="btn-primary text-xs">Got it!</button>
+        <button type="button" onclick="closeInspectorWalkthroughModal()" class="btn-primary active:scale-95 transition-transform duration-100 text-xs">Got it!</button>
       </div>
     </div>
   </div>
