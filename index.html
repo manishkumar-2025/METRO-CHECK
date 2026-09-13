@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>METRO-CHECK | Legal Metrology Compliance Verification System</title>
-  
+
   <!-- 1. Google Font: Inter (Lightweight, Modern & Accessible) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
   <!-- Prevent theme flicker / white flash on initial load -->
   <script>
     (function () {
@@ -20,7 +22,7 @@
         if (localStorage.getItem('elmcep_high_contrast') === 'true') {
           document.documentElement.classList.add('gov-high-contrast');
         }
-      } catch (e) {}
+      } catch (e) { }
     })();
   </script>
 
@@ -67,14 +69,18 @@
     }
   </script>
 
-  
+
   <!-- 3. Custom Stylesheet (Design Tokens, Animations, Utilities) -->
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-[#F7F8FA] min-h-screen flex flex-col justify-between text-[#64748B] font-sans antialiased text-sm porcelain-canvas" data-theme-tokens="bg-[#090d16] backdrop-blur-2xl from-amber-500 via-amber-600 to-amber-700">
+
+<body
+  class="bg-[#F7F8FA] min-h-screen flex flex-col justify-between text-[#64748B] font-sans antialiased text-sm porcelain-canvas"
+  data-theme-tokens="bg-[#090d16] backdrop-blur-2xl from-amber-500 via-amber-600 to-amber-700">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
-  <a href="#mainContent" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#10B981] focus:text-white focus:rounded-lg focus:shadow-lg focus:font-semibold focus:outline-none focus:ring-2 focus:ring-[#059669] text-xs">
+  <a href="#mainContent"
+    class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#10B981] focus:text-white focus:rounded-lg focus:shadow-lg focus:font-semibold focus:outline-none focus:ring-2 focus:ring-[#059669] text-xs">
     Skip to Main Content / मुख्य सामग्री पर जाएं
   </a>
 
@@ -85,16 +91,17 @@
        ========================================================================= -->
   <div class="tricolor-strip"></div>
 
-  <header id="nationalGovMasthead" class="w-full bg-white/85 backdrop-blur-md border-b border-[#E4E7EC] z-30 flex-shrink-0 select-none text-[#0F172A] glass-header">
+  <header id="nationalGovMasthead"
+    class="w-full bg-white/85 backdrop-blur-md border-b border-[#E4E7EC] z-30 flex-shrink-0 select-none text-[#0F172A] glass-header">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
-      
+
       <!-- Left: Sovereign Emblem & Bilingual Navy Ministry Text -->
       <div class="flex items-center gap-3 min-w-0">
         <!-- Official State Emblem of India (Ashoka Lion Capital) -->
-        <a href="index.html" class="flex-shrink-0 flex items-center justify-center focus:outline-none group" title="Government of India • State Emblem of India • सत्यमेव जयते">
-          <img src="logo/header-logo-emblem.png" 
-               alt="State Emblem of India" 
-               class="h-9 sm:h-11 w-auto object-contain select-none drop-shadow-xs transition-transform group-hover:scale-105" />
+        <a href="index.html" class="flex-shrink-0 flex items-center justify-center focus:outline-none group"
+          title="Government of India • State Emblem of India • सत्यमेव जयते">
+          <img src="logo/header-logo-emblem.png" alt="State Emblem of India"
+            class="h-9 sm:h-11 w-auto object-contain select-none drop-shadow-xs transition-transform group-hover:scale-105" />
           <span class="sr-only">सत्यमेव जयते / State Emblem of India</span>
           <span id="emblemGoldLight" class="hidden"></span>
         </a>
@@ -106,58 +113,79 @@
           <div class="text-[12px] sm:text-[13.5px] font-semibold leading-tight tracking-tight text-[#0F172A]">
             उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय
           </div>
-          <div class="text-[10.5px] sm:text-xs font-normal leading-tight mt-0.5 text-[#64748B] flex flex-wrap items-center gap-x-2">
+          <div
+            class="text-[10.5px] sm:text-xs font-normal leading-tight mt-0.5 text-[#64748B] flex flex-wrap items-center gap-x-2">
             <span class="font-medium text-[#0F172A]">Ministry of Consumer Affairs, Food & Public Distribution</span>
-            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">e-LMCEP</span>
-            <span class="text-[#64748B] hidden lg:inline">(e-Legal Metrology Compliance & Enforcement Portal / METRO-CHECK)</span>
+            <span
+              class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">e-LMCEP</span>
+            <span class="text-[#64748B] hidden lg:inline">(e-Legal Metrology Compliance & Enforcement Portal /
+              METRO-CHECK)</span>
           </div>
         </div>
       </div>
 
       <!-- Right: Live Clock & Accessible Dock -->
       <div class="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
-        
-        <!-- Live IST Clock Ticker -->
-        <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-[#E4E7EC] text-[#0F172A] font-mono text-[10px] sm:text-[11px] font-semibold shadow-xs">
-          <span class="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
-          <span class="masthead-ist-clock tracking-tight">-- --- ---- | --:--:-- IST</span>
-        </div>
 
-        <!-- Accessibility Pill Dock -->
-        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white border border-[#E4E7EC] shadow-xs">
-          <!-- Font Sizer -->
-          <div class="flex items-center text-[10px] font-semibold rounded-full overflow-hidden p-0.5">
-            <button type="button" onclick="govChangeFontSize('decrease')" id="fontSizer-decrease" title="Decrease Font (A-)" class="px-1.5 py-0.5 rounded hover:bg-slate-100 text-[#0F172A] transition opacity-60">A-</button>
-            <button type="button" onclick="govChangeFontSize('normal')" id="fontSizer-normal" title="Normal Font (A)" class="px-1.5 py-0.5 rounded bg-[#10B981] text-white shadow-xs transition">A</button>
-            <button type="button" onclick="govChangeFontSize('increase')" id="fontSizer-increase" title="Increase Font (A+)" class="px-1.5 py-0.5 rounded hover:bg-slate-100 text-[#0F172A] transition opacity-60">A+</button>
-          </div>
+        <!-- Unified Header Utility Dock (Single Uniform Container: bg-slate-50 & border-slate-200) -->
+        <div
+          class="flex items-center gap-2.5 px-3 py-1 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 shadow-xs">
+          <!-- Live IST Clock Ticker -->
+          <span
+            class="hidden sm:inline-block masthead-ist-clock font-mono text-[10px] sm:text-[11px] font-semibold tracking-tight text-slate-600 dark:text-slate-300">--
+            --- ---- | --:--:-- IST</span>
 
-          <div class="w-[1px] h-3 bg-[#E4E7EC]"></div>
+          <div class="hidden sm:block w-[1px] h-3.5 bg-slate-200 dark:bg-slate-700"></div>
 
-          <!-- High-Contrast Toggle -->
-          <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn" title="Toggle High-Contrast Mode" class="p-1 rounded-full hover:bg-slate-100 text-xs transition text-[#0F172A] cursor-pointer">
-            🌓
-          </button>
+          <!-- Accessibility Controls -->
+          <div class="flex items-center gap-1.5">
+            <!-- Font Sizer -->
+            <div class="flex items-center text-[10px] font-semibold rounded-full overflow-hidden p-0.5">
+              <button type="button" onclick="govChangeFontSize('decrease')" id="fontSizer-decrease"
+                title="Decrease Font (A-)"
+                class="px-1.5 py-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition opacity-80">A-</button>
+              <button type="button" onclick="govChangeFontSize('normal')" id="fontSizer-normal" title="Normal Font (A)"
+                class="px-1.5 py-0.5 rounded bg-[#10B981] text-white shadow-xs transition">A</button>
+              <button type="button" onclick="govChangeFontSize('increase')" id="fontSizer-increase"
+                title="Increase Font (A+)"
+                class="px-1.5 py-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition opacity-80">A+</button>
+            </div>
 
-          <div class="w-[1px] h-3 bg-[#E4E7EC]"></div>
+            <div class="w-[1px] h-3 bg-slate-200 dark:bg-slate-700"></div>
 
-          <!-- Theme Toggle (Executive Light / Dark) -->
-          <button type="button" onclick="govToggleTheme()" id="govThemeToggleBtn" title="Switch Theme (Light / Dark)" class="p-1 rounded-full hover:bg-slate-100 text-xs transition text-[#0F172A] cursor-pointer">
-            🌙
-          </button>
+            <!-- High-Contrast Toggle -->
+            <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn"
+              title="Toggle High-Contrast Mode"
+              class="p-1 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700 text-xs transition text-slate-700 dark:text-slate-300 cursor-pointer">
+              🌓
+            </button>
 
-          <div class="w-[1px] h-3 bg-[#E4E7EC]"></div>
+            <div class="w-[1px] h-3 bg-slate-200 dark:bg-slate-700"></div>
 
-          <!-- Language Toggle -->
-          <div class="flex items-center text-[9.5px] font-semibold rounded-full overflow-hidden p-0.5">
-            <button type="button" onclick="govSetLanguage('en')" id="govLangEn" class="px-1.5 py-0.5 rounded bg-[#10B981] text-white transition shadow-xs">EN</button>
-            <button type="button" onclick="govSetLanguage('hi')" id="govLangHi" class="px-1.5 py-0.5 rounded hover:bg-slate-100 text-[#0F172A] transition opacity-60">हि</button>
+            <!-- Theme Toggle (Executive Light / Dark) -->
+            <button type="button" onclick="govToggleTheme()" id="govThemeToggleBtn" title="Switch Theme (Light / Dark)"
+              class="p-1 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700 text-xs transition text-slate-700 dark:text-slate-300 cursor-pointer">
+              🌙
+            </button>
+
+            <div class="w-[1px] h-3 bg-slate-200 dark:bg-slate-700"></div>
+
+            <!-- Language Toggle -->
+            <div class="flex items-center text-[9.5px] font-semibold rounded-full overflow-hidden p-0.5">
+              <button type="button" onclick="govSetLanguage('en')" id="govLangEn"
+                class="px-1.5 py-0.5 rounded bg-[#10B981] text-white transition shadow-xs">EN</button>
+              <button type="button" onclick="govSetLanguage('hi')" id="govLangHi"
+                class="px-1.5 py-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition opacity-80">हि</button>
+            </div>
           </div>
         </div>
 
         <!-- Digital India Logo Link -->
-        <a href="https://www.digitalindia.gov.in" target="_blank" rel="noopener noreferrer" title="Digital India - Power to Empower | Government of India" class="hidden sm:flex items-center hover:opacity-85 transition group">
-          <img src="logo/digital-india.png" alt="Digital India Logo" class="h-8 sm:h-9 w-auto object-contain select-none transition-transform group-hover:scale-105" />
+        <a href="https://www.digitalindia.gov.in" target="_blank" rel="noopener noreferrer"
+          title="Digital India - Power to Empower | Government of India"
+          class="hidden sm:flex items-center hover:opacity-85 transition group">
+          <img src="logo/digital-india.png" alt="Digital India Logo"
+            class="h-8 sm:h-9 w-auto object-contain select-none transition-transform group-hover:scale-105" />
         </a>
 
       </div>
@@ -168,422 +196,785 @@
   <!-- =========================================================================
        2. MAIN CONTENT: CENTERED WHITE ROUNDED-2XL CARD WITH SOFT SHADOW
        ========================================================================= -->
-  <main id="mainContent" class="w-full max-w-md mx-auto flex flex-col items-center justify-center flex-1 px-4 py-8 sm:py-12 my-auto">
+  <!-- =========================================================================
+       2. MAIN CONTENT: 2-COLUMN LAYOUT (PROJECT SHOWCASE LEFT + LOGIN & SIH CONSOLE RIGHT)
+       ========================================================================= -->
+  <main id="mainContent"
+    class="w-full max-w-7xl mx-auto flex-1 px-4 sm:px-6 py-6 sm:py-10 my-auto flex flex-col justify-center">
 
-    <div class="w-full bg-white rounded-2xl border border-[#E4E7EC] p-7 sm:p-8 shadow-[0_20px_45px_-12px_rgba(15,23,42,0.08),0_1px_3px_rgba(15,23,42,0.04)] text-[#0F172A] transition-all">
-      
-      <!-- Brand & Title Section -->
-      <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-50 text-[#10B981] border border-emerald-100 mb-3 shadow-xs">
-          <span class="text-2xl">⚖️</span>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- LEFT COLUMN: STREAMLINED PORTAL OVERVIEW -->
+      <div class="lg:col-span-7 space-y-6 text-[#0F172A]">
+
+        <!-- Authority Header Tag -->
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Department of Consumer Affairs • Legal Metrology Division</span>
         </div>
-        <h1 class="text-2xl font-semibold text-[#0F172A] tracking-tight">METRO-CHECK</h1>
-        <p class="text-xs font-semibold text-[#10B981] uppercase tracking-wider mt-1">Legal Metrology Compliance & Enforcement</p>
-        <p class="text-xs text-[#64748B] mt-1.5">Sign in to access your statutory compliance verification portal</p>
+
+        <!-- Portal Title & Subtitle -->
+        <div class="space-y-2">
+          <h1
+            class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+            e-Legal Metrology Compliance & Enforcement Portal
+          </h1>
+          <p class="text-base font-semibold text-emerald-700 dark:text-emerald-400">
+            METRO-CHECK National Digital Inspection System
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+            A centralized statutory verification platform built for India's Legal Metrology Division:
+          </p>
+          <ul class="space-y-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
+              <span>Standardizes optical label inspection & penalty compounding.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
+              <span>Enforces PCR 2011 rules across all 6 Zonal Jurisdictions.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
+              <span>Multi-tier adjudication from Field Inspector to National Admin.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Brand SVG Vector Graphic Card -->
+        <div
+          class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+          <div class="flex items-start gap-4">
+            <!-- Custom Legal Metrology Scale SVG Icon -->
+            <div
+              class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                  d="M3 6l9-3 9 3m-9-3v18m-7-6a4 4 0 008 0m-8 0h8m2 0a4 4 0 008 0m-8 0h8" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">National Compliance & Enforcement Mandate
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Empowering Metrology Inspectors and Officers to audit mandatory declarations (MRP, Net Weight, Mfg Date,
+                Country of Origin, Customer Care) and issue Form-V seizure receipts in real time.
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Want to explore all platform
+              capabilities?</span>
+            <a href="features.html"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white hover:bg-emerald-50 dark:bg-slate-900 dark:hover:bg-emerald-950/50 text-xs font-semibold shadow-xs hover:shadow-sm active:scale-95 transition-all duration-150 cursor-pointer"
+              style="border: 1px solid #10B981; color: #10B981;">
+              <span>Explore Platform Features</span>
+              <span>→</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Official Access Control Footnote -->
+        <div
+          class="p-3.5 rounded-xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
+          <span>🏛️</span>
+          <span>Access strictly restricted to authorized Legal Metrology personnel of National and Zonal
+            jurisdictions.</span>
+        </div>
+
+        <!-- Key Highlights Row (Fills empty vertical space) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+          <div
+            class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 text-center shadow-xs">
+            <span class="text-xs">🛡️</span>
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">6 Zonal Jurisdictions</span>
+          </div>
+          <div
+            class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 text-center shadow-xs">
+            <span class="text-xs">⚡</span>
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">AI Scan &lt;3 Sec</span>
+          </div>
+          <div
+            class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 text-center shadow-xs">
+            <span class="text-xs">📄</span>
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">100% Paperless</span>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Authentication Form -->
-      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
-        
-        <!-- Error Message Alert -->
-        <div id="errorMessageContainer" class="overflow-hidden transition-all duration-300 max-h-0 opacity-0 pointer-events-none">
-          <div id="errorMessage" class="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium text-center shadow-xs flex items-center justify-center gap-2">
-            <span>⚠️</span>
-            <span id="errorMessageText">Invalid credentials</span>
-          </div>
-        </div>
+      <!-- RIGHT COLUMN: FOCUSED SIGN-IN CARD -->
+      <div class="lg:col-span-5 space-y-5">
 
-        <!-- Username Input Field -->
-        <div>
-          <label for="usernameInput" class="block text-xs font-semibold text-[#0F172A] mb-1.5 flex items-center justify-between">
-            <span>Officer ID / Username</span>
-            <span class="text-[11px] text-[#64748B] font-normal">Official Credentials</span>
-          </label>
-          <div class="relative">
-            <span class="absolute left-3.5 top-2.5 text-[#94A3B8] text-sm">👤</span>
-            <input 
-              type="text" 
-              id="usernameInput" 
-              placeholder="e.g. inspector, officer, or admin" 
-              required
-              class="ds-input pl-10 pr-3.5 py-2.5 text-sm w-full"
-            >
-          </div>
-        </div>
+        <!-- Authentication Form Card -->
+        <div
+          class="w-full bg-white dark:bg-slate-900 rounded-2xl border border-[#E4E7EC] dark:border-slate-800 p-6 sm:p-7 shadow-lg text-[#0F172A] dark:text-slate-100 transition-all">
 
-        <!-- Password Input Field -->
-        <div>
-          <label for="passwordInput" class="block text-xs font-semibold text-[#0F172A] mb-1.5 flex items-center justify-between">
-            <span>Password</span>
-            <span class="text-[11px] text-[#64748B] font-normal">Confidential</span>
-          </label>
-          <div class="relative">
-            <span class="absolute left-3.5 top-2.5 text-[#94A3B8] text-sm">🔒</span>
-            <input 
-              type="password" 
-              id="passwordInput" 
-              placeholder="••••••••" 
-              required
-              class="ds-input pl-10 pr-3.5 py-2.5 text-sm w-full"
-            >
-          </div>
-        </div>
-
-        <!-- Security CAPTCHA Verification -->
-        <div class="space-y-1.5 pt-0.5">
-          <div class="flex items-center justify-between text-xs font-semibold text-[#0F172A]">
-            <span class="flex items-center gap-1.5">
-              <span>🛡️</span> <span>Security Code / कैप्चा</span>
-            </span>
-            <span class="text-[11px] text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">Mandatory</span>
+          <!-- Brand & Title Section -->
+          <div class="text-center mb-5">
+            <div
+              class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 mb-2 shadow-xs">
+              <img src="logo/logo.png" alt="METRO-CHECK Logo" class="w-10 h-10 object-contain rounded-lg select-none" />
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">METRO-CHECK Sign In</h2>
+            <p class="text-xs text-[#64748B] dark:text-slate-400 mt-1">Department of Consumer Affairs • Statutory Portal
+            </p>
           </div>
 
-          <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 captcha-row-container">
-            <!-- Canvas CAPTCHA Image Container -->
-            <div class="relative bg-slate-50 rounded-lg border border-[#E4E7EC] p-0.5 flex items-center justify-center overflow-hidden shadow-xs flex-shrink-0 captcha-canvas-box" style="width: 140px; height: 40px;">
-              <canvas id="loginCaptchaCanvas" width="140" height="40" class="rounded select-none" aria-label="Security Verification CAPTCHA"></canvas>
+          <!-- Authentication Form -->
+          <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+
+            <!-- Error Message Alert -->
+            <div id="errorMessageContainer"
+              class="overflow-hidden transition-all duration-300 max-h-0 opacity-0 pointer-events-none">
+              <div id="errorMessage"
+                class="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium text-center shadow-xs flex items-center justify-center gap-2">
+                <span>⚠️</span>
+                <span id="errorMessageText">Invalid credentials</span>
+              </div>
             </div>
 
-            <!-- Action Controls: Refresh & Audio Voice -->
-            <div class="flex items-center gap-1">
-              <button 
-                type="button" 
-                onclick="refreshCaptcha('loginCaptchaCanvas', 'loginCaptchaInput', 'loginCaptchaError')" 
-                title="Refresh CAPTCHA (नया कोड प्राप्त करें)" 
-                class="p-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-[#64748B] hover:text-[#0F172A] border border-[#E4E7EC] transition touch-target"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-              </button>
-              <button 
-                type="button" 
-                onclick="speakCaptcha('loginCaptchaCanvas')" 
-                title="Audio Challenge (ध्वनि से सुनें)" 
-                class="p-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-[#64748B] hover:text-[#0F172A] border border-[#E4E7EC] transition touch-target"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
-              </button>
+            <!-- Username Input Field -->
+            <div>
+              <label for="usernameInput" class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1.5">
+                Officer ID / Username
+              </label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-2.5 text-[#94A3B8] text-sm">👤</span>
+                <input type="text" id="usernameInput" placeholder="e.g. inspector, officer, or admin" required
+                  class="ds-input pl-10 pr-3.5 py-2.5 text-sm w-full">
+              </div>
             </div>
 
-            <!-- CAPTCHA Input -->
-            <div class="flex-1 min-w-[120px] w-full sm:w-auto">
-              <input 
-                type="text" 
-                id="loginCaptchaInput" 
-                maxlength="6" 
-                autocomplete="off" 
-                placeholder="Enter Code" 
-                required 
-                class="w-full px-3 py-2.5 rounded-lg bg-white border border-[#E4E7EC] text-sm font-mono tracking-widest uppercase text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition duration-150 text-center font-bold"
-              >
+            <!-- Password Input Field -->
+            <div>
+              <label for="passwordInput" class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1.5">
+                Password
+              </label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-2.5 text-[#94A3B8] text-sm">🔒</span>
+                <input type="password" id="passwordInput" placeholder="••••••••" required
+                  class="ds-input pl-10 pr-3.5 py-2.5 text-sm w-full">
+              </div>
             </div>
+
+            <!-- Security CAPTCHA Verification -->
+            <div class="space-y-1.5 pt-0.5">
+              <div class="flex items-center justify-between text-xs font-semibold text-[#0F172A] dark:text-slate-200">
+                <span class="flex items-center gap-1.5">
+                  <span>🛡️</span> <span>Security Code / कैप्चा</span>
+                </span>
+              </div>
+
+              <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 captcha-row-container">
+                <!-- Canvas CAPTCHA Image Container -->
+                <div
+                  class="relative bg-slate-50 dark:bg-slate-800 rounded-lg border border-[#E2E8F0] dark:border-slate-700 p-0.5 flex items-center justify-center overflow-hidden shadow-xs flex-shrink-0 captcha-canvas-box"
+                  style="width: 140px; height: 42px; border: 1px solid #E2E8F0; border-radius: 8px;">
+                  <canvas id="loginCaptchaCanvas" width="140" height="40" class="rounded select-none"
+                    aria-label="Security Verification CAPTCHA"></canvas>
+                </div>
+
+                <!-- Action Controls: Refresh & Audio Voice -->
+                <div class="flex items-center gap-1">
+                  <button type="button"
+                    onclick="refreshCaptcha('loginCaptchaCanvas', 'loginCaptchaInput', 'loginCaptchaError')"
+                    title="Refresh CAPTCHA (नया कोड प्राप्त करें)"
+                    class="p-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#64748B] hover:text-[#0F172A] dark:text-slate-300 dark:hover:text-slate-100 border border-[#E4E7EC] dark:border-slate-700 transition touch-target">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                  <button type="button" onclick="speakCaptcha('loginCaptchaCanvas')"
+                    title="Audio Challenge (ध्वनि से सुनें)"
+                    class="p-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#64748B] hover:text-[#0F172A] dark:text-slate-300 dark:hover:text-slate-100 border border-[#E4E7EC] dark:border-slate-700 transition touch-target">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- CAPTCHA Input -->
+                <div class="flex-1 min-w-[120px] w-full sm:w-auto">
+                  <input type="text" id="loginCaptchaInput" maxlength="6" autocomplete="off" placeholder="Enter Code"
+                    required
+                    class="w-full px-3 py-2.5 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm font-mono tracking-widest uppercase text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition duration-150 text-center font-bold">
+                </div>
+              </div>
+              <p id="loginCaptchaError" class="hidden text-xs text-red-600 font-medium pl-1"></p>
+            </div>
+
+            <!-- Primary Button (Full-width Emerald) -->
+            <button type="submit" id="loginSubmitButton"
+              class="btn-primary active:scale-95 transition-transform duration-100 w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 mt-4 cursor-pointer">
+              <span>Sign In to Portal</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </button>
+          </form>
+
+          <!-- Security Notice Footer -->
+          <div
+            class="mt-4 pt-3.5 border-t border-[#E4E7EC] dark:border-slate-800 flex items-center justify-center gap-2 text-[#64748B] dark:text-slate-400 text-xs text-center">
+            <span>🔒</span>
+            <span>Official Government Portal • Role-Based Access Control</span>
           </div>
-          <p id="loginCaptchaError" class="hidden text-xs text-red-600 font-medium pl-1"></p>
         </div>
 
-        <!-- Primary Button (Full-width Emerald) -->
-        <button 
-          type="submit" 
-          id="loginSubmitButton"
-          class="btn-primary active:scale-95 transition-transform duration-100 w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 mt-4 cursor-pointer"
-        >
-          <span>Sign In to Portal</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-          </svg>
-        </button>
-      </form>
+        <!-- Evaluation Quick Trigger (Unboxed Floating Bar) -->
+        <div class="flex items-center justify-between gap-3 px-1 py-0.5 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-semibold text-slate-600 dark:text-slate-400">SIH Evaluation Console</span>
+          </div>
+          <button type="button" onclick="openSihEvaluationModal()"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-xs active:scale-95 transition cursor-pointer">
+            <span>⚡</span>
+            <span>1-Click Fast Access</span>
+          </button>
+        </div>
 
-      <!-- Security Notice Footer -->
-      <div class="mt-5 pt-4 border-t border-[#E4E7EC] flex items-center justify-center gap-2 text-[#64748B] text-xs text-center">
-        <span>🔒</span>
-        <span>Official Government Portal • Role-Based Access Control</span>
       </div>
+
     </div>
-
   </main>
 
   <!-- =========================================================================
-       3. DISCREET DARK SLATE BOTTOM DRAWER: SIH EVALUATION CONSOLE
+       FLOATING SIH EVALUATION MODAL DRAWER
        ========================================================================= -->
-  <aside class="w-full bg-white/90 backdrop-blur-md text-[#0F172A] border-t border-[#E4E7EC] shadow-sm relative z-20 mt-auto">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-3.5">
-      
-      <!-- Drawer Header Bar with Status & Expand/Collapse Toggle -->
-      <div class="flex items-center justify-between gap-3 mb-2.5">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
-          <h2 class="text-xs sm:text-sm font-semibold text-[#0F172A] tracking-tight flex items-center gap-2">
-            <span>SIH Evaluation Console</span>
-            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">
-              ⚡ 1-Click Fast Access
-            </span>
-          </h2>
-        </div>
+  <div id="sihEvaluationModal"
+    class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100">
 
-        <!-- Toggle Button -->
-        <button 
-          type="button" 
-          onclick="toggleSihConsole()" 
-          id="sihConsoleToggleBtn"
-          class="text-[11px] font-medium text-[#64748B] hover:text-[#0F172A] flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-slate-100 transition cursor-pointer"
-          title="Toggle Evaluation Console Visibility"
-        >
-          <span id="sihConsoleToggleText">Collapse</span>
-          <svg id="sihConsoleToggleIcon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">SIH Evaluation Console</h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">1-Click Fast Access for Judges & Evaluators</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeSihEvaluationModal()"
+          class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+          title="Close Drawer">✕</button>
       </div>
 
-      <!-- 7 Official Demo Users Grouped by Role (Pill-shaped chips with Slate & Emerald palette) -->
+      <!-- 7 Official Demo Users Grouped by Role -->
       <div id="sihConsoleGrid" class="space-y-3 transition-all duration-300">
-        
+
         <!-- Group 1: National Command -->
         <div>
-          <div class="text-[11px] font-bold uppercase tracking-wider text-[#64748B] mb-1.5 flex items-center gap-1.5">
+          <div
+            class="text-[11px] font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
             <span>National Command</span>
-            <span class="text-[10px] font-normal text-slate-400 font-mono">(All 6 Zones)</span>
+            <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 font-mono">(All 6 Zones)</span>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button 
-              type="button"
-              onclick="quickLogin('admin', 'admin123')"
-              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white hover:bg-emerald-50 border border-[#E4E7EC] hover:border-[#10B981] text-[#0F172A] hover:text-[#059669] text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
-              title="National Command • Director DoCA"
-            >
-              <span class="w-5 h-5 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center text-[11px]">🇮🇳</span>
+            <button type="button" onclick="quickLogin('admin', 'admin123'); closeSihEvaluationModal();"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/60 border border-[#E4E7EC] hover:border-[#10B981] dark:border-slate-700 dark:hover:border-emerald-600 text-[#0F172A] dark:text-slate-200 hover:text-[#059669] dark:hover:text-emerald-300 text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
+              title="National Command • Director DoCA">
+              <span
+                class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-[#059669] flex items-center justify-center text-[11px]">🇮🇳</span>
               <span>Director DoCA</span>
-              <span class="font-mono text-[10px] text-[#64748B] group-hover:text-emerald-700 bg-slate-100 group-hover:bg-emerald-100/70 px-2 py-0.5 rounded-full">admin</span>
-              <span class="text-[10px] text-emerald-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+              <span
+                class="font-mono text-[10px] text-[#64748B] dark:text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-full">admin</span>
+              <span
+                class="text-[10px] text-emerald-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
             </button>
           </div>
         </div>
 
         <!-- Group 2: Zonal Admins -->
         <div>
-          <div class="text-[11px] font-bold uppercase tracking-wider text-[#64748B] mb-1.5 flex items-center gap-1.5">
+          <div
+            class="text-[11px] font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-[#6366F1]"></span>
             <span>Zonal Admins</span>
-            <span class="text-[10px] font-normal text-slate-400 font-mono">(Regional Jurisdiction)</span>
+            <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 font-mono">(Regional
+              Jurisdiction)</span>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button 
-              type="button"
-              onclick="quickLogin('north_admin', 'north123')"
-              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white hover:bg-indigo-50 border border-[#E4E7EC] hover:border-indigo-300 text-[#0F172A] hover:text-indigo-800 text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
-              title="Zonal Admin • North Zone"
-            >
-              <span class="w-5 h-5 rounded-full bg-indigo-100 text-[#6366F1] flex items-center justify-center text-[11px]">🛡️</span>
+            <button type="button" onclick="quickLogin('north_admin', 'north123'); closeSihEvaluationModal();"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-indigo-950/60 border border-[#E4E7EC] hover:border-indigo-300 dark:border-slate-700 dark:hover:border-indigo-600 text-[#0F172A] dark:text-slate-200 hover:text-indigo-800 dark:hover:text-indigo-300 text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
+              title="Zonal Admin • North Zone">
+              <span
+                class="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-[#6366F1] flex items-center justify-center text-[11px]">🛡️</span>
               <span>Zonal Officer North</span>
-              <span class="font-mono text-[10px] text-[#64748B] group-hover:text-indigo-700 bg-slate-100 group-hover:bg-indigo-100/70 px-2 py-0.5 rounded-full">north_admin</span>
-              <span class="text-[10px] text-indigo-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+              <span
+                class="font-mono text-[10px] text-[#64748B] dark:text-slate-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-full">north_admin</span>
+              <span
+                class="text-[10px] text-indigo-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
             </button>
 
-            <button 
-              type="button"
-              onclick="quickLogin('south_admin', 'south123')"
-              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white hover:bg-indigo-50 border border-[#E4E7EC] hover:border-indigo-300 text-[#0F172A] hover:text-indigo-800 text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
-              title="Zonal Admin • South Zone"
-            >
-              <span class="w-5 h-5 rounded-full bg-indigo-100 text-[#6366F1] flex items-center justify-center text-[11px]">🛡️</span>
+            <button type="button" onclick="quickLogin('south_admin', 'south123'); closeSihEvaluationModal();"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-indigo-950/60 border border-[#E4E7EC] hover:border-indigo-300 dark:border-slate-700 dark:hover:border-indigo-600 text-[#0F172A] dark:text-slate-200 hover:text-indigo-800 dark:hover:text-indigo-300 text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
+              title="Zonal Admin • South Zone">
+              <span
+                class="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-[#6366F1] flex items-center justify-center text-[11px]">🛡️</span>
               <span>Zonal Officer South</span>
-              <span class="font-mono text-[10px] text-[#64748B] group-hover:text-indigo-700 bg-slate-100 group-hover:bg-indigo-100/70 px-2 py-0.5 rounded-full">south_admin</span>
-              <span class="text-[10px] text-indigo-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+              <span
+                class="font-mono text-[10px] text-[#64748B] dark:text-slate-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-full">south_admin</span>
+              <span
+                class="text-[10px] text-indigo-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
             </button>
           </div>
         </div>
 
         <!-- Group 3: Officers -->
         <div>
-          <div class="text-[11px] font-bold uppercase tracking-wider text-[#64748B] mb-1.5 flex items-center gap-1.5">
+          <div
+            class="text-[11px] font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
             <span>Officers</span>
-            <span class="text-[10px] font-normal text-slate-400 font-mono">(Adjudication & Docket Review)</span>
+            <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 font-mono">(Adjudication & Docket
+              Review)</span>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button 
-              type="button"
-              onclick="quickLogin('officer', 'officer123')"
-              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white hover:bg-amber-50 border border-[#E4E7EC] hover:border-amber-300 text-[#0F172A] hover:text-amber-800 text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
-              title="Metrology Officer • North Zone (Delhi UT)"
-            >
-              <span class="w-5 h-5 rounded-full bg-amber-100 text-[#D97706] flex items-center justify-center text-[11px]">⚖️</span>
+            <button type="button" onclick="quickLogin('officer', 'officer123'); closeSihEvaluationModal();"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-amber-50 dark:bg-slate-800 dark:hover:bg-amber-950/60 border border-[#E4E7EC] hover:border-amber-300 dark:border-slate-700 dark:hover:border-amber-600 text-[#0F172A] dark:text-slate-200 hover:text-amber-800 dark:hover:text-amber-300 text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
+              title="Metrology Officer • North Zone (Delhi UT)">
+              <span
+                class="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-[#D97706] flex items-center justify-center text-[11px]">⚖️</span>
               <span>Dr S Roy (Officer North Zone)</span>
-              <span class="font-mono text-[10px] text-[#64748B] group-hover:text-amber-700 bg-slate-100 group-hover:bg-amber-100/70 px-2 py-0.5 rounded-full">officer</span>
-              <span class="text-[10px] text-amber-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+              <span
+                class="font-mono text-[10px] text-[#64748B] dark:text-slate-400 group-hover:text-amber-700 dark:group-hover:text-amber-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-full">officer</span>
+              <span
+                class="text-[10px] text-amber-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
             </button>
           </div>
         </div>
 
         <!-- Group 4: Field Inspectors -->
         <div>
-          <div class="text-[11px] font-bold uppercase tracking-wider text-[#64748B] mb-1.5 flex items-center gap-1.5">
+          <div
+            class="text-[11px] font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
             <span>Field Inspectors</span>
-            <span class="text-[10px] font-normal text-slate-400 font-mono">(On-Ground AI OCR Verification)</span>
+            <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 font-mono">(On-Ground AI OCR
+              Verification)</span>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button 
-              type="button"
-              onclick="quickLogin('inspector', 'inspect123')"
-              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white hover:bg-emerald-50 border border-[#E4E7EC] hover:border-emerald-300 text-[#0F172A] hover:text-[#059669] text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
-              title="Field Inspector • Delhi UT (North Zone)"
-            >
-              <span class="w-5 h-5 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center text-[11px]">📸</span>
+            <button type="button" onclick="quickLogin('inspector', 'inspect123'); closeSihEvaluationModal();"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/60 border border-[#E4E7EC] hover:border-emerald-300 dark:border-slate-700 dark:hover:border-emerald-600 text-[#0F172A] dark:text-slate-200 hover:text-[#059669] dark:hover:text-emerald-300 text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
+              title="Field Inspector • Delhi UT (North Zone)">
+              <span
+                class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-[#059669] flex items-center justify-center text-[11px]">📸</span>
               <span>Shri R Sharma (Delhi North Zone)</span>
-              <span class="font-mono text-[10px] text-[#64748B] group-hover:text-emerald-700 bg-slate-100 group-hover:bg-emerald-100/70 px-2 py-0.5 rounded-full">inspector</span>
-              <span class="text-[10px] text-emerald-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+              <span
+                class="font-mono text-[10px] text-[#64748B] dark:text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-full">inspector</span>
+              <span
+                class="text-[10px] text-emerald-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
             </button>
 
-            <button 
-              type="button"
-              onclick="quickLogin('inspector_pb', 'punjab123')"
-              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white hover:bg-emerald-50 border border-[#E4E7EC] hover:border-emerald-300 text-[#0F172A] hover:text-[#059669] text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
-              title="Field Inspector • Punjab (North Zone)"
-            >
-              <span class="w-5 h-5 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center text-[11px]">📸</span>
+            <button type="button" onclick="quickLogin('inspector_pb', 'punjab123'); closeSihEvaluationModal();"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/60 border border-[#E4E7EC] hover:border-emerald-300 dark:border-slate-700 dark:hover:border-emerald-600 text-[#0F172A] dark:text-slate-200 hover:text-[#059669] dark:hover:text-emerald-300 text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
+              title="Field Inspector • Punjab (North Zone)">
+              <span
+                class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-[#059669] flex items-center justify-center text-[11px]">📸</span>
               <span>S Kaur (Punjab North Zone)</span>
-              <span class="font-mono text-[10px] text-[#64748B] group-hover:text-emerald-700 bg-slate-100 group-hover:bg-emerald-100/70 px-2 py-0.5 rounded-full">inspector_pb</span>
-              <span class="text-[10px] text-emerald-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+              <span
+                class="font-mono text-[10px] text-[#64748B] dark:text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-full">inspector_pb</span>
+              <span
+                class="text-[10px] text-emerald-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
             </button>
 
-            <button 
-              type="button"
-              onclick="quickLogin('inspector_south', 'south123')"
-              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white hover:bg-emerald-50 border border-[#E4E7EC] hover:border-emerald-300 text-[#0F172A] hover:text-[#059669] text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
-              title="Field Inspector • Kerala (South Zone)"
-            >
-              <span class="w-5 h-5 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center text-[11px]">📸</span>
+            <button type="button" onclick="quickLogin('inspector_south', 'south123'); closeSihEvaluationModal();"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/60 border border-[#E4E7EC] hover:border-emerald-300 dark:border-slate-700 dark:hover:border-emerald-600 text-[#0F172A] dark:text-slate-200 hover:text-[#059669] dark:hover:text-emerald-300 text-xs font-semibold shadow-xs transition duration-150 cursor-pointer group"
+              title="Field Inspector • Kerala (South Zone)">
+              <span
+                class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-[#059669] flex items-center justify-center text-[11px]">📸</span>
               <span>A Menon (Kerala South Zone)</span>
-              <span class="font-mono text-[10px] text-[#64748B] group-hover:text-emerald-700 bg-slate-100 group-hover:bg-emerald-100/70 px-2 py-0.5 rounded-full">inspector_south</span>
-              <span class="text-[10px] text-emerald-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+              <span
+                class="font-mono text-[10px] text-[#64748B] dark:text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-full">inspector_south</span>
+              <span
+                class="text-[10px] text-emerald-600 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
             </button>
           </div>
         </div>
 
       </div>
 
-    </div>
-  </aside>
-
-  <!-- =========================================================================
-       4. UNDERSTATED FOOTER
-       ========================================================================= -->
-  <footer class="w-full bg-slate-50 text-[#64748B] border-t border-[#E4E7EC] py-2.5 px-4 text-center text-xs">
-    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
-      <p>© 2026 e-LMCEP (METRO-CHECK) | Ministry of Consumer Affairs, Food & Public Distribution, Govt. of India</p>
-      <div class="flex items-center gap-3">
-        <span class="font-medium text-[#0F172A]">Smart India Hackathon</span>
-        <span class="text-slate-300">•</span>
-        <button type="button" onclick="openContactModal()" class="text-emerald-700 hover:text-emerald-800 font-semibold hover:underline transition cursor-pointer">
-          📞 National Helpdesk / Grievance Redressal
+      <div class="pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+        <button type="button" onclick="closeSihEvaluationModal()"
+          class="px-4 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition">
+          Close
         </button>
       </div>
+    </div>
+  </div>
+
+  <script>
+    function openSihEvaluationModal() {
+      const modal = document.getElementById('sihEvaluationModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+    function closeSihEvaluationModal() {
+      const modal = document.getElementById('sihEvaluationModal');
+      if (modal) modal.classList.add('hidden');
+    }
+    window.openSihEvaluationModal = openSihEvaluationModal;
+    window.closeSihEvaluationModal = closeSihEvaluationModal;
+  </script>
+
+  </div>
+  </main>
+
+  <!-- =========================================================================
+       4. OFFICIAL NATIONAL GOVTECH FOOTER (GIGW 3.0, NIC & DIGITAL INDIA CERTIFIED)
+       ========================================================================= -->
+  <!-- Visually Polished Divider Bar -->
+  <div class="w-full border-t border-slate-300 dark:border-slate-800"></div>
+
+  <footer
+    class="w-full bg-gradient-to-b from-[#E7ECF3] via-[#DDE3EA] to-[#D1D9E4] dark:bg-gradient-to-br dark:from-[#02050B] dark:via-[#050C18] dark:to-[#011C14] text-slate-800 dark:text-slate-300 border-t border-slate-300 dark:border-t-2 dark:border-t-emerald-500/90 shadow-md dark:shadow-[0_-15px_40px_rgba(4,120,87,0.25)] py-6 sm:py-8 px-4 sm:px-6 text-xs font-sans select-none transition-all duration-300">
+    <div class="max-w-7xl mx-auto space-y-5">
+
+      <!-- Row 1: Official Ministry Branding & Logos Header -->
+      <div
+        class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-4 border-b border-slate-300 dark:border-slate-800/80">
+        <!-- Left: Emblem + Ministry Title -->
+        <div class="flex items-center gap-3.5">
+          <div
+            class="p-2.5 rounded-xl bg-white/90 dark:bg-emerald-950/50 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-sm dark:shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all">
+            <img src="logo/logo.png" alt="State Emblem of India" class="h-10 sm:h-12 w-auto object-contain" />
+          </div>
+          <div class="space-y-0.5">
+            <div class="flex flex-wrap items-center gap-2">
+              <h3
+                class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight">
+                e-LMCEP (METRO-CHECK)</h3>
+              <span
+                class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-400 text-[10px] font-mono font-bold border border-emerald-300 dark:border-emerald-700/80 shadow-xs dark:shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                Official Sovereign Portal
+              </span>
+            </div>
+            <div class="text-xs text-slate-600 dark:text-slate-400 font-medium">
+              Legal Metrology Compliance & Enforcement Platform
+            </div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">
+              Department of Consumer Affairs • Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Direct Action Pill -->
+        <div class="flex flex-wrap items-center gap-3 flex-shrink-0">
+          <button type="button" onclick="openContactModal()"
+            class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold shadow-md shadow-emerald-900/20 dark:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all cursor-pointer active:scale-95 text-xs">
+            <span>📞</span>
+            <span>National Helpdesk & Grievance Portal</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 2: 4-Column Official Navigation & Resources -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6 text-slate-600 dark:text-slate-400">
+
+        <!-- Column 1: Core System Portals -->
+        <div class="space-y-2">
+          <h4
+            class="text-xs font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-emerald-900/60 pb-1.5 flex items-center gap-1.5">
+            <span>🏛️</span> <span>Operational Portals</span>
+          </h4>
+          <ul class="space-y-1.5 text-xs">
+            <li><a href="inspector.html"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                Field Inspector Optical Capture
+              </a></li>
+            <li><a href="officer.html"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                Zonal Officer Adjudication Console
+              </a></li>
+            <li><a href="admin.html"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                Pan-India Master Audit Ledger
+              </a></li>
+            <li><a href="features.html"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                System Capabilities & Mandates
+              </a></li>
+          </ul>
+        </div>
+
+        <!-- Column 2: Legal Metrology Provisions -->
+        <div class="space-y-2">
+          <h4
+            class="text-xs font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-emerald-900/60 pb-1.5 flex items-center gap-1.5">
+            <span>⚖️</span> <span>Statutory Framework</span>
+          </h4>
+          <ul class="space-y-1.5 text-xs">
+            <li><a href="features.html#rule6-matrix"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                Rule 6 Mandatory Declarations
+              </a></li>
+            <li><a href="features.html#penalties"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                Section 18 / 36 Penalty Schedule
+              </a></li>
+            <li><a href="features.html#core-modules"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                Schedule II MAV Tolerance Limits
+              </a></li>
+            <li><a href="features.html#pipeline"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                Form-V PDF Seizure Notices
+              </a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Important Government Links -->
+        <div class="space-y-2">
+          <h4
+            class="text-xs font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-emerald-900/60 pb-1.5 flex items-center gap-1.5">
+            <span>🔗</span> <span>Government Links</span>
+          </h4>
+          <ul class="space-y-1.5 text-xs">
+            <li><a href="https://consumeraffairs.nic.in" target="_blank" rel="noopener noreferrer"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                Dept. of Consumer Affairs
+              </a></li>
+            <li><a href="https://consumerhelpline.gov.in" target="_blank" rel="noopener noreferrer"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                National Consumer Helpline (NCH)
+              </a></li>
+            <li><a href="https://pgportal.gov.in" target="_blank" rel="noopener noreferrer"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                CPGRAMS Public Grievance
+              </a></li>
+            <li><a href="https://india.gov.in" target="_blank" rel="noopener noreferrer"
+                class="text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 transition-all flex items-center gap-1.5 group hover:translate-x-1 font-medium dark:font-normal">
+                <span
+                  class="text-slate-400 group-hover:text-emerald-600 dark:text-slate-500 dark:group-hover:text-emerald-400">›</span>
+                National Portal of India (india.gov.in)
+              </a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: National Toll-Free Helpline Box -->
+        <div class="space-y-2">
+          <h4
+            class="text-xs font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-emerald-900/60 pb-1.5 flex items-center gap-1.5">
+            <span>📞</span> <span>National Metrology Toll-Free</span>
+          </h4>
+          <div
+            class="p-3 rounded-xl bg-white dark:bg-gradient-to-b dark:from-[#061D17] dark:to-[#020B09] border border-slate-200 dark:border-emerald-800/70 space-y-1.5 shadow-sm dark:shadow-[0_4px_25px_rgba(16,185,129,0.25)] transition-all">
+            <div
+              class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              National Consumer Helpline
+            </div>
+            <div class="text-lg font-black text-slate-900 dark:text-slate-100 font-mono tracking-tight">1915</div>
+            <div class="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono">1800-11-4000</div>
+            <div
+              class="text-[10.5px] text-slate-500 dark:text-slate-500 pt-1 border-t border-slate-200 dark:border-slate-800/80">
+              Operating Hours: 09:30 AM to 05:30 PM (All Working Days)
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Row 3: Mandatory Statutory Policies & Standards Strip -->
+      <div
+        class="pt-3.5 border-t border-slate-300 dark:border-slate-800/80 flex flex-wrap items-center justify-center gap-y-1.5 gap-x-5 text-[11px] text-slate-500 dark:text-slate-400">
+        <a href="#overview" class="hover:text-slate-900 dark:hover:text-emerald-400 transition-colors">Terms of
+          Service</a>
+        <span>•</span>
+        <a href="#overview" class="hover:text-slate-900 dark:hover:text-emerald-400 transition-colors">Privacy
+          Policy</a>
+        <span>•</span>
+        <a href="#overview" class="hover:text-slate-900 dark:hover:text-emerald-400 transition-colors">Copyright
+          Policy</a>
+        <span>•</span>
+        <a href="#overview" class="hover:text-slate-900 dark:hover:text-emerald-400 transition-colors">Hyperlinking
+          Policy</a>
+        <span>•</span>
+        <a href="#overview" class="hover:text-slate-900 dark:hover:text-emerald-400 transition-colors">Accessibility
+          Statement</a>
+        <span>•</span>
+        <span class="text-emerald-700 dark:text-emerald-400 font-mono font-semibold">GIGW 3.0 & WCAG 2.1 AAA
+          Certified</span>
+      </div>
+
+      <!-- Row 4: Final Copyright & NIC Hosting Attribution -->
+      <div
+        class="pt-3 border-t border-slate-300 dark:border-slate-900 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-slate-500 dark:text-slate-500">
+        <div class="flex items-center gap-2 text-center md:text-left">
+          <div>
+            <span>Website Content & Infrastructure Managed by <strong
+                class="text-slate-800 dark:text-slate-300">Department of Consumer Affairs, Govt. of
+                India</strong></span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 font-mono text-[10.5px]">
+          <span>Designed & Developed by NIC</span>
+          <span>•</span>
+          <span>Build v2.4.0</span>
+          <span>•</span>
+          <span>© 2026 Government of India</span>
+        </div>
+      </div>
+
     </div>
   </footer>
 
   <!-- =========================================================================
        5. CONTACT SUPPORT & GRIEVANCE MODAL (WCAG AA Compliant)
        ========================================================================= -->
-  <div id="contactSupportModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-    <div class="bg-white border border-[#E4E7EC] rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[95vh] overflow-y-auto text-[#0F172A]">
-      
-      <div class="flex items-center justify-between border-b border-[#E4E7EC] pb-3.5">
+  <div id="contactSupportModal"
+    class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div
+      class="bg-white dark:bg-slate-900 border border-[#E4E7EC] dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[95vh] overflow-y-auto text-[#0F172A] dark:text-slate-100">
+
+      <div class="flex items-center justify-between border-b border-[#E4E7EC] dark:border-slate-800 pb-3.5">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#10B981] flex items-center justify-center text-xl border border-emerald-100">
+          <div
+            class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#10B981] dark:text-emerald-400 flex items-center justify-center text-xl border border-emerald-100 dark:border-emerald-800">
             📞
           </div>
           <div>
-            <h3 class="text-base font-semibold text-[#0F172A]">National Metrology Helpdesk</h3>
-            <p class="text-xs text-[#64748B]">Department of Consumer Affairs • Grievance Redressal</p>
+            <h3 class="text-base font-semibold text-[#0F172A] dark:text-slate-100">National Metrology Helpdesk</h3>
+            <p class="text-xs text-[#64748B] dark:text-slate-400">Department of Consumer Affairs • Grievance Redressal
+            </p>
           </div>
         </div>
-        <button type="button" onclick="closeContactModal()" class="text-[#64748B] hover:text-[#0F172A] p-1.5 rounded-lg hover:bg-slate-100 transition" title="Close Modal">✕</button>
+        <button type="button" onclick="closeContactModal()"
+          class="text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+          title="Close Modal">✕</button>
       </div>
 
       <form id="contactForm" onsubmit="handleContactSubmit(event)" class="space-y-3.5 text-xs">
-        
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label for="contactNameInput" class="block text-xs font-semibold text-[#0F172A] mb-1">Your Full Name <span class="text-red-500">*</span></label>
-            <input type="text" id="contactNameInput" required placeholder="e.g. Officer R. Sharma" class="w-full px-3 py-2 rounded-lg bg-white border border-[#E4E7EC] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
+            <label for="contactNameInput"
+              class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Your Full Name <span
+                class="text-red-500">*</span></label>
+            <input type="text" id="contactNameInput" required placeholder="e.g. Officer R. Sharma"
+              class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
           </div>
           <div>
-            <label for="contactEmailInput" class="block text-xs font-semibold text-[#0F172A] mb-1">Official Email / Mobile <span class="text-red-500">*</span></label>
-            <input type="text" id="contactEmailInput" required placeholder="name@nic.in or phone" class="w-full px-3 py-2 rounded-lg bg-white border border-[#E4E7EC] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
+            <label for="contactEmailInput"
+              class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Official Email /
+              Mobile <span class="text-red-500">*</span></label>
+            <input type="text" id="contactEmailInput" required placeholder="name@nic.in or phone"
+              class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
           </div>
         </div>
 
         <div>
-          <label for="contactCategorySelect" class="block text-xs font-semibold text-[#0F172A] mb-1">Inquiry / Grievance Category <span class="text-red-500">*</span></label>
-          <select id="contactCategorySelect" required class="w-full px-3 py-2 rounded-lg bg-white border border-[#E4E7EC] text-sm text-[#0F172A] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
-            <option value="Packaged Commodity Violation Report">Report Packaged Commodity Violation (Rule 6/MAV)</option>
+          <label for="contactCategorySelect"
+            class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Inquiry / Grievance
+            Category <span class="text-red-500">*</span></label>
+          <select id="contactCategorySelect" required
+            class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
+            <option value="Packaged Commodity Violation Report">Report Packaged Commodity Violation (Rule 6/MAV)
+            </option>
             <option value="AI Scanner & Mobile OCR Technical Support">AI Vision & OCR Scanner Technical Support</option>
-            <option value="Officer Review Docket & PDF Notice Query">Officer Review Docket & Statutory Notice Question</option>
+            <option value="Officer Review Docket & PDF Notice Query">Officer Review Docket & Statutory Notice Question
+            </option>
             <option value="User Credential & System Access Issue">System Access & User Credential Support</option>
             <option value="General Legal Metrology Inquiries">General Legal Metrology Act & Rules Inquiry</option>
           </select>
         </div>
 
         <div>
-          <label for="contactMessageInput" class="block text-xs font-semibold text-[#0F172A] mb-1">Grievance Description / Details <span class="text-red-500">*</span></label>
-          <textarea id="contactMessageInput" rows="3" required placeholder="Describe the issue, commodity batch, or technical inquiry..." class="w-full p-3 rounded-lg bg-white border border-[#E4E7EC] text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 resize-none"></textarea>
+          <label for="contactMessageInput"
+            class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Grievance Description
+            / Details <span class="text-red-500">*</span></label>
+          <textarea id="contactMessageInput" rows="3" required
+            placeholder="Describe the issue, commodity batch, or technical inquiry..."
+            class="w-full p-3 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 resize-none"></textarea>
         </div>
 
         <!-- Mandatory Security CAPTCHA -->
-        <div class="p-3 rounded-xl bg-slate-50 border border-[#E4E7EC] space-y-2">
-          <div class="flex items-center justify-between text-xs font-semibold text-[#0F172A]">
+        <div
+          class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-[#E4E7EC] dark:border-slate-700 space-y-2">
+          <div class="flex items-center justify-between text-xs font-semibold text-[#0F172A] dark:text-slate-200">
             <span class="flex items-center gap-1.5">
               <span>🛡️</span> <span>Mandatory Security Verification</span>
             </span>
-            <span class="text-[11px] text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">Anti-Spam Code</span>
+            <span
+              class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-100 dark:border-emerald-800">Anti-Spam
+              Code</span>
           </div>
 
           <div class="flex items-center gap-2">
-            <div class="relative bg-slate-950 rounded-lg border border-[#E4E7EC] p-0.5 flex items-center justify-center overflow-hidden shadow-xs flex-shrink-0" style="width: 140px; height: 38px;">
-              <canvas id="contactCaptchaCanvas" width="140" height="38" class="rounded select-none" aria-label="Contact Verification CAPTCHA"></canvas>
+            <div
+              class="relative bg-slate-950 rounded-lg border border-[#E4E7EC] dark:border-slate-700 p-0.5 flex items-center justify-center overflow-hidden shadow-xs flex-shrink-0"
+              style="width: 140px; height: 38px;">
+              <canvas id="contactCaptchaCanvas" width="140" height="38" class="rounded select-none"
+                aria-label="Contact Verification CAPTCHA"></canvas>
             </div>
 
             <div class="flex items-center gap-1">
-              <button 
-                type="button" 
-                onclick="refreshCaptcha('contactCaptchaCanvas', 'contactCaptchaInput', 'contactCaptchaError')" 
-                title="Refresh CAPTCHA" 
-                class="p-2 rounded-lg bg-white hover:bg-slate-100 text-[#64748B] hover:text-[#0F172A] border border-[#E4E7EC] transition"
-              >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <button type="button"
+                onclick="refreshCaptcha('contactCaptchaCanvas', 'contactCaptchaInput', 'contactCaptchaError')"
+                title="Refresh CAPTCHA"
+                class="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[#64748B] dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-slate-100 border border-[#E4E7EC] dark:border-slate-700 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
               </button>
-              <button 
-                type="button" 
-                onclick="speakCaptcha('contactCaptchaCanvas')" 
-                title="Audio Challenge (Listen)" 
-                class="p-2 rounded-lg bg-white hover:bg-slate-100 text-[#64748B] hover:text-[#0F172A] border border-[#E4E7EC] transition"
-              >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+              <button type="button" onclick="speakCaptcha('contactCaptchaCanvas')" title="Audio Challenge (Listen)"
+                class="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[#64748B] dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-slate-100 border border-[#E4E7EC] dark:border-slate-700 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
               </button>
             </div>
 
             <div class="flex-1 min-w-0">
-              <input 
-                type="text" 
-                id="contactCaptchaInput" 
-                maxlength="6" 
-                autocomplete="off" 
-                placeholder="Enter Code" 
-                required 
-                class="w-full px-3 py-2 rounded-lg bg-white border border-[#E4E7EC] text-sm font-mono tracking-widest uppercase text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] text-center font-bold"
-              >
+              <input type="text" id="contactCaptchaInput" maxlength="6" autocomplete="off" placeholder="Enter Code"
+                required
+                class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm font-mono tracking-widest uppercase text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] text-center font-bold">
             </div>
           </div>
           <p id="contactCaptchaError" class="hidden text-xs text-red-600 font-medium pl-1"></p>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#E4E7EC]">
-          <button type="button" onclick="closeContactModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#0F172A] font-medium rounded-lg transition">
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#E4E7EC] dark:border-slate-800">
+          <button type="button" onclick="closeContactModal()"
+            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0F172A] dark:text-slate-200 font-medium rounded-lg transition">
             Cancel
           </button>
-          <button type="submit" class="px-5 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95 transition-transform duration-100">
+          <button type="submit"
+            class="px-5 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95 transition-transform duration-100">
             <span>✉️ Submit Grievance Ticket</span>
           </button>
         </div>
@@ -612,4 +1003,5 @@
   <script src="js/auth.js"></script>
   <script src="js/masthead.js"></script>
 </body>
+
 </html>

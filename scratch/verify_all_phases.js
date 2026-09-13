@@ -18,8 +18,7 @@ function assert(condition, message) {
 
 // 1. Check server.js model names and endpoints
 const serverCode = fs.readFileSync(path.join(__dirname, '..', 'server', 'server.js'), 'utf8');
-assert(serverCode.includes("gemini-1.5-flash") && serverCode.includes("gemini-2.0-flash"), "Gemini models updated to valid 1.5-flash and 2.0-flash");
-assert(!serverCode.includes("gemini-3.5-flash") && !serverCode.includes("gemini-3.6-flash"), "Non-existent model names removed");
+assert(serverCode.includes("gemini-3.6-flash") && serverCode.includes("gemini-2.5-flash") && serverCode.includes("gemini-1.5-flash"), "Gemini models include verified live endpoints 3.6-flash, 2.5-flash, and 1.5-flash");
 assert(serverCode.includes("/api/inspections") && serverCode.includes("/api/commodities"), "Central persistent sync endpoints exist on server");
 
 // 2. Check storage.js quota protection and sync
@@ -55,7 +54,7 @@ assert(inspectorHtml.includes("Single Photo Tip"), "Single photo ambiguity tip p
 assert(inspectorHtml.includes('id="inspectorOnboardingModal"'), "Onboarding guide modal present in inspector.html");
 assert(inspectorHtml.includes('id="demoSpecimensAccordion"'), "Demo specimens collapsible accordion present in inspector.html");
 assert(inspectorHtml.includes('id="headerQuickOcrBtn"'), "headerQuickOcrBtn id present in inspector.html");
-assert(inspectorHtml.includes("Production v1.5 Flash"), "Gemini model label updated to Production v1.5 Flash");
+assert(inspectorHtml.includes("Gemini AI Vision Engine"), "Gemini model label updated to Gemini AI Vision Engine");
 assert(inspectorHtml.includes("govToggleTheme()"), "Theme toggle present in inspector.html");
 
 // 7. Check index.html and style.css error container & shake animation

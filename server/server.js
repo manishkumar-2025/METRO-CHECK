@@ -81,10 +81,11 @@ const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 }
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const CANDIDATE_MODELS = [
-  "gemini-1.5-flash",
+  "gemini-3.6-flash",
+  "gemini-3.5-flash",
+  "gemini-2.5-flash",
   "gemini-2.0-flash",
-  "gemini-flash-lite-latest",
-  "gemini-flash-latest"
+  "gemini-1.5-flash"
 ];
 const PRIMARY_MODEL = CANDIDATE_MODELS[0];
 const FALLBACK_MODEL = CANDIDATE_MODELS[1];

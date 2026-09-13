@@ -610,18 +610,23 @@ function generateCaptcha(canvasId, length = 5) {
   const width = canvas.width || 140;
   const height = canvas.height || 40;
 
-  // 1. Dark high-contrast background gradient
+  // 1. Sleek executive light background gradient
   const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-  bgGrad.addColorStop(0, "#0a1124");
-  bgGrad.addColorStop(1, "#172554");
+  bgGrad.addColorStop(0, "#F8FAFC");
+  bgGrad.addColorStop(1, "#E2E8F0");
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, width, height);
 
-  // 2. Anti-OCR bezier security curves
-  const lineColors = ["#f59e0b", "#38bdf8", "#34d399", "#f43f5e"];
-  for (let i = 0; i < 4; i++) {
+  // Subtle border accent
+  ctx.strokeStyle = "#CBD5E1";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, width - 1, height - 1);
+
+  // 2. Security curves in subtle emerald and slate tones
+  const lineColors = ["#10B981", "#0284C7", "#059669", "#64748B"];
+  for (let i = 0; i < 3; i++) {
     ctx.strokeStyle = lineColors[i % lineColors.length];
-    ctx.lineWidth = 1.2 + Math.random() * 1.5;
+    ctx.lineWidth = 1.2 + Math.random();
     ctx.beginPath();
     ctx.moveTo(Math.random() * width, Math.random() * height);
     ctx.bezierCurveTo(
@@ -632,33 +637,33 @@ function generateCaptcha(canvasId, length = 5) {
     ctx.stroke();
   }
 
-  // 3. Random noise speckles
-  for (let i = 0; i < 35; i++) {
-    ctx.fillStyle = "rgba(255, 255, 255, " + (0.2 + Math.random() * 0.5) + ")";
+  // 3. Subtle background noise dots
+  for (let i = 0; i < 25; i++) {
+    ctx.fillStyle = "rgba(100, 116, 139, 0.25)";
     ctx.beginPath();
-    ctx.arc(Math.random() * width, Math.random() * height, Math.random() * 1.5, 0, Math.PI * 2);
+    ctx.arc(Math.random() * width, Math.random() * height, 1.2, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 4. Distorted character rendering with individual rotation and shadows
+  // 4. Crisp high-contrast character rendering
   const charSpacing = width / (code.length + 1);
-  const textColors = ["#fbbf24", "#38bdf8", "#4ade80", "#f472b6", "#f8fafc"];
+  const textColors = ["#0F172A", "#047857", "#1E293B", "#0369A1", "#0F172A"];
 
   for (let i = 0; i < code.length; i++) {
     ctx.save();
     const x = (i + 0.8) * charSpacing;
-    const y = height / 2 + (Math.random() * 6 - 3);
+    const y = height / 2 + (Math.random() * 4 - 2);
     ctx.translate(x, y);
 
-    const angle = (Math.random() * 32 - 16) * Math.PI / 180;
+    const angle = (Math.random() * 24 - 12) * Math.PI / 180;
     ctx.rotate(angle);
 
-    ctx.font = "900 " + (20 + Math.floor(Math.random() * 4)) + "px 'Courier New', monospace";
+    ctx.font = "800 " + (20 + Math.floor(Math.random() * 3)) + "px 'Inter', system-ui, monospace";
     ctx.fillStyle = textColors[i % textColors.length];
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
-    ctx.shadowBlur = 4;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+    ctx.shadowBlur = 2;
 
     ctx.fillText(code[i], 0, 0);
     ctx.restore();

@@ -54,6 +54,38 @@
   }
 
   /**
+   * 1b. Static Sticky Navbar Scroll Elevation Controller (GPU Accelerated & Throttled)
+   */
+  let isMastheadScrolled = false;
+  let scrollTicking = false;
+
+  function updateMastheadScrollState() {
+    const masthead = document.getElementById('nationalGovMasthead');
+    if (masthead) {
+      const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+      const shouldBeScrolled = scrollY > 5;
+      if (shouldBeScrolled !== isMastheadScrolled) {
+        isMastheadScrolled = shouldBeScrolled;
+        if (shouldBeScrolled) {
+          masthead.classList.add('scrolled', 'shadow-md');
+          masthead.classList.remove('shadow-xs');
+        } else {
+          masthead.classList.remove('scrolled', 'shadow-md');
+          masthead.classList.add('shadow-xs');
+        }
+      }
+    }
+    scrollTicking = false;
+  }
+
+  function handleMastheadScroll() {
+    if (!scrollTicking) {
+      window.requestAnimationFrame(updateMastheadScrollState);
+      scrollTicking = true;
+    }
+  }
+
+  /**
    * 2. Standard Accessibility: Font Sizer A- | A | A+
    */
   window.govChangeFontSize = function (action) {
@@ -190,6 +222,9 @@
       const savedLang = localStorage.getItem('elmcep_lang') || 'en';
       updateLanguageButtons(savedLang);
     } catch (e) {}
+
+    handleMastheadScroll();
+    window.addEventListener('scroll', handleMastheadScroll, { passive: true });
   }
 
   /**

@@ -186,15 +186,12 @@
 
     <!-- Left Navigation Sidebar (Linear / Shadcn UI 250px SaaS Style) -->
     <aside id="leftSidebar"
-      class="sidebar-container fixed inset-y-0 left-0 z-40 transform -translate-x-full md:sticky md:top-0 md:h-[calc(100vh-48px)] md:translate-x-0 w-[250px] text-slate-700 flex flex-col justify-between flex-shrink-0 p-3.5 shadow-2xl md:shadow-none select-none bg-[#FAFAFA] border-r border-gray-200">
+      class="sidebar-container fixed inset-y-0 left-0 z-40 transform -translate-x-full md:fixed md:top-[54px] md:bottom-0 md:left-0 md:h-[calc(100vh-54px)] md:translate-x-0 w-[250px] text-slate-700 flex flex-col justify-between flex-shrink-0 p-3.5 shadow-2xl md:shadow-none select-none bg-[#FAFAFA] border-r border-gray-200">
       <div class="sidebar-content-scrollable flex-1 overflow-y-auto pr-0.5 space-y-3">
         <!-- Brand Logo Header -->
         <div class="flex items-center justify-between pb-3 border-b border-gray-200">
           <div class="flex items-center gap-2.5 sidebar-brand-wrapper min-w-0">
-            <div
-              class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-xs flex-shrink-0">
-              ⚖️
-            </div>
+            <img src="logo/logo.png" alt="METRO-CHECK Logo" class="w-8 h-8 rounded-lg object-contain bg-white p-0.5 border border-gray-200 shadow-xs flex-shrink-0" />
             <div class="min-w-0 sidebar-hide-on-collapse">
               <h1 class="text-gray-900 font-semibold text-xs tracking-tight truncate">METRO-CHECK</h1>
               <p class="text-[10px] text-gray-500 font-medium tracking-wide uppercase font-mono truncate">Legal
@@ -384,7 +381,7 @@
     </aside>
 
     <!-- Right Viewport Area -->
-    <div class="flex-1 flex flex-col min-w-0">
+    <div class="flex-1 flex flex-col min-w-0 main-viewport">
 
       <!-- Top Header Bar -->
       <header
@@ -495,12 +492,10 @@
              =================================================================== -->
           <div class="relative user-menu-wrapper" id="userMenuWrapper">
             <!-- Compact Pill Button Trigger -->
-            <button type="button" id="userMenuTriggerBtn" onclick="toggleUserMenu()" aria-expanded="false" <!-- Compact
-              Pill Button Trigger -->
-              <button type="button" id="userMenuTriggerBtn" onclick="toggleUserMenu()" aria-expanded="false"
-                aria-haspopup="true"
-                class="user-menu-pill group flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 shadow-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer select-none"
-                title="Account & Security Controls">
+            <button type="button" id="userMenuTriggerBtn" onclick="toggleUserMenu()" aria-expanded="false"
+              aria-haspopup="true"
+              class="user-menu-pill group flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 shadow-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer select-none"
+              title="Account & Security Controls">
                 <!-- Rounded Green Avatar Icon -->
                 <div
                   class="user-menu-avatar-green relative flex items-center justify-center w-7 h-7 rounded-full text-white font-black text-xs shadow-xs ring-1 ring-emerald-400/40 flex-shrink-0">
