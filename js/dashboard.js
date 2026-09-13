@@ -79,9 +79,9 @@ function switchInspectorTab(tabId) {
     }
     if (navBtn) {
       if (id === tabId) {
-        navBtn.className = "inspector-nav-btn sidebar-nav-item active w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md bg-gray-100 text-gray-900 font-medium transition text-left";
+        navBtn.className = "inspector-nav-btn sidebar-nav-item active";
       } else {
-        navBtn.className = "inspector-nav-btn sidebar-nav-item w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left";
+        navBtn.className = "inspector-nav-btn sidebar-nav-item";
       }
     }
   });
@@ -744,9 +744,9 @@ function switchOfficerTab(tabId) {
     }
     if (navBtn) {
       if (id === tabId) {
-        navBtn.className = "officer-nav-btn sidebar-nav-item active w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md bg-gray-100 text-gray-900 font-medium transition text-left";
+        navBtn.className = "officer-nav-btn sidebar-nav-item active";
       } else {
-        navBtn.className = "officer-nav-btn sidebar-nav-item w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left";
+        navBtn.className = "officer-nav-btn sidebar-nav-item";
       }
     }
   });

@@ -220,7 +220,7 @@
           <p class="sidebar-section-header px-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider sidebar-hide-on-collapse mb-1">Inspection Core</p>
           <div class="space-y-0.5">
             <!-- 1. Dashboard -->
-            <button type="button" onclick="switchInspectorTab('dashboard')" id="navBtn-dashboard" class="inspector-nav-btn sidebar-nav-item active w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md bg-gray-100 text-gray-900 font-medium transition text-left" title="Dashboard">
+            <button type="button" onclick="switchInspectorTab('dashboard')" id="navBtn-dashboard" class="inspector-nav-btn sidebar-nav-item active" title="Dashboard">
               <div class="flex items-center gap-2.5 min-w-0">
                 <span class="text-sm flex-shrink-0">📊</span>
                 <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Dashboard</span>
@@ -228,7 +228,7 @@
             </button>
 
             <!-- 2. AI OCR Camera (Highlighted Real-Time Engine) -->
-            <button type="button" onclick="switchInspectorTab('ocr')" id="navBtn-ocr" class="inspector-nav-btn sidebar-nav-item w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left" title="AI OCR Camera">
+            <button type="button" onclick="switchInspectorTab('ocr')" id="navBtn-ocr" class="inspector-nav-btn sidebar-nav-item" title="AI OCR Camera">
               <div class="flex items-center gap-2.5 min-w-0">
                 <span class="text-sm flex-shrink-0">📸</span>
                 <span class="sidebar-hide-on-collapse truncate text-xs font-medium">AI OCR Camera</span>
@@ -237,7 +237,7 @@
             </button>
 
             <!-- 3. My Inspections & Reports -->
-            <button type="button" onclick="switchInspectorTab('inspections')" id="navBtn-inspections" class="inspector-nav-btn sidebar-nav-item w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left" title="My Inspections & Reports">
+            <button type="button" onclick="switchInspectorTab('inspections')" id="navBtn-inspections" class="inspector-nav-btn sidebar-nav-item" title="My Inspections & Reports">
               <div class="flex items-center gap-2.5 min-w-0">
                 <span class="text-sm flex-shrink-0">📝</span>
                 <span class="sidebar-hide-on-collapse truncate text-xs font-medium">My Inspections</span>
@@ -251,7 +251,7 @@
           <p class="sidebar-section-header px-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider sidebar-hide-on-collapse mb-1">Reference & Help</p>
           <div class="space-y-0.5">
             <!-- 4. Commodity Standards -->
-            <button type="button" onclick="switchInspectorTab('lookup')" id="navBtn-lookup" class="inspector-nav-btn sidebar-nav-item w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left" title="Commodity Standards">
+            <button type="button" onclick="switchInspectorTab('lookup')" id="navBtn-lookup" class="inspector-nav-btn sidebar-nav-item" title="Commodity Standards">
               <div class="flex items-center gap-2.5 min-w-0">
                 <span class="text-sm flex-shrink-0">🔍</span>
                 <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Commodity Standards</span>
@@ -259,7 +259,7 @@
             </button>
 
             <!-- 5. Help & Guide -->
-            <button type="button" onclick="switchInspectorTab('help')" id="navBtn-help" class="inspector-nav-btn sidebar-nav-item w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left" title="Help & Procedural Guide">
+            <button type="button" onclick="switchInspectorTab('help')" id="navBtn-help" class="inspector-nav-btn sidebar-nav-item" title="Help & Procedural Guide">
               <div class="flex items-center gap-2.5 min-w-0">
                 <span class="text-sm flex-shrink-0">❓</span>
                 <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Help & Guide</span>
