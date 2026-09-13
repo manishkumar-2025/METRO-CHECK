@@ -58,7 +58,7 @@ function initInspectorApp() {
  * Switches the active tab view in the Inspector interface.
  */
 function switchInspectorTab(tabId) {
-  const allowed = ["dashboard", "ocr", "inspections", "lookup", "reports", "help"];
+  const allowed = ["dashboard", "ocr", "inspections", "lookup", "rules-suite", "reports", "help"];
   if (!allowed.includes(tabId)) tabId = "dashboard";
   activeInspectorTab = tabId;
 
@@ -98,10 +98,11 @@ function switchInspectorTab(tabId) {
 
   // Update breadcrumb & header title
   const titles = {
-    dashboard: { bc: "Inspector Portal > Dashboard", title: "Daily Inspection Overview" },
-    ocr: { bc: "Home > AI OCR", title: "Real-Time AI OCR Camera & Compliance Report" },
+    dashboard: { bc: "Dashboard", title: "Daily Inspection Overview" },
+    ocr: { bc: "AI OCR Camera", title: "Real-Time AI OCR Camera" },
     inspections: { bc: "My Inspections", title: "Inspection Records & Drafts" },
     lookup: { bc: "Commodity Lookup", title: "Legal Tolerances & Rules Reference" },
+    "rules-suite": { bc: "LM Rules 2011", title: "LM Rules 2011 Catalog & Calculators" },
     reports: { bc: "My Reports", title: "Adjudicated Compliance Reports" },
     help: { bc: "Help & Guide", title: "Inspector FAQ & Procedural Guide" }
   };
@@ -143,6 +144,7 @@ function switchInspectorTab(tabId) {
     if (typeof stopLiveCamera === "function") stopLiveCamera();
     if (tabId === "inspections") renderMyInspections();
     else if (tabId === "lookup") renderCommodityLookup();
+    else if (tabId === "rules-suite") renderRulesSuiteView();
     else if (tabId === "reports") renderCompletedReports();
   }
 
@@ -197,18 +199,23 @@ function renderRecentDashboardTable() {
 
     return `
       <tr class="hover:bg-slate-50 border-b border-slate-100 text-xs sm:text-sm transition">
-        <td class="px-4 py-3 font-mono font-bold text-slate-700">${item.id}</td>
-        <td class="px-4 py-3 font-semibold text-slate-900">${item.product || "Packaged Product"}</td>
-        <td class="px-4 py-3 text-slate-500 font-mono text-xs">${item.date || "-"}</td>
-        <td class="px-4 py-3">${compBadge}</td>
-        <td class="px-4 py-3"><span class="px-2.5 py-0.5 text-xs rounded-full font-bold ${getStatusBadgeClass(item.status)}">${item.status.toUpperCase()}</span></td>
-        <td class="px-4 py-3 text-right">
-          <button onclick="openInspectorDetailModal('${item.id}')" class="px-3 py-1 bg-slate-100 hover:bg-amber-500 hover:text-white rounded-lg text-xs font-bold transition">
-            View
+        <td class="px-4 py-3 font-mono font-bold text-slate-700 whitespace-nowrap">${item.id}</td>
+        <td class="px-4 py-3 font-semibold text-slate-900 whitespace-nowrap">${item.product || "Packaged Product"}</td>
+        <td class="px-4 py-3 text-slate-500 font-mono text-xs whitespace-nowrap">${item.date || "-"}</td>
+        <td class="px-4 py-3 whitespace-nowrap">${compBadge}</td>
+        <td class="px-4 py-3 whitespace-nowrap"><span class="px-2.5 py-0.5 text-xs rounded-full font-bold ${getStatusBadgeClass(item.status)}">${typeof formatStatusLabel === 'function' ? formatStatusLabel(item.status) : item.status}</span></td>
+        <td class="px-4 py-3 text-right whitespace-nowrap">
+          <button onclick="openInspectorDetailModal('${item.id}')" class="px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-800 border border-emerald-200/80 rounded-md transition cursor-pointer inline-flex items-center gap-1">
+            View Details →
           </button>
         </td>
       </tr>`;
   }).join("");
+
+  const pagEl = document.getElementById("dashboardTablePaginationText");
+  if (pagEl) {
+    pagEl.textContent = `Showing 1–${Math.min(6, list.length)} of ${list.length} recent inspections`;
+  }
 }
 
 /**
@@ -636,7 +643,7 @@ function openInspectorDetailModal(id) {
   document.getElementById("modalInspectionLocation").textContent = item.location || "Regional Depot";
 
   const badge = document.getElementById("modalInspectionBadge");
-  badge.textContent = (item.status || "submitted").toUpperCase();
+  badge.textContent = typeof formatStatusLabel === 'function' ? formatStatusLabel(item.status) : (item.status || "submitted");
   badge.className = `px-2.5 py-1 text-xs rounded-full font-bold ${getStatusBadgeClass(item.status)}`;
 
   const ext = item.extractedData || {};
@@ -665,6 +672,18 @@ function openInspectorDetailModal(id) {
     violList.innerHTML = viols.map(v => `<li>${v}</li>`).join("");
   } else {
     violSec.classList.add("hidden");
+  }
+
+  const notesSec = document.getElementById("modalInspectorNotesSection");
+  const notesText = document.getElementById("modalInspectorNotesText");
+  const notesVal = item.inspectorNotes || item.remarks;
+  if (notesSec && notesText) {
+    if (notesVal && String(notesVal).trim().length > 0) {
+      notesSec.classList.remove("hidden");
+      notesText.textContent = notesVal;
+    } else {
+      notesSec.classList.add("hidden");
+    }
   }
 
   const pdfBtn = document.getElementById("modalDownloadPdfBtn");
@@ -1016,7 +1035,7 @@ function loadCaseDetails(id) {
   if (caseIdEl) caseIdEl.textContent = item.id;
   const badgeEl = document.getElementById("caseStatusBadge");
   if (badgeEl) {
-    badgeEl.textContent = (item.status || "submitted").toUpperCase();
+    badgeEl.textContent = typeof formatStatusLabel === 'function' ? formatStatusLabel(item.status) : (item.status || "submitted");
     badgeEl.className = `px-2.5 py-1 text-xs rounded-full font-bold ${getStatusBadgeClass(item.status)}`;
   }
   const inspNameEl = document.getElementById("caseInspectorName");
@@ -1232,7 +1251,7 @@ function initOfficerOfficialReports() {
 
   const inspections = filterByZoneAccess(getInspections());
   caseSelect.innerHTML = inspections.map(i => `
-    <option value="${i.id}">${i.id} - ${i.product} (${(i.status || "submitted").toUpperCase()})</option>
+    <option value="${i.id}">${i.id} - ${i.product} (${typeof formatStatusLabel === 'function' ? formatStatusLabel(i.status) : i.status})</option>
   `).join("");
 
   updateOfficialReportPreview();
@@ -1395,5 +1414,273 @@ const debouncedUpdateOfficialReportPreview = (typeof debounce === "function")
   ? debounce(() => updateOfficialReportPreview(), 120)
   : () => updateOfficialReportPreview();
 window.debouncedUpdateOfficialReportPreview = debouncedUpdateOfficialReportPreview;
+
+/* ==========================================================================
+   22. LM RULES 2011 SUITE & CALCULATOR CONTROLLER
+   ========================================================================== */
+
+let activeRulesChapter = "All";
+
+function switchRulesSubTab(subTab) {
+  const allowed = ["catalog", "mpe", "pdp", "symbol", "dealer", "penalty"];
+  allowed.forEach(st => {
+    const btn = document.getElementById(`rulesSubTab-${st}`);
+    const panel = document.getElementById(`rulesPanel-${st}`);
+    if (btn) {
+      btn.className = (st === subTab)
+        ? "rules-sub-tab px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold transition shadow-xs cursor-pointer"
+        : "rules-sub-tab px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-semibold transition cursor-pointer";
+    }
+    if (panel) {
+      if (st === subTab) panel.classList.remove("hidden");
+      else panel.classList.add("hidden");
+    }
+  });
+
+  if (subTab === "catalog") filterRulesCatalog();
+  else if (subTab === "mpe") runMpeCalculation();
+  else if (subTab === "pdp") runPdpCalculation();
+  else if (subTab === "symbol") runSymbolVerification();
+  else if (subTab === "dealer") runDealerPricingCheck();
+  else if (subTab === "penalty") runPenaltyEstimation();
+}
+
+function renderRulesSuiteView() {
+  switchRulesSubTab("catalog");
+  runMpeCalculation();
+  runPdpCalculation();
+  runSymbolVerification();
+  runDealerPricingCheck();
+  runPenaltyEstimation();
+}
+
+function filterRulesByChapter(chap) {
+  activeRulesChapter = chap;
+  document.querySelectorAll("#rulesChapterFilters button").forEach(btn => {
+    const isCur = btn.textContent.includes(chap) || (chap === "All" && btn.textContent.includes("All"));
+    btn.className = isCur
+      ? "rules-chap-btn px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-semibold transition cursor-pointer text-xs"
+      : "rules-chap-btn px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium transition cursor-pointer text-xs";
+  });
+  filterRulesCatalog();
+}
+
+function filterRulesCatalog() {
+  const catalog = window.LM_RULES_CATALOG || [];
+  const searchInput = (document.getElementById("rulesCatalogSearch")?.value || "").trim().toLowerCase();
+  const grid = document.getElementById("rulesCatalogGrid");
+  if (!grid) return;
+
+  const filtered = catalog.filter(item => {
+    const chapMatch = (activeRulesChapter === "All") || item.chapter.includes(activeRulesChapter);
+    const searchMatch = !searchInput || 
+      item.rule.toLowerCase().includes(searchInput) ||
+      item.title.toLowerCase().includes(searchInput) ||
+      item.summary.toLowerCase().includes(searchInput) ||
+      item.governance.toLowerCase().includes(searchInput);
+    return chapMatch && searchMatch;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-xs">
+        <div class="text-3xl mb-2">⚖️</div>
+        <h4 class="font-bold text-slate-800 text-sm">No rules matched your search</h4>
+        <p class="text-xs text-slate-500 mt-1">Try another keyword or chapter filter pill.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(r => `
+    <div class="modern-card bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3 transition hover:-translate-y-0.5 hover:shadow-md flex flex-col justify-between">
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">${r.rule}</span>
+          <span class="text-[11px] text-slate-400 font-medium">${r.chapter}</span>
+        </div>
+        <h4 class="font-bold text-slate-900 text-sm leading-snug">${r.title}</h4>
+        <p class="text-xs text-slate-600 leading-relaxed">${r.summary}</p>
+      </div>
+      <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+        <span class="font-medium text-slate-400 font-mono text-[10.5px]">Legal Metrology Rules, 2011</span>
+        <span class="text-slate-400 font-mono text-[10px]">PCR 2011</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+function runMpeCalculation() {
+  const qtyVal = document.getElementById("mpeInputQty")?.value || 500;
+  const unit = document.getElementById("mpeInputUnit")?.value || "g";
+  const actualVal = document.getElementById("mpeInputActual")?.value;
+  const box = document.getElementById("mpeResultBox");
+  if (!box || typeof window.calculateMPE !== "function") return;
+
+  const res = window.calculateMPE(qtyVal, unit);
+  if (res.error) {
+    box.innerHTML = `<p class="text-xs font-bold text-red-600">${res.error}</p>`;
+    return;
+  }
+
+  let actualVerdict = "";
+  if (actualVal && !isNaN(parseFloat(actualVal))) {
+    const act = parseFloat(actualVal);
+    const pass = act >= res.minAllowedQuantity;
+    actualVerdict = `
+      <div class="mt-3 pt-3 border-t border-emerald-200 flex items-center justify-between text-xs font-bold">
+        <span>Sample Measured Quantity: ${act} ${res.unit}</span>
+        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${pass ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'}">
+          ${pass ? '✅ COMPLIANT (Passes MPE)' : '⚠️ DEFICIENT (Exceeds MPE Limit)'}
+        </span>
+      </div>`;
+  }
+
+  box.innerHTML = `
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-200 pb-3">
+      <div>
+        <h4 class="font-extrabold text-slate-900 text-sm">First Schedule MPE Tolerance Evaluation</h4>
+        <p class="text-xs text-emerald-800 font-medium">Declared Net Mass/Volume: <strong>${res.declaredQty} ${res.unit}</strong></p>
+      </div>
+      <span class="px-3 py-1 bg-white text-emerald-800 font-mono font-bold text-xs rounded-xl border border-emerald-300 shadow-xs">${res.scheduleRef}</span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
+      <div class="bg-white p-3 rounded-xl border border-emerald-200">
+        <span class="text-slate-500 font-medium">MPE Percentage Rate</span>
+        <p class="text-base font-extrabold text-slate-900 mt-0.5">${res.mpePercentageStr}</p>
+      </div>
+      <div class="bg-white p-3 rounded-xl border border-emerald-200">
+        <span class="text-slate-500 font-medium">Tolerance Error Limit</span>
+        <p class="text-base font-extrabold text-amber-600 mt-0.5">± ${res.mpeToleranceValue} ${res.unit}</p>
+      </div>
+      <div class="bg-white p-3 rounded-xl border border-emerald-200">
+        <span class="text-slate-500 font-medium">Minimum Allowed Net Qty</span>
+        <p class="text-base font-extrabold text-emerald-700 mt-0.5">${res.minAllowedQuantity} ${res.unit}</p>
+      </div>
+    </div>
+    ${actualVerdict}`;
+}
+
+function runPdpCalculation() {
+  const areaVal = document.getElementById("pdpAreaInput")?.value || 150;
+  const box = document.getElementById("pdpResultBox");
+  if (!box || typeof window.calculateMinFontHeight !== "function") return;
+
+  const res = window.calculateMinFontHeight(areaVal);
+
+  box.innerHTML = `
+    <div class="space-y-2">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+        <span class="text-xs font-bold text-slate-700">PDP Category: ${res.category}</span>
+        <span class="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">${res.schedule}</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+        <div>
+          <span class="text-slate-500 font-medium block">Min Letter Height</span>
+          <span class="text-lg font-extrabold text-slate-900">${res.minHeightMm} mm</span>
+        </div>
+        <div>
+          <span class="text-slate-500 font-medium block">Min Numeral Height</span>
+          <span class="text-lg font-extrabold text-emerald-700">${res.minHeightNumeralMm} mm</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function runSymbolVerification() {
+  const str = document.getElementById("symbolInputStr")?.value || "";
+  const box = document.getElementById("symbolResultBox");
+  if (!box || typeof window.validateMetricSymbol !== "function") return;
+
+  const res = window.validateMetricSymbol(str);
+
+  if (res.isValid) {
+    box.className = "p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900";
+    box.innerHTML = `
+      <div class="flex items-center gap-2 font-bold text-xs text-emerald-700">
+        <span>✅ STATUTORY METRIC SYMBOL VERIFIED</span>
+      </div>
+      <p class="text-xs text-emerald-800 mt-1">${res.reason}</p>`;
+  } else {
+    box.className = "p-4 rounded-xl bg-red-50 border border-red-200 text-red-900";
+    box.innerHTML = `
+      <div class="flex items-center gap-2 font-bold text-xs text-red-700">
+        <span>⚠️ RULE 13 NON-STATUTORY SYMBOL DETECTED</span>
+      </div>
+      <p class="text-xs text-red-800 mt-1">${res.reason}</p>`;
+  }
+}
+
+function runDealerPricingCheck() {
+  const mrp = document.getElementById("dealerMrpInput")?.value || 100;
+  const sell = document.getElementById("dealerSellingInput")?.value || 120;
+  const box = document.getElementById("dealerResultBox");
+  if (!box || typeof window.evaluateDealerPricing !== "function") return;
+
+  const res = window.evaluateDealerPricing(mrp, sell);
+
+  if (res.compliant) {
+    box.className = "p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900";
+    box.innerHTML = `
+      <div class="flex items-center justify-between text-xs font-bold text-emerald-700">
+        <span>✅ PRICE COMPLIANT</span>
+        <span>Declared MRP: ₹${res.mrp.toFixed(2)}</span>
+      </div>
+      <p class="text-xs text-emerald-800 mt-1">${res.reason}</p>`;
+  } else {
+    box.className = "p-4 rounded-xl bg-red-50 border border-red-200 text-red-900 space-y-2";
+    box.innerHTML = `
+      <div class="flex items-center justify-between text-xs font-bold text-red-700">
+        <span>⚠️ OVERCHARGING VIOLATION (RULE 18(2))</span>
+        <span>Excess Charge: ₹${res.excessAmount.toFixed(2)}</span>
+      </div>
+      <p class="text-xs text-red-800 leading-relaxed">${res.reason}</p>
+      <div class="pt-2 border-t border-red-200 text-[11px] text-red-700 font-medium">
+        Penalty: Compounding fee of ₹5,000 to ₹25,000 under Section 36 of Legal Metrology Act.
+      </div>`;
+  }
+}
+
+function runPenaltyEstimation() {
+  const clause = document.getElementById("penaltyClauseSelect")?.value || "Rule 6";
+  const repeat = document.getElementById("penaltyRepeatCheck")?.checked || false;
+  const box = document.getElementById("penaltyResultBox");
+  if (!box || typeof window.calculateJanVishwasPenalty !== "function") return;
+
+  const res = window.calculateJanVishwasPenalty(clause, repeat);
+
+  box.className = "p-4 rounded-xl bg-slate-900 text-white space-y-3";
+  box.innerHTML = `
+    <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+      <span class="text-xs font-bold text-emerald-400">Offense: ${res.offense} (${res.repeat ? 'Second / Repeat' : 'First Offense'})</span>
+      <span class="text-[10px] font-mono text-slate-300">Jan Vishwas Act 2023</span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+      <div>
+        <span class="text-slate-400 font-medium">Statutory Fine Limit</span>
+        <p class="text-sm font-extrabold text-red-400 mt-0.5">${res.statutoryFine}</p>
+      </div>
+      <div>
+        <span class="text-slate-400 font-medium">Estimated Compounding Fee</span>
+        <p class="text-sm font-extrabold text-amber-400 mt-0.5">${res.compoundingFee}</p>
+      </div>
+    </div>
+    <div class="pt-2 border-t border-slate-800 text-[11px] text-slate-300">
+      <strong>Adjudication:</strong> ${res.adjudicatingAuthority} (${res.actRef})
+    </div>`;
+}
+
+// Universal module exports for browser
+if (typeof window !== "undefined") {
+  window.switchRulesSubTab = switchRulesSubTab;
+  window.renderRulesSuiteView = renderRulesSuiteView;
+  window.filterRulesByChapter = filterRulesByChapter;
+  window.filterRulesCatalog = filterRulesCatalog;
+  window.runMpeCalculation = runMpeCalculation;
+  window.runPdpCalculation = runPdpCalculation;
+  window.runSymbolVerification = runSymbolVerification;
+  window.runDealerPricingCheck = runDealerPricingCheck;
+  window.runPenaltyEstimation = runPenaltyEstimation;
+}
+
 
 

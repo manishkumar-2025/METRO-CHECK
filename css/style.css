@@ -263,6 +263,21 @@ body.theme-dark .slot-card-active {
   box-shadow: 0 0 0 2px #f59e0b, 0 0 24px rgba(245, 158, 11, 0.25) !important;
 }
 
+/* Active Slot Pill Badge */
+.slot-pill-active {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+}
+
+body.theme-dark .slot-pill-active {
+  background-color: #f59e0b !important;
+  color: #0f172a !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35) !important;
+}
+
 /* Linear-Style High Impact AI CTA Button */
 .btn-ai-scan {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -2859,4 +2874,106 @@ body.theme-dark .sticky-frosted-nav {
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
+
+/* ==========================================================================
+   28. Universal Responsive & Cross-Device System (Mobile to Ultrawide)
+   ========================================================================== */
+
+/* Prevent horizontal page overflow across all viewports */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Fluid Responsive Container Wrappers */
+.porcelain-canvas {
+  width: 100%;
+  max-width: 1600px;
+}
+
+@media (min-width: 1920px) {
+  .porcelain-canvas {
+    max-width: 1800px;
+  }
+}
+
+/* Responsive Table Container System */
+.responsive-table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 1rem;
+  scrollbar-width: thin;
+}
+
+.responsive-table-container table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Touch Target & Fluid Typography Optimization for Mobile Devices */
+@media (max-width: 768px) {
+  button, select, input[type="text"], input[type="number"], input[type="search"] {
+    min-height: 40px;
+  }
+  
+  .inspector-nav-btn {
+    min-height: 44px;
+  }
+
+  /* Compact padding for smaller screens */
+  .modern-card {
+    padding: 1rem !important;
+  }
+
+  /* Full width dropdown and popovers on small screens */
+  .user-menu-popover,
+  #inspectorNotificationDropdown {
+    max-width: calc(100vw - 20px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra tight side padding for small phones */
+  .modern-card {
+    padding: 0.875rem !important;
+    border-radius: 1rem !important;
+  }
+
+  .slot-card-active {
+    border-width: 2px !important;
+  }
+
+  /* Ensure modal dialogue doesn't touch screen edges */
+  .modal-dialog-responsive {
+    margin: 0.75rem !important;
+    max-width: calc(100vw - 1.5rem) !important;
+  }
+}
+
+/* Custom Scrollbar for Inline Scrollable Containers */
+.custom-scroll-x {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.custom-scroll-x::-webkit-scrollbar {
+  height: 5px;
+}
+
+.custom-scroll-x::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.custom-scroll-x::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+
 

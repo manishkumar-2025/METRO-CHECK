@@ -393,27 +393,35 @@ async function callGeminiVisionApi({ apiKey, prompt, imagesToProcess }) {
 app.post("/api/scan", upload.fields([
   { name: "image", maxCount: 1 },
   { name: "imageFront", maxCount: 1 },
-  { name: "imageBack", maxCount: 1 }
+  { name: "imageBack", maxCount: 1 },
+  { name: "imageLeft", maxCount: 1 },
+  { name: "imageRight", maxCount: 1 },
+  { name: "imageTop", maxCount: 1 },
+  { name: "imageBottom", maxCount: 1 }
 ]), async (req, res) => {
   try {
     const imagesToProcess = [];
 
+    const panelLabels = {
+      imageFront: "Front Panel (Principal Display)",
+      imageBack: "Back Declaration Panel",
+      imageLeft: "Left Side Panel",
+      imageRight: "Right Side Panel",
+      imageTop: "Top Panel",
+      imageBottom: "Bottom Panel"
+    };
+
     // 1. Process multipart file uploads
     if (req.files) {
-      if (req.files.imageFront && req.files.imageFront[0]) {
-        imagesToProcess.push({
-          data: req.files.imageFront[0].buffer.toString("base64"),
-          mimeType: req.files.imageFront[0].mimetype || "image/jpeg",
-          panel: "Front Panel (Principal Display)"
-        });
-      }
-      if (req.files.imageBack && req.files.imageBack[0]) {
-        imagesToProcess.push({
-          data: req.files.imageBack[0].buffer.toString("base64"),
-          mimeType: req.files.imageBack[0].mimetype || "image/jpeg",
-          panel: "Back / Side Declaration Panel"
-        });
-      }
+      Object.keys(panelLabels).forEach(key => {
+        if (req.files[key] && req.files[key][0]) {
+          imagesToProcess.push({
+            data: req.files[key][0].buffer.toString("base64"),
+            mimeType: req.files[key][0].mimetype || "image/jpeg",
+            panel: panelLabels[key]
+          });
+        }
+      });
       if (req.files.image && req.files.image[0] && imagesToProcess.length === 0) {
         imagesToProcess.push({
           data: req.files.image[0].buffer.toString("base64"),
@@ -425,8 +433,30 @@ app.post("/api/scan", upload.fields([
 
     // 2. Process JSON payload with base64 images
     if (req.body && imagesToProcess.length === 0) {
-      // Multiple images array
-      if (Array.isArray(req.body.images) && req.body.images.length > 0) {
+      // Panels array (multi-panel structure)
+      if (Array.isArray(req.body.panels) && req.body.panels.length > 0) {
+        req.body.panels.forEach((p, idx) => {
+          let b64 = typeof p === "object" ? (p.imageBase64 || p.data || p.url) : p;
+          let mime = typeof p === "object" ? (p.mimeType || "image/jpeg") : "image/jpeg";
+          let pName = typeof p === "object" ? (p.panelName || p.slot || `Panel ${idx + 1}`) : `Panel ${idx + 1}`;
+          if (typeof b64 === "string" && b64.includes("base64,")) {
+            const parts = b64.split("base64,");
+            b64 = parts[1];
+            const matchMime = parts[0].match(/data:(.*?);/);
+            if (matchMime) mime = matchMime[1];
+          }
+          if (b64) {
+            imagesToProcess.push({
+              data: b64,
+              mimeType: mime,
+              panel: pName
+            });
+          }
+        });
+      }
+
+      // Legacy/Multiple images array
+      if (Array.isArray(req.body.images) && req.body.images.length > 0 && imagesToProcess.length === 0) {
         req.body.images.forEach((img, idx) => {
           let b64 = typeof img === "object" ? (img.data || img.imageBase64) : img;
           let mime = typeof img === "object" ? (img.mimeType || "image/jpeg") : "image/jpeg";
@@ -440,36 +470,26 @@ app.post("/api/scan", upload.fields([
             imagesToProcess.push({
               data: b64,
               mimeType: mime,
-              panel: idx === 0 ? "Front Panel" : "Back Panel"
+              panel: idx === 0 ? "Front Panel" : `Panel ${idx + 1}`
             });
           }
         });
       }
 
-      // Explicit front and back properties
-      if (req.body.imageFront) {
-        let b64 = req.body.imageFront;
-        let mime = "image/jpeg";
-        if (b64.includes("base64,")) {
-          const parts = b64.split("base64,");
-          b64 = parts[1];
-          const matchMime = parts[0].match(/data:(.*?);/);
-          if (matchMime) mime = matchMime[1];
+      // Explicit panel properties (imageFront, imageBack, imageLeft, imageRight, imageTop, imageBottom)
+      Object.keys(panelLabels).forEach(key => {
+        if (req.body[key] && typeof req.body[key] === "string") {
+          let b64 = req.body[key];
+          let mime = "image/jpeg";
+          if (b64.includes("base64,")) {
+            const parts = b64.split("base64,");
+            b64 = parts[1];
+            const matchMime = parts[0].match(/data:(.*?);/);
+            if (matchMime) mime = matchMime[1];
+          }
+          imagesToProcess.push({ data: b64, mimeType: mime, panel: panelLabels[key] });
         }
-        imagesToProcess.push({ data: b64, mimeType: mime, panel: "Front Panel" });
-      }
-
-      if (req.body.imageBack) {
-        let b64 = req.body.imageBack;
-        let mime = "image/jpeg";
-        if (b64.includes("base64,")) {
-          const parts = b64.split("base64,");
-          b64 = parts[1];
-          const matchMime = parts[0].match(/data:(.*?);/);
-          if (matchMime) mime = matchMime[1];
-        }
-        imagesToProcess.push({ data: b64, mimeType: mime, panel: "Back Panel" });
-      }
+      });
 
       // Legacy single imageBase64 fallback
       if (req.body.imageBase64 && imagesToProcess.length === 0) {

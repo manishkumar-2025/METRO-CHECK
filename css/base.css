@@ -1,0 +1,186 @@
+/* ==========================================================================
+   METRO-CHECK - Base Styles & Design Tokens (css/base.css)
+   Contains core variables (:root), fonts, global resets, & scrollbars.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   METRO-CHECK - Custom Stylesheet (css/style.css)
+   Legal Metrology Compliance Verification System
+   ========================================================================== */
+
+/* 1. Import Google Font (Inter for clean, modern readability) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ==========================================================================
+   2. Modern Sovereign Design Token System (Linear / Supabase / Apple Inspired)
+   ========================================================================== */
+.bg-pattern-subtle {
+  background-image: radial-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+.dark .bg-pattern-subtle {
+  background-image: radial-gradient(rgba(248, 250, 252, 0.05) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+:root {
+  /* Brand Foundations */
+  --gov-primary: #1a365d;            /* Sovereign State Navy */
+  --gov-primary-hover: #102a4e;      /* Deep Navy Hover */
+  --gov-primary-active: #0c1e38;     /* Pressed Navy */
+  --gov-primary-subtle: #ebf3fc;     /* Delicate Navy Wash */
+  --gov-primary-text: #ffffff;
+
+  /* Executive Secondary (Slate) */
+  --gov-secondary: #475569;          /* Slate 600 */
+  --gov-secondary-hover: #334155;    /* Slate 700 */
+  --gov-secondary-active: #1e293b;   /* Slate 800 */
+  --gov-secondary-subtle: #f1f5f9;   /* Slate 100 */
+
+  /* Sovereign Accent (Forensic AI & Active Reticle) */
+  --gov-accent: #d97706;             /* Saffron Gold / Deep Amber */
+  --gov-accent-hover: #b45309;       /* Deep Gold */
+  --gov-accent-subtle: #fffbeb;      /* Saffron Mist */
+  --gov-accent-border: #fcd34d;      /* Gold Focus Border */
+  --gov-accent-glow: rgba(217, 119, 6, 0.22);
+
+  /* Light Canvas & Surfaces */
+  --gov-bg: #f8fafc;                 /* Ultra-clean Slate Canvas */
+  --gov-bg-alt: #f1f5f9;             /* Secondary Canvas */
+  --gov-surface: #ffffff;            /* Card / Container */
+  --gov-surface-elevated: #ffffff;   /* Modal / Popover */
+  --gov-surface-sunken: #f8fafc;     /* Input Wells / Code Blocks */
+
+  /* Typography */
+  --gov-text-primary: #0f172a;       /* Slate 900 (AAA Contrast) */
+  --gov-text-secondary: #334155;     /* Slate 700 */
+  --gov-text-muted: #64748b;         /* Slate 500 (Accessible 4.9:1) */
+  --gov-text-inverse: #ffffff;
+
+  /* Borders & Dividers */
+  --gov-border: #e2e8f0;             /* Clean Card Border */
+  --gov-border-subtle: #f1f5f9;      /* Inner Row Divider */
+  --gov-border-strong: #cbd5e1;      /* Table / Input Border */
+
+  /* Decisive Semantics (100% WCAG AA / AAA) */
+  --gov-success: #059669;            /* Rule Compliant */
+  --gov-success-subtle: #ecfdf5;
+  --gov-success-text: #065f46;
+  --gov-success-border: #a7f3d0;
+
+  --gov-danger: #dc2626;             /* Statutory Violation / Seizure */
+  --gov-danger-subtle: #fef2f2;
+  --gov-danger-text: #991b1b;
+  --gov-danger-border: #fecaca;
+
+  --gov-warning: #d97706;            /* Judicial Adjudication / Pending */
+  --gov-warning-subtle: #fffbeb;
+  --gov-warning-text: #92400e;
+  --gov-warning-border: #fde68a;
+
+  --gov-info: #2563eb;               /* Schedule 2 Standards */
+  --gov-info-subtle: #eff6ff;
+  --gov-info-text: #1e40af;
+  --gov-info-border: #bfdbfe;
+}
+
+/* Modern Dark Theme Variables (Obsidian & Executive Slate) */
+body.theme-dark {
+  --gov-bg: #090d16;                 /* Obsidian Navy Canvas */
+  --gov-bg-alt: #0f172a;
+  --gov-surface: #111827;            /* Elevated Slate Navy Card */
+  --gov-surface-elevated: #1c263f;   /* Modal / Popover Wells */
+  --gov-surface-sunken: #090e1a;
+
+  --gov-text-primary: #f8fafc;
+  --gov-text-secondary: #cbd5e1;
+  --gov-text-muted: #94a3b8;
+
+  --gov-border: #1f293d;
+  --gov-border-subtle: #162033;
+  --gov-border-strong: #2e3d5c;
+
+  --gov-success-subtle: rgba(5, 150, 105, 0.16);
+  --gov-success-text: #34d399;
+  --gov-success-border: rgba(5, 150, 105, 0.32);
+
+  --gov-danger-subtle: rgba(220, 38, 38, 0.16);
+  --gov-danger-text: #f87171;
+  --gov-danger-border: rgba(220, 38, 38, 0.32);
+
+  --gov-warning-subtle: rgba(217, 119, 6, 0.16);
+  --gov-warning-text: #fbbf24;
+  --gov-warning-border: rgba(217, 119, 6, 0.32);
+
+  --gov-info-subtle: rgba(37, 99, 235, 0.16);
+  --gov-info-text: #60a5fa;
+  --gov-info-border: rgba(37, 99, 235, 0.32);
+}
+
+/* 3. Global Base Styles */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--gov-bg);
+  color: var(--gov-text-primary);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  transition: background-color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom slim webkit scrollbar (track #F7F8FA, thumb #CBD5E1) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7F8FA;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Firefox standard scrollbar support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 #F7F8FA;
+}
+
+/* Global focus-visible */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #F7F8FA, 0 0 0 4px #10B981 !important;
+  border-radius: 4px;
+}
+
+/* Glass Header Class */
+.glass-header {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transform: translateZ(0);
+  will-change: backdrop-filter;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+body.theme-dark .glass-header {
+  background: rgba(15, 23, 42, 0.88) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+

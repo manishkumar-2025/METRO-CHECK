@@ -384,7 +384,7 @@
           ${violSnippet}
 
           <div class="flex items-center justify-between pt-1 text-xs">
-            <span class="text-[10.5px] text-[#64748B] font-mono">${r.date || "2025-01-15"}</span>
+            <span class="text-[10.5px] text-[#64748B] font-mono">${r.date || "2026-09-13"}</span>
             <div class="flex items-center gap-2">
               <button type="button" 
                       onclick="DemoShowcase.viewInLedger('${r.id}')" 

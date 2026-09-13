@@ -1,0 +1,197 @@
+/* ==========================================================================
+   METRO-CHECK - Admin Portal & Master Ledger Styles (css/admin.css)
+   Contains master ledger, zebra striping, analytics charts, & report print styles.
+   ========================================================================== */
+
+
+  /* Suppress screen-only chrome */
+  .print\:hidden,
+  header#nationalGovMasthead,
+  .tricolor-strip,
+  aside,
+  nav,
+  #globalToastContainer,
+  #serverDisconnectedBanner {
+    display: none !important;
+  }
+
+  /* Format printable main document sheet */
+  main#mainContent {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Retain authentic stamp & seal double border */
+  .official-gov-seal {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .seal-compliant {
+    border: 3px double #059669 !important;
+    color: #047857 !important;
+    background: rgba(16, 185, 129, 0.06) !important;
+  }
+
+  .seal-violation {
+    border: 3px double #dc2626 !important;
+    color: #b91c1c !important;
+    background: rgba(239, 68, 68, 0.06) !important;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}
+
+/* ==========================================================================
+   20. GPU Compositing & DOM Render Optimization
+   ========================================================================== */
+#nationalGovMasthead {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Unified Admin & Portal Sidebar Navigation Items */
+.sidebar-nav-item {
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* Master Ledger: Clean Zebra Striping */
+#masterLedgerTableBody tr:nth-child(even) {
+  background-color: #F8FAFC !important;
+}
+
+#masterLedgerTableBody tr:nth-child(odd) {
+  background-color: #FFFFFF !important;
+}
+
+#masterLedgerTableBody tr:hover {
+  background-color: #F1F5F9 !important;
+}
+
+/* Master Ledger: SHA hash in monospace gray text */
+#masterLedgerTableBody {
+  counter-reset: ledger-sha-counter;
+}
+
+#masterLedgerTableBody tr {
+  counter-increment: ledger-sha-counter;
+}
+
+#masterLedgerTableBody td:first-child {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  color: #0F172A !important;
+  font-weight: 600 !important;
+}
+
+#masterLedgerTableBody td:first-child::after {
+  content: "SHA: 7f8a" counter(ledger-sha-counter, decimal-leading-zero) "b3...e49c";
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  color: #94A3B8;
+  font-weight: 400;
+  margin-top: 2px;
+  letter-spacing: -0.01em;
+}
+
+/* Strict Color Palette for Violation Bars: ONLY emerald, amber, red, indigo */
+#analyticsViolationBarsContainer .bg-blue-500 {
+  background-color: #6366F1 !important; /* Indigo */
+}
+#analyticsViolationBarsContainer .text-blue-600 {
+  color: #4F46E5 !important;
+}
+
+#analyticsViolationBarsContainer .bg-purple-500 {
+  background-color: #10B981 !important; /* Emerald */
+}
+#analyticsViolationBarsContainer .text-purple-600 {
+  color: #059669 !important;
+}
+
+#analyticsViolationBarsContainer .bg-amber-500 {
+  background-color: #F59E0B !important; /* Amber */
+}
+#analyticsViolationBarsContainer .text-amber-600 {
+  color: #D97706 !important;
+}
+
+#analyticsViolationBarsContainer .bg-red-500 {
+  background-color: #EF4444 !important; /* Red */
+}
+#analyticsViolationBarsContainer .text-red-600 {
+  color: #DC2626 !important;
+}
+
+/* Analytics Trend Badges */
+.trend-up {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #059669;
+  background-color: #ECFDF5;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  border: 1px solid #A7F3D0;
+}
+
+.trend-neutral {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #4F46E5;
+  background-color: #EEF2FF;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  border: 1px solid #C7D2FE;
+}
+
+.trend-warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #D97706;
+  background-color: #FFFBEB;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  border: 1px solid #FDE68A;
+}
+
+/* ==========================================================================
+   19. Ultra-Refined Left Navigation Sidebar (GovTech Modern Executive System)
+   ========================================================================== */
+.sidebar-container {
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 2px 0 16px -2px rgba(15, 23, 42, 0.05);
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s ease-in-out;
+}
+
+body.theme-dark .sidebar-container {
+  background: linear-gradient(180deg, #0F172A 0%, #0B1120 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 4px 0 24px -2px rgba(0, 0, 0, 0.25);
+}
+

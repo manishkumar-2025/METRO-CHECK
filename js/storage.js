@@ -180,15 +180,12 @@ function compressImageForStorage(dataUrl, maxWidth = 350, quality = 0.6) {
  */
 function saveInspection(inspectionData) {
   // Compress images to max-width 350px and 0.6 JPEG quality before saving to localStorage
-  if (inspectionData.image && inspectionData.image.length > 50000) {
-    inspectionData.image = compressImageForStorage(inspectionData.image, 350, 0.6);
-  }
-  if (inspectionData.imageFront && inspectionData.imageFront.length > 50000) {
-    inspectionData.imageFront = compressImageForStorage(inspectionData.imageFront, 350, 0.6);
-  }
-  if (inspectionData.imageBack && inspectionData.imageBack.length > 50000) {
-    inspectionData.imageBack = compressImageForStorage(inspectionData.imageBack, 350, 0.6);
-  }
+  const imgKeys = ["image", "imageFront", "imageBack", "imageLeft", "imageRight", "imageTop", "imageBottom"];
+  imgKeys.forEach(k => {
+    if (inspectionData[k] && typeof inspectionData[k] === "string" && inspectionData[k].length > 50000) {
+      inspectionData[k] = compressImageForStorage(inspectionData[k], 350, 0.6);
+    }
+  });
 
   const allInspections = getInspections();
   if (!inspectionData.id) inspectionData.id = generateId("INS-");
@@ -215,9 +212,8 @@ function saveInspection(inspectionData) {
       const pruned = allInspections.map((rec, idx) => {
         if (idx > 2) {
           const shallow = { ...rec };
-          delete shallow.image;
-          delete shallow.imageFront;
-          delete shallow.imageBack;
+          imgKeys.forEach(k => delete shallow[k]);
+          delete shallow.panelImages;
           return shallow;
         }
         return rec;
@@ -315,10 +311,10 @@ const INSPECTION_STATUS = {
 
 function formatStatusLabel(status) {
   const s = String(status || "").toUpperCase();
-  if (s === "NON_COMPLIANT_PENDING" || s === "SUBMITTED" || s === "PENDING") return "Pending Officer Review";
-  if (s === "COMPLIANT_LOGGED" || s === "APPROVED") return "Compliant (Logged)";
+  if (s === "NON_COMPLIANT_PENDING" || s === "SUBMITTED" || s === "PENDING") return "Pending Review (Non-Compliant)";
+  if (s === "COMPLIANT_LOGGED" || s === "APPROVED") return "Compliant";
   if (s === "OFFICER_APPROVED") return "Violation Confirmed";
-  if (s === "OFFICER_DISMISSED" || s === "REJECTED") return "Violation Dismissed";
+  if (s === "OFFICER_DISMISSED" || s === "REJECTED") return "Dismissed";
   if (s === "NOTICE_ISSUED") return "Notice Issued";
   if (s === "DRAFT") return "Draft";
   return status || "Pending";
@@ -363,6 +359,7 @@ function updateInspectionStatus(inspectionId, newStatus, comments, reviewFields 
 
 /**
  * Calculates summary metrics for the dashboard matching the standardized state machine.
+ * Categories are mutually exclusive: Compliant + Confirmed/Notice Violations + Pending Review = Total Scans.
  */
 function getStats() {
   const allInspections = filterByZoneAccess(getInspections());
@@ -371,10 +368,11 @@ function getStats() {
   allInspections.forEach(function(item) {
     const s = String(item.status || "").toUpperCase();
     const isComp = item.isCompliant === true || s === "COMPLIANT_LOGGED" || s === "APPROVED";
-    if (isComp) compliantCount++;
-    else violationsCount++;
-
-    if (s === "NON_COMPLIANT_PENDING" || s === "SUBMITTED" || s === "PENDING") {
+    if (isComp) {
+      compliantCount++;
+    } else if (s === "NOTICE_ISSUED" || s === "OFFICER_APPROVED") {
+      violationsCount++;
+    } else {
       pendingReviewCount++;
     }
   });

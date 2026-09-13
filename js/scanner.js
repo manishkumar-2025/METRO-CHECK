@@ -6,11 +6,6 @@
 let activeCameraStream = null;
 let currentCameraFacingMode = "environment"; // Default to back camera for package scanning
 let currentUploadedImageDataUrl = null;
-let currentFrontImageDataUrl = null;
-let currentBackImageDataUrl = null;
-let activeCaptureSlot = "front"; // 'front' or 'back'
-let currentInspectionResult = null;
-let currentCaseId = null;
 
 /* ==========================================================================
    SERVER HEALTH BANNER & CONNECTIVITY MONITOR
@@ -42,11 +37,11 @@ function switchCaptureMode(mode) {
     if (cameraBox) cameraBox.classList.remove("hidden");
     if (uploadBox) uploadBox.classList.add("hidden");
     if (btnCamera) {
-      btnCamera.className = "px-3 py-1.5 rounded-lg font-bold bg-white text-slate-900 shadow-sm transition flex items-center gap-1.5";
+      btnCamera.className = "px-3 py-1.5 rounded-md font-semibold bg-white text-[#0F172A] shadow-xs transition flex items-center gap-1.5 cursor-pointer";
       btnCamera.setAttribute("aria-selected", "true");
     }
     if (btnUpload) {
-      btnUpload.className = "px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5";
+      btnUpload.className = "px-3 py-1.5 rounded-md font-medium text-[#64748B] hover:text-[#0F172A] transition flex items-center gap-1.5 cursor-pointer";
       btnUpload.setAttribute("aria-selected", "false");
     }
     if (typeof startLiveCamera === "function") startLiveCamera();
@@ -54,11 +49,11 @@ function switchCaptureMode(mode) {
     if (cameraBox) cameraBox.classList.add("hidden");
     if (uploadBox) uploadBox.classList.remove("hidden");
     if (btnUpload) {
-      btnUpload.className = "px-3 py-1.5 rounded-lg font-bold bg-white text-slate-900 shadow-sm transition flex items-center gap-1.5";
+      btnUpload.className = "px-3 py-1.5 rounded-md font-semibold bg-white text-[#0F172A] shadow-xs transition flex items-center gap-1.5 cursor-pointer";
       btnUpload.setAttribute("aria-selected", "true");
     }
     if (btnCamera) {
-      btnCamera.className = "px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5";
+      btnCamera.className = "px-3 py-1.5 rounded-md font-medium text-[#64748B] hover:text-[#0F172A] transition flex items-center gap-1.5 cursor-pointer";
       btnCamera.setAttribute("aria-selected", "false");
     }
     if (typeof stopLiveCamera === "function") stopLiveCamera();
@@ -86,8 +81,8 @@ async function checkServerHealth() {
       }
       const badge = document.getElementById("aiEngineReadyBadge");
       if (badge) {
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Gemini Vision Connected`;
-        badge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-50 text-emerald-700 border border-emerald-300 flex items-center gap-1.5";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span> <span class="hidden md:inline">Automated </span><span class="hidden sm:inline">Vision Engine </span><span>Connected</span>`;
+        badge.className = "flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-emerald-50 text-emerald-700 font-bold text-[10px] sm:text-xs rounded-full border border-emerald-200 flex-shrink-0";
       }
       return true;
     } else {
@@ -98,8 +93,8 @@ async function checkServerHealth() {
     showServerDisconnectedBanner();
     const badge = document.getElementById("aiEngineReadyBadge");
     if (badge) {
-      badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> Backend Disconnected`;
-      badge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-red-50 text-red-700 border border-red-300 flex items-center gap-1.5";
+      badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></span> <span class="hidden sm:inline">Backend </span><span>Offline</span>`;
+      badge.className = "flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-red-50 text-red-700 font-bold text-[10px] sm:text-xs rounded-full border border-red-200 flex-shrink-0";
     }
     return false;
   }
@@ -139,37 +134,139 @@ if (typeof window !== "undefined") {
   }
 }
 
+/* ==========================================================================
+   MULTI-PANEL ENGINE CONFIGURATION & DATA STRUCTURES
+   ========================================================================== */
+const PANEL_SLOTS = ["front", "back", "left", "right", "top", "bottom"];
+
+const PANEL_DEFINITIONS = {
+  front: {
+    id: "front",
+    name: "Front Facing Panel",
+    shortName: "Front",
+    icon: "1️⃣",
+    badgeLabel: "Panel 1: Front Facing",
+    targetLabel: "[TARGET: PANEL 1 - FRONT FACING]",
+    inputKey: "imageFront"
+  },
+  back: {
+    id: "back",
+    name: "Back Declaration Panel",
+    shortName: "Back",
+    icon: "2️⃣",
+    badgeLabel: "Panel 2: Back Declaration",
+    targetLabel: "[TARGET: PANEL 2 - BACK DECLARATIONS]",
+    inputKey: "imageBack"
+  },
+  left: {
+    id: "left",
+    name: "Left Side Panel",
+    shortName: "Left Side",
+    icon: "3️⃣",
+    badgeLabel: "Panel 3: Left Side",
+    targetLabel: "[TARGET: PANEL 3 - LEFT SIDE]",
+    inputKey: "imageLeft"
+  },
+  right: {
+    id: "right",
+    name: "Right Side Panel",
+    shortName: "Right Side",
+    icon: "4️⃣",
+    badgeLabel: "Panel 4: Right Side",
+    targetLabel: "[TARGET: PANEL 4 - RIGHT SIDE]",
+    inputKey: "imageRight"
+  },
+  top: {
+    id: "top",
+    name: "Top Panel",
+    shortName: "Top",
+    icon: "5️⃣",
+    badgeLabel: "Panel 5: Top Panel",
+    targetLabel: "[TARGET: PANEL 5 - TOP PANEL]",
+    inputKey: "imageTop"
+  },
+  bottom: {
+    id: "bottom",
+    name: "Bottom Panel",
+    shortName: "Bottom",
+    icon: "6️⃣",
+    badgeLabel: "Panel 6: Bottom Panel",
+    targetLabel: "[TARGET: PANEL 6 - BOTTOM PANEL]",
+    inputKey: "imageBottom"
+  }
+};
+
+const panelImages = {
+  front: null,
+  back: null,
+  left: null,
+  right: null,
+  top: null,
+  bottom: null
+};
+
+let activeCaptureSlot = "front"; // 'front', 'back', 'left', 'right', 'top', 'bottom'
+let currentInspectionResult = null;
+let currentCaseId = null;
+
+// Backward-compatibility getters/setters for legacy variables
+if (typeof window !== "undefined") {
+  try {
+    Object.defineProperty(window, "currentFrontImageDataUrl", {
+      get: () => panelImages.front,
+      set: (v) => { panelImages.front = v; updateMultiPanelState(); },
+      configurable: true
+    });
+    Object.defineProperty(window, "currentBackImageDataUrl", {
+      get: () => panelImages.back,
+      set: (v) => { panelImages.back = v; updateMultiPanelState(); },
+      configurable: true
+    });
+  } catch (e) { }
+}
+
+function capitalizeSlot(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+}
+
 function setActiveCaptureSlot(slot) {
+  if (!PANEL_DEFINITIONS[slot]) slot = "front";
   activeCaptureSlot = slot;
-  const slotFrontBtn = document.getElementById("slotBtnFront");
-  const slotBackBtn = document.getElementById("slotBtnBack");
+
+  const def = PANEL_DEFINITIONS[slot];
+
+  // 1. Update active badge display & camera viewfinder target label
+  const badgeDisplay = document.getElementById("activeSlotBadgeDisplay");
+  if (badgeDisplay) {
+    badgeDisplay.textContent = def.badgeLabel;
+  }
   const targetLabel = document.getElementById("cameraTargetLabel");
-  const slotCardFront = document.getElementById("slotCardFront");
-  const slotCardBack = document.getElementById("slotCardBack");
-  
-  if (slotFrontBtn && slotBackBtn) {
-    if (slot === "front") {
-      slotFrontBtn.className = "py-1 px-3 rounded-md font-semibold text-xs bg-[#10B981] text-white shadow-xs transition flex items-center gap-1";
-      slotBackBtn.className = "py-1 px-3 rounded-md font-medium text-xs bg-white text-[#64748B] hover:bg-slate-100 transition border border-[#E4E7EC] flex items-center gap-1";
-      if (targetLabel) targetLabel.textContent = "[TARGET: PANEL 1 - FRONT FACING]";
-      if (slotCardFront) {
-        slotCardFront.classList.add("slot-card-active");
-      }
-      if (slotCardBack) {
-        slotCardBack.classList.remove("slot-card-active");
-      }
-    } else {
-      slotFrontBtn.className = "py-1 px-3 rounded-md font-medium text-xs bg-white text-[#64748B] hover:bg-slate-100 transition border border-[#E4E7EC] flex items-center gap-1";
-      slotBackBtn.className = "py-1 px-3 rounded-md font-semibold text-xs bg-[#10B981] text-white shadow-xs transition flex items-center gap-1";
-      if (targetLabel) targetLabel.textContent = "[TARGET: PANEL 2 - BACK/SIDE DECLARATIONS]";
-      if (slotCardBack) {
-        slotCardBack.classList.add("slot-card-active");
-      }
-      if (slotCardFront) {
-        slotCardFront.classList.remove("slot-card-active");
+  if (targetLabel) {
+    targetLabel.textContent = def.targetLabel;
+  }
+
+  // 2. Update 6-panel selector pill & card highlight styles
+  PANEL_SLOTS.forEach(s => {
+    const cap = capitalizeSlot(s);
+    const pill = document.getElementById(`slotBtn${cap}`);
+    const card = document.getElementById(`slotCard${cap}`);
+
+    if (pill) {
+      if (s === slot) {
+        pill.className = "py-1.5 px-2.5 rounded-lg font-semibold text-xs transition flex items-center justify-between gap-1 border slot-pill-active cursor-pointer";
+      } else {
+        pill.className = "py-1.5 px-2.5 rounded-lg font-medium text-xs transition flex items-center justify-between gap-1 border bg-white text-[#64748B] hover:bg-slate-100 cursor-pointer";
       }
     }
-  }
+
+    if (card) {
+      if (s === slot) {
+        card.classList.add("slot-card-active");
+      } else {
+        card.classList.remove("slot-card-active");
+      }
+    }
+  });
 }
 
 /**
@@ -181,7 +278,7 @@ function compressImageDataUrl(dataUrl, maxDimension = 1280, quality = 0.78, call
     return;
   }
   const img = new Image();
-  img.onload = function() {
+  img.onload = function () {
     let width = img.naturalWidth || img.width;
     let height = img.naturalHeight || img.height;
     if (width > maxDimension || height > maxDimension) {
@@ -201,7 +298,7 @@ function compressImageDataUrl(dataUrl, maxDimension = 1280, quality = 0.78, call
     const compressed = canvas.toDataURL("image/jpeg", quality);
     if (callback) callback(compressed);
   };
-  img.onerror = function() {
+  img.onerror = function () {
     if (callback) callback(dataUrl);
   };
   img.src = dataUrl;
@@ -216,7 +313,7 @@ function createLightweightThumbnail(dataUrl, callback) {
     return;
   }
   const img = new Image();
-  img.onload = function() {
+  img.onload = function () {
     const maxDim = 360;
     let width = img.naturalWidth || img.width;
     let height = img.naturalHeight || img.height;
@@ -237,62 +334,98 @@ function createLightweightThumbnail(dataUrl, callback) {
     const thumb = canvas.toDataURL("image/jpeg", 0.6);
     if (callback) callback(thumb);
   };
-  img.onerror = function() {
+  img.onerror = function () {
     if (callback) callback(dataUrl);
   };
   img.src = dataUrl;
 }
 
 function setSlotImage(slot, dataUrl) {
-  if (slot === "front") {
-    currentFrontImageDataUrl = dataUrl;
-    const imgEl = document.getElementById("slotPreviewImgFront");
-    const container = document.getElementById("slotPreviewFront");
-    const emptyBox = document.getElementById("slotEmptyFront");
-    if (imgEl) imgEl.src = dataUrl;
-    if (container) container.classList.remove("hidden");
-    if (emptyBox) emptyBox.classList.add("hidden");
-  } else {
-    currentBackImageDataUrl = dataUrl;
-    const imgEl = document.getElementById("slotPreviewImgBack");
-    const container = document.getElementById("slotPreviewBack");
-    const emptyBox = document.getElementById("slotEmptyBack");
-    if (imgEl) imgEl.src = dataUrl;
-    if (container) container.classList.remove("hidden");
-    if (emptyBox) emptyBox.classList.add("hidden");
+  if (!PANEL_DEFINITIONS[slot]) slot = "front";
+  panelImages[slot] = dataUrl;
+
+  const cap = capitalizeSlot(slot);
+
+  // Update uploader card preview
+  const imgEl = document.getElementById(`slotPreviewImg${cap}`);
+  const container = document.getElementById(`slotPreview${cap}`);
+  const emptyBox = document.getElementById(`slotEmpty${cap}`);
+
+  if (imgEl) imgEl.src = dataUrl;
+  if (container) container.classList.remove("hidden");
+  if (emptyBox) emptyBox.classList.add("hidden");
+
+  // Update camera live stream gallery thumbnail
+  const camImg = document.getElementById(`camThumbImg${cap}`);
+  const camTxt = document.getElementById(`camThumbText${cap}`);
+  if (camImg && camTxt) {
+    camImg.src = dataUrl;
+    camImg.classList.remove("hidden");
+    camTxt.classList.add("hidden");
   }
 
-  currentUploadedImageDataUrl = currentFrontImageDataUrl || currentBackImageDataUrl;
+  // Update selector pill checkmark
+  const badge = document.getElementById(`slotStatusBadge${cap}`);
+  if (badge) badge.classList.remove("hidden");
 
-  const analyzeBtn = document.getElementById("btnRunAiAnalysis");
-  if (analyzeBtn) {
-    analyzeBtn.disabled = false;
-    analyzeBtn.classList.remove("opacity-50", "cursor-not-allowed");
-    analyzeBtn.classList.add("btn-hover-effect");
-  }
+  updateMultiPanelState();
 }
 
 function clearSlotImage(slot) {
-  if (slot === "front") {
-    currentFrontImageDataUrl = null;
-    const container = document.getElementById("slotPreviewFront");
-    const emptyBox = document.getElementById("slotEmptyFront");
-    if (container) container.classList.add("hidden");
-    if (emptyBox) emptyBox.classList.remove("hidden");
-  } else {
-    currentBackImageDataUrl = null;
-    const container = document.getElementById("slotPreviewBack");
-    const emptyBox = document.getElementById("slotEmptyBack");
-    if (container) container.classList.add("hidden");
-    if (emptyBox) emptyBox.classList.remove("hidden");
+  if (!PANEL_DEFINITIONS[slot]) slot = "front";
+  panelImages[slot] = null;
+
+  const cap = capitalizeSlot(slot);
+
+  const container = document.getElementById(`slotPreview${cap}`);
+  const emptyBox = document.getElementById(`slotEmpty${cap}`);
+  if (container) container.classList.add("hidden");
+  if (emptyBox) emptyBox.classList.remove("hidden");
+
+  const camImg = document.getElementById(`camThumbImg${cap}`);
+  const camTxt = document.getElementById(`camThumbText${cap}`);
+  if (camImg && camTxt) {
+    camImg.src = "";
+    camImg.classList.add("hidden");
+    camTxt.classList.remove("hidden");
   }
 
-  currentUploadedImageDataUrl = currentFrontImageDataUrl || currentBackImageDataUrl;
+  const badge = document.getElementById(`slotStatusBadge${cap}`);
+  if (badge) badge.classList.add("hidden");
+
+  updateMultiPanelState();
+}
+
+function clearAllPanelImages() {
+  PANEL_SLOTS.forEach(slot => {
+    clearSlotImage(slot);
+  });
+  if (typeof showToast === "function") {
+    showToast("All specimen panels reset.", "info");
+  }
+}
+
+function updateMultiPanelState() {
+  const capturedCount = PANEL_SLOTS.filter(s => !!panelImages[s]).length;
+
+  currentUploadedImageDataUrl = panelImages.front || panelImages.back || panelImages.left || panelImages.right || panelImages.top || panelImages.bottom || null;
+
+  const counter = document.getElementById("capturedPanelsCounter");
+  if (counter) {
+    counter.textContent = `${capturedCount} of 6`;
+  }
 
   const analyzeBtn = document.getElementById("btnRunAiAnalysis");
-  if (analyzeBtn && !currentUploadedImageDataUrl) {
-    analyzeBtn.disabled = true;
-    analyzeBtn.classList.add("opacity-50", "cursor-not-allowed");
+  if (analyzeBtn) {
+    if (capturedCount > 0) {
+      analyzeBtn.disabled = false;
+      analyzeBtn.classList.remove("opacity-50", "cursor-not-allowed");
+      analyzeBtn.classList.add("btn-hover-effect");
+    } else {
+      analyzeBtn.disabled = true;
+      analyzeBtn.classList.add("opacity-50", "cursor-not-allowed");
+      analyzeBtn.classList.remove("btn-hover-effect");
+    }
   }
 }
 
@@ -303,8 +436,8 @@ function processUploadedSlotFile(slot, file) {
     return;
   }
   const reader = new FileReader();
-  reader.onload = function(e) {
-    compressImageDataUrl(e.target.result, 1280, 0.78, function(compressed) {
+  reader.onload = function (e) {
+    compressImageDataUrl(e.target.result, 1280, 0.78, function (compressed) {
       setSlotImage(slot, compressed);
     });
   };
@@ -342,7 +475,7 @@ function initAiScanner() {
     `).join("");
 
     // Check URL parameters for pre-selection (e.g., from Admin or Lookup)
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams((window.location && window.location.search) ? window.location.search : "");
     const targetCategory = urlParams.get("category") || urlParams.get("commodity");
     if (targetCategory) {
       for (let i = 0; i < commoditySelect.options.length; i++) {
@@ -356,7 +489,7 @@ function initAiScanner() {
     }
   }
 
-  // Setup drag & drop listeners for both uploader slot cards
+  // Setup drag & drop listeners for all 6 multi-panel uploader slot cards
   const setupSlotDropzone = (slotName, elementId) => {
     const el = document.getElementById(elementId);
     if (!el) return;
@@ -385,10 +518,11 @@ function initAiScanner() {
     }, false);
   };
 
-  setupSlotDropzone("front", "slotEmptyFront");
-  setupSlotDropzone("front", "slotCardFront");
-  setupSlotDropzone("back", "slotEmptyBack");
-  setupSlotDropzone("back", "slotCardBack");
+  PANEL_SLOTS.forEach(s => {
+    const cap = capitalizeSlot(s);
+    setupSlotDropzone(s, `slotEmpty${cap}`);
+    setupSlotDropzone(s, `slotCard${cap}`);
+  });
 
   // Setup generic dropzone if present
   const dropzone = document.getElementById("ocrDropzone");
@@ -417,6 +551,9 @@ function initAiScanner() {
       }
     }, false);
   }
+
+  // Ensure active slot styles initialized
+  setActiveCaptureSlot(activeCaptureSlot);
 }
 
 /**
@@ -495,11 +632,11 @@ async function startLiveCamera() {
  */
 function stopLiveCamera() {
   if (activeCameraStream) {
-    try { activeCameraStream.getTracks().forEach(track => track.stop()); } catch (e) {}
+    try { activeCameraStream.getTracks().forEach(track => track.stop()); } catch (e) { }
     activeCameraStream = null;
   }
   if (window.cameraStream) {
-    try { window.cameraStream.getTracks().forEach(track => track.stop()); } catch (e) {}
+    try { window.cameraStream.getTracks().forEach(track => track.stop()); } catch (e) { }
     window.cameraStream = null;
   }
   if (window._scannerInterval) {
@@ -520,7 +657,7 @@ function stopLiveCamera() {
   const startBtn = document.getElementById("btnStartCamera");
 
   if (videoEl) {
-    try { videoEl.pause(); } catch (e) {}
+    try { videoEl.pause(); } catch (e) { }
     videoEl.srcObject = null;
     videoEl.classList.add("hidden");
   }
@@ -564,18 +701,22 @@ function captureCameraSnapshot() {
   ctx.drawImage(videoEl, 0, 0, width, height);
 
   const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
-  setSlotImage(activeCaptureSlot, dataUrl);
+  const currentSlot = activeCaptureSlot;
+  setSlotImage(currentSlot, dataUrl);
   setSpecimenImage(dataUrl);
 
-  if (activeCaptureSlot === "front") {
-    setActiveCaptureSlot("back");
+  const currentDef = PANEL_DEFINITIONS[currentSlot];
+  const nextEmptySlot = PANEL_SLOTS.find(s => !panelImages[s]);
+
+  if (nextEmptySlot) {
+    setActiveCaptureSlot(nextEmptySlot);
+    const nextDef = PANEL_DEFINITIONS[nextEmptySlot];
     if (typeof showToast === "function") {
-      showToast("Front panel captured! Now frame the Back/Side panel or click Run Audit.", "success");
+      showToast(`${currentDef?.shortName || 'Panel'} captured! Target advanced to ${nextDef?.shortName || 'next panel'}.`, "success");
     }
   } else {
-    stopLiveCamera();
     if (typeof showToast === "function") {
-      showToast("Dual panels captured! Ready for comprehensive AI audit.", "success");
+      showToast("All 6 package panels captured! Ready for comprehensive AI OCR audit.", "success");
     }
   }
 }
@@ -596,8 +737,8 @@ function processUploadedImageFile(file) {
   }
 
   const reader = new FileReader();
-  reader.onload = function(e) {
-    compressImageDataUrl(e.target.result, 1280, 0.78, function(compressed) {
+  reader.onload = function (e) {
+    compressImageDataUrl(e.target.result, 1280, 0.78, function (compressed) {
       setSpecimenImage(compressed);
       setSlotImage("front", compressed);
     });
@@ -641,7 +782,7 @@ function loadDemoSpecimen(type) {
   // Convert image to base64 via temporary image & canvas
   const img = new Image();
   img.crossOrigin = "anonymous";
-  img.onload = function() {
+  img.onload = function () {
     const canvas = document.createElement("canvas");
     canvas.width = img.naturalWidth || 600;
     canvas.height = img.naturalHeight || 400;
@@ -659,7 +800,7 @@ function loadDemoSpecimen(type) {
       setSpecimenImage(target.url);
     }
   };
-  img.onerror = function() {
+  img.onerror = function () {
     fetch(target.url)
       .then(r => r.blob())
       .then(blob => {
@@ -750,11 +891,35 @@ const executeDirectBrowserGeminiInspection = performDirectBrowserScan;
 async function executeGeminiVisionInspection(imageDataUrl) {
   const payload = {};
 
-  if (currentFrontImageDataUrl && currentBackImageDataUrl) {
-    payload.imageFront = currentFrontImageDataUrl;
-    payload.imageBack = currentBackImageDataUrl;
-  } else {
-    const targetUrl = currentFrontImageDataUrl || currentBackImageDataUrl || imageDataUrl || currentUploadedImageDataUrl;
+  const activePanelsList = [];
+  PANEL_SLOTS.forEach(slotKey => {
+    const imgUrl = panelImages[slotKey];
+    if (imgUrl) {
+      const def = PANEL_DEFINITIONS[slotKey];
+      let cleanBase64 = imgUrl;
+      let mimeType = "image/jpeg";
+      if (imgUrl.includes("base64,")) {
+        const parts = imgUrl.split("base64,");
+        cleanBase64 = parts[1];
+        const matchMime = parts[0].match(/data:(.*?);/);
+        if (matchMime) mimeType = matchMime[1];
+      }
+      activePanelsList.push({
+        slot: slotKey,
+        panelName: def.name,
+        imageBase64: cleanBase64,
+        mimeType: mimeType
+      });
+
+      // Pass explicit keys for backward compatibility
+      payload[def.inputKey] = imgUrl;
+    }
+  });
+
+  payload.panels = activePanelsList;
+
+  if (activePanelsList.length === 0 && (imageDataUrl || currentUploadedImageDataUrl)) {
+    const targetUrl = imageDataUrl || currentUploadedImageDataUrl;
     let cleanBase64 = targetUrl;
     let mimeType = "image/jpeg";
     if (targetUrl && targetUrl.includes("base64,")) {
@@ -826,7 +991,7 @@ async function startAiOcrInspection() {
 
   // Non-blocking server health ping
   if (!isBackendServerOnline) {
-    checkServerHealth().catch(() => {});
+    checkServerHealth().catch(() => { });
   }
 
   const analyzeBtn = document.getElementById("btnRunAiAnalysis");
@@ -843,7 +1008,7 @@ async function startAiOcrInspection() {
 
   // Step indicator simulation
   const stepText = document.getElementById("ocrProgressStepText");
-  if (stepText) stepText.textContent = "Extracting visible text with Gemini Vision AI...";
+  if (stepText) stepText.textContent = "Extracting visible text with Automated Vision Engine...";
 
   setTimeout(() => {
     if (stepText) stepText.textContent = "Parsing statutory declarations against Legal Metrology Rules 2011...";
@@ -872,7 +1037,7 @@ async function startAiOcrInspection() {
       ? (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.COMPLIANT_LOGGED : "COMPLIANT_LOGGED")
       : (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.NON_COMPLIANT_PENDING : "NON_COMPLIANT_PENDING");
 
-    const rawImage = currentFrontImageDataUrl || currentUploadedImageDataUrl || currentBackImageDataUrl;
+    const rawImage = panelImages.front || currentUploadedImageDataUrl || panelImages.back;
 
     createLightweightThumbnail(rawImage, (thumbImage) => {
       const record = {
@@ -883,8 +1048,13 @@ async function startAiOcrInspection() {
         priority: isCompliant ? "Low" : (violations.length > 1 ? "Urgent" : "Standard"),
         location: "Field Inspection Unit",
         image: thumbImage || rawImage,
-        imageFront: thumbImage || currentFrontImageDataUrl || null,
-        imageBack: currentBackImageDataUrl ? thumbImage : null,
+        imageFront: thumbImage || panelImages.front || null,
+        imageBack: panelImages.back || null,
+        imageLeft: panelImages.left || null,
+        imageRight: panelImages.right || null,
+        imageTop: panelImages.top || null,
+        imageBottom: panelImages.bottom || null,
+        panelImages: { ...panelImages },
         extractedData: {
           commodity_name: fields.generic_name || fields.commodity_name || "Packaged Commodity",
           net_quantity: fields.net_quantity,
@@ -952,21 +1122,21 @@ function renderAutoFilledComplianceReport(data) {
   const tests = (Array.isArray(data.compliance_tests) && data.compliance_tests.length > 0)
     ? data.compliance_tests
     : compliance.map(c => {
-        const ruleRefMatch = (c.rule || "").match(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*/i);
-        return {
-          parameter_name: (c.rule || "").replace(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*\s*-\s*/i, "") || "Statutory Declaration",
-          rule_reference: ruleRefMatch ? ruleRefMatch[0] : (c.rule || "Rule 6"),
-          detected_value: (c.rule || "").includes("Commodity") ? (fields.commodity_name || "MISSING")
-            : (c.rule || "").includes("Quantity") ? (fields.net_quantity || "MISSING")
+      const ruleRefMatch = (c.rule || "").match(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*/i);
+      return {
+        parameter_name: (c.rule || "").replace(/Rule\s+[0-9]+(?:\([0-9a-zA-Z]+\))*\s*-\s*/i, "") || "Statutory Declaration",
+        rule_reference: ruleRefMatch ? ruleRefMatch[0] : (c.rule || "Rule 6"),
+        detected_value: (c.rule || "").includes("Commodity") ? (fields.commodity_name || "MISSING")
+          : (c.rule || "").includes("Quantity") ? (fields.net_quantity || "MISSING")
             : (c.rule || "").includes("MRP") ? (fields.mrp || "MISSING")
-            : (c.rule || "").includes("Manufacturer") ? ([fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || "MISSING")
-            : (c.rule || "").includes("Date") ? (fields.mfg_date || "MISSING")
-            : (c.rule || "").includes("Consumer") ? (fields.consumer_care || "MISSING") : "N/A",
-          required_standard: "Legal Metrology (Packaged Commodities) Rules, 2011",
-          status: (c.status === "Pass" || c.status === "Fail") ? c.status : "Requires Review",
-          observations: c.reason || ""
-        };
-      });
+              : (c.rule || "").includes("Manufacturer") ? ([fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || "MISSING")
+                : (c.rule || "").includes("Date") ? (fields.mfg_date || "MISSING")
+                  : (c.rule || "").includes("Consumer") ? (fields.consumer_care || "MISSING") : "N/A",
+        required_standard: "Legal Metrology (Packaged Commodities) Rules, 2011",
+        status: (c.status === "Pass" || c.status === "Fail") ? c.status : "Requires Review",
+        observations: c.reason || ""
+      };
+    });
 
   const overallStatus = data.overall_status || (data.overall_verdict === "Pass" ? "Compliant" : (data.overall_verdict === "Fail" ? "Non-Compliant" : "Partial"));
   const confidenceScore = typeof data.confidence === "number" ? Math.round(data.confidence <= 1 ? data.confidence * 100 : data.confidence) : 95;
@@ -1007,53 +1177,53 @@ function renderAutoFilledComplianceReport(data) {
   const fieldsGrid = document.getElementById("reportExtractedFieldsGrid");
   if (fieldsGrid) {
     const fieldDefinitions = [
-      { 
-        label: "Commodity / Generic Name", 
-        key: "generic_name", 
-        val: fields.generic_name || fields.commodity_name, 
-        rule: "Rule 6(1)(b)" 
+      {
+        label: "Commodity / Generic Name",
+        key: "generic_name",
+        val: fields.generic_name || fields.commodity_name,
+        rule: "Rule 6(1)(b)"
       },
-      { 
-        label: "Net Quantity & Metric Unit", 
-        key: "net_quantity", 
-        val: fields.net_quantity, 
-        rule: "Rule 6(1)(c)" 
+      {
+        label: "Net Quantity & Metric Unit",
+        key: "net_quantity",
+        val: fields.net_quantity,
+        rule: "Rule 6(1)(c)"
       },
-      { 
-        label: "Maximum Retail Price (MRP)", 
-        key: "mrp_tax_inclusive", 
-        val: fields.mrp_tax_inclusive || fields.mrp, 
-        rule: "Rule 6(1)(e)" 
+      {
+        label: "Maximum Retail Price (MRP)",
+        key: "mrp_tax_inclusive",
+        val: fields.mrp_tax_inclusive || fields.mrp,
+        rule: "Rule 6(1)(e)"
       },
-      { 
-        label: "Manufacturer / Packer Details", 
-        key: "manufacturer_name_address", 
-        val: fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || fields.manufacturer, 
-        rule: "Rule 6(1)(a)" 
+      {
+        label: "Manufacturer / Packer Details",
+        key: "manufacturer_name_address",
+        val: fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || fields.manufacturer,
+        rule: "Rule 6(1)(a)"
       },
-      { 
-        label: "Month & Year of Manufacture", 
-        key: "mfg_month_year", 
-        val: fields.mfg_month_year || fields.mfg_date, 
-        rule: "Rule 6(1)(d)" 
+      {
+        label: "Month & Year of Manufacture",
+        key: "mfg_month_year",
+        val: fields.mfg_month_year || fields.mfg_date,
+        rule: "Rule 6(1)(d)"
       },
-      { 
-        label: "Unit Sale Price (USP)", 
-        key: "unit_sale_price", 
-        val: fields.unit_sale_price, 
-        rule: "Rule 6(1)(da)" 
+      {
+        label: "Unit Sale Price (USP)",
+        key: "unit_sale_price",
+        val: fields.unit_sale_price,
+        rule: "Rule 6(1)(da)"
       },
-      { 
-        label: "Consumer Care & Helpline", 
-        key: "consumer_care_contact", 
-        val: fields.consumer_care_contact || fields.consumer_care, 
-        rule: "Rule 6(1)(n)" 
+      {
+        label: "Consumer Care & Helpline",
+        key: "consumer_care_contact",
+        val: fields.consumer_care_contact || fields.consumer_care,
+        rule: "Rule 6(1)(n)"
       },
-      { 
-        label: "Country of Origin", 
-        key: "country_of_origin", 
-        val: fields.country_of_origin, 
-        rule: "Rule 6(1)(aa)" 
+      {
+        label: "Country of Origin",
+        key: "country_of_origin",
+        val: fields.country_of_origin,
+        rule: "Rule 6(1)(aa)"
       }
     ];
 
@@ -1127,20 +1297,20 @@ function renderAutoFilledComplianceReport(data) {
 
       return `
         <tr class="hover:bg-slate-50 border-b border-slate-200 text-xs transition">
-          <td class="px-4 py-3 font-bold text-slate-900">
+          <td class="px-4 py-3 font-bold text-slate-900 whitespace-nowrap">
             ${idx + 1}. ${t.parameter_name || t.rule || "Statutory Rule"}
             <span class="block text-[10px] font-mono text-slate-400 mt-0.5">${t.rule_reference || t.rule || ""}</span>
           </td>
-          <td class="px-4 py-3 font-mono ${isFail ? 'text-red-700 font-bold bg-red-50/50' : 'text-slate-800 font-semibold'}">
+          <td class="px-4 py-3 font-mono whitespace-nowrap ${isFail ? 'text-red-700 font-bold bg-red-50/50' : 'text-slate-800 font-semibold'}">
             ${t.detected_value || "MISSING"}
           </td>
-          <td class="px-4 py-3 text-slate-500 max-w-xs text-[11px]">${t.required_standard || "Legal Metrology Rules, 2011"}</td>
-          <td class="px-4 py-3">
+          <td class="px-4 py-3 text-slate-500 max-w-xs text-[11px] whitespace-nowrap">${t.required_standard || "Legal Metrology Rules, 2011"}</td>
+          <td class="px-4 py-3 whitespace-nowrap">
             <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase border ${badgeClass}">
               ${icon}
             </span>
           </td>
-          <td class="px-4 py-3 text-slate-600 text-[11px] leading-relaxed">${t.observations || t.reason || "-"}</td>
+          <td class="px-4 py-3 text-slate-600 text-[11px] leading-relaxed min-w-[200px]">${t.observations || t.reason || "-"}</td>
         </tr>`;
     }).join("");
   }
@@ -1174,6 +1344,11 @@ function handleSaveOcrInspection(statusType) {
   const fields = currentInspectionResult.categorized_fields || {};
   const isCompliant = currentInspectionResult.overall_verdict === "Pass";
 
+  const notesEl = document.getElementById("inspectorNotesInput");
+  const inspectorNotes = notesEl ? notesEl.value.trim() : "";
+  currentInspectionResult.inspector_notes = inspectorNotes;
+  currentInspectionResult.remarks = inspectorNotes;
+
   const violations = (currentInspectionResult.compliance_tests || [])
     .filter(t => t.status === "Fail")
     .map(t => `${t.parameter_name}: ${t.observations}`);
@@ -1181,7 +1356,7 @@ function handleSaveOcrInspection(statusType) {
   const statusState = statusType === "draft"
     ? "draft"
     : (isCompliant ? (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.COMPLIANT_LOGGED : "COMPLIANT_LOGGED")
-                   : (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.NON_COMPLIANT_PENDING : "NON_COMPLIANT_PENDING"));
+      : (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.NON_COMPLIANT_PENDING : "NON_COMPLIANT_PENDING"));
 
   const record = {
     id: currentCaseId,
@@ -1206,7 +1381,9 @@ function handleSaveOcrInspection(statusType) {
     inspectorId: user.username || "inspector",
     rawOcrText: currentInspectionResult.extracted_text || currentInspectionResult.raw_ocr_text,
     executiveSummary: currentInspectionResult.executive_summary,
-    recommendedAction: currentInspectionResult.recommended_action
+    recommendedAction: currentInspectionResult.recommended_action,
+    inspectorNotes: inspectorNotes,
+    remarks: inspectorNotes
   };
 
   // Traceable zonal tagging
@@ -1216,9 +1393,9 @@ function handleSaveOcrInspection(statusType) {
 
   saveInspection(record);
 
-  const msg = isCompliant
-    ? `Case ${record.id} logged as COMPLIANT & archived!`
-    : `Case ${record.id} submitted to Officer Docket for review!`;
+  const msg = statusType === "draft"
+    ? (inspectorNotes ? `Draft ${record.id} saved with inspector notes!` : `Draft ${record.id} saved successfully!`)
+    : (isCompliant ? `Case ${record.id} logged as COMPLIANT & archived!` : `Case ${record.id} submitted to Officer Docket for review!`);
 
   if (typeof showToast === "function") showToast(msg, "success");
 
@@ -1426,7 +1603,7 @@ function closeInspectorWalkthroughModal() {
   if (m) m.classList.add("hidden");
   const chk = document.getElementById("dontShowOnboardingAgain");
   if (chk && chk.checked) {
-    try { localStorage.setItem("elmcep_hide_onboarding", "true"); } catch (e) {}
+    try { localStorage.setItem("elmcep_hide_onboarding", "true"); } catch (e) { }
   }
 }
 window.openInspectorWalkthroughModal = openInspectorWalkthroughModal;
@@ -1444,7 +1621,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }, 1200);
     }
-  } catch (e) {}
+  } catch (e) { }
 });
 
 /**

@@ -1,0 +1,680 @@
+/* ==========================================================================
+   METRO-CHECK - UI Components & Utilities (css/components.css)
+   Contains reusable cards, buttons, status pills, inputs, & keyframe animations.
+   ========================================================================== */
+
+
+/* 4. Modern Interactive Component Utilities (Linear / Shadcn UI Card Standard) */
+.modern-card {
+  background: var(--gov-surface);
+  border: 1px solid var(--gov-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease;
+}
+
+.modern-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+}
+
+body.theme-dark .modern-card {
+  background: #09090B;
+  border-color: #27272A;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .modern-card:hover {
+  border-color: #3F3F46;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.6);
+}
+
+/* Linear/Shadcn KPI Metric Cards with Subtle Shadow-sm */
+.kpi-card {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #E4E4E7;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  padding: 1.25rem;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kpi-card:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  border-color: #CBD5E1;
+}
+
+body.theme-dark .kpi-card {
+  background: #09090B;
+  border-color: #27272A;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .kpi-card:hover {
+  border-color: #3F3F46;
+}
+
+/* Supabase/Linear-Style Glassmorphism Panel */
+.glass-panel-elevated {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 12px 36px -8px rgba(15, 23, 42, 0.08);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+body.theme-dark .glass-panel-elevated {
+  background: rgba(17, 24, 39, 0.88);
+  border-color: rgba(51, 65, 85, 0.7);
+  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.65);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Active Slot Glow Ring (Linear/Apple Active State) */
+.slot-card-active {
+  border-color: var(--gov-accent) !important;
+  box-shadow: 0 0 0 2px var(--gov-accent), 0 0 22px var(--gov-accent-glow) !important;
+  background-color: var(--gov-accent-subtle) !important;
+}
+
+body.theme-dark .slot-card-active {
+  background-color: rgba(217, 119, 6, 0.08) !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 2px #f59e0b, 0 0 24px rgba(245, 158, 11, 0.25) !important;
+}
+
+/* Linear-Style High Impact AI CTA Button */
+.btn-ai-scan {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+}
+
+.btn-ai-scan:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  filter: brightness(1.06);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.btn-ai-scan:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Scanner Dropzone Interactive Hover */
+.scanner-dropzone {
+  border: 2px dashed #E2E8F0;
+  border-radius: 1rem;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #ffffff;
+}
+
+.scanner-dropzone:hover {
+  border-color: #10B981 !important;
+  background-color: #F0FDF4 !important;
+  transform: translateY(-1px);
+}
+
+body.theme-dark .scanner-dropzone {
+  background: var(--gov-surface-sunken);
+  border-color: var(--gov-border-strong);
+}
+
+body.theme-dark .scanner-dropzone:hover {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+  border-color: #10B981 !important;
+}
+
+/* Modern Accessible Status Pills */
+.status-pill-pass {
+  background-color: var(--gov-success-subtle);
+  color: var(--gov-success-text);
+  border: 1px solid var(--gov-success-border);
+  font-weight: 700;
+}
+
+.status-pill-fail {
+  background-color: var(--gov-danger-subtle);
+  color: var(--gov-danger-text);
+  border: 1px solid var(--gov-danger-border);
+  font-weight: 700;
+}
+
+.status-pill-warn {
+  background-color: var(--gov-warning-subtle);
+  color: var(--gov-warning-text);
+  border: 1px solid var(--gov-warning-border);
+  font-weight: 700;
+}
+
+.status-pill-info {
+  background-color: var(--gov-info-subtle);
+  color: var(--gov-info-text);
+  border: 1px solid var(--gov-info-border);
+  font-weight: 700;
+}
+
+/* Smooth Transitions for Cards and Interactive Buttons */
+.card-hover-effect {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.12);
+}
+
+.btn-hover-effect {
+  transition: transform 0.18s ease-in-out, filter 0.18s ease-in-out, box-shadow 0.18s ease-in-out;
+}
+
+.btn-hover-effect:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.btn-hover-effect:active {
+  transform: translateY(0);
+}
+
+/* OCR Results Tab Indicator */
+.ocr-tab-btn {
+  padding: 0.625rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  color: #64748B;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.ocr-tab-btn.active {
+  color: #0F172A;
+  border-bottom-color: #10B981;
+  font-weight: 700;
+}
+
+body.theme-dark .ocr-tab-btn.active {
+  color: #F8FAFC;
+  border-bottom-color: #10B981;
+}
+
+/* 4. Custom Slim Scrollbar for Modern UI Look */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1322;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* 5. Loading Spinner Animation (Used during AI Scans and PDF generation) */
+@keyframes spinClockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #ffffff;
+  animation: spinClockwise 0.8s linear infinite;
+}
+
+/* 6. Legal Metrology Statutory Text Highlight (Search Match) */
+mark.search-highlight {
+  background-color: #fef08a;
+  /* Soft amber/yellow */
+  color: #854d0e;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #facc15;
+}
+
+/* 7. Collapsible Accordion Enhancements (Help & Guide) */
+details.faq-accordion {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+details.faq-accordion summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+details.faq-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+details.faq-accordion summary .faq-icon {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+details.faq-accordion[open] summary .faq-icon {
+  transform: rotate(180deg);
+}
+
+details.faq-accordion[open] {
+  border-color: #f59e0b;
+  background-color: #fffbeb;
+}
+
+/* 8. Pure CSS Bar Chart Animations */
+.chart-bar-anim {
+  transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 10. Real-Time Camera Scanner Laser Animation (GPU-Accelerated, Zero Layout Reflow) */
+@keyframes laserSweep {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translate3d(0, 260px, 0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.6;
+  }
+}
+
+.scanner-laser-line {
+  position: absolute;
+  top: 12px;
+  left: 6%;
+  right: 6%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #10b981, #f59e0b, #10b981, transparent);
+  box-shadow: 0 0 14px 3px rgba(16, 185, 129, 0.75);
+  animation: laserSweep 2.8s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Idle state optimization: Pause laser animation when camera is offline */
+#cameraModeBox:not(.camera-streaming) .scanner-laser-line {
+  animation-play-state: paused;
+  opacity: 0;
+}
+
+/* ==========================================================================
+   11. Standardized Component Tokens & WCAG AA Contrast Styles
+   ========================================================================== */
+
+.btn-primary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+.btn-success {
+  background: #059669;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-success:hover {
+  background: #047857;
+}
+
+/* Performance containment to eliminate layout recalculation cascades */
+.perf-contain-paint {
+  contain: paint;
+}
+
+.perf-contain-card {
+  contain: layout style paint;
+}
+
+.perf-contain-table {
+  contain: layout style;
+}
+
+/* ==========================================================================
+   21. Modern Linear / Supabase / Apple Design System Tokens & Components
+   ========================================================================== */
+
+/* Porcelain Gradient Canvas */
+.porcelain-canvas {
+  background-color: #F7F8FA;
+  background-image: radial-gradient(1200px circle at 50% 0%, #FFFFFF 0%, #F7F8FA 60%, #EEF2F6 100%);
+}
+
+/* Clean Form Focus Ring */
+.ds-input-focus:focus {
+  outline: none;
+  border-color: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+/* Pill Badges */
+.badge-compliant {
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+.badge-pending {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.badge-violation {
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+
+.badge-ai {
+  background-color: #EEF2FF;
+  color: #4338CA;
+  border: 1px solid #C7D2FE;
+}
+
+/* ==========================================================================
+   Standardized GovTech Unified Design System Components
+   ========================================================================== */
+
+/* Standardized Form Inputs & Controls */
+.ds-input,
+.ds-select,
+.ds-textarea {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  color: #0F172A;
+  font-size: 0.8125rem;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ds-input:hover,
+.ds-select:hover,
+.ds-textarea:hover {
+  border-color: #CBD5E1;
+  background-color: #FFFFFF;
+}
+
+.ds-input:focus,
+.ds-select:focus,
+.ds-textarea:focus {
+  outline: none;
+  border-color: #10B981;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+}
+
+/* Standardized Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(16, 185, 129, 0.3);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.4);
+}
+.btn-primary:active {
+  transform: scale(0.95);
+  transition-duration: 100ms;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  background-color: #FFFFFF;
+  color: #334155;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+}
+.btn-secondary:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #0F172A;
+  transform: translateY(-1px);
+}
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(239, 68, 68, 0.3);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.btn-danger:hover {
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.4);
+}
+
+.btn-warning {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(245, 158, 11, 0.3);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.btn-warning:hover {
+  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.4);
+}
+
+/* Status Pills */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.status-pill-pass {
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+.status-pill-fail {
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+.status-pill-warn {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+.status-pill-info {
+  background-color: #EEF2FF;
+  color: #4338CA;
+  border: 1px solid #C7D2FE;
+}
+.status-pill-neutral {
+  background-color: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+}
+
+/* Standardized Table Styles */
+.ds-table-container {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+.ds-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.ds-table-th {
+  background-color: #F8FAFC;
+  color: #64748B;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #E2E8F0;
+}
+.ds-table-td {
+  padding: 0.85rem 1rem;
+  font-size: 0.75rem;
+  color: #334155;
+  border-bottom: 1px solid #F1F5F9;
+  vertical-align: middle;
+}
+.ds-table-row {
+  transition: background-color 0.15s ease;
+}
+.ds-table-row:hover {
+  background-color: #F8FAFC;
+}
+
+/* Standardized Sidebar & Filter Overrides */
+.inspector-nav-btn,
+.officer-nav-btn {
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* AI Confidence Progress Bar Transition */
+#reportConfidenceProgressBar {
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+

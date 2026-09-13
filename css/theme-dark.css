@@ -1,0 +1,578 @@
+/* ==========================================================================
+   METRO-CHECK - Dark Theme Styles (css/theme-dark.css)
+   Contains obsidian dark mode overrides (body.theme-dark) & dark element styling.
+   ========================================================================== */
+
+
+/* Theme Toggle Button Spring Animation */
+.theme-toggle-btn-anim,
+#govThemeToggleBtn,
+.govThemeToggleBtn {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.2s ease,
+              box-shadow 0.2s ease !important;
+  cursor: pointer;
+}
+#govThemeToggleBtn:hover,
+.govThemeToggleBtn:hover {
+  transform: scale(1.12);
+}
+#govThemeToggleBtn:active,
+.govThemeToggleBtn:active {
+  transform: scale(0.9) rotate(15deg);
+}
+
+/* ==========================================================================
+   Global Executive Dark Theme (Linear / Supabase / Vercel Modern Aesthetic)
+   ========================================================================== */
+html.dark,
+html.dark body,
+body.theme-dark,
+body.theme-dark.porcelain-canvas,
+html.dark .porcelain-canvas {
+  background-color: #070b14 !important;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.09) 0px, transparent 45%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 45%),
+    radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+    radial-gradient(circle at 50% 0%, #0c1424 0%, #070b14 100%) !important;
+  background-attachment: fixed !important;
+  color: #f8fafc !important;
+}
+
+/* Modern Glassmorphic Cards & Elevating Panels */
+body.theme-dark .bg-white,
+html.dark .bg-white,
+body.theme-dark [class*="bg-white/"],
+html.dark [class*="bg-white/"],
+body.theme-dark .modern-card,
+html.dark .modern-card,
+body.theme-dark .kpi-card,
+html.dark .kpi-card,
+body.theme-dark .ds-table-container,
+html.dark .ds-table-container {
+  background-color: rgba(15, 23, 42, 0.82) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
+  position: relative;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s ease !important;
+}
+
+body.theme-dark .modern-card:hover,
+html.dark .modern-card:hover,
+body.theme-dark .kpi-card:hover,
+html.dark .kpi-card:hover {
+  transform: translateY(-2.5px) !important;
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  box-shadow: 0 14px 32px -5px rgba(0, 0, 0, 0.75),
+              0 0 25px -4px rgba(16, 185, 129, 0.22),
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Modern Dark Sunken Backgrounds */
+body.theme-dark .bg-slate-50,
+body.theme-dark .bg-slate-100,
+body.theme-dark .bg-gray-50,
+body.theme-dark .bg-gray-100,
+body.theme-dark .bg-\[\#F7F8FA\],
+body.theme-dark .bg-\[\#F8FAFC\],
+body.theme-dark .bg-\[\#FAFAFA\],
+body.theme-dark .bg-\[\#F1F5F9\],
+html.dark .bg-slate-50,
+html.dark .bg-slate-100,
+html.dark .bg-gray-50,
+html.dark .bg-\[\#F7F8FA\],
+html.dark .bg-\[\#F8FAFC\],
+html.dark .bg-\[\#FAFAFA\] {
+  background-color: rgba(22, 32, 51, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Modern Frosted Top Masthead */
+body.theme-dark #nationalGovMasthead,
+html.dark #nationalGovMasthead {
+  background-color: rgba(11, 17, 32, 0.85) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+}
+
+body.theme-dark #nationalGovMasthead *,
+html.dark #nationalGovMasthead * {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Modern Frosted Header Bar */
+body.theme-dark header,
+html.dark header,
+body.theme-dark .glass-header,
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.82) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+}
+
+/* Modern Sidebar */
+body.theme-dark aside,
+html.dark aside,
+body.theme-dark .sidebar-container,
+html.dark .sidebar-container {
+  background-color: rgba(11, 17, 32, 0.95) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Active Nav Button with Neon Indicator */
+body.theme-dark .sidebar-nav-btn.active,
+html.dark .sidebar-nav-btn.active,
+body.theme-dark .inspector-nav-btn.active,
+html.dark .inspector-nav-btn.active,
+body.theme-dark .officer-nav-btn.active,
+html.dark .officer-nav-btn.active {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.18) 0%, rgba(16, 185, 129, 0.04) 100%) !important;
+  border-left: 3px solid #10B981 !important;
+  color: #10B981 !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Dark Masthead Pill Dock */
+body.theme-dark .masthead-pill-dock,
+html.dark .masthead-pill-dock {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  backdrop-filter: blur(12px) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Monospace IST Live Clock Glow in Dark Mode */
+body.theme-dark .masthead-ist-clock,
+html.dark .masthead-ist-clock {
+  color: #34d399 !important;
+  text-shadow: 0 0 10px rgba(52, 211, 153, 0.45);
+}
+
+/* Dark Headings & Primary Text */
+body.theme-dark h1,
+body.theme-dark h2,
+body.theme-dark h3,
+body.theme-dark h4,
+body.theme-dark h5,
+body.theme-dark h6,
+body.theme-dark .text-slate-900,
+body.theme-dark .text-slate-800,
+body.theme-dark .text-gray-900,
+body.theme-dark .text-gray-800,
+body.theme-dark .text-\[\#0F172A\],
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-gray-900,
+html.dark .text-\[\#0F172A\] {
+  color: #f8fafc !important;
+}
+
+/* Dark Secondary & Body Text */
+body.theme-dark .text-slate-700,
+body.theme-dark .text-slate-600,
+body.theme-dark .text-slate-500,
+body.theme-dark .text-gray-600,
+body.theme-dark .text-gray-500,
+body.theme-dark .text-\[\#64748B\],
+html.dark .text-slate-700,
+html.dark .text-slate-600,
+html.dark .text-slate-500,
+html.dark .text-\[\#64748B\] {
+  color: #94a3b8 !important;
+}
+
+body.theme-dark .text-slate-400,
+body.theme-dark .text-gray-400,
+html.dark .text-slate-400,
+html.dark .text-gray-400 {
+  color: #64748b !important;
+}
+
+/* Dark Borders */
+body.theme-dark .border-slate-200,
+body.theme-dark .border-slate-100,
+body.theme-dark .border-slate-300,
+body.theme-dark .border-gray-200,
+body.theme-dark .border-gray-100,
+body.theme-dark .border-\[\#E4E7EC\],
+body.theme-dark .border-\[\#E2E8F0\],
+html.dark .border-slate-200,
+html.dark .border-slate-100,
+html.dark .border-\[\#E4E7EC\],
+html.dark .border-\[\#E2E8F0\] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.theme-dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+body.theme-dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Dark Form Controls with Focus Glow Beam */
+body.theme-dark input:not([type="checkbox"]):not([type="radio"]),
+body.theme-dark select,
+body.theme-dark textarea,
+body.theme-dark .ds-input,
+body.theme-dark .ds-select,
+body.theme-dark .ds-textarea,
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea,
+html.dark .ds-input,
+html.dark .ds-select,
+html.dark .ds-textarea {
+  background-color: rgba(17, 24, 39, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+body.theme-dark select option,
+html.dark select option {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+}
+
+body.theme-dark input::placeholder,
+body.theme-dark textarea::placeholder,
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+body.theme-dark input:focus,
+body.theme-dark select:focus,
+body.theme-dark textarea:focus,
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25),
+              0 0 16px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Dark Tables & Grids with Interactive Leading Highlight */
+body.theme-dark thead,
+body.theme-dark th,
+body.theme-dark .ds-table-th,
+html.dark thead,
+html.dark th,
+html.dark .ds-table-th {
+  background-color: rgba(11, 17, 32, 0.9) !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.theme-dark td,
+body.theme-dark .ds-table-td,
+html.dark td,
+html.dark .ds-table-td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #cbd5e1 !important;
+}
+
+body.theme-dark tbody tr,
+html.dark tbody tr {
+  transition: background-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+body.theme-dark tbody tr:hover,
+html.dark tbody tr:hover,
+body.theme-dark .ds-table-row:hover,
+body.theme-dark #officerDocketTableBody tr:hover,
+html.dark #officerDocketTableBody tr:hover {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(30, 41, 59, 0.7) 100%) !important;
+  box-shadow: inset 3px 0 0 #10b981, 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Dark Floating Popovers & Modals (Linear Spring Entry) */
+body.theme-dark #sidebarUserDropdownMenu,
+body.theme-dark #userMenuPopover,
+body.theme-dark .sidebar-user-dropdown,
+body.theme-dark .user-menu-popover,
+body.theme-dark #userProfileModal > div,
+body.theme-dark .modal-content,
+html.dark #sidebarUserDropdownMenu,
+html.dark #userMenuPopover,
+html.dark .sidebar-user-dropdown,
+html.dark .user-menu-popover,
+html.dark #userProfileModal > div,
+html.dark .modal-content {
+  background: rgba(15, 23, 42, 0.94) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85),
+              0 0 0 1px rgba(255, 255, 255, 0.06),
+              0 0 35px rgba(16, 185, 129, 0.08) !important;
+  animation: modernMenuSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modernMenuSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+body.theme-dark #sidebarUserDropdownMenu button:hover,
+body.theme-dark #userMenuPopover button:hover,
+html.dark #sidebarUserDropdownMenu button:hover,
+html.dark #userMenuPopover button:hover {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+  color: #ffffff !important;
+}
+
+/* Primary Action Buttons with Emerald Glow */
+body.theme-dark .btn-primary,
+html.dark .btn-primary,
+body.theme-dark button[class*="bg-emerald-600"],
+html.dark button[class*="bg-emerald-600"],
+body.theme-dark button[class*="bg-[#10B981]"],
+html.dark button[class*="bg-[#10B981]"] {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.35),
+              0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+body.theme-dark .btn-primary:hover,
+html.dark .btn-primary:hover,
+body.theme-dark button[class*="bg-emerald-600"]:hover,
+html.dark button[class*="bg-emerald-600"]:hover {
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.5),
+              0 6px 14px -2px rgba(0, 0, 0, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+/* Dark Secondary Actions */
+body.theme-dark .btn-secondary,
+html.dark .btn-secondary {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+  transition: all 0.15s ease !important;
+}
+
+body.theme-dark .btn-secondary:hover,
+html.dark .btn-secondary:hover {
+  background-color: rgba(51, 65, 85, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+}
+
+/* Dark Inspector AI Extracted Fields Grid */
+body.theme-dark #reportExtractedFieldsGrid > div,
+html.dark #reportExtractedFieldsGrid > div {
+  background-color: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+  backdrop-filter: blur(12px) !important;
+  transition: all 0.18s ease !important;
+}
+
+body.theme-dark #reportExtractedFieldsGrid > div:hover,
+html.dark #reportExtractedFieldsGrid > div:hover {
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.6),
+              0 0 15px -2px rgba(16, 185, 129, 0.15) !important;
+  transform: translateY(-1.5px);
+}
+
+/* Luminous Dark Badges & Pills */
+body.theme-dark .badge-compliant,
+html.dark .badge-compliant,
+body.theme-dark .bg-emerald-50,
+html.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.15) !important;
+}
+
+body.theme-dark .bg-red-50,
+html.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.18) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.4) !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.15) !important;
+}
+
+body.theme-dark .bg-amber-50,
+html.dark .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.15) !important;
+}
+
+body.theme-dark .bg-blue-50,
+html.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.18) !important;
+  color: #60a5fa !important;
+  border: 1px solid rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.15) !important;
+}
+
+/* ==========================================================================
+   15. View Transitions & Modern UI Micro-Animations
+   ========================================================================== */
+.view-fade-in {
+  animation: viewFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle Error Shake for Authentication Feedback */
+@keyframes loginShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.login-shake {
+  animation: loginShake 0.4s ease-in-out;
+}
+
+/* Frosted Glass Utilities */
+.glass-panel-dark {
+  background: rgba(22, 28, 46, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(51, 65, 85, 0.7);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* ==========================================================================
+   16. Official Digital Verification Seal & MAV Tolerance Gauge
+   ========================================================================== */
+.official-gov-seal {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  position: relative;
+  text-transform: uppercase;
+  font-family: 'Inter', -apple-system, sans-serif;
+  letter-spacing: 0.05em;
+  user-select: none;
+  animation: stampSlam 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes stampSlam {
+  0% {
+    transform: scale(1.4) rotate(10deg);
+    opacity: 0;
+  }
+
+  75% {
+    transform: scale(0.96) rotate(-4deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1) rotate(-3deg);
+    opacity: 1;
+  }
+}
+
+.seal-compliant {
+  border: 4px double #059669;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.06);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2), inset 0 0 12px rgba(5, 150, 105, 0.1);
+}
+
+.seal-violation {
+  border: 4px double #dc2626;
+  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.06);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2), inset 0 0 12px rgba(220, 38, 38, 0.1);
+}
+
+/* High contrast support for user menu */
+body.gov-high-contrast .user-menu-pill {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+
+body.gov-high-contrast .user-menu-popover {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffffff !important;
+}
+
+body.gov-high-contrast .user-menu-popover * {
+  color: #ffff00 !important;
+  border-color: #ffff00 !important;
+}
+
+/* ==========================================================================
+   18. Keyboard Accessibility Focus-Visible Utilities
+   ========================================================================== */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #f59e0b !important;
+  outline-offset: 2px !important;
+}
+
+/* ==========================================================================
+   19. Official Statutory Report Print Stylesheet (@media print)
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 15mm;
+  }
+
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+

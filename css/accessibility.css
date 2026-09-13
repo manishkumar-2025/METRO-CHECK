@@ -1,0 +1,384 @@
+/* ==========================================================================
+   METRO-CHECK - Accessibility & High Contrast (css/accessibility.css)
+   Contains WCAG AA high contrast theme overrides (.theme-high-contrast).
+   ========================================================================== */
+
+
+/* WCAG AA High Contrast Text Tokens */
+.text-contrast-high {
+  color: #f8fafc !important;
+}
+
+.text-contrast-muted {
+  color: #cbd5e1 !important;
+}
+
+/* ==========================================================================
+   12. Responsive 3-Pane Review Collapse for Tablets & Phones (< 992px)
+   ========================================================================== */
+@media (max-width: 991px) {
+
+  .three-pane-review-grid,
+  #officerView-review>div.flex-col.lg\:flex-row {
+    flex-direction: column !important;
+    gap: 1.25rem !important;
+  }
+
+  .three-pane-review-grid>section,
+  #officerView-review section {
+    width: 100% !important;
+  }
+
+  #reviewSpecimenImage {
+    max-height: 220px !important;
+  }
+
+  .dual-panel-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==========================================================================
+   13. Official National Masthead & Tricolor Header Bar (Modern Executive)
+   ========================================================================== */
+.tricolor-strip {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 41 !important;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, #FF9933 0%, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%, #138808 100%);
+  box-shadow: 0 0 8px rgba(255, 153, 51, 0.4);
+}
+
+#nationalGovMasthead {
+  position: sticky !important;
+  top: 3px !important;
+  z-index: 40 !important;
+  transform: translateZ(0);
+  will-change: transform, background-color, box-shadow;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: background-color 0.2s ease, box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease !important;
+}
+
+#nationalGovMasthead.scrolled {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04) !important;
+  border-bottom-color: rgba(226, 232, 240, 0.95) !important;
+}
+
+body.theme-dark #nationalGovMasthead.scrolled {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.25) !important;
+  border-bottom-color: rgba(51, 65, 85, 0.8) !important;
+}
+
+.masthead-pill-dock {
+  background: rgba(241, 245, 249, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 9999px;
+  padding: 3px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.masthead-pill-dock-dark {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  border-radius: 9999px;
+  padding: 3px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gov-pill-btn {
+  border-radius: 9999px;
+  transition: all 0.15s ease-in-out;
+}
+
+.gov-pill-btn:hover {
+  transform: translateY(-0.5px);
+}
+
+/* ==========================================================================
+   14. Official GIGW / NIC High-Contrast Mode for Accessibility (WCAG AAA)
+   ========================================================================== */
+body.gov-high-contrast,
+html.gov-high-contrast,
+html.gov-high-contrast body {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  color: #ffff00 !important;
+}
+
+body.gov-high-contrast #nationalGovMasthead,
+html.gov-high-contrast #nationalGovMasthead {
+  background-color: #000000 !important;
+  border-bottom: 2px solid #ffff00 !important;
+}
+
+body.gov-high-contrast #nationalGovMasthead *,
+html.gov-high-contrast #nationalGovMasthead * {
+  color: #ffffff !important;
+  border-color: #ffff00 !important;
+}
+
+body.gov-high-contrast #nationalGovMasthead svg g,
+html.gov-high-contrast #nationalGovMasthead svg g,
+body.gov-high-contrast #nationalGovMasthead svg text,
+html.gov-high-contrast #nationalGovMasthead svg text {
+  fill: #ffff00 !important;
+}
+
+body.gov-high-contrast #nationalGovMasthead svg path[fill="#f8fafc"],
+body.gov-high-contrast #nationalGovMasthead svg circle[fill="#f8fafc"] {
+  fill: #000000 !important;
+}
+
+body.gov-high-contrast .masthead-ist-clock {
+  color: #ffff00 !important;
+  font-weight: 700 !important;
+}
+
+body.gov-high-contrast aside,
+html.gov-high-contrast aside,
+body.gov-high-contrast .sidebar-container {
+  background-color: #000000 !important;
+  border-right: 2px solid #ffff00 !important;
+}
+
+body.gov-high-contrast aside *,
+html.gov-high-contrast aside * {
+  color: #ffffff !important;
+}
+
+body.gov-high-contrast header,
+html.gov-high-contrast header,
+body.gov-high-contrast .glass-header {
+  background-color: #000000 !important;
+  border-bottom: 2px solid #ffff00 !important;
+  backdrop-filter: none !important;
+}
+
+body.gov-high-contrast header *,
+html.gov-high-contrast header * {
+  color: #ffff00 !important;
+}
+
+/* Universal High Contrast Surface Overrides */
+body.gov-high-contrast .bg-white,
+body.gov-high-contrast [class*="bg-white"],
+body.gov-high-contrast .bg-slate-50,
+body.gov-high-contrast .bg-slate-100,
+body.gov-high-contrast .bg-gray-50,
+body.gov-high-contrast .bg-gray-100,
+body.gov-high-contrast .bg-\[\#F7F8FA\],
+body.gov-high-contrast .bg-\[\#F8FAFC\],
+body.gov-high-contrast .bg-\[\#FAFAFA\],
+body.gov-high-contrast .porcelain-canvas,
+body.gov-high-contrast .modern-card,
+body.gov-high-contrast .kpi-card,
+body.gov-high-contrast .masthead-pill-dock,
+body.gov-high-contrast .masthead-pill-dock-dark,
+body.gov-high-contrast .ds-table-container,
+html.gov-high-contrast .bg-white,
+html.gov-high-contrast [class*="bg-white"],
+html.gov-high-contrast .porcelain-canvas,
+html.gov-high-contrast .modern-card,
+html.gov-high-contrast .kpi-card {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* High Contrast Headings & Text */
+body.gov-high-contrast h1,
+body.gov-high-contrast h2,
+body.gov-high-contrast h3,
+body.gov-high-contrast h4,
+body.gov-high-contrast h5,
+body.gov-high-contrast h6,
+body.gov-high-contrast .text-slate-900,
+body.gov-high-contrast .text-slate-800,
+body.gov-high-contrast .text-gray-900,
+body.gov-high-contrast .text-\[\#0F172A\],
+body.gov-high-contrast .font-bold,
+body.gov-high-contrast .font-semibold,
+html.gov-high-contrast h1,
+html.gov-high-contrast h2,
+html.gov-high-contrast h3,
+html.gov-high-contrast .font-bold {
+  color: #ffff00 !important;
+}
+
+body.gov-high-contrast p,
+body.gov-high-contrast span,
+body.gov-high-contrast div,
+body.gov-high-contrast td,
+body.gov-high-contrast label,
+body.gov-high-contrast .text-slate-600,
+body.gov-high-contrast .text-slate-500,
+body.gov-high-contrast .text-slate-400,
+body.gov-high-contrast .text-\[\#64748B\] {
+  color: #ffffff !important;
+}
+
+body.gov-high-contrast a {
+  color: #ffff00 !important;
+  text-decoration: underline !important;
+}
+
+/* High Contrast Buttons */
+body.gov-high-contrast button,
+body.gov-high-contrast .btn-secondary,
+html.gov-high-contrast button {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+  font-weight: 700 !important;
+}
+
+body.gov-high-contrast button:hover,
+body.gov-high-contrast .btn-secondary:hover,
+html.gov-high-contrast button:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+body.gov-high-contrast .btn-primary,
+body.gov-high-contrast button[class*="bg-emerald"],
+body.gov-high-contrast button[class*="bg-[#10B981]"],
+body.gov-high-contrast button[aria-pressed="true"],
+body.gov-high-contrast .active {
+  background-color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+}
+
+/* High Contrast Form Controls */
+body.gov-high-contrast input,
+body.gov-high-contrast select,
+body.gov-high-contrast textarea,
+body.gov-high-contrast .ds-input,
+body.gov-high-contrast .ds-select,
+body.gov-high-contrast .ds-textarea,
+html.gov-high-contrast input,
+html.gov-high-contrast select,
+html.gov-high-contrast textarea {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffffff !important;
+}
+
+body.gov-high-contrast input::placeholder,
+body.gov-high-contrast textarea::placeholder {
+  color: #ffff00 !important;
+  opacity: 0.8 !important;
+}
+
+/* High Contrast Tables */
+body.gov-high-contrast table,
+html.gov-high-contrast table {
+  border: 2px solid #ffff00 !important;
+}
+
+body.gov-high-contrast thead,
+body.gov-high-contrast th,
+body.gov-high-contrast .ds-table-th,
+html.gov-high-contrast thead,
+html.gov-high-contrast th {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-bottom: 2px solid #ffff00 !important;
+  font-weight: 800 !important;
+}
+
+body.gov-high-contrast td,
+body.gov-high-contrast .ds-table-td,
+html.gov-high-contrast td {
+  border-bottom: 1px solid #ffff00 !important;
+  color: #ffffff !important;
+}
+
+body.gov-high-contrast tbody tr:hover,
+body.gov-high-contrast #officerDocketTableBody tr:hover {
+  background-color: #1a1a00 !important;
+}
+
+/* High Contrast Modals & Popovers */
+body.gov-high-contrast #sidebarUserDropdownMenu,
+body.gov-high-contrast #userMenuPopover,
+body.gov-high-contrast .sidebar-user-dropdown,
+body.gov-high-contrast .user-menu-popover,
+body.gov-high-contrast #userProfileModal > div,
+body.gov-high-contrast .modal-content,
+html.gov-high-contrast #sidebarUserDropdownMenu,
+html.gov-high-contrast #userMenuPopover {
+  background-color: #000000 !important;
+  border: 3px solid #ffff00 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(255, 255, 0, 0.4) !important;
+}
+
+/* High Contrast Inspector Fields Grid */
+body.gov-high-contrast #reportExtractedFieldsGrid > div,
+html.gov-high-contrast #reportExtractedFieldsGrid > div {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffffff !important;
+}
+
+/* High Contrast Badges */
+body.gov-high-contrast .badge-compliant,
+body.gov-high-contrast .badge-violation,
+body.gov-high-contrast [class*="badge"],
+body.gov-high-contrast span.rounded-full {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+  font-weight: 800 !important;
+}
+
+/* Accessible Universal Focus Outlines */
+*:focus-visible {
+  outline: 2px solid #10B981 !important;
+  outline-offset: 2px !important;
+}
+
+body.gov-high-contrast *:focus-visible,
+html.gov-high-contrast *:focus-visible {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 3px !important;
+}
+
+/* ==========================================================================
+   Modern Theme Transition Controller (Zero Snapping, Ultra-Smooth Ease)
+   ========================================================================== */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition: background-color 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              fill 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              stroke 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-delay: 0s !important;
+}
+

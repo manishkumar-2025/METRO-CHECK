@@ -214,7 +214,7 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     doc.setFontSize(8.5);
     doc.setTextColor(71, 85, 105);
     const commentStr = String(
-      item.reviewComments || item.executive_summary || "Statutory inspection verified and logged into digital custody trail."
+      item.inspectorNotes || item.remarks || item.reviewComments || item.executive_summary || "Statutory inspection verified and logged into digital custody trail."
     );
     const splitComment = doc.splitTextToSize(`Official Directives: ${commentStr}`, 180);
     doc.text(splitComment, 16, y);

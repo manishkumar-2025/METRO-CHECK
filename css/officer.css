@@ -1,0 +1,216 @@
+/* ==========================================================================
+   METRO-CHECK - Legal Officer Portal Styles (css/officer.css)
+   Contains MAV gauge needle, docket tables, status pills, & violation cards.
+   ========================================================================== */
+
+
+/* MAV Gauge Needle & Track */
+.mav-gauge-track {
+  height: 14px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg,
+      #ef4444 0%,
+      #f87171 25%,
+      #fbbf24 38%,
+      #10b981 44%,
+      #10b981 56%,
+      #34d399 70%,
+      #38bdf8 100%);
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.mav-needle-indicator {
+  position: absolute;
+  top: -6px;
+  width: 14px;
+  height: 26px;
+  background: #0f172a;
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: left;
+}
+
+/* ==========================================================================
+   17. Modern Dark-Mode User Menu & Popover Component
+   ========================================================================== */
+.user-menu-pill {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.user-menu-pill:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.08);
+}
+
+.user-menu-pill:active {
+  transform: translateY(0);
+}
+
+.user-menu-avatar-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+
+.user-menu-popover {
+  background-color: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  animation: userPopoverSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top right;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+body.theme-dark .user-menu-pill {
+  background: #0F172A;
+  border-color: rgba(51, 65, 85, 0.8);
+  color: #f8fafc;
+}
+
+body.theme-dark .user-menu-popover {
+  background-color: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  color: #f8fafc;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes userPopoverSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.user-menu-chevron.is-active {
+  transform: rotate(180deg);
+}
+
+/* Tab & Filter Active State Overrides (Emerald instead of Amber) */
+.inspection-filter-tab.active,
+.inspection-filter-tab.bg-amber-500,
+.commodity-cat-pill.active,
+.commodity-cat-pill.bg-amber-500,
+.docket-tab.active,
+.docket-tab.bg-amber-500 {
+  background-color: #10B981 !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ==========================================================================
+   METROLOGY OFFICER ENFORCEMENT DESK DESIGN SYSTEM
+   ========================================================================== */
+
+/* Docket Table Row Hover & Typography */
+#officerDocketTableBody tr {
+  transition: background-color 0.15s ease;
+}
+
+#officerDocketTableBody tr:hover {
+  background-color: #F8FAFC !important;
+}
+
+/* Docket Table Status Badges (Pill Shape) */
+#officerDocketTableBody span.rounded-full {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 0.2rem 0.65rem !important;
+  border-radius: 9999px !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+}
+
+#officerDocketTableBody .bg-emerald-100 {
+  background-color: #ECFDF5 !important;
+  color: #047857 !important;
+  border: 1px solid #A7F3D0 !important;
+}
+
+#officerDocketTableBody .bg-amber-100 {
+  background-color: #FFFBEB !important;
+  color: #B45309 !important;
+  border: 1px solid #FDE68A !important;
+}
+
+#officerDocketTableBody .bg-red-100 {
+  background-color: #FEF2F2 !important;
+  color: #B91C1C !important;
+  border: 1px solid #FECACA !important;
+}
+
+#officerDocketTableBody .bg-slate-100,
+#officerDocketTableBody .bg-slate-200 {
+  background-color: #F1F5F9 !important;
+  color: #475569 !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+/* Action button inside Docket Table */
+#officerDocketTableBody button.bg-amber-500 {
+  background-color: #10B981 !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  border-radius: 0.5rem !important;
+  padding: 0.35rem 0.75rem !important;
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2) !important;
+  transition: background-color 0.15s ease, transform 0.1s ease !important;
+}
+
+#officerDocketTableBody button.bg-amber-500:hover {
+  background-color: #059669 !important;
+}
+
+/* Right Panel: Clickable Bordered Violation Cards */
+.violation-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid #E4E7EC;
+  background-color: #FFFFFF;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.violation-card:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+.violation-card:has(input:checked) {
+  border-color: #FECACA !important;
+  background-color: #FEF2F2 !important;
+}
+
+.violation-card:has(input:checked) span {
+  color: #991B1B !important;
+  font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   National Command Center & Admin Oversight Styles
+   ========================================================================== */
+

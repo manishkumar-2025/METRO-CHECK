@@ -1,0 +1,408 @@
+/* ==========================================================================
+   METRO-CHECK - Sidebar & Header Navigation (css/navigation.css)
+   Contains sidebar layout, sub-header, nav items, user profile, & popovers.
+   ========================================================================== */
+
+
+/* Custom Sleek Scrollbar for Sidebar */
+.sidebar-container::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.sidebar-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Nav Item Base */
+.sidebar-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #475569;
+  border: 1px solid transparent;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Nav Item Icon Box */
+.sidebar-icon-box {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  transition: all 0.18s ease;
+}
+
+/* ==========================================================================
+   LINEAR / SHADCN UI MODERN SAAS SIDEBAR & MASTHEAD SPECIFICATION
+   Refined Navigation System: Spacing, Typography, Hover & Active States
+   ========================================================================== */
+
+/* 1. Sidebar Container: 250px Width, Clean Canvas & Borders */
+.sidebar-container {
+  width: 250px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
+  background-color: #FAFAFA !important;
+  border-right: 1px solid #E4E4E7 !important;
+  box-shadow: 1px 0 10px rgba(15, 23, 42, 0.03) !important;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s ease !important;
+}
+
+/* Desktop Sidebar Fixed Position & Main Viewport Offset: ZERO overlap with fixed left sidebar */
+@media (min-width: 768px) {
+  .sidebar-container {
+    position: fixed !important;
+    top: 54px !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    height: calc(100vh - 54px) !important;
+    max-height: calc(100vh - 54px) !important;
+    z-index: 30 !important;
+    transform: none !important;
+  }
+
+  .main-viewport,
+  .sidebar-container ~ .main-viewport,
+  .sidebar-container ~ div.flex-1 {
+    margin-left: 250px !important;
+    width: calc(100% - 250px) !important;
+    min-height: calc(100vh - 54px) !important;
+    transition: margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .sidebar-container.sidebar-collapsed ~ .main-viewport,
+  .sidebar-container.sidebar-collapsed ~ div.flex-1 {
+    margin-left: 68px !important;
+    width: calc(100% - 68px) !important;
+  }
+
+  /* Sticky Viewport Sub-header: Sticky below 54px national masthead */
+  .main-viewport > header,
+  .sidebar-container ~ div.flex-1 > header {
+    position: sticky !important;
+    top: 54px !important;
+    z-index: 20 !important;
+  }
+}
+
+body.theme-dark .sidebar-container {
+  background-color: #090D16 !important;
+  border-right-color: #1E293B !important;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 2. Group Headers: text-xs font-bold text-slate-500 uppercase tracking-wider */
+.sidebar-section-header {
+  font-size: 0.6875rem !important; /* 11px */
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.075em !important;
+  color: #64748B !important; /* Slate 500 */
+  padding: 0.75rem 0.5rem 0.35rem 0.5rem !important;
+  margin-top: 0.25rem !important;
+}
+
+body.theme-dark .sidebar-section-header {
+  color: #94A3B8 !important; /* Slate 400 */
+}
+
+/* 3. Navigation Items: Base Setup & Alignment */
+.sidebar-nav-item {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.75rem !important;
+  width: 100% !important;
+  padding: 0.55rem 0.75rem !important;
+  border-radius: 0.375rem !important; /* rounded-md */
+  font-size: 0.8125rem !important; /* 13px */
+  font-weight: 500 !important;
+  color: #475569 !important; /* Slate 600 */
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  user-select: none !important;
+}
+
+/* Hover State: Subtle translateX shift, soft highlight background & text emphasis */
+.sidebar-nav-item:not(.active):hover {
+  color: #0F172A !important; /* Slate 900 */
+  background-color: #F1F5F9 !important; /* Slate 100 */
+  transform: translateX(3px) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.sidebar-nav-item:not(.active):hover::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  left: -2px !important;
+  top: 25% !important;
+  height: 50% !important;
+  width: 3px !important;
+  background-color: #CBD5E1 !important;
+  border-radius: 0 3px 3px 0 !important;
+  opacity: 0.8 !important;
+  transition: opacity 0.15s ease !important;
+}
+
+/* Active State: Rich Emerald Sovereign Highlight with Left Accent Indicator Pill */
+.sidebar-nav-item.active {
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.95) 0%, rgba(209, 250, 229, 0.6) 100%) !important;
+  color: #047857 !important; /* Emerald 700 */
+  font-weight: 600 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.12) !important;
+}
+
+.sidebar-nav-item.active::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  left: -3px !important;
+  top: 15% !important;
+  height: 70% !important;
+  width: 3.5px !important;
+  background-color: #10B981 !important;
+  border-radius: 0 4px 4px 0 !important;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5) !important;
+}
+
+/* Dark Theme Overrides for Navigation Items */
+body.theme-dark .sidebar-nav-item {
+  color: #94A3B8 !important; /* Slate 400 */
+}
+
+body.theme-dark .sidebar-nav-item:not(.active):hover {
+  color: #F8FAFC !important; /* Slate 50 */
+  background-color: #1E293B !important; /* Slate 800 */
+  transform: translateX(3px) !important;
+}
+
+body.theme-dark .sidebar-nav-item:not(.active):hover::before {
+  background-color: #475569 !important;
+}
+
+body.theme-dark .sidebar-nav-item.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(6, 78, 59, 0.35) 100%) !important;
+  color: #34D399 !important; /* Emerald 300 */
+  font-weight: 600 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2) !important;
+}
+
+body.theme-dark .sidebar-nav-item.active::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  left: -3px !important;
+  top: 15% !important;
+  height: 70% !important;
+  width: 3.5px !important;
+  background-color: #34D399 !important;
+  border-radius: 0 4px 4px 0 !important;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.7) !important;
+}
+
+/* Micro Live Badge */
+.sidebar-badge-pulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.125rem 0.45rem;
+  font-size: 0.625rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  border-radius: 0.375rem;
+  background: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.08);
+}
+
+body.theme-dark .sidebar-badge-pulse {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+/* 4. Pinned Bottom User Profile Widget: margin-top: auto */
+.sidebar-footer-pinned {
+  margin-top: auto !important;
+  padding-top: 0.75rem !important;
+  border-top: 1px solid #E4E4E7 !important; /* border-t border-gray-200 */
+  background-color: #FAFAFA !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 30 !important;
+}
+
+body.theme-dark .sidebar-footer-pinned {
+  background-color: #09090B !important;
+  border-top-color: #27272A !important;
+}
+
+/* Expandable User Popover Menu (Linear / Shadcn UI Dropdown) */
+.sidebar-user-dropdown {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E4E4E7 !important;
+  border-radius: 0.5rem !important; /* rounded-lg */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05) !important;
+  animation: dropdownFadeIn 0.12s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+body.theme-dark .sidebar-user-dropdown {
+  background-color: #18181B !important;
+  border-color: #27272A !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollable Nav Items in Sidebar */
+.sidebar-content-scrollable {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sidebar-content-scrollable::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-content-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(203, 213, 225, 0.5);
+  border-radius: 9999px;
+}
+
+body.theme-dark .sidebar-content-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.5);
+}
+
+/* Collapsed Sidebar Rules (Desktop 68px width) */
+@media (min-width: 768px) {
+  .sidebar-container.sidebar-collapsed {
+    width: 68px !important;
+    min-width: 68px !important;
+    max-width: 68px !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  .sidebar-container.sidebar-collapsed .sidebar-hide-on-collapse {
+    display: none !important;
+  }
+  .sidebar-container.sidebar-collapsed .sidebar-nav-item {
+    justify-content: center !important;
+    padding: 0.5rem 0 !important;
+  }
+  .sidebar-container.sidebar-collapsed .sidebar-badge-pulse {
+    display: none !important;
+  }
+  .sidebar-container.sidebar-collapsed .sidebar-section-header {
+    display: none !important;
+  }
+  .sidebar-container.sidebar-collapsed .sidebar-brand-wrapper {
+    justify-content: center !important;
+  }
+}
+
+/* ==========================================================================
+   25. Modern Notification Bell & Elevated Popover System
+   ========================================================================== */
+
+@keyframes bell-ring {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-12deg); }
+  45% { transform: rotate(8deg); }
+  60% { transform: rotate(-6deg); }
+  75% { transform: rotate(2deg); }
+  100% { transform: rotate(0); }
+}
+
+.notification-bell-btn:hover svg {
+  animation: bell-ring 0.8s ease-in-out;
+}
+
+.notification-popover-open {
+  animation: notificationEnter 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes notificationEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+#inspectorNotificationList::-webkit-scrollbar,
+#officerNotificationList::-webkit-scrollbar,
+#adminNotificationList::-webkit-scrollbar {
+  width: 5px;
+}
+
+#inspectorNotificationList::-webkit-scrollbar-track,
+#officerNotificationList::-webkit-scrollbar-track,
+#adminNotificationList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#inspectorNotificationList::-webkit-scrollbar-thumb,
+#officerNotificationList::-webkit-scrollbar-thumb,
+#adminNotificationList::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+
+#inspectorNotificationList::-webkit-scrollbar-thumb:hover,
+#officerNotificationList::-webkit-scrollbar-thumb:hover,
+#adminNotificationList::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+/* ==========================================================================
+   26. Comprehensive Cross-Device Responsiveness (Mobile, Tablet, Desktop)
+   ========================================================================== */
+
+/* Hide Scrollbar Utility for Horizontal Navigation Pills */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

@@ -31,8 +31,8 @@
       status: "NON_COMPLIANT_PENDING",
       isCompliant: false,
       violations: ["Rule 6(1)(n): Missing Consumer Care Contact Details"],
-      timestamp: "2025-01-15T09:30:00.000Z",
-      date: "2025-01-15",
+      timestamp: "2026-09-13T09:30:00.000Z",
+      date: "2026-09-13",
       priority: "Urgent",
       location: "Warehouse 4, Okhla Industrial Area, Delhi",
       extractedData: {
@@ -43,8 +43,8 @@
         mrp_tax_inclusive: "₹450.00",
         manufacturer: "ABC Foods Pvt Ltd, Delhi",
         manufacturer_name_address: "ABC Foods Pvt Ltd, Delhi",
-        mfg_date: "01/2025",
-        mfg_month_year: "01/2025",
+        mfg_date: "09/2026",
+        mfg_month_year: "09/2026",
         consumer_care: null,
         consumer_care_contact: null
       }
@@ -61,8 +61,8 @@
       status: "COMPLIANT_LOGGED",
       isCompliant: true,
       violations: [],
-      timestamp: "2025-01-15T11:15:00.000Z",
-      date: "2025-01-15",
+      timestamp: "2026-09-13T11:15:00.000Z",
+      date: "2026-09-13",
       priority: "Low",
       location: "Grain Market Mandi, Ludhiana, Punjab",
       reviewComments: "Complete statutory compliance under Rule 6. Standard declarations verified.",
@@ -74,8 +74,8 @@
         mrp_tax_inclusive: "₹380.00",
         manufacturer: "Punjab Agro Grains Ltd, Ludhiana",
         manufacturer_name_address: "Punjab Agro Grains Ltd, Ludhiana",
-        mfg_date: "12/2024",
-        mfg_month_year: "12/2024",
+        mfg_date: "08/2026",
+        mfg_month_year: "08/2026",
         consumer_care: "support@punjabagro.in",
         consumer_care_contact: "support@punjabagro.in"
       }
@@ -95,8 +95,8 @@
         "Rule 6(1)(e): Missing Currency Symbol on Retail Sale Price",
         "Rule 9(1): Substandard Font Size on Net Quantity"
       ],
-      timestamp: "2025-01-14T14:20:00.000Z",
-      date: "2025-01-14",
+      timestamp: "2026-09-12T14:20:00.000Z",
+      date: "2026-09-12",
       priority: "Urgent",
       location: "Highway Logistics Depot, Karnal, Haryana",
       reviewComments: "Statutory show-cause notice issued under Rule 32 for font height contravention and defective MRP formatting.",
@@ -108,8 +108,8 @@
         mrp_tax_inclusive: "420",
         manufacturer: "Dairy Valley Agro Ltd, Karnal",
         manufacturer_name_address: "Dairy Valley Agro Ltd, Karnal",
-        mfg_date: "10/2024",
-        mfg_month_year: "10/2024",
+        mfg_date: "08/2026",
+        mfg_month_year: "08/2026",
         consumer_care: "care@dairyvalley.in",
         consumer_care_contact: "care@dairyvalley.in"
       }
@@ -126,8 +126,8 @@
       status: "COMPLIANT_LOGGED",
       isCompliant: true,
       violations: [],
-      timestamp: "2025-01-14T10:00:00.000Z",
-      date: "2025-01-14",
+      timestamp: "2026-09-12T10:00:00.000Z",
+      date: "2026-09-12",
       priority: "Low",
       location: "Central Supermarket, Kochi, Kerala",
       reviewComments: "All mandatory markings verified as per Schedule 2.",
@@ -139,8 +139,8 @@
         mrp_tax_inclusive: "₹240.00",
         manufacturer: "Malabar Edible Oils Ltd, Kozhikode",
         manufacturer_name_address: "Malabar Edible Oils Ltd, Kozhikode",
-        mfg_date: "12/2024",
-        mfg_month_year: "12/2024",
+        mfg_date: "08/2026",
+        mfg_month_year: "08/2026",
         consumer_care: "care@malabaroils.com",
         consumer_care_contact: "care@malabaroils.com"
       }
@@ -157,8 +157,8 @@
       status: "NON_COMPLIANT_PENDING",
       isCompliant: false,
       violations: ["Rule 6(1)(d): Missing Month and Year of Manufacture"],
-      timestamp: "2025-01-13T16:45:00.000Z",
-      date: "2025-01-13",
+      timestamp: "2026-09-11T16:45:00.000Z",
+      date: "2026-09-11",
       priority: "Standard",
       location: "Koramangala Commercial Hub, Bengaluru, Karnataka",
       extractedData: {
@@ -187,8 +187,8 @@
       status: "COMPLIANT_LOGGED",
       isCompliant: true,
       violations: [],
-      timestamp: "2025-01-13T12:30:00.000Z",
-      date: "2025-01-13",
+      timestamp: "2026-09-11T12:30:00.000Z",
+      date: "2026-09-11",
       priority: "Low",
       location: "APMC Wholesale Market, Vashi, Navi Mumbai",
       reviewComments: "Verified compliant with Legal Metrology Packaged Commodities Rules 2011.",
@@ -200,8 +200,8 @@
         mrp_tax_inclusive: "₹165.00",
         manufacturer: "Sahyadri Agro Refineries Ltd, Pune",
         manufacturer_name_address: "Sahyadri Agro Refineries Ltd, Pune",
-        mfg_date: "01/2025",
-        mfg_month_year: "01/2025",
+        mfg_date: "09/2026",
+        mfg_month_year: "09/2026",
         consumer_care: "care@sahyadriagro.com",
         consumer_care_contact: "care@sahyadriagro.com"
       }
@@ -218,8 +218,8 @@
       status: "NON_COMPLIANT_PENDING",
       isCompliant: false,
       violations: ["Rule 6(1)(a): Non-standard Packer Address (City and PIN code missing)"],
-      timestamp: "2025-01-12T15:10:00.000Z",
-      date: "2025-01-12",
+      timestamp: "2026-09-10T15:10:00.000Z",
+      date: "2026-09-10",
       priority: "Urgent",
       location: "Ring Road Wholesale Complex, Surat, Gujarat",
       extractedData: {
@@ -230,8 +230,8 @@
         mrp_tax_inclusive: "₹890.00",
         manufacturer: "Saurashtra Oil Mills",
         manufacturer_name_address: "Saurashtra Oil Mills",
-        mfg_date: "12/2024",
-        mfg_month_year: "12/2024",
+        mfg_date: "08/2026",
+        mfg_month_year: "08/2026",
         consumer_care: "support@saurashtraoil.com",
         consumer_care_contact: "support@saurashtraoil.com"
       }
@@ -248,8 +248,8 @@
       status: "COMPLIANT_LOGGED",
       isCompliant: true,
       violations: [],
-      timestamp: "2025-01-12T09:40:00.000Z",
-      date: "2025-01-12",
+      timestamp: "2026-09-10T09:40:00.000Z",
+      date: "2026-09-10",
       priority: "Low",
       location: "Posta Bazar Wholesale Depot, Kolkata, West Bengal",
       reviewComments: "Prescribed metric declaration and packaging license details validated.",
@@ -261,8 +261,8 @@
         mrp_tax_inclusive: "₹175.00",
         manufacturer: "Bengal Agrotech Oils Ltd, Howrah",
         manufacturer_name_address: "Bengal Agrotech Oils Ltd, Howrah",
-        mfg_date: "01/2025",
-        mfg_month_year: "01/2025",
+        mfg_date: "09/2026",
+        mfg_month_year: "09/2026",
         consumer_care: "contact@bengalagrotech.in",
         consumer_care_contact: "contact@bengalagrotech.in"
       }
@@ -279,8 +279,8 @@
       status: "NON_COMPLIANT_PENDING",
       isCompliant: false,
       violations: ["Rule 6(1)(c): Net quantity missing required metric unit symbol (declared without 'g')"],
-      timestamp: "2025-01-11T13:20:00.000Z",
-      date: "2025-01-11",
+      timestamp: "2026-09-09T13:20:00.000Z",
+      date: "2026-09-09",
       priority: "Standard",
       location: "Alambagh Mandi, Lucknow, Uttar Pradesh",
       extractedData: {
@@ -291,8 +291,8 @@
         mrp_tax_inclusive: "₹95.00",
         manufacturer: "Awadh Dairy Cooperative, Lucknow",
         manufacturer_name_address: "Awadh Dairy Cooperative, Lucknow",
-        mfg_date: "01/2025",
-        mfg_month_year: "01/2025",
+        mfg_date: "09/2026",
+        mfg_month_year: "09/2026",
         consumer_care: "helpline@awadhdairy.org",
         consumer_care_contact: "helpline@awadhdairy.org"
       }
@@ -309,8 +309,8 @@
       status: "COMPLIANT_LOGGED",
       isCompliant: true,
       violations: [],
-      timestamp: "2025-01-11T10:15:00.000Z",
-      date: "2025-01-11",
+      timestamp: "2026-09-09T10:15:00.000Z",
+      date: "2026-09-09",
       priority: "Low",
       location: "Paltan Bazar Tea Mart, Guwahati, Assam",
       reviewComments: "Declaration markings meet Schedule 2 standard packing sizes for tea.",
@@ -322,10 +322,10 @@
         mrp_tax_inclusive: "₹320.00",
         manufacturer: "Brahmaputra Valley Tea Estates Ltd, Dibrugarh",
         manufacturer_name_address: "Brahmaputra Valley Tea Estates Ltd, Dibrugarh",
-        mfg_date: "12/2024",
-        mfg_month_year: "12/2024",
-        consumer_care: "info@brahmaputratea.com",
-        consumer_care_contact: "info@brahmaputratea.com"
+        mfg_date: "08/2026",
+        mfg_month_year: "08/2026",
+        consumer_care: "support@brahmaputratea.in",
+        consumer_care_contact: "support@brahmaputratea.in"
       }
     }
   ];
