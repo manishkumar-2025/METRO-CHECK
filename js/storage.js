@@ -467,7 +467,7 @@ const DEFAULT_COMMODITIES = [
     tolerance: "± 1.5% (for 1kg–5kg) | ± 1.0% (>5kg)",
     mpeGrams: "± 15g for 1kg | ± 75g for 5kg",
     mandatoryDeclarations: ["Commodity Name", "Net Quantity (kg/g)", "Retail Sale Price (MRP)", "Mfg/Packer Address", "Month & Year of Packaging", "Consumer Care Contact"],
-    ruleReference: "PCR 2011 Rule 6 & Second Schedule",
+    ruleReference: "PCR 2011 Rule 6 & Rule 6(11) (Unit Sale Price)",
     notes: "No individual package deviation shall exceed 2x MPE."
   },
   {
@@ -479,7 +479,7 @@ const DEFAULT_COMMODITIES = [
     tolerance: "± 1.5% (for 500ml–1L) | ± 1.0% (>1L)",
     mpeGrams: "± 15ml for 1L | ± 30ml for 2L",
     mandatoryDeclarations: ["Commodity Name", "Net Volume (L/ml)", "Net Mass (optional)", "MRP inclusive of all taxes", "Packer Full Address", "Month/Year of Packing", "Helpline Email/Phone"],
-    ruleReference: "PCR 2011 Rule 6 & Second Schedule",
+    ruleReference: "PCR 2011 Rule 6 & Rule 6(11) (Unit Sale Price)",
     notes: "Must declare net volume at 30°C temperature reference."
   },
   {
@@ -503,7 +503,7 @@ const DEFAULT_COMMODITIES = [
     tolerance: "± 1.5% (for 500ml to 1L)",
     mpeGrams: "± 7.5ml for 500ml | ± 15ml for 1L",
     mandatoryDeclarations: ["Commodity Name", "Net Content (g or ml)", "MRP (incl. taxes)", "Dairy Packer Address", "Packing Month & Year", "Consumer Care Helpline"],
-    ruleReference: "PCR 2011 Rule 6 & Second Schedule",
+    ruleReference: "PCR 2011 Rule 6 & Rule 6(11) (Unit Sale Price)",
     notes: "MRP font size must strictly match package area per Rule 7."
   },
   {
@@ -563,7 +563,7 @@ const DEFAULT_COMMODITIES = [
     tolerance: "± 2.0% (for 500g–1kg) | ± 1.5% (>1kg)",
     mpeGrams: "± 10g for 500g | ± 15g for 1kg | ± 30g for 2kg",
     mandatoryDeclarations: ["Commodity Name", "Net Mass (kg/g)", "MRP inclusive of all taxes", "Manufacturer Full Address", "Month & Year of Packaging", "Helpline Address"],
-    ruleReference: "PCR 2011 Rule 6 & Second Schedule",
+    ruleReference: "PCR 2011 Rule 6 & Rule 6(11) (Unit Sale Price)",
     notes: "Density and moisture variation subject to standard storage."
   },
   {

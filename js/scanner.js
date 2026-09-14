@@ -245,25 +245,32 @@ function setActiveCaptureSlot(slot) {
     targetLabel.textContent = def.targetLabel;
   }
 
-  // 2. Update 6-panel selector pill & card highlight styles
+  // 2. Update 6-panel selector segmented pills & compact card highlights
   PANEL_SLOTS.forEach(s => {
     const cap = capitalizeSlot(s);
     const pill = document.getElementById(`slotBtn${cap}`);
     const card = document.getElementById(`slotCard${cap}`);
+    const hasImg = !!panelImages[s];
 
     if (pill) {
+      const iconEl = pill.querySelector(".slot-state-icon");
+      const stateIcon = (s === slot) ? "🔵" : (hasImg ? "🟢" : "⚪");
+      if (iconEl) iconEl.textContent = stateIcon;
+
       if (s === slot) {
-        pill.className = "py-1.5 px-2.5 rounded-lg font-semibold text-xs transition flex items-center justify-between gap-1 border slot-pill-active cursor-pointer";
+        pill.className = "py-2 px-3 rounded-xl font-bold text-xs transition-all duration-200 flex items-center justify-between gap-1.5 border border-emerald-400 bg-emerald-50/60 text-emerald-900 shadow-2xs cursor-pointer slot-pill-active ring-2 ring-emerald-400/20";
+      } else if (hasImg) {
+        pill.className = "py-2 px-3 rounded-xl font-bold text-xs transition-all duration-200 flex items-center justify-between gap-1.5 border border-emerald-300/80 bg-emerald-50/40 text-emerald-800 cursor-pointer shadow-2xs";
       } else {
-        pill.className = "py-1.5 px-2.5 rounded-lg font-medium text-xs transition flex items-center justify-between gap-1 border bg-white text-[#64748B] hover:bg-slate-100 cursor-pointer";
+        pill.className = "py-2 px-3 rounded-xl font-medium text-xs transition-all duration-200 flex items-center justify-between gap-1.5 border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs";
       }
     }
 
     if (card) {
       if (s === slot) {
-        card.classList.add("slot-card-active");
+        card.classList.add("slot-card-active", "ring-2", "ring-emerald-400/30", "border-emerald-400");
       } else {
-        card.classList.remove("slot-card-active");
+        card.classList.remove("slot-card-active", "ring-2", "ring-emerald-400/30", "border-emerald-400");
       }
     }
   });
@@ -369,6 +376,14 @@ function setSlotImage(slot, dataUrl) {
   if (badge) badge.classList.remove("hidden");
 
   updateMultiPanelState();
+
+  // Auto-Focus Progression: Automatically advance active target to next empty slot if available
+  const nextEmptySlot = PANEL_SLOTS.find(s => !panelImages[s]);
+  if (nextEmptySlot && nextEmptySlot !== slot) {
+    setActiveCaptureSlot(nextEmptySlot);
+  } else {
+    setActiveCaptureSlot(slot);
+  }
 }
 
 function clearSlotImage(slot) {
@@ -415,18 +430,44 @@ function updateMultiPanelState() {
     counter.textContent = `${capturedCount} of 6`;
   }
 
+  const minBadge = document.getElementById("ctaMinBadge");
+  if (minBadge) {
+    if (capturedCount >= 2) {
+      minBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5 shadow-2xs";
+      minBadge.innerHTML = `<span>🟢</span> <span>${capturedCount} Panels Loaded • Ready for Audit</span>`;
+    } else if (capturedCount === 1) {
+      minBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1.5 shadow-2xs";
+      minBadge.innerHTML = `<span>🟡</span> <span>1 Panel Loaded (Front & Back Recommended)</span>`;
+    } else {
+      minBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5 shadow-2xs";
+      minBadge.innerHTML = `<span>⚪</span> <span>0 of 2 Minimum Panels Loaded</span>`;
+    }
+  }
+
   const analyzeBtn = document.getElementById("btnRunAiAnalysis");
   if (analyzeBtn) {
     if (capturedCount > 0) {
       analyzeBtn.disabled = false;
       analyzeBtn.classList.remove("opacity-50", "cursor-not-allowed");
-      analyzeBtn.classList.add("btn-hover-effect");
+      analyzeBtn.classList.add("bg-gradient-to-r", "from-emerald-600", "to-teal-600", "hover:from-emerald-500", "hover:to-teal-500", "text-white", "shadow-xl", "shadow-emerald-500/20", "cursor-pointer", "active:scale-[0.99]");
     } else {
       analyzeBtn.disabled = true;
       analyzeBtn.classList.add("opacity-50", "cursor-not-allowed");
-      analyzeBtn.classList.remove("btn-hover-effect");
+      analyzeBtn.classList.remove("bg-gradient-to-r", "from-emerald-600", "to-teal-600", "hover:from-emerald-500", "hover:to-teal-500", "shadow-xl", "shadow-emerald-500/20", "active:scale-[0.99]");
     }
   }
+
+  // Refresh segmented pills state icons
+  PANEL_SLOTS.forEach(s => {
+    const cap = capitalizeSlot(s);
+    const pill = document.getElementById(`slotBtn${cap}`);
+    const hasImg = !!panelImages[s];
+    if (pill) {
+      const iconEl = pill.querySelector(".slot-state-icon");
+      const stateIcon = (s === activeCaptureSlot) ? "🔵" : (hasImg ? "🟢" : "⚪");
+      if (iconEl) iconEl.textContent = stateIcon;
+    }
+  });
 }
 
 function processUploadedSlotFile(slot, file) {
@@ -1149,17 +1190,17 @@ function renderAutoFilledComplianceReport(data) {
 
   if (banner) {
     if (overallStatus === "Compliant" || overallStatus === "Pass") {
-      banner.className = "p-5 rounded-2xl bg-emerald-600 text-white shadow-lg flex items-center justify-between";
-      bannerTitle.innerHTML = `<span class="text-2xl mr-2">🛡️</span> VERDICT: COMPLIANT (PASS)`;
-      bannerSub.textContent = `All statutory declarations satisfy Legal Metrology (Packaged Commodities) Rules, 2011. AI Confidence: ${confidenceScore}%`;
+      banner.className = "p-5 rounded-2xl bg-gradient-to-r from-emerald-700 via-emerald-800 to-teal-900 text-white shadow-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-emerald-600/50";
+      bannerTitle.innerHTML = `<span class="text-2xl mr-2">🛡️</span> VERDICT: STATUTORY COMPLIANT (PASS)`;
+      bannerSub.textContent = `All mandatory Rule 6, 7 & 8 declarations satisfy Legal Metrology (Packaged Commodities) Rules, 2011. AI Confidence: ${confidenceScore}%`;
     } else if (overallStatus === "Non-Compliant" || overallStatus === "Fail") {
-      banner.className = "p-5 rounded-2xl bg-red-600 text-white shadow-lg flex items-center justify-between";
-      bannerTitle.innerHTML = `<span class="text-2xl mr-2">⚠️</span> VERDICT: NON-COMPLIANT (FAIL)`;
-      bannerSub.textContent = `Flagged statutory contraventions detected under Section 36 of Legal Metrology Act. AI Confidence: ${confidenceScore}%`;
+      banner.className = "p-5 rounded-2xl bg-gradient-to-r from-rose-700 via-red-800 to-rose-950 text-white shadow-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-rose-600/50";
+      bannerTitle.innerHTML = `<span class="text-2xl mr-2">⚠️</span> VERDICT: STATUTORY NON-COMPLIANT (FAIL)`;
+      bannerSub.textContent = `Flagged statutory contraventions detected under Section 36 of Legal Metrology Act, 2009. AI Confidence: ${confidenceScore}%`;
     } else {
-      banner.className = "p-5 rounded-2xl bg-amber-500 text-slate-950 shadow-lg flex items-center justify-between";
-      bannerTitle.innerHTML = `<span class="text-2xl mr-2">⚖️</span> VERDICT: PARTIAL / REQUIRES REVIEW`;
-      bannerSub.textContent = `Partial declarations or ambiguities detected. Forwarded to Metrology Officer. AI Confidence: ${confidenceScore}%`;
+      banner.className = "p-5 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-700 to-slate-900 text-white shadow-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-amber-500/50";
+      bannerTitle.innerHTML = `<span class="text-2xl mr-2">⚖️</span> VERDICT: PARTIAL / REQUIRES OFFICER REVIEW`;
+      bannerSub.textContent = `Partial declarations or ambiguities detected. Case docket prepared for Metrology Officer adjudication. AI Confidence: ${confidenceScore}%`;
     }
   }
 
@@ -1280,12 +1321,18 @@ function renderAutoFilledComplianceReport(data) {
   if (actionEl) actionEl.textContent = data.recommended_action || (overallStatus === "Compliant" ? "Record inspection in audit registry." : "Issue Statutory Show Cause Notice under Section 36.");
 
   // 7. Compliance Parameters Table
+  let passCount = 0;
+  let failCount = 0;
+
   const tbody = document.getElementById("reportParametersTableBody");
   if (tbody) {
     tbody.innerHTML = tests.map((t, idx) => {
       const statusLower = (t.status || "").toLowerCase();
-      const isPass = statusLower === "pass";
-      const isFail = statusLower === "fail";
+      const isPass = statusLower === "pass" || t.compliant === true;
+      const isFail = statusLower === "fail" || t.compliant === false;
+
+      if (isPass) passCount++;
+      else if (isFail) failCount++;
 
       const badgeClass = isPass
         ? "bg-emerald-100 text-emerald-800 border-emerald-300"
@@ -1314,6 +1361,11 @@ function renderAutoFilledComplianceReport(data) {
         </tr>`;
     }).join("");
   }
+
+  const passedBadge = document.getElementById("testsPassedBadge");
+  const failedBadge = document.getElementById("testsFailedBadge");
+  if (passedBadge) passedBadge.textContent = `${passCount} Passed`;
+  if (failedBadge) failedBadge.textContent = `${failCount} Failed`;
 
   // 8. Raw OCR Text
   const ocrTextEl = document.getElementById("reportRawOcrText");

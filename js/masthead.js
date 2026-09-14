@@ -62,7 +62,8 @@
   function updateMastheadScrollState() {
     const masthead = document.getElementById('nationalGovMasthead');
     if (masthead) {
-      const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+      const mainViewport = document.querySelector('.main-viewport');
+      const scrollY = (window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0) + (mainViewport ? mainViewport.scrollTop : 0);
       const shouldBeScrolled = scrollY > 5;
       if (shouldBeScrolled !== isMastheadScrolled) {
         isMastheadScrolled = shouldBeScrolled;
@@ -225,6 +226,10 @@
 
     handleMastheadScroll();
     window.addEventListener('scroll', handleMastheadScroll, { passive: true });
+    const mainViewport = document.querySelector('.main-viewport');
+    if (mainViewport) {
+      mainViewport.addEventListener('scroll', handleMastheadScroll, { passive: true });
+    }
   }
 
   /**

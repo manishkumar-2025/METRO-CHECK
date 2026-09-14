@@ -642,9 +642,12 @@ details.faq-accordion[open] {
 }
 
 #nationalGovMasthead {
-  position: sticky !important;
-  top: 3px !important;
-  z-index: 40 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 50 !important;
   transform: translateZ(0);
   will-change: transform, background-color, box-shadow;
   -webkit-backface-visibility: hidden;
@@ -660,6 +663,9 @@ details.faq-accordion[open] {
   border-bottom-color: rgba(226, 232, 240, 0.95) !important;
 }
 
+body.theme-dark #topNavbarContainer,
+html.dark #topNavbarContainer,
+body.theme-dark #topNavbarContainer.scrolled,
 body.theme-dark #nationalGovMasthead.scrolled {
   background-color: rgba(15, 23, 42, 0.95) !important;
   backdrop-filter: blur(16px) !important;
@@ -2355,38 +2361,51 @@ body.theme-dark .sidebar-container {
 
 /* Desktop Sidebar Fixed Position & Main Viewport Offset: ZERO overlap with fixed left sidebar */
 @media (min-width: 768px) {
+  /* Lock viewport height ONLY on dashboard portals with sidebar/main-viewport */
+  body:has(.sidebar-container),
+  body:has(.main-viewport),
+  body.app-layout {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+  }
+
   .sidebar-container {
     position: fixed !important;
-    top: 54px !important;
+    top: var(--top-nav-height, 56px) !important;
     left: 0 !important;
     bottom: 0 !important;
-    height: calc(100vh - 54px) !important;
-    max-height: calc(100vh - 54px) !important;
-    z-index: 30 !important;
+    height: calc(100vh - var(--top-nav-height, 56px)) !important;
+    max-height: calc(100vh - var(--top-nav-height, 56px)) !important;
+    z-index: 40 !important;
     transform: none !important;
   }
 
   .main-viewport,
   .sidebar-container ~ .main-viewport,
   .sidebar-container ~ div.flex-1 {
-    margin-left: 250px !important;
-    width: calc(100% - 250px) !important;
-    min-height: calc(100vh - 54px) !important;
+    margin-left: var(--sidebar-width, 250px) !important;
+    margin-top: var(--top-nav-height, 56px) !important;
+    width: calc(100% - var(--sidebar-width, 250px)) !important;
+    height: calc(100vh - var(--top-nav-height, 56px)) !important;
+    max-height: calc(100vh - var(--top-nav-height, 56px)) !important;
+    overflow-y: auto !important;
     transition: margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    scroll-behavior: smooth;
   }
 
   .sidebar-container.sidebar-collapsed ~ .main-viewport,
   .sidebar-container.sidebar-collapsed ~ div.flex-1 {
-    margin-left: 68px !important;
-    width: calc(100% - 68px) !important;
+    margin-left: var(--sidebar-width-collapsed, 68px) !important;
+    width: calc(100% - var(--sidebar-width-collapsed, 68px)) !important;
   }
 
-  /* Sticky Viewport Sub-header: Sticky below 54px national masthead */
+  /* Sticky Viewport Sub-header: Sticky inside .main-viewport scroll container */
   .main-viewport > header,
   .sidebar-container ~ div.flex-1 > header {
     position: sticky !important;
-    top: 54px !important;
-    z-index: 20 !important;
+    top: 0 !important;
+    z-index: 30 !important;
   }
 }
 
@@ -2738,7 +2757,9 @@ body.theme-dark .sidebar-content-scrollable::-webkit-scrollbar-thumb {
   /* Sub-header mobile top position */
   .main-viewport > header,
   .sidebar-container ~ div.flex-1 > header {
-    top: 54px !important;
+    position: sticky !important;
+    top: 44px !important;
+    z-index: 35 !important;
   }
 
   /* Popover cards mobile viewport protection */
