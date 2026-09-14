@@ -42,22 +42,52 @@
     showPwaToast('⚡ Offline Mode Active. Inspection forms stored locally until connection is restored.', 'warning');
   });
 
+  // Helper: Check if App is already installed or launched as Standalone PWA
+  function isAppInstalled() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+      || window.navigator.standalone === true 
+      || document.referrer.startsWith('android-app://');
+    const isInstalledFlag = localStorage.getItem('metrocheck_pwa_installed') === 'true';
+    return isStandalone || isInstalledFlag;
+  }
+
+  // Helper: Hide Install App button and container
+  function hideInstallButton() {
+    const btn = document.getElementById('metrocheck-install-app-btn');
+    if (btn) btn.style.display = 'none';
+    const container = document.getElementById('pwa-install-container');
+    if (container) container.style.display = 'none';
+  }
+
   // 3. Capture Native Browser Install Event (beforeinstallprompt)
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
     console.log('[METRO-CHECK PWA] Native browser install prompt captured and ready.');
-    updateInstallButtonBadge(true);
+    if (!isAppInstalled()) {
+      renderInstallButton();
+      updateInstallButtonBadge(true);
+    }
   });
 
   window.addEventListener('appinstalled', () => {
     deferredInstallPrompt = null;
+    localStorage.setItem('metrocheck_pwa_installed', 'true');
     console.log('[METRO-CHECK PWA] App successfully installed on device.');
     showPwaToast('🎉 METRO-CHECK App installed successfully on your device!', 'success');
-    updateInstallButtonBadge(false);
+    hideInstallButton();
   });
 
-  // 4. Always Render "Install App" Button in Footer on DOM Ready
+  try {
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => {
+      if (e.matches) {
+        localStorage.setItem('metrocheck_pwa_installed', 'true');
+        hideInstallButton();
+      }
+    });
+  } catch (err) {}
+
+  // 4. Render "Install App" Button in Footer on DOM Ready (Only if not installed)
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', renderInstallButton);
   } else {
@@ -65,9 +95,17 @@
   }
 
   function renderInstallButton() {
+    if (isAppInstalled()) {
+      hideInstallButton();
+      return;
+    }
+
     // Locate target footer container
     const container = document.getElementById('pwa-install-container') || document.querySelector('footer .max-w-7xl') || document.querySelector('footer');
     if (!container || document.getElementById('metrocheck-install-app-btn')) return;
+
+    // Ensure container is visible if previously hidden
+    container.style.display = '';
 
     const btn = document.createElement('button');
     btn.id = 'metrocheck-install-app-btn';
@@ -103,6 +141,8 @@
         const choiceResult = await deferredInstallPrompt.userChoice;
         if (choiceResult.outcome === 'accepted') {
           console.log('[METRO-CHECK PWA] User accepted browser install prompt.');
+          localStorage.setItem('metrocheck_pwa_installed', 'true');
+          hideInstallButton();
           showPwaToast('🎉 METRO-CHECK App is installing...', 'success');
         } else {
           console.log('[METRO-CHECK PWA] User dismissed install prompt.');
@@ -222,6 +262,8 @@
             deferredInstallPrompt.prompt();
             const choiceResult = await deferredInstallPrompt.userChoice;
             if (choiceResult.outcome === 'accepted') {
+              localStorage.setItem('metrocheck_pwa_installed', 'true');
+              hideInstallButton();
               showPwaToast('🎉 METRO-CHECK App is installing...', 'success');
             }
             deferredInstallPrompt = null;
