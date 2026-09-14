@@ -187,9 +187,17 @@ function saveInspection(inspectionData) {
     }
   });
 
-  const allInspections = getInspections();
   if (!inspectionData.id) inspectionData.id = generateId("INS-");
   if (!inspectionData.date) inspectionData.date = new Date().toISOString().split("T")[0];
+
+  // Set pendingSync status upfront if offline
+  const isOffline = typeof navigator !== "undefined" && navigator.onLine === false;
+  if (isOffline) {
+    inspectionData.pendingSync = true;
+    addToPendingSyncQueue(inspectionData.id);
+  }
+
+  const allInspections = getInspections();
 
   const existingIndex = allInspections.findIndex(function(item) {
     return item.id === inspectionData.id;
@@ -232,13 +240,28 @@ function saveInspection(inspectionData) {
 
   // Background sync with central server (enables live handoff from mobile inspector to desktop officer)
   if (typeof fetch !== "undefined") {
-    fetch(`${STORAGE_API_BASE}/api/inspections`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(inspectionData)
-    }).catch(e => {
-      // Offline / server offline - safely ignored as localStorage acts as primary offline cache
-    });
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      inspectionData.pendingSync = true;
+      addToPendingSyncQueue(inspectionData.id);
+    } else {
+      fetch(`${STORAGE_API_BASE}/api/inspections`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(inspectionData)
+      }).then(res => {
+        if (res.ok) {
+          inspectionData.pendingSync = false;
+          removeFromPendingSyncQueue(inspectionData.id);
+        } else {
+          inspectionData.pendingSync = true;
+          addToPendingSyncQueue(inspectionData.id);
+        }
+      }).catch(e => {
+        // Offline / zero network - queue in localStorage for auto-sync when online
+        inspectionData.pendingSync = true;
+        addToPendingSyncQueue(inspectionData.id);
+      });
+    }
   }
 
   try {
@@ -250,11 +273,89 @@ function saveInspection(inspectionData) {
   return inspectionData;
 }
 
+const STORAGE_KEY_PENDING_SYNC = "metro_pending_sync";
+
+function getPendingSyncQueue() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PENDING_SYNC);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function addToPendingSyncQueue(id) {
+  if (!id) return;
+  const queue = getPendingSyncQueue();
+  if (!queue.includes(id)) {
+    queue.push(id);
+    try {
+      localStorage.setItem(STORAGE_KEY_PENDING_SYNC, JSON.stringify(queue));
+    } catch (e) {}
+  }
+}
+
+function removeFromPendingSyncQueue(id) {
+  if (!id) return;
+  const queue = getPendingSyncQueue();
+  const filtered = queue.filter(item => item !== id);
+  try {
+    localStorage.setItem(STORAGE_KEY_PENDING_SYNC, JSON.stringify(filtered));
+  } catch (e) {}
+}
+
+/**
+ * Auto-syncs all offline queued records when internet connectivity is restored
+ */
+async function flushPendingSyncQueue() {
+  if (typeof window === "undefined" || (typeof navigator !== "undefined" && !navigator.onLine)) return;
+  const allInspections = getInspections();
+  const queue = getPendingSyncQueue();
+  const pendingItems = allInspections.filter(item => item.pendingSync === true || queue.includes(item.id));
+  
+  if (pendingItems.length === 0) return;
+
+  let syncedCount = 0;
+  for (const item of pendingItems) {
+    try {
+      const res = await fetch(`${STORAGE_API_BASE}/api/inspections`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(item)
+      });
+      if (res.ok) {
+        item.pendingSync = false;
+        if (item.status === "OFFLINE_QUEUED") {
+          item.status = "NON_COMPLIANT_PENDING";
+        }
+        removeFromPendingSyncQueue(item.id);
+        syncedCount++;
+      }
+    } catch (e) {
+      // Still offline / server unreachable
+    }
+  }
+
+  if (syncedCount > 0) {
+    _inspectionsCache = allInspections.slice();
+    try {
+      localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(allInspections));
+    } catch (e) {}
+
+    if (typeof showToast === "function") {
+      showToast(`📶 Connection Restored: Auto-synced ${syncedCount} queued inspection(s) with central server!`, "success");
+    }
+    if (typeof renderStats === "function") renderStats();
+    if (typeof renderMyInspections === "function") renderMyInspections();
+    if (typeof renderRecentDashboardTable === "function") renderRecentDashboardTable();
+  }
+}
+
 /**
  * Syncs central inspection dockets from server into local store
  */
 async function syncInspectionsWithServer(onSyncComplete) {
-  if (typeof fetch === "undefined") return;
+  if (typeof fetch === "undefined" || (typeof navigator !== "undefined" && !navigator.onLine)) return;
   try {
     const res = await fetch(`${STORAGE_API_BASE}/api/inspections`);
     if (res.ok) {
@@ -291,10 +392,31 @@ async function syncInspectionsWithServer(onSyncComplete) {
 
 // Auto-sync with server on document load if online
 if (typeof window !== "undefined") {
+  window.getPendingSyncQueue = getPendingSyncQueue;
+  window.flushPendingSyncQueue = flushPendingSyncQueue;
+
+  window.addEventListener("online", function () {
+    if (typeof showToast === "function") {
+      showToast("📶 Network Connection Restored: Online Mode Active", "info");
+    }
+    flushPendingSyncQueue();
+    syncInspectionsWithServer();
+  });
+
+  window.addEventListener("offline", function () {
+    if (typeof showToast === "function") {
+      showToast("📡 Basement / Zero Network Mode: Canvas Compression (~40KB) & Local Queue Active", "warning");
+    }
+  });
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => syncInspectionsWithServer());
+    document.addEventListener("DOMContentLoaded", () => {
+      syncInspectionsWithServer();
+      flushPendingSyncQueue();
+    });
   } else {
     syncInspectionsWithServer();
+    flushPendingSyncQueue();
   }
 }
 

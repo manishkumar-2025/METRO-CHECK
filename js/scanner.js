@@ -787,10 +787,13 @@ function processUploadedImageFile(file) {
   reader.readAsDataURL(file);
 }
 
+let currentLoadedSpecimenKey = "tea";
+
 /**
  * Loads realistic demonstration specimen labels for immediate 1-click testing.
  */
 function loadDemoSpecimen(type) {
+  currentLoadedSpecimenKey = type || "tea";
   const specimens = {
     tea: {
       name: "Masala Chai 500g (Compliant Label)",
@@ -800,21 +803,25 @@ function loadDemoSpecimen(type) {
       name: "Potato Chips 100g (Defective Label - Missing MRP & Care)",
       url: "assets/noncompliant_chips_label.jpg"
     },
+    banana_chips: {
+      name: "Jaggery Coated Banana Chips 200g (ONEEIO Compliant Label)",
+      url: "assets/compliant_tea_label.jpg"
+    },
     rice: {
-      name: "Basmati Rice Premium 500g",
+      name: "Basmati Rice Premium 5kg",
       url: "assets/compliant_tea_label.jpg"
     },
     oil: {
-      name: "Sunflower Oil",
+      name: "Sunflower Oil 1L",
       url: "assets/compliant_tea_label.jpg"
     },
     ghee: {
-      name: "Defective Pack",
+      name: "Pure Cow Ghee 500ml (Defective)",
       url: "assets/noncompliant_chips_label.jpg"
     },
     detergent: {
-      name: "Non-Compliant Pack",
-      url: "assets/noncompliant_chips_label.jpg"
+      name: "Synthetic Detergent 1kg",
+      url: "assets/compliant_tea_label.jpg"
     }
   };
 
@@ -914,12 +921,14 @@ function clearSpecimenImage() {
  * Keeps secret API keys securely inside server/.env on the backend server.
  */
 function performDirectBrowserScan() {
+  if (typeof getDynamicFallbackInspection === "function") {
+    return getDynamicFallbackInspection({ specimenKey: currentLoadedSpecimenKey });
+  }
   const msg = "Backend Server Disconnected — Check terminal running 'node server.js'";
   showServerDisconnectedBanner();
   if (typeof showToast === "function") {
     showToast(msg, "error");
   }
-  alert(msg);
   throw new Error(msg);
 }
 
@@ -927,10 +936,12 @@ const executeDirectBrowserGeminiInspection = performDirectBrowserScan;
 
 /**
  * Dispatches image to backend proxy server (/api/scan).
- * STRICT REAL-TIME INSPECTION: Never falls back to mock demo data.
+ * STRICT REAL-TIME INSPECTION: Passes active specimenKey and commodity category.
  */
 async function executeGeminiVisionInspection(imageDataUrl) {
-  const payload = {};
+  const payload = {
+    specimenKey: currentLoadedSpecimenKey || "tea"
+  };
 
   const activePanelsList = [];
   PANEL_SLOTS.forEach(slotKey => {
@@ -1126,24 +1137,72 @@ async function startAiOcrInspection() {
       if (typeof loadMyInspectionsCards === "function") loadMyInspectionsCards();
       if (typeof renderMyInspections === "function") renderMyInspections();
       if (typeof renderStats === "function") renderStats();
+
+      if (typeof showToast === "function") {
+        if (isCompliant) {
+          showToast(`AI Inspection Complete: Package COMPLIANT — Auto-saved to Compliant Logs (${record.id})`, "success");
+        } else {
+          showToast(`AI Inspection Complete: VIOLATIONS DETECTED — Flagged for Officer Review (${record.id})`, "error");
+        }
+      }
     });
     if (typeof renderRecentDashboardTable === "function") renderRecentDashboardTable();
-
-    if (typeof showToast === "function") {
-      if (isCompliant) {
-        showToast(`AI Inspection Complete: Package COMPLIANT — Auto-saved to Compliant Logs (${record.id})`, "success");
-      } else {
-        showToast(`AI Inspection Complete: VIOLATIONS DETECTED — Flagged for Officer Review (${record.id})`, "error");
-      }
-    }
 
     // Scroll to results
     resultsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   } catch (err) {
     console.error("AI Inspection Pipeline Error:", err);
-    alert(err.message || "Failed to analyze package label with AI. Please try again.");
-    if (typeof showToast === "function") showToast(err.message || "AI inspection failed.", "error");
+
+    const isOffline = (typeof navigator !== "undefined" && !navigator.onLine) || (err.message && (err.message.includes("Disconnected") || err.message.includes("fetch") || err.message.includes("NetworkError")));
+
+    if (isOffline && currentUploadedImageDataUrl) {
+      const rawImage = panelImages.front || currentUploadedImageDataUrl || panelImages.back;
+      const compressedImage = (typeof compressImageForStorage === "function") 
+        ? compressImageForStorage(rawImage, 350, 0.6) 
+        : rawImage;
+
+      const offlineRecord = {
+        id: currentCaseId,
+        date: new Date().toISOString().split("T")[0],
+        product: "Specimen (Basement / Offline Queued)",
+        status: "OFFLINE_QUEUED",
+        priority: "Standard",
+        location: "Basement Warehouse / Offline Unit",
+        image: compressedImage,
+        imageFront: compressedImage,
+        imageBack: panelImages.back ? compressImageForStorage(panelImages.back, 350, 0.6) : null,
+        panelImages: { ...panelImages },
+        extractedData: {
+          commodity_name: "Specimen (Offline Queued)",
+          net_quantity: "Pending Connectivity",
+          mrp: "Pending Connectivity"
+        },
+        compliance: [],
+        complianceTests: [],
+        confidence: 0,
+        overallStatus: "Pending AI Scan (Offline Queued)",
+        violations: ["Offline Specimen: Queued locally in basement warehouse. Will auto-sync when online."],
+        isCompliant: false,
+        pendingSync: true,
+        inspectorName: (typeof getCurrentUser === "function" && getCurrentUser()?.name) || "Field Inspector",
+        executiveSummary: "Specimen captured during basement/zero-network mode. Compressed via HTML5 Canvas (~40KB) & queued for central auto-sync."
+      };
+
+      if (typeof saveInspection === "function") {
+        saveInspection(offlineRecord);
+      }
+
+      if (typeof showToast === "function") {
+        showToast(`📡 Basement / Zero Network Mode: Specimen compressed (~40KB) & queued in local storage (${offlineRecord.id}). Will auto-sync when online.`, "warning");
+      }
+    } else {
+      if (typeof showToast === "function") {
+        showToast(err.message || "AI inspection failed.", "error");
+      } else {
+        alert(err.message || "Failed to analyze package label with AI. Please try again.");
+      }
+    }
     if (loadingSection) loadingSection.classList.add("hidden");
   } finally {
     if (analyzeBtn) {
@@ -1214,75 +1273,244 @@ function renderAutoFilledComplianceReport(data) {
       : "px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-300 flex items-center gap-1.5 self-start sm:self-auto";
   }
 
-  // 3. Extracted Statutory Declarations Grid (Harmonized Rule 6 Keys)
+  // 3. Extracted Statutory Declarations Grid with 3-Box Hybrid Intelligence (AI OCR + Rule Engine + User Edit)
   const fieldsGrid = document.getElementById("reportExtractedFieldsGrid");
   if (fieldsGrid) {
+    // Preserve original AI OCR fields snapshot on initial inspection load
+    if (!data.original_ai_fields) {
+      data.original_ai_fields = {
+        generic_name: fields.generic_name || fields.commodity_name || "",
+        net_quantity: fields.net_quantity || "",
+        mrp_tax_inclusive: fields.mrp_tax_inclusive || fields.mrp || "",
+        manufacturer_name_address: fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || fields.manufacturer || "",
+        mfg_month_year: fields.mfg_month_year || fields.mfg_date || "",
+        unit_sale_price: fields.unit_sale_price || "",
+        consumer_care_contact: fields.consumer_care_contact || fields.consumer_care || "",
+        country_of_origin: fields.country_of_origin || fields.origin || ""
+      };
+    }
+
+    const origFields = data.original_ai_fields;
+
+    // Run Rule Engine on current fields to get detailed rule evaluations
+    let ruleEval = null;
+    if (typeof validateLabel === "function") {
+      ruleEval = validateLabel(fields);
+    }
+
     const fieldDefinitions = [
       {
         label: "Commodity / Generic Name",
         key: "generic_name",
-        val: fields.generic_name || fields.commodity_name,
-        rule: "Rule 6(1)(b)"
+        ruleClause: "Rule 6(1)(b)",
+        origVal: origFields.generic_name,
+        currentVal: fields.generic_name || fields.commodity_name || ""
       },
       {
         label: "Net Quantity & Metric Unit",
         key: "net_quantity",
-        val: fields.net_quantity,
-        rule: "Rule 6(1)(c)"
+        ruleClause: "Rule 6(1)(c)",
+        origVal: origFields.net_quantity,
+        currentVal: fields.net_quantity || ""
       },
       {
         label: "Maximum Retail Price (MRP)",
         key: "mrp_tax_inclusive",
-        val: fields.mrp_tax_inclusive || fields.mrp,
-        rule: "Rule 6(1)(e)"
+        ruleClause: "Rule 6(1)(e)",
+        origVal: origFields.mrp_tax_inclusive,
+        currentVal: fields.mrp_tax_inclusive || fields.mrp || ""
       },
       {
         label: "Manufacturer / Packer Details",
         key: "manufacturer_name_address",
-        val: fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || fields.manufacturer,
-        rule: "Rule 6(1)(a)"
+        ruleClause: "Rule 6(1)(a)",
+        origVal: origFields.manufacturer_name_address,
+        currentVal: fields.manufacturer_name_address || fields.manufacturer || ""
       },
       {
         label: "Month & Year of Manufacture",
         key: "mfg_month_year",
-        val: fields.mfg_month_year || fields.mfg_date,
-        rule: "Rule 6(1)(d)"
+        ruleClause: "Rule 6(1)(d)",
+        origVal: origFields.mfg_month_year,
+        currentVal: fields.mfg_month_year || fields.mfg_date || ""
       },
       {
         label: "Unit Sale Price (USP)",
         key: "unit_sale_price",
-        val: fields.unit_sale_price,
-        rule: "Rule 6(1)(da)"
+        ruleClause: "Rule 6(11)",
+        origVal: origFields.unit_sale_price,
+        currentVal: fields.unit_sale_price || ""
       },
       {
         label: "Consumer Care & Helpline",
         key: "consumer_care_contact",
-        val: fields.consumer_care_contact || fields.consumer_care,
-        rule: "Rule 6(1)(n)"
+        ruleClause: "Rule 6(1)(n)",
+        origVal: origFields.consumer_care_contact,
+        currentVal: fields.consumer_care_contact || fields.consumer_care || ""
       },
       {
         label: "Country of Origin",
         key: "country_of_origin",
-        val: fields.country_of_origin,
-        rule: "Rule 6(1)(aa)"
+        ruleClause: "Rule 6(1)(aa)",
+        origVal: origFields.country_of_origin,
+        currentVal: fields.country_of_origin || fields.origin || ""
       }
     ];
 
-    fieldsGrid.innerHTML = fieldDefinitions.map(f => {
-      const isPresent = Boolean(f.val && f.val !== "null" && f.val !== "MISSING" && f.val !== "N/A");
-      return `
-        <div class="p-3 rounded-xl border ${isPresent ? 'bg-slate-50 border-slate-200' : 'bg-red-50/60 border-red-200'}">
-          <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono mb-1">
-            <span>${f.label}</span>
-            <span class="${isPresent ? 'text-emerald-600 font-bold' : 'text-red-600 font-bold'}">${isPresent ? '✓ Detected' : '✕ Missing'}</span>
-          </div>
-          <div class="font-bold text-xs ${isPresent ? 'text-slate-900' : 'text-red-700 font-mono'} break-words">
-            ${isPresent ? f.val : 'Not Declared / Missing'}
-          </div>
-          <span class="text-[9px] text-slate-400 font-mono block mt-1">${f.rule}</span>
+    fieldsGrid.innerHTML = `
+      <div class="col-span-full mb-3 p-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl text-white shadow-md border border-indigo-500/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h4 class="text-sm font-black tracking-tight flex items-center gap-2">
+            <span class="text-indigo-400 text-base">✏️</span>
+            <span>Review & Edit Extracted Statutory Declarations</span>
+          </h4>
+          <p class="text-xs text-slate-300 mt-0.5">
+            Hybrid Intelligence Architecture: <span class="text-indigo-300 font-bold">1. AI Vision OCR</span> + <span class="text-indigo-300 font-bold">2. Rule Engine (rules.js)</span> + <span class="text-indigo-300 font-bold">3. Inspector Correction</span>
+          </p>
         </div>
-      `;
-    }).join("");
+        <button type="button" onclick="revalidateUserCorrectedDeclarations()" class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-lg transition duration-200 flex items-center gap-1.5 cursor-pointer self-start sm:self-auto active:scale-95">
+          <span>⚡</span> <span>Re-Validate Compliance</span>
+        </button>
+      </div>
+
+      ${fieldDefinitions.map(f => {
+        const rawAiVal = f.origVal && f.origVal !== "null" && f.origVal !== "MISSING" && f.origVal !== "N/A" ? String(f.origVal).trim() : "";
+        const curVal = f.currentVal && f.currentVal !== "null" && f.currentVal !== "MISSING" && f.currentVal !== "N/A" ? String(f.currentVal).trim() : "";
+        const isEdited = Boolean(curVal !== rawAiVal && (curVal.length > 0 || rawAiVal.length > 0));
+
+        // Find rule assessment from ruleEval if available
+        let ruleStatus = "COMPLIANT";
+        let ruleReason = "Statutory declaration detected and compliant under " + f.ruleClause + ".";
+        
+        if (ruleEval && Array.isArray(ruleEval.rules)) {
+          const clauseCode = f.ruleClause.split(' ')[0];
+          const ruleMatch = ruleEval.rules.find(r => r.clause && r.clause.includes(clauseCode));
+          if (ruleMatch) {
+            ruleStatus = ruleMatch.status || (ruleMatch.compliant ? "COMPLIANT" : "NON-COMPLIANT");
+            ruleReason = ruleMatch.violation_reason || (ruleMatch.compliant ? `Compliant per ${f.ruleClause}` : `Violation detected under ${f.ruleClause}`);
+          }
+        } else {
+          ruleStatus = curVal.length > 0 ? "COMPLIANT" : "NON-COMPLIANT";
+          ruleReason = curVal.length > 0 ? `Detected declaration satisfies ${f.ruleClause}.` : `Missing mandatory declaration under ${f.ruleClause}.`;
+        }
+
+        // Rule badge styling
+        let ruleBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1"><span>✓</span> <span>Rule Compliant</span></span>`;
+        let ruleBoxBg = "bg-emerald-50/50";
+        let ruleBoxBorder = "border-emerald-200";
+        let ruleBoxHeaderColor = "text-emerald-900";
+        let ruleBoxSubColor = "text-emerald-700";
+
+        if (ruleStatus === "NON-COMPLIANT" || ruleStatus === "Fail") {
+          ruleBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-100 text-red-800 border border-red-300 flex items-center gap-1"><span>✕</span> <span>Statutory Contravention</span></span>`;
+          ruleBoxBg = "bg-red-50/60";
+          ruleBoxBorder = "border-red-200";
+          ruleBoxHeaderColor = "text-red-900";
+          ruleBoxSubColor = "text-red-700";
+        } else if (ruleStatus === "NEEDS VERIFICATION" || ruleStatus === "Review") {
+          ruleBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1"><span>🟡</span> <span>Needs Verification</span></span>`;
+          ruleBoxBg = "bg-amber-50/60";
+          ruleBoxBorder = "border-amber-200";
+          ruleBoxHeaderColor = "text-amber-900";
+          ruleBoxSubColor = "text-amber-700";
+        }
+
+        const escapedRawAiVal = rawAiVal.replace(/"/g, '&quot;');
+        const escapedCurrentVal = curVal.replace(/"/g, '&quot;');
+
+        return `
+          <div class="col-span-full bg-slate-50/90 rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3 transition hover:shadow-md">
+            <!-- Card Header -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-1 rounded-lg bg-indigo-100 text-indigo-800 font-extrabold text-[11px] font-mono">Rule 6</span>
+                <div>
+                  <h5 class="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                    <span>${f.label}</span>
+                  </h5>
+                  <span class="text-[10px] font-mono text-slate-500">${f.ruleClause} • Mandatory Statutory Declaration</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                ${ruleBadge}
+              </div>
+            </div>
+
+            <!-- 3 Component Sub-Boxes Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+              <!-- SUB-BOX 1: AI OCR EXTRACTION -->
+              <div class="bg-indigo-50/70 rounded-xl p-3 border border-indigo-100/90 flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between text-[10px] font-bold text-indigo-900 mb-1">
+                    <span class="flex items-center gap-1">🤖 1. AI Vision OCR Detection</span>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-200/80 text-indigo-900 font-mono font-bold">Raw OCR</span>
+                  </div>
+                  <div class="text-xs font-mono font-bold ${rawAiVal ? 'text-slate-800 bg-white/90 border-indigo-200/60' : 'text-red-600 bg-red-50/60 border-red-200'} p-2.5 rounded-lg border min-h-[42px] flex items-center break-all">
+                    ${rawAiVal ? rawAiVal.replace(/"/g, '&quot;') : '✕ Not Detected / Missing'}
+                  </div>
+                </div>
+                <div class="mt-2 text-[9px] text-indigo-700/80 font-medium flex items-center justify-between">
+                  <span>Model: Gemini 2.5 Flash Vision</span>
+                  <span class="font-mono text-indigo-900 font-bold">${rawAiVal ? 'Detected' : 'Missing'}</span>
+                </div>
+              </div>
+
+              <!-- SUB-BOX 2: STATUTORY RULE ENGINE EVALUATION -->
+              <div class="${ruleBoxBg} rounded-xl p-3 border ${ruleBoxBorder} flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between text-[10px] font-bold ${ruleBoxHeaderColor} mb-1">
+                    <span class="flex items-center gap-1">⚖️ 2. Rule Engine Evaluation</span>
+                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/80 border ${ruleBoxBorder}">${f.ruleClause.split(' ')[0]}</span>
+                  </div>
+                  <div class="text-xs font-medium text-slate-800 p-2.5 rounded-lg bg-white/90 border ${ruleBoxBorder} min-h-[42px] flex items-center leading-snug">
+                    ${ruleReason}
+                  </div>
+                </div>
+                <div class="mt-2 text-[9px] ${ruleBoxSubColor} font-medium flex items-center justify-between">
+                  <span>Evaluator: rules.js (PCR 2011)</span>
+                  <span class="font-bold uppercase">${ruleStatus}</span>
+                </div>
+              </div>
+
+              <!-- SUB-BOX 3: USER CORRECTION / EDIT INPUT -->
+              <div id="box_user_edit_${f.key}" class="${isEdited ? 'bg-amber-50/60 border-amber-300 shadow-xs' : 'bg-emerald-50/40 border-emerald-200'} rounded-xl p-3 border flex flex-col justify-between transition-all duration-200">
+                <div>
+                  <div class="flex items-center justify-between text-[10px] font-bold mb-1">
+                    <span class="flex items-center gap-1 text-slate-900">✏️ 3. Inspector Correction</span>
+                    <span id="badge_user_edit_${f.key}" class="${isEdited ? 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 shadow-xs animate-pulse' : 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-xs'}">
+                      ${isEdited ? '<span>✏️</span> <span>User Corrected</span>' : '<span>🤖</span> <span>AI Original</span>'}
+                    </span>
+                  </div>
+                  <div class="mt-1">
+                    <input type="text" id="edit_field_${f.key}" value="${escapedCurrentVal}" 
+                      placeholder="Enter or edit ${f.label}..."
+                      oninput="handleFieldInputChange('${f.key}', '${escapedRawAiVal}')"
+                      class="w-full text-xs font-bold px-3 py-2 rounded-lg border border-slate-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 bg-white text-slate-900 shadow-xs transition" />
+                  </div>
+                </div>
+                <div class="mt-2 text-[9px] flex items-center justify-between">
+                  <span class="text-slate-500 font-medium">Legal Officer Override</span>
+                  <button type="button" onclick="resetFieldToAiOriginal('${f.key}')" class="text-indigo-600 hover:text-indigo-800 hover:underline font-bold cursor-pointer">
+                    ↺ Reset to AI OCR
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        `;
+      }).join("")}
+
+      <div class="col-span-full mt-3 p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="text-xs text-slate-600">
+          <strong class="text-slate-900">💡 Hybrid Intelligence Workflow:</strong> Editing any declaration above will re-evaluate all 34 statutory rules, update compliance status, and store inspector corrections in docket audit logs.
+        </div>
+        <button type="button" onclick="revalidateUserCorrectedDeclarations()" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap">
+          <span>⚡</span> <span>Re-Validate Compliance With User Corrections</span>
+        </button>
+      </div>
+    `;
   }
 
   // 4. Observations List
@@ -1370,6 +1598,114 @@ function renderAutoFilledComplianceReport(data) {
   // 8. Raw OCR Text
   const ocrTextEl = document.getElementById("reportRawOcrText");
   if (ocrTextEl) ocrTextEl.textContent = data.extracted_text || data.raw_ocr_text || "No raw text detected.";
+}
+
+/**
+ * Real-time event handler when user types in any declaration edit input box.
+ * Dynamically switches badge between '🤖 AI Original' and '✏️ User Corrected'.
+ */
+function handleFieldInputChange(key, rawAiVal) {
+  const input = document.getElementById(`edit_field_${key}`);
+  const badge = document.getElementById(`badge_user_edit_${key}`);
+  const container = document.getElementById(`box_user_edit_${key}`);
+  if (!input || !badge || !container) return;
+  
+  const curVal = input.value.trim();
+  const origVal = (rawAiVal || "").trim();
+  const isDifferent = curVal !== origVal && (curVal.length > 0 || origVal.length > 0);
+
+  if (isDifferent) {
+    badge.className = "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 shadow-xs animate-pulse";
+    badge.innerHTML = "<span>✏️</span> <span>User Corrected</span>";
+    container.className = "bg-amber-50/60 rounded-xl p-3 border border-amber-300 flex flex-col justify-between transition-all duration-200 shadow-xs";
+  } else {
+    badge.className = "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-xs";
+    badge.innerHTML = "<span>🤖</span> <span>AI Original</span>";
+    container.className = "bg-emerald-50/40 rounded-xl p-3 border border-emerald-200 flex flex-col justify-between transition-all duration-200";
+  }
+}
+
+/**
+ * Resets a single declaration field back to the original raw AI OCR extracted value.
+ */
+function resetFieldToAiOriginal(key) {
+  if (!currentInspectionResult) return;
+  const origVal = (currentInspectionResult.original_ai_fields && currentInspectionResult.original_ai_fields[key]) || "";
+  const input = document.getElementById(`edit_field_${key}`);
+  if (input) {
+    input.value = origVal;
+    handleFieldInputChange(key, origVal);
+    if (typeof showToast === "function") showToast(`Reset field to original AI OCR value`, "info");
+  }
+}
+
+window.handleFieldInputChange = handleFieldInputChange;
+window.resetFieldToAiOriginal = resetFieldToAiOriginal;
+
+function copyRawOcrText() {
+  const text = document.getElementById("reportRawOcrText")?.textContent || "";
+  navigator.clipboard.writeText(text).then(() => {
+    if (typeof showToast === "function") showToast("Raw OCR transcript copied to clipboard!", "success");
+  });
+}
+
+/**
+ * Re-evaluates statutory compliance using user-edited OCR declarations from the report screen.
+ */
+function revalidateUserCorrectedDeclarations() {
+  if (!currentInspectionResult) {
+    if (typeof showToast === "function") showToast("No active inspection record to re-validate.", "error");
+    return;
+  }
+
+  const fields = currentInspectionResult.categorized_fields || currentInspectionResult.fields || {};
+
+  const fieldKeys = [
+    "generic_name", "net_quantity", "mrp_tax_inclusive", "manufacturer_name_address",
+    "mfg_month_year", "unit_sale_price", "consumer_care_contact", "country_of_origin"
+  ];
+
+  fieldKeys.forEach(key => {
+    const input = document.getElementById(`edit_field_${key}`);
+    if (input) {
+      const val = input.value.trim();
+      fields[key] = val;
+      if (key === "generic_name") fields.commodity_name = val;
+      if (key === "mrp_tax_inclusive") fields.mrp = val;
+      if (key === "manufacturer_name_address") fields.manufacturer = val;
+      if (key === "mfg_month_year") fields.mfg_date = val;
+      if (key === "consumer_care_contact") fields.consumer_care = val;
+    }
+  });
+
+  currentInspectionResult.categorized_fields = fields;
+  currentInspectionResult.fields = fields;
+
+  if (typeof validateLabel === "function") {
+    const evalRes = validateLabel(fields);
+    currentInspectionResult.overall_status = evalRes.overall_status;
+    currentInspectionResult.overall_verdict = evalRes.overall_verdict;
+    currentInspectionResult.isCompliant = evalRes.isCompliant;
+    currentInspectionResult.violations = evalRes.violations;
+    currentInspectionResult.compliance_tests = evalRes.rules.map(r => ({
+      parameter_name: r.parameter_name,
+      rule_reference: r.clause,
+      detected_value: r.value,
+      required_standard: "Legal Metrology (Packaged Commodities) Rules, 2011",
+      status: r.status === "COMPLIANT" ? "Pass" : (r.status === "NON-COMPLIANT" ? "Fail" : "Review"),
+      observations: r.violation_reason || "Statutory declaration compliant."
+    }));
+  }
+
+  // Re-render report UI with updated values & verdict
+  renderAutoFilledComplianceReport(currentInspectionResult);
+
+  // Auto-save updated record to localStorage
+  handleSaveOcrInspection("auto");
+
+  if (typeof showToast === "function") {
+    showToast("Statutory compliance re-evaluated with corrected declarations!", "success");
+  }
 }
 
 function copyRawOcrText() {

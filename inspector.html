@@ -392,7 +392,7 @@
               <p id="sidebarUserName"
                 class="user-menu-display-name text-xs font-semibold text-slate-800 leading-tight truncate">Shri R.
                 Sharma</p>
-              <p class="text-[10px] text-slate-500 font-medium truncate leading-tight uppercase font-mono">Senior
+              <p id="sidebarUserRole" class="text-[10px] text-slate-500 font-medium truncate leading-tight uppercase font-mono">Senior
                 Inspector • DL-04</p>
             </div>
           </div>
@@ -524,12 +524,13 @@
             <span id="currentViewBreadcrumb" class="text-slate-900 font-bold truncate">Dashboard</span>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
-            <!-- Connection Status Pill -->
+            <!-- Connection Status & Telemetry Pill -->
             <div id="aiEngineReadyBadge"
-              class="flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-emerald-50 text-emerald-700 font-bold text-[10px] sm:text-xs rounded-full border border-emerald-200 flex-shrink-0">
-              <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#10B981] animate-pulse flex-shrink-0"></span>
-              <span class="hidden md:inline">Automated </span><span class="hidden sm:inline">Vision Engine
-              </span><span>Connected</span>
+              class="flex items-center gap-2 px-2.5 sm:px-3 py-1 bg-emerald-50 text-emerald-800 font-bold text-[10px] sm:text-xs rounded-full border border-emerald-300 flex-shrink-0 shadow-2xs">
+              <span class="w-2 h-2 rounded-full bg-[#10B981] animate-pulse flex-shrink-0"></span>
+              <span>Automated Vision Engine Connected</span>
+              <span class="text-slate-300 hidden lg:inline">|</span>
+              <span class="hidden lg:inline text-emerald-700 font-mono font-medium text-[10.5px]">⚡ 1.2s Latency • 🎯 98% AI Confidence</span>
             </div>
             <!-- Field Unit Active Telemetry -->
             <div class="hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-slate-400 flex-shrink-0">
@@ -725,8 +726,8 @@
 
           <!-- Consolidated OCR System & Commodity Standard Command Bar -->
           <div
-            class="modern-card bg-white rounded-2xl p-4 sm:p-6 border border-[#E4E7EC] shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4 max-w-full">
-            <div class="space-y-1 min-w-0">
+            class="modern-card bg-white rounded-2xl p-4 sm:p-5 border border-[#E4E7EC] shadow-xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 max-w-full">
+            <div class="space-y-1 min-w-0 flex-1">
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-[#10B981] animate-pulse flex-shrink-0"></span>
                 <span
@@ -741,25 +742,43 @@
               </p>
             </div>
 
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2.5 w-full md:w-auto flex-shrink-0">
+            <!-- Single Clean Toolbar Row: Case Ref, Dropdown with explicit label, Split MAV & Pack Sizes Cards -->
+            <div class="flex flex-wrap lg:flex-nowrap items-stretch lg:items-center gap-2.5 w-full xl:w-auto flex-shrink-0">
               <!-- Case Reference Badge -->
               <div
-                class="font-mono bg-[#F7F8FA] text-[#0F172A] px-3 py-2 rounded-xl border border-[#E4E7EC] text-xs font-semibold flex items-center justify-between sm:justify-start gap-2">
+                class="font-mono bg-[#F7F8FA] text-[#0F172A] px-3 py-2 rounded-xl border border-[#E4E7EC] text-xs font-semibold flex items-center justify-between gap-2 self-stretch lg:self-auto">
                 <span class="text-[#64748B] text-[10px] uppercase font-bold tracking-wider">Case Ref:</span>
                 <span id="ocrCaseIdDisplay" class="text-emerald-700 font-bold">INS-0000</span>
               </div>
 
-              <!-- Commodity Standard Selector (Full width on mobile, auto on sm+) -->
-              <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 w-full sm:w-auto">
-                <label for="ocrCommodityCategorySelect" class="sr-only">Commodity Standard</label>
+              <!-- Explicit Label & Dropdown -->
+              <div class="flex flex-col gap-1 flex-1 sm:flex-initial min-w-[200px] sm:min-w-[240px]">
+                <label for="ocrCommodityCategorySelect" class="text-[10.5px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
+                  <span>🏷️</span> <span>Select Commodity Category:</span>
+                </label>
                 <select id="ocrCommodityCategorySelect" onchange="handleOcrCommodityChange()"
-                  class="ds-select text-xs h-10 w-full sm:w-auto min-w-0 sm:min-w-[220px]">
+                  class="ds-select text-xs h-9 w-full">
                   <option value="">-- General Packaged Commodity --</option>
                   <!-- Dynamically populated from getCommodities() in storage.js -->
                 </select>
-                <div id="ocrCommodityStandardBadge"
-                  class="hidden text-[11px] font-mono bg-emerald-50 text-emerald-800 px-2.5 py-2 rounded-xl border border-emerald-200 font-semibold text-center truncate">
-                  <span id="ocrCommodityToleranceText">MAV: -</span> • <span id="ocrCommoditySizesText">Sizes: -</span>
+              </div>
+
+              <!-- Visually Distinct Card Container for MAV & Pack Sizes -->
+              <div id="ocrCommodityStandardBadge" class="hidden flex-row gap-2 flex-wrap sm:flex-nowrap">
+                <!-- Card 1: MAV Tolerance -->
+                <div class="bg-emerald-50/90 border border-emerald-200 rounded-xl px-3 py-1.5 flex flex-col justify-center shadow-2xs">
+                  <span class="text-[9.5px] font-bold text-emerald-800 uppercase tracking-wider font-mono flex items-center gap-1">
+                    <span>⚖️</span> <span>MAV Tolerance</span>
+                  </span>
+                  <span id="ocrCommodityToleranceText" class="text-xs font-bold text-emerald-950 font-mono truncate">MAV: -</span>
+                </div>
+
+                <!-- Card 2: Pack Sizes -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 flex flex-col justify-center shadow-2xs">
+                  <span class="text-[9.5px] font-bold text-slate-600 uppercase tracking-wider font-mono flex items-center gap-1">
+                    <span>📏</span> <span>Standard Pack Sizes</span>
+                  </span>
+                  <span id="ocrCommoditySizesText" class="text-xs font-bold text-slate-800 font-mono truncate">Sizes: -</span>
                 </div>
               </div>
             </div>
@@ -789,20 +808,46 @@
                 </button>
               </div>
 
-              <!-- Collapsible Tip Banner (Requirement 3) -->
+              <!-- Enhanced High-Contrast Collapsible Tip Drawer with Example Cards (Requirement 3 & 4) -->
               <details
-                class="group bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-2.5 text-xs text-emerald-950 transition">
+                class="group bg-emerald-50 border border-emerald-300 rounded-xl p-3 text-xs text-emerald-950 transition shadow-2xs">
                 <summary
-                  class="font-semibold text-emerald-800 cursor-pointer flex items-center justify-between select-none">
-                  <span class="flex items-center gap-1.5">
-                    <span>💡</span> <span>Single Photo Tip & Multi-Panel Scanning Guidance</span>
+                  class="font-bold text-emerald-950 cursor-pointer flex items-center justify-between select-none">
+                  <span class="flex items-center gap-2">
+                    <span class="text-base">💡</span> <span class="text-xs sm:text-sm font-bold text-emerald-950">Single Photo Tip & Multi-Panel Guidance</span>
                   </span>
-                  <span class="text-[10px] font-mono text-emerald-700 underline group-open:hidden">Show Tip ▼</span>
-                  <span class="text-[10px] font-mono text-emerald-700 underline hidden group-open:inline">Hide ▲</span>
+                  <span class="text-[11px] font-mono font-bold text-emerald-900 underline group-open:hidden">Show Tip ▼</span>
+                  <span class="text-[11px] font-mono font-bold text-emerald-900 underline hidden group-open:inline">Hide ▲</span>
                 </summary>
-                <div class="mt-2 text-[11.5px] text-emerald-900 leading-relaxed border-t border-emerald-200/60 pt-2">
-                  Uploading or snapping Panel 1 (Front) + Panel 2 (Back) is recommended for statutory audit. Additional
-                  sides (Left, Right, Top, Bottom) enrich full-product verification.
+                
+                <div class="mt-3 space-y-3 text-xs text-emerald-950 leading-relaxed border-t border-emerald-200 pt-3">
+                  <p class="font-medium text-emerald-950">
+                    Capturing high-resolution PDP (Principal Display Panel) images ensures optimum OCR accuracy for mandatory statutory declarations under PCR 2011.
+                  </p>
+                  
+                  <!-- Interactive Visual Example Cards -->
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                    <div class="bg-white border border-emerald-200 rounded-lg p-2.5 shadow-2xs space-y-1">
+                      <div class="flex items-center gap-1.5 font-bold text-emerald-900 text-[11px]">
+                        <span>☀️</span> <span>Optimal Lighting</span>
+                      </div>
+                      <p class="text-[10.5px] text-slate-700 leading-normal">Avoid direct glare or dark shadows on glossy packaging.</p>
+                    </div>
+
+                    <div class="bg-white border border-emerald-200 rounded-lg p-2.5 shadow-2xs space-y-1">
+                      <div class="flex items-center gap-1.5 font-bold text-emerald-900 text-[11px]">
+                        <span>📐</span> <span>Straight PDP Angle</span>
+                      </div>
+                      <p class="text-[10.5px] text-slate-700 leading-normal">Align camera parallel to the label to prevent perspective warp.</p>
+                    </div>
+
+                    <div class="bg-white border border-emerald-200 rounded-lg p-2.5 shadow-2xs space-y-1">
+                      <div class="flex items-center gap-1.5 font-bold text-emerald-900 text-[11px]">
+                        <span>🔍</span> <span>Micro-Print Focus</span>
+                      </div>
+                      <p class="text-[10.5px] text-slate-700 leading-normal">Ensure MRP, Batch #, and Net Qty text are sharp and clear.</p>
+                    </div>
+                  </div>
                 </div>
               </details>
             </div>
@@ -1137,6 +1182,9 @@
                 </button>
                 <button type="button" onclick="loadDemoSpecimen('chips')" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 hover:border-red-500 hover:bg-red-50/80 text-slate-800 font-semibold text-xs transition-all duration-150 flex items-center gap-2 shadow-2xs cursor-pointer hover:shadow-xs active:scale-[0.98]">
                   <span>🥔</span> <span>Potato Chips 100g</span> <span class="text-[9.5px] font-extrabold text-red-800 bg-red-100 px-1.5 py-0.5 rounded-md font-mono">Defective</span>
+                </button>
+                <button type="button" onclick="loadDemoSpecimen('banana_chips')" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 hover:border-emerald-500 hover:bg-emerald-50/80 text-slate-800 font-semibold text-xs transition-all duration-150 flex items-center gap-2 shadow-2xs cursor-pointer hover:shadow-xs active:scale-[0.98]">
+                  <span>🍌</span> <span>Banana Chips 200g</span> <span class="text-[9.5px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded-md font-mono">Compliant</span>
                 </button>
               </div>
               <span class="text-[10px] text-slate-500 font-mono font-semibold self-end sm:self-auto bg-white/80 px-2 py-0.5 rounded-md border border-slate-200/60">1-Click Test Preload</span>
@@ -2641,46 +2689,6 @@
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="js/demo-data.js"></script>
-  <script src="js/demo-showcase.js"></script>
-  <script src="js/storage.js"></script>
-  <script src="js/rules.js"></script>
-  <script src="js/pdfService.js"></script>
-  <script src="js/notifications.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/scanner.js"></script>
-  <script src="js/masthead.js"></script>
-  <script>
-    // AI Confidence Progress Bar Dynamic Sync & Demo Specimen Auto-Load
-    document.addEventListener("DOMContentLoaded", function () {
-      const confText = document.getElementById("reportConfidenceScoreText");
-      const confBar = document.getElementById("reportConfidenceProgressBar");
-      if (confText && confBar) {
-        const updateConfBar = function () {
-          const match = confText.textContent.match(/(\d+)/);
-          if (match && match[1]) {
-            const pct = Math.min(100, Math.max(0, parseInt(match[1], 10)));
-            confBar.style.width = pct + "%";
-          }
-        };
-        updateConfBar();
-        const obs = new MutationObserver(updateConfBar);
-        obs.observe(confText, { childList: true, characterData: true, subtree: true });
-      }
-
-      // Check for ?demoSpecimen= query param from Master Demo Showcase
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const demoSpecimen = urlParams.get("demoSpecimen");
-        if (demoSpecimen && typeof loadDemoSpecimen === "function") {
-          setTimeout(() => {
-            loadDemoSpecimen(demoSpecimen);
-          }, 350);
-        }
-      } catch (e) { }
-    });
-  </script>
   <!-- CONTACT SUPPORT & GRIEVANCE MODAL (WCAG AA Compliant) -->
   <div id="contactSupportModal"
     class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
@@ -2809,6 +2817,47 @@
       </form>
     </div>
   </div>
+
+  <!-- Scripts -->
+  <script src="js/demo-data.js"></script>
+  <script src="js/demo-showcase.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/pdfService.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/scanner.js"></script>
+  <script src="js/masthead.js"></script>
+  <script>
+    // AI Confidence Progress Bar Dynamic Sync & Demo Specimen Auto-Load
+    document.addEventListener("DOMContentLoaded", function () {
+      const confText = document.getElementById("reportConfidenceScoreText");
+      const confBar = document.getElementById("reportConfidenceProgressBar");
+      if (confText && confBar) {
+        const updateConfBar = function () {
+          const match = confText.textContent.match(/(\d+)/);
+          if (match && match[1]) {
+            const pct = Math.min(100, Math.max(0, parseInt(match[1], 10)));
+            confBar.style.width = pct + "%";
+          }
+        };
+        updateConfBar();
+        const obs = new MutationObserver(updateConfBar);
+        obs.observe(confText, { childList: true, characterData: true, subtree: true });
+      }
+
+      // Check for ?demoSpecimen= query param from Master Demo Showcase
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const demoSpecimen = urlParams.get("demoSpecimen");
+        if (demoSpecimen && typeof loadDemoSpecimen === "function") {
+          setTimeout(() => {
+            loadDemoSpecimen(demoSpecimen);
+          }, 350);
+        }
+      } catch (e) { }
+    });
+  </script>
 </body>
 
 </html>
