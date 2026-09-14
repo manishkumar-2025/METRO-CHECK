@@ -1,10 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>METRO-CHECK | Legal Metrology Compliance Inspection Report</title>
-  
+
+  <!-- PWA Manifest & Mobile App Capabilities -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="METRO-CHECK">
+  <link rel="apple-touch-icon" href="logo/pwa-icon-192.png">
+  <script src="js/pwa.js" defer></script>
+
   <!-- Prevent theme flicker / white flash on initial load -->
   <script>
     (function () {
@@ -15,7 +26,7 @@
         if (localStorage.getItem('elmcep_high_contrast') === 'true') {
           document.documentElement.classList.add('gov-high-contrast');
         }
-      } catch (e) {}
+      } catch (e) { }
     })();
   </script>
 
@@ -66,25 +77,29 @@
   <!-- PDF Generation Library via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-<body class="bg-slate-100 dark:bg-slate-950 min-h-screen text-slate-800 dark:text-slate-200 antialiased p-0" onload="initReportView()">
+
+<body class="bg-slate-100 dark:bg-slate-950 min-h-screen text-slate-800 dark:text-slate-200 antialiased p-0"
+  onload="initReportView()">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
-  <a href="#mainContent" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#10B981] focus:text-white focus:rounded-xl focus:shadow-2xl focus:font-bold focus:outline-none focus:ring-2 focus:ring-[#059669] text-xs">
+  <a href="#mainContent"
+    class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#10B981] focus:text-white focus:rounded-xl focus:shadow-2xl focus:font-bold focus:outline-none focus:ring-2 focus:ring-[#059669] text-xs">
     Skip to Main Content / मुख्य सामग्री पर जाएं
   </a>
 
   <!-- 1. OFFICIAL NATIONAL MASTHEAD & TRICOLOR HEADER BAR (Screen Only) -->
-  <header id="nationalGovMasthead" class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 z-50 flex-shrink-0 select-none text-slate-800 dark:text-slate-200 print:hidden shadow-xs glass-header sticky top-0">
+  <header id="nationalGovMasthead"
+    class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 z-50 flex-shrink-0 select-none text-slate-800 dark:text-slate-200 print:hidden shadow-xs glass-header sticky top-0">
     <div class="tricolor-strip print:hidden"></div>
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-3">
-      
+
       <!-- Left: Sovereign Emblem & Bilingual Hierarchy -->
       <div class="flex items-center gap-3 min-w-0">
         <!-- Official State Emblem of India (Ashoka Lion Capital) -->
-        <a href="index.html" class="flex-shrink-0 flex items-center justify-center focus:outline-none group" title="Government of India • State Emblem of India • सत्यमेव जयते">
-          <img src="logo/header-logo-emblem.png" 
-               alt="State Emblem of India" 
-               class="h-9 sm:h-11 w-auto object-contain select-none drop-shadow-xs transition-transform group-hover:scale-105" />
+        <a href="index.html" class="flex-shrink-0 flex items-center justify-center focus:outline-none group"
+          title="Government of India • State Emblem of India • सत्यमेव जयते">
+          <img src="logo/header-logo-emblem.png" alt="State Emblem of India"
+            class="h-9 sm:h-11 w-auto object-contain select-none drop-shadow-xs transition-transform group-hover:scale-105" />
           <span class="sr-only">सत्यमेव जयते / State Emblem of India</span>
         </a>
 
@@ -92,22 +107,27 @@
 
         <!-- Hierarchy & Official Portal Indicator -->
         <div class="flex flex-col justify-center min-w-0">
-          <div class="text-[12px] sm:text-[13.5px] font-bold leading-tight tracking-tight text-slate-900 dark:text-white">
+          <div
+            class="text-[12px] sm:text-[13.5px] font-bold leading-tight tracking-tight text-slate-900 dark:text-white">
             उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय
           </div>
-          <div class="text-[10px] sm:text-[11.5px] font-medium leading-tight mt-0.5 text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5">
+          <div
+            class="text-[10px] sm:text-[11.5px] font-medium leading-tight mt-0.5 text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5">
             <span>Ministry of Consumer Affairs, Food & Public Distribution</span>
-            <span class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono ml-1">e-LMCEP</span>
-            <span class="text-slate-400 font-normal hidden lg:inline">(e-Legal Metrology Compliance & Enforcement Portal)</span>
+            <span
+              class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono ml-1">e-LMCEP</span>
+            <span class="text-slate-400 font-normal hidden lg:inline">(e-Legal Metrology Compliance & Enforcement
+              Portal)</span>
           </div>
         </div>
       </div>
 
       <!-- Right: Modern Floating Glass Pill Dock -->
       <div class="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
-        
+
         <!-- Live IST Clock Ticker -->
-        <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-mono text-[10px] sm:text-[11px] font-bold shadow-xs">
+        <div
+          class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-mono text-[10px] sm:text-[11px] font-bold shadow-xs">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span class="masthead-ist-clock tracking-tight">-- --- ---- | --:--:-- IST</span>
         </div>
@@ -116,22 +136,30 @@
         <div class="masthead-pill-dock">
           <!-- Font Sizer -->
           <div class="flex items-center text-[10px] font-bold rounded-full overflow-hidden p-0.5">
-            <button type="button" onclick="govChangeFontSize('decrease')" id="fontSizer-decrease" title="Decrease Font (A-)" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">A-</button>
-            <button type="button" onclick="govChangeFontSize('normal')" id="fontSizer-normal" title="Normal Font (A)" class="px-1.5 py-0.5 rounded-full bg-[#10B981] text-white shadow-xs transition">A</button>
-            <button type="button" onclick="govChangeFontSize('increase')" id="fontSizer-increase" title="Increase Font (A+)" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">A+</button>
+            <button type="button" onclick="govChangeFontSize('decrease')" id="fontSizer-decrease"
+              title="Decrease Font (A-)"
+              class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">A-</button>
+            <button type="button" onclick="govChangeFontSize('normal')" id="fontSizer-normal" title="Normal Font (A)"
+              class="px-1.5 py-0.5 rounded-full bg-[#10B981] text-white shadow-xs transition">A</button>
+            <button type="button" onclick="govChangeFontSize('increase')" id="fontSizer-increase"
+              title="Increase Font (A+)"
+              class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">A+</button>
           </div>
 
           <div class="w-[1px] h-3 bg-slate-300/80 dark:bg-slate-700"></div>
 
           <!-- High-Contrast Toggle -->
-          <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn" title="Toggle High-Contrast Mode" class="p-1 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs transition cursor-pointer">
+          <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn"
+            title="Toggle High-Contrast Mode"
+            class="p-1 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs transition cursor-pointer">
             🌓
           </button>
 
           <div class="w-[1px] h-3 bg-slate-300/80 dark:bg-slate-700"></div>
 
           <!-- Theme Toggle (Executive Light / Dark) -->
-          <button type="button" onclick="govToggleTheme()" id="govThemeToggleBtn" title="Switch Theme (Light / Dark)" class="p-1 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs transition cursor-pointer">
+          <button type="button" onclick="govToggleTheme()" id="govThemeToggleBtn" title="Switch Theme (Light / Dark)"
+            class="p-1 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs transition cursor-pointer">
             🌙
           </button>
 
@@ -139,14 +167,19 @@
 
           <!-- Language Toggle -->
           <div class="flex items-center text-[9.5px] font-bold rounded-full overflow-hidden p-0.5">
-            <button type="button" onclick="govSetLanguage('en')" id="govLangEn" class="px-1.5 py-0.5 rounded-full bg-[#10B981] text-white transition shadow-xs">EN</button>
-            <button type="button" onclick="govSetLanguage('hi')" id="govLangHi" class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">हि</button>
+            <button type="button" onclick="govSetLanguage('en')" id="govLangEn"
+              class="px-1.5 py-0.5 rounded-full bg-[#10B981] text-white transition shadow-xs">EN</button>
+            <button type="button" onclick="govSetLanguage('hi')" id="govLangHi"
+              class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">हि</button>
           </div>
         </div>
 
         <!-- Digital India Logo Link -->
-        <a href="https://www.digitalindia.gov.in" target="_blank" rel="noopener noreferrer" title="Digital India - Power to Empower | Government of India" class="hidden sm:flex items-center hover:opacity-85 transition group">
-          <img src="logo/digital-india.png" alt="Digital India Logo" class="h-8 sm:h-9 w-auto object-contain select-none transition-transform group-hover:scale-105" />
+        <a href="https://www.digitalindia.gov.in" target="_blank" rel="noopener noreferrer"
+          title="Digital India - Power to Empower | Government of India"
+          class="hidden sm:flex items-center hover:opacity-85 transition group">
+          <img src="logo/digital-india.png" alt="Digital India Logo"
+            class="h-8 sm:h-9 w-auto object-contain select-none transition-transform group-hover:scale-105" />
         </a>
 
       </div>
@@ -163,40 +196,48 @@
       <button type="button" onclick="printReport()" class="btn-secondary text-xs flex items-center gap-2">
         <span>🖨️</span> <span>Print Official Report</span>
       </button>
-      <button type="button" id="downloadPdfButton" onclick="generatePDF()" class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center gap-2 shadow-sm cursor-pointer">
+      <button type="button" id="downloadPdfButton" onclick="generatePDF()"
+        class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center gap-2 shadow-sm cursor-pointer">
         <span>📥</span> <span>Download PDF</span>
       </button>
     </div>
   </div>
 
   <!-- Printable A4 Document Sheet -->
-  <main id="mainContent" class="max-w-4xl mx-auto bg-white dark:bg-slate-900 p-8 sm:p-10 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 space-y-6 my-4 print:shadow-none print:border-none print:p-0 print:my-0">
-    
+  <main id="mainContent"
+    class="max-w-4xl mx-auto bg-white dark:bg-slate-900 p-8 sm:p-10 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 space-y-6 my-4 print:shadow-none print:border-none print:p-0 print:my-0">
+
     <!-- Report Document Header with Official Emblem & Ministry Credentials -->
     <header class="border-b-2 border-slate-800 pb-4 flex items-center justify-between">
       <div class="flex items-center gap-3.5">
         <div class="flex-shrink-0 w-10 h-12 flex items-center justify-center">
-          <svg viewBox="0 0 100 125" class="w-full h-full drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="State Emblem of India">
+          <svg viewBox="0 0 100 125" class="w-full h-full drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg"
+            aria-label="State Emblem of India">
             <defs>
               <linearGradient id="reportDocEmblemGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#b45309"/>
-                <stop offset="50%" stop-color="#d97706"/>
-                <stop offset="100%" stop-color="#92400e"/>
+                <stop offset="0%" stop-color="#b45309" />
+                <stop offset="50%" stop-color="#d97706" />
+                <stop offset="100%" stop-color="#92400e" />
               </linearGradient>
             </defs>
             <g fill="url(#reportDocEmblemGold)">
-              <path d="M50 7 C43 7 38 12 38 20 C38 25 40 29 43 33 C41 37 40 42 41 47 C41 53 43 56 46 59 C47 57 48 54 50 54 C52 54 53 57 54 59 C57 56 59 53 59 47 C60 42 59 37 57 33 C60 29 62 25 62 20 C62 12 57 7 50 7 Z"/>
-              <path d="M38 17 C32 16 27 20 26 26 C25 31 27 36 30 39 C29 43 29 48 31 53 C33 57 36 60 40 62 C38 58 38 54 38 50 C36 47 35 43 36 39 C33 37 32 33 33 29 C34 25 37 21 40 20 Z"/>
-              <path d="M62 17 C68 16 73 20 74 26 C75 31 73 36 70 39 C71 43 71 48 69 53 C67 57 64 60 60 62 C62 58 62 54 62 50 C64 47 65 43 64 39 C67 37 68 33 67 29 C66 25 63 21 60 20 Z"/>
-              <rect x="22" y="65" width="56" height="3.5" rx="1.5"/>
-              <rect x="24" y="69.5" width="52" height="13"/>
-              <circle cx="50" cy="76" r="5.5" fill="#ffffff" stroke="url(#reportDocEmblemGold)" stroke-width="0.9"/>
-              <circle cx="50" cy="76" r="1.5" fill="url(#reportDocEmblemGold)"/>
-              <rect x="20" y="83.5" width="60" height="3.5" rx="1.5"/>
-              <path d="M26 88 C26 88 34 100 50 100 C66 100 74 88 74 88 Z"/>
-              <rect x="18" y="101" width="64" height="3.5" rx="1.5"/>
-              <text x="50" y="115" text-anchor="middle" font-family="'Inter', sans-serif" font-size="8.5" font-weight="900" fill="url(#reportDocEmblemGold)" letter-spacing="1">सत्यमेव जयते</text>
-              <text x="50" y="123" text-anchor="middle" font-family="'Inter', sans-serif" font-size="5.5" font-weight="700" fill="#64748b" letter-spacing="0.5">SATYAMEVA JAYATE</text>
+              <path
+                d="M50 7 C43 7 38 12 38 20 C38 25 40 29 43 33 C41 37 40 42 41 47 C41 53 43 56 46 59 C47 57 48 54 50 54 C52 54 53 57 54 59 C57 56 59 53 59 47 C60 42 59 37 57 33 C60 29 62 25 62 20 C62 12 57 7 50 7 Z" />
+              <path
+                d="M38 17 C32 16 27 20 26 26 C25 31 27 36 30 39 C29 43 29 48 31 53 C33 57 36 60 40 62 C38 58 38 54 38 50 C36 47 35 43 36 39 C33 37 32 33 33 29 C34 25 37 21 40 20 Z" />
+              <path
+                d="M62 17 C68 16 73 20 74 26 C75 31 73 36 70 39 C71 43 71 48 69 53 C67 57 64 60 60 62 C62 58 62 54 62 50 C64 47 65 43 64 39 C67 37 68 33 67 29 C66 25 63 21 60 20 Z" />
+              <rect x="22" y="65" width="56" height="3.5" rx="1.5" />
+              <rect x="24" y="69.5" width="52" height="13" />
+              <circle cx="50" cy="76" r="5.5" fill="#ffffff" stroke="url(#reportDocEmblemGold)" stroke-width="0.9" />
+              <circle cx="50" cy="76" r="1.5" fill="url(#reportDocEmblemGold)" />
+              <rect x="20" y="83.5" width="60" height="3.5" rx="1.5" />
+              <path d="M26 88 C26 88 34 100 50 100 C66 100 74 88 74 88 Z" />
+              <rect x="18" y="101" width="64" height="3.5" rx="1.5" />
+              <text x="50" y="115" text-anchor="middle" font-family="'Inter', sans-serif" font-size="8.5"
+                font-weight="900" fill="url(#reportDocEmblemGold)" letter-spacing="1">सत्यमेव जयते</text>
+              <text x="50" y="123" text-anchor="middle" font-family="'Inter', sans-serif" font-size="5.5"
+                font-weight="700" fill="#64748b" letter-spacing="0.5">SATYAMEVA JAYATE</text>
             </g>
           </svg>
         </div>
@@ -209,47 +250,64 @@
           </div>
           <div class="flex items-center gap-1.5 mt-1">
             <span class="text-xs font-black text-slate-900 tracking-tight">e-LMCEP</span>
-            <span class="text-[9px] font-bold bg-amber-500/15 text-amber-800 border border-amber-500/30 px-1.5 py-0.2 rounded font-mono">STATUTORY AUDIT DOCKET</span>
-            <span class="text-[10px] text-slate-500 font-medium">(Legal Metrology Compliance & Enforcement Portal)</span>
+            <span
+              class="text-[9px] font-bold bg-amber-500/15 text-amber-800 border border-amber-500/30 px-1.5 py-0.2 rounded font-mono">STATUTORY
+              AUDIT DOCKET</span>
+            <span class="text-[10px] text-slate-500 font-medium">(Legal Metrology Compliance & Enforcement
+              Portal)</span>
           </div>
         </div>
       </div>
       <div class="text-right text-xs">
-        <p class="font-bold text-slate-900">Case ID: <span id="reportIdDisplay" class="font-mono text-amber-600 font-bold">INS-1024</span></p>
+        <p class="font-bold text-slate-900">Case ID: <span id="reportIdDisplay"
+            class="font-mono text-amber-600 font-bold">INS-1024</span></p>
         <p class="text-slate-500">Date: <span id="reportDateDisplay" class="font-mono">-</span></p>
         <p class="text-[10px] text-emerald-600 font-bold font-mono">Digital Audit ID: MC-IN-2026-99</p>
       </div>
     </header>
 
     <div class="text-center py-1">
-      <h2 class="text-base font-extrabold text-slate-900 uppercase tracking-wide">Legal Metrology Compliance Inspection Report</h2>
-      <p class="text-[11px] text-slate-500 mt-0.5">Verification conducted under Legal Metrology (Packaged Commodities) Rules, 2011 & Legal Metrology Act, 2009</p>
+      <h2 class="text-base font-extrabold text-slate-900 uppercase tracking-wide">Legal Metrology Compliance Inspection
+        Report</h2>
+      <p class="text-[11px] text-slate-500 mt-0.5">Verification conducted under Legal Metrology (Packaged Commodities)
+        Rules, 2011 & Legal Metrology Act, 2009</p>
     </div>
 
     <!-- Section 1 & 2: Inspector Details & Product Information -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
       <!-- 1. Inspector Details -->
       <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-        <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-2 border-b border-slate-200 pb-1">1. Inspector Particulars</h3>
+        <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-2 border-b border-slate-200 pb-1">1.
+          Inspector Particulars</h3>
         <div class="space-y-1">
-          <div><span class="text-slate-500">Officer Name:</span> <strong id="reportInspectorName" class="text-slate-800">Field Inspector</strong></div>
-          <div><span class="text-slate-500">Badge ID:</span> <strong id="reportInspectorId" class="text-slate-800 font-mono">OFFICER-ID-1024</strong></div>
-          <div><span class="text-slate-500">Inspection Date:</span> <strong id="reportInspectionDate" class="text-slate-800 font-mono">-</strong></div>
-          <div><span class="text-slate-500">Jurisdiction / Location:</span> <strong id="reportInspectionLocation" class="text-slate-800">Regional Depot</strong></div>
+          <div><span class="text-slate-500">Officer Name:</span> <strong id="reportInspectorName"
+              class="text-slate-800">Field Inspector</strong></div>
+          <div><span class="text-slate-500">Badge ID:</span> <strong id="reportInspectorId"
+              class="text-slate-800 font-mono">OFFICER-ID-1024</strong></div>
+          <div><span class="text-slate-500">Inspection Date:</span> <strong id="reportInspectionDate"
+              class="text-slate-800 font-mono">-</strong></div>
+          <div><span class="text-slate-500">Jurisdiction / Location:</span> <strong id="reportInspectionLocation"
+              class="text-slate-800">Regional Depot</strong></div>
         </div>
       </div>
 
       <!-- 2. Product Information -->
       <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-start justify-between">
         <div class="space-y-1">
-          <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-2 border-b border-slate-200 pb-1">2. Product Information</h3>
-          <div><span class="text-slate-500">Commodity:</span> <strong id="reportProductName" class="text-slate-900">Basmati Rice Premium</strong></div>
-          <div><span class="text-slate-500">Category:</span> <strong id="reportProductCategory" class="text-slate-700">Food / Packaged Grain</strong></div>
-          <div><span class="text-slate-500">Packaging Type:</span> <strong class="text-slate-700">Pre-Packed Poly Pouch</strong></div>
+          <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-2 border-b border-slate-200 pb-1">
+            2. Product Information</h3>
+          <div><span class="text-slate-500">Commodity:</span> <strong id="reportProductName"
+              class="text-slate-900">Basmati Rice Premium</strong></div>
+          <div><span class="text-slate-500">Category:</span> <strong id="reportProductCategory"
+              class="text-slate-700">Food / Packaged Grain</strong></div>
+          <div><span class="text-slate-500">Packaging Type:</span> <strong class="text-slate-700">Pre-Packed Poly
+              Pouch</strong></div>
         </div>
         <div class="ml-2 flex items-center shrink-0">
-          <img id="reportProductThumbnail" src="" alt="Specimen Thumbnail" class="hidden w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm">
-          <div id="reportProductThumbnailFallback" class="w-20 h-16 bg-slate-100 border border-slate-200 rounded-lg flex flex-col items-center justify-center text-center p-1 text-[9px] text-slate-500 font-semibold leading-tight">
+          <img id="reportProductThumbnail" src="" alt="Specimen Thumbnail"
+            class="hidden w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm">
+          <div id="reportProductThumbnailFallback"
+            class="w-20 h-16 bg-slate-100 border border-slate-200 rounded-lg flex flex-col items-center justify-center text-center p-1 text-[9px] text-slate-500 font-semibold leading-tight">
             <span class="text-base">📋</span>
             <span>Manual Entry<br>No Photo</span>
           </div>
@@ -259,7 +317,8 @@
 
     <!-- Section 3: AI Extracted Declarations -->
     <section>
-      <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-2">3. Mandatory Label Declarations (AI Vision Audit)</h3>
+      <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-2">3. Mandatory Label Declarations (AI
+        Vision Audit)</h3>
       <div class="overflow-x-auto border border-slate-200 rounded-xl">
         <table class="w-full text-left">
           <thead class="bg-slate-100 text-slate-600 text-[11px] uppercase font-bold border-b border-slate-200">
@@ -278,29 +337,38 @@
     <!-- Section 4 & 5: Compliance Status & Violations -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
       <!-- 4. Compliance Status Stamp -->
-      <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-center md:col-span-1 flex flex-col items-center justify-center min-h-[110px]">
+      <div
+        class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-center md:col-span-1 flex flex-col items-center justify-center min-h-[110px]">
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Verification Verdict</span>
-        <div id="reportComplianceStamp" class="inline-block px-5 py-2 border-4 border-red-600 text-red-700 font-black text-lg tracking-widest uppercase rounded-lg transform -rotate-2">
+        <div id="reportComplianceStamp"
+          class="inline-block px-5 py-2 border-4 border-red-600 text-red-700 font-black text-lg tracking-widest uppercase rounded-lg transform -rotate-2">
           NON-COMPLIANT
         </div>
       </div>
 
       <!-- 5. Violations Found -->
       <div class="p-4 bg-red-50/60 border border-red-200 rounded-xl md:col-span-2">
-        <h3 class="font-bold text-red-900 uppercase tracking-wider text-[11px] mb-1">5. Detected Statutory Violations</h3>
+        <h3 class="font-bold text-red-900 uppercase tracking-wider text-[11px] mb-1">5. Detected Statutory Violations
+        </h3>
         <ul id="reportViolationsList" class="space-y-1"></ul>
       </div>
     </section>
 
     <!-- Section 6: Officer Decision & Signature -->
-    <section class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs flex flex-col sm:flex-row justify-between items-end gap-4">
+    <section
+      class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs flex flex-col sm:flex-row justify-between items-end gap-4">
       <div class="space-y-1 w-full sm:w-2/3">
-        <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] border-b border-slate-200 pb-1">6. Competent Authority Findings</h3>
-        <div><span class="text-slate-500">Official Decision:</span> <strong id="reportOfficerDecision" class="text-amber-700 font-bold uppercase">SUBMITTED</strong></div>
-        <div><span class="text-slate-500">Judicial Remarks:</span> <span id="reportOfficerComments" class="text-slate-700">Notice issued under Rule 32 for missing consumer care address.</span></div>
+        <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] border-b border-slate-200 pb-1">6.
+          Competent Authority Findings</h3>
+        <div><span class="text-slate-500">Official Decision:</span> <strong id="reportOfficerDecision"
+            class="text-amber-700 font-bold uppercase">SUBMITTED</strong></div>
+        <div><span class="text-slate-500">Judicial Remarks:</span> <span id="reportOfficerComments"
+            class="text-slate-700">Notice issued under Rule 32 for missing consumer care address.</span></div>
       </div>
-      <div class="text-right flex flex-col items-end border-t sm:border-t-0 sm:border-l border-slate-200 sm:pl-4 pt-2 sm:pt-0 w-full sm:w-1/3">
-        <div class="w-32 h-10 border-b border-slate-400 font-cursive text-slate-500 text-sm italic flex items-end justify-center pb-1">
+      <div
+        class="text-right flex flex-col items-end border-t sm:border-t-0 sm:border-l border-slate-200 sm:pl-4 pt-2 sm:pt-0 w-full sm:w-1/3">
+        <div
+          class="w-32 h-10 border-b border-slate-400 font-cursive text-slate-500 text-sm italic flex items-end justify-center pb-1">
           Authorized Signatory
         </div>
         <p class="text-[10px] font-bold text-slate-700 mt-1">Metrology Officer</p>
@@ -318,8 +386,10 @@
 
   <!-- External Screen Footer -->
   <footer class="max-w-4xl mx-auto py-4 text-center text-xs text-slate-400 print:hidden mt-4">
+    <div id="pwa-install-container" class="inline-flex items-center mb-2"></div>
     <p>© 2026 e-LMCEP (METRO-CHECK) | Ministry of Consumer Affairs, Food & Public Distribution, Govt. of India</p>
-    <p class="text-[11px] text-slate-500 mt-0.5">Smart India Hackathon • Built for Enforcement & Consumer Transparency</p>
+    <p class="text-[11px] text-slate-500 mt-0.5">Smart India Hackathon • Built for Enforcement & Consumer Transparency
+    </p>
   </footer>
 
   <!-- Scripts -->
@@ -331,4 +401,5 @@
   <script src="js/report.js"></script>
   <script src="js/masthead.js"></script>
 </body>
+
 </html>

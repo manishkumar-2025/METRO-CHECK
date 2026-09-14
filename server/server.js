@@ -958,7 +958,7 @@ function getDynamicFallbackInspection(reqBody = {}) {
 }
 
 if (require.main === module) {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     const key = getGeminiApiKey();
     console.log("==========================================================");
     console.log(`METRO-CHECK Legal Metrology AI Server listening on port ${PORT}`);
@@ -966,6 +966,16 @@ if (require.main === module) {
     console.log(`API Key configured: ${Boolean(key && key.length > 10)}`);
     console.log("Mode: STRICT REAL-TIME INSPECTION (NO DEMO / NO MOCK FALLBACKS)");
     console.log("==========================================================");
+  });
+
+  server.on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(`\n[METRO-CHECK SERVER ERROR] Port ${PORT} is already in use by another process.`);
+      console.error(`Terminating existing process or change PORT variable to continue.\n`);
+      process.exit(1);
+    } else {
+      console.error("[METRO-CHECK SERVER ERROR]", err);
+    }
   });
 }
 

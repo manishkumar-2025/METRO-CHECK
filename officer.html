@@ -6,6 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>METRO-CHECK | Metrology Officer Enforcement Docket</title>
 
+  <!-- PWA Manifest & Mobile App Capabilities -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="METRO-CHECK">
+  <link rel="apple-touch-icon" href="logo/pwa-icon-192.png">
+  <script src="js/pwa.js" defer></script>
+
   <!-- Security check: Ensure only officers or admins can access -->
   <script src="js/auth.js"></script>
   <script>checkLogin("officer");</script>
@@ -1439,6 +1449,11 @@
                 <span>•</span>
                 <span>© 2026 Government of India</span>
               </div>
+            </div>
+
+            <!-- PWA Install App Footer Container -->
+            <div class="pt-3 border-t border-slate-300 dark:border-slate-800 flex justify-center items-center">
+              <div id="pwa-install-container" class="inline-flex items-center justify-center"></div>
             </div>
 
           </div>

@@ -6,6 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Platform Features & Statutory Mandate | e-LMCEP (METRO-CHECK)</title>
 
+  <!-- PWA Manifest & Mobile App Capabilities -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="METRO-CHECK">
+  <link rel="apple-touch-icon" href="logo/pwa-icon-192.png">
+  <script src="js/pwa.js" defer></script>
+
   <!-- 1. Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -701,6 +711,7 @@
         </div>
       </div>
       <div class="flex items-center gap-3 text-slate-400 font-mono text-[11px]">
+        <div id="pwa-install-container" class="inline-flex items-center justify-center"></div>
         <span>LM Act 2009 • PCR 2011 Compliance</span>
       </div>
     </div>
