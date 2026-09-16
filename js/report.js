@@ -3,16 +3,22 @@
    Legal Metrology Compliance Verification System
    ========================================================================== */
 
-let activeReportId = "INS-1024";
+let activeReportId = null;
 
 /**
  * Initializes and populates the Report Preview template on page load.
- * Reads the inspection ID from URL search parameters (?id=INS-1024).
+ * Reads the inspection ID from URL search parameters (?id=INS-XXXX).
  */
 function initReportView() {
   const urlParams = new URLSearchParams(window.location.search);
-  const targetId = urlParams.get("id") || "INS-1024";
+  const inspections = getInspections();
+  const targetId = urlParams.get("id") || (inspections[0] && inspections[0].id) || null;
   activeReportId = targetId;
+
+  if (!targetId) {
+    alert("No inspection records available. Perform a scan in the Field Inspector Portal to generate a report.");
+    return;
+  }
 
   // Fetch the inspection record from localStorage
   const record = getInspectionById(targetId);

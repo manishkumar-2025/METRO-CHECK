@@ -125,14 +125,13 @@
         <!-- Hierarchy & Official Portal Indicator -->
         <div class="flex flex-col justify-center min-w-0 py-0.5">
           <div class="text-[11px] sm:text-[13px] font-bold leading-tight tracking-tight text-[#0F172A] truncate">
-            <span class="hidden sm:inline">उपभोक्ता मामले मंत्रालय • </span>Govt. of India
+            उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय
           </div>
           <div
-            class="text-[9.5px] sm:text-[11px] font-medium leading-tight text-[#64748B] flex items-center gap-1 truncate mt-1 pb-0.5">
-            <span class="font-bold text-emerald-800">e-LMCEP</span>
-            <span class="text-slate-400">•</span>
-            <span class="truncate">METRO-CHECK</span>
-            <span class="text-[#64748B] font-normal hidden md:inline">(Senior Inspector Portal)</span>
+            class="text-[9.5px] sm:text-[11.5px] font-medium leading-tight text-[#64748B] flex flex-wrap items-center gap-x-1.5 truncate mt-0.5 pb-0.5">
+            <span>Ministry of Consumer Affairs, Food & Public Distribution</span>
+            <span class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono ml-1">e-LMCEP</span>
+            <span class="text-[#64748B] font-normal hidden lg:inline">(e-Legal Metrology Compliance & Enforcement Portal / METRO-CHECK)</span>
           </div>
         </div>
       </div>
@@ -1179,26 +1178,6 @@
 
               <!-- Invisible fallback input -->
               <input type="file" id="packageImageFileInput" accept="image/jpeg,image/png,image/webp" onchange="handleFileInputChange(event)" class="hidden">
-            </div>
-
-            <!-- Compact Quick-Test Sample Strip -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 bg-slate-50/80 rounded-2xl border border-slate-200/80 text-xs shadow-2xs">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-slate-700 flex items-center gap-1">
-                  <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                  <span>Try Sample Scans:</span>
-                </span>
-                <button type="button" onclick="loadDemoSpecimen('tea')" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 hover:border-emerald-500 hover:bg-emerald-50/80 text-slate-800 font-semibold text-xs transition-all duration-150 flex items-center gap-2 shadow-2xs cursor-pointer hover:shadow-xs active:scale-[0.98]">
-                  <span>🍵</span> <span>Masala Chai 500g</span> <span class="text-[9.5px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded-md font-mono">Compliant</span>
-                </button>
-                <button type="button" onclick="loadDemoSpecimen('chips')" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 hover:border-red-500 hover:bg-red-50/80 text-slate-800 font-semibold text-xs transition-all duration-150 flex items-center gap-2 shadow-2xs cursor-pointer hover:shadow-xs active:scale-[0.98]">
-                  <span>🥔</span> <span>Potato Chips 100g</span> <span class="text-[9.5px] font-extrabold text-red-800 bg-red-100 px-1.5 py-0.5 rounded-md font-mono">Defective</span>
-                </button>
-                <button type="button" onclick="loadDemoSpecimen('banana_chips')" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 hover:border-emerald-500 hover:bg-emerald-50/80 text-slate-800 font-semibold text-xs transition-all duration-150 flex items-center gap-2 shadow-2xs cursor-pointer hover:shadow-xs active:scale-[0.98]">
-                  <span>🍌</span> <span>Banana Chips 200g</span> <span class="text-[9.5px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded-md font-mono">Compliant</span>
-                </button>
-              </div>
-              <span class="text-[10px] text-slate-500 font-mono font-semibold self-end sm:self-auto bg-white/80 px-2 py-0.5 rounded-md border border-slate-200/60">1-Click Test Preload</span>
             </div>
 
             <!-- Legacy fallback preview container -->
@@ -2835,8 +2814,6 @@
   </div>
 
   <!-- Scripts -->
-  <script src="js/demo-data.js"></script>
-  <script src="js/demo-showcase.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/rules.js"></script>
   <script src="js/pdfService.js"></script>
@@ -2845,7 +2822,7 @@
   <script src="js/scanner.js"></script>
   <script src="js/masthead.js"></script>
   <script>
-    // AI Confidence Progress Bar Dynamic Sync & Demo Specimen Auto-Load
+    // AI Confidence Progress Bar Dynamic Sync
     document.addEventListener("DOMContentLoaded", function () {
       const confText = document.getElementById("reportConfidenceScoreText");
       const confBar = document.getElementById("reportConfidenceProgressBar");
@@ -2861,17 +2838,6 @@
         const obs = new MutationObserver(updateConfBar);
         obs.observe(confText, { childList: true, characterData: true, subtree: true });
       }
-
-      // Check for ?demoSpecimen= query param from Master Demo Showcase
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const demoSpecimen = urlParams.get("demoSpecimen");
-        if (demoSpecimen && typeof loadDemoSpecimen === "function") {
-          setTimeout(() => {
-            loadDemoSpecimen(demoSpecimen);
-          }, 350);
-        }
-      } catch (e) { }
     });
   </script>
 </body>

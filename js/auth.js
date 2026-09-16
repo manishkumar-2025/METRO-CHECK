@@ -166,7 +166,7 @@ if (typeof window !== "undefined") {
 
 /**
  * Returns all users from localStorage, initializing with defaults if empty.
- * Ensures the 7 official demo users are always present and up-to-date with zone/state.
+ * Ensures the 7 official system users are always present and up-to-date with zone/state.
  */
 function getUsers() {
   const raw = localStorage.getItem(STORAGE_KEY_USERS);
@@ -179,7 +179,7 @@ function getUsers() {
     }
   }
 
-  // Merge defaults with stored users so demo accounts have zone and state
+  // Merge defaults with stored users so system accounts have zone and state
   const merged = { ...USERS, ...stored };
   for (const key of Object.keys(USERS)) {
     merged[key] = {
@@ -573,7 +573,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// Auto-seed default users if empty
+// Initialize default user accounts if empty
 getUsers();
 
 /* ==========================================================================

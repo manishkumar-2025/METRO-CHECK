@@ -18,8 +18,6 @@ const STATIC_ASSETS = [
   '/js/admin.js',
   '/js/auth.js',
   '/js/dashboard.js',
-  '/js/demo-data.js',
-  '/js/demo-showcase.js',
   '/js/masthead.js',
   '/js/notifications.js',
   '/js/pdfService.js',

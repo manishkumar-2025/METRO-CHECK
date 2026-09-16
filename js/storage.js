@@ -775,69 +775,15 @@ function resetCommodities() {
 }
 
 /**
- * Seeds official demo inspections spread across all 6 Indian Zonal Councils.
- * Cleanly delegated to isolated js/demo-data.js engine.
- */
-function seedDemoData(force = false) {
-  let demoDataModule = (typeof DemoData !== "undefined") ? DemoData : null;
-  if (!demoDataModule && typeof require === "function") {
-    try {
-      demoDataModule = require("./demo-data.js");
-    } catch (e1) {
-      try {
-        demoDataModule = require("./js/demo-data.js");
-      } catch (e2) {
-        try {
-          demoDataModule = require("../js/demo-data.js");
-        } catch (e3) {
-          try {
-            const path = require("path");
-            demoDataModule = require(path.join(process.cwd(), "js", "demo-data.js"));
-          } catch (e4) {}
-        }
-      }
-    }
-  }
-
-  if (demoDataModule && typeof demoDataModule.seed === "function") {
-    const records = demoDataModule.seed(force);
-    _inspectionsCache = records.slice();
-    getCommodities();
-    return records;
-  }
-
-  // Ensure commodities exist
-  getCommodities();
-  return getInspections();
-}
-
-/**
- * Explicit user-triggered loader for demo/testing data.
- */
-function loadSampleDemoData() {
-  return seedDemoData(true);
-}
-
-/**
- * Initializes baseline storage references and seeds 6-zone demo records if in prototype demo mode.
+ * Initializes baseline storage references with clean empty production defaults.
  */
 function initStorage() {
   getCommodities();
-  const isDemoMode = (typeof localStorage !== "undefined" && localStorage.getItem("metro_demo_mode") !== "false");
-  const raw = (typeof localStorage !== "undefined") ? localStorage.getItem(STORAGE_KEY_INSPECTIONS) : null;
-  if (!raw) {
-    if (isDemoMode) {
-      seedDemoData(false);
-    }
-  } else if (isDemoMode) {
-    try {
-      const records = JSON.parse(raw);
-      const needsUpgrade = !Array.isArray(records) || records.length === 0 || records.some(r => !r.zone || !r.state);
-      if (needsUpgrade) {
-        seedDemoData(true);
-      }
-    } catch (e) {
-      seedDemoData(true);
+  if (typeof localStorage !== "undefined") {
+    const raw = localStorage.getItem(STORAGE_KEY_INSPECTIONS);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify([]));
+      _inspectionsCache = [];
     }
   }
 }

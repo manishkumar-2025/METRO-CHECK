@@ -52,11 +52,9 @@ function loadJsonFile(filePath, defaultVal = []) {
     if (fs.existsSync(filePath)) {
       return JSON.parse(fs.readFileSync(filePath, "utf8"));
     }
-    // Fallback for Vercel serverless runtime: read bundled seed file
-    const bundledFallback = path.join(__dirname, "data", path.basename(filePath));
-    if (fs.existsSync(bundledFallback)) {
-      return JSON.parse(fs.readFileSync(bundledFallback, "utf8"));
-    }
+    // Initialize clean empty JSON file if it does not exist
+    fs.writeFileSync(filePath, JSON.stringify(defaultVal, null, 2), "utf8");
+    return defaultVal;
   } catch (e) {
     console.error(`[METRO-CHECK] Error reading ${filePath}:`, e.message);
   }
@@ -81,11 +79,11 @@ const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 }
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const CANDIDATE_MODELS = [
-  "gemini-3.6-flash",
-  "gemini-3.5-flash",
-  "gemini-2.5-flash",
+  "gemini-1.5-flash",
   "gemini-2.0-flash",
-  "gemini-1.5-flash"
+  "gemini-1.5-flash-latest",
+  "gemini-1.5-pro",
+  "gemini-2.0-flash-exp"
 ];
 const PRIMARY_MODEL = CANDIDATE_MODELS[0];
 const FALLBACK_MODEL = CANDIDATE_MODELS[1];
@@ -330,12 +328,13 @@ app.post("/api/commodities", (req, res) => {
 /**
  * Real-Time Gemini Vision Inspection Engine via Google Generative Language v1beta API
  * Iterates through active candidate models with automatic failover if high-demand spikes occur.
- * Never returns mock or hardcoded demo data.
+ * Operates purely on live optical analysis of uploaded specimens.
  */
 async function callGeminiVisionApi({ apiKey, prompt, imagesToProcess }) {
   let lastError = null;
 
   for (const modelName of CANDIDATE_MODELS) {
+    let timeoutId = null;
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
       const payload = {
@@ -358,11 +357,17 @@ async function callGeminiVisionApi({ apiKey, prompt, imagesToProcess }) {
         }
       };
 
+      const controller = new AbortController();
+      timeoutId = setTimeout(() => controller.abort(), 12000);
+
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
+
+      if (timeoutId) clearTimeout(timeoutId);
 
       const data = await res.json();
       if (!res.ok || data.error) {
@@ -378,7 +383,9 @@ async function callGeminiVisionApi({ apiKey, prompt, imagesToProcess }) {
         return { rawText, usedModel: modelName };
       }
     } catch (err) {
-      console.warn(`[METRO-CHECK] Execution error calling ${modelName}:`, err.message);
+      if (timeoutId) clearTimeout(timeoutId);
+      const isAbort = err.name === "AbortError";
+      console.warn(`[METRO-CHECK] Execution error calling ${modelName}:`, isAbort ? "Request timed out after 12s" : err.message);
       lastError = err;
     }
   }
@@ -964,7 +971,7 @@ if (require.main === module) {
     console.log(`METRO-CHECK Legal Metrology AI Server listening on port ${PORT}`);
     console.log(`Models: ${PRIMARY_MODEL} (Primary) / ${FALLBACK_MODEL} (Fallback)`);
     console.log(`API Key configured: ${Boolean(key && key.length > 10)}`);
-    console.log("Mode: STRICT REAL-TIME INSPECTION (NO DEMO / NO MOCK FALLBACKS)");
+    console.log("Mode: LIVE PRODUCTION INSPECTION ENGINE ACTIVE");
     console.log("==========================================================");
   });
 

@@ -936,19 +936,7 @@ function navigateCase(direction) {
 }
 window.navigateCase = navigateCase;
 
-/**
- * 1-Click demo inspection loader for empty states.
- */
-function seedAndReloadDocket() {
-  if (typeof seedDemoData === "function") {
-    seedDemoData(true);
-  }
-  loadReviewDocket();
-  if (typeof showToast === "function") {
-    showToast("Realistic Legal Metrology demo cases loaded successfully!", "success");
-  }
-}
-window.seedAndReloadDocket = seedAndReloadDocket;
+
 
 /* ==========================================================================
    CASE EVIDENCE 3-PANE WORKSPACE (Integrated inside officer.html)
@@ -1008,7 +996,14 @@ function loadCaseDetails(id) {
   if (!id) {
     const inspections = filterByZoneAccess(getInspections());
     const pending = inspections.find(i => i.status === "submitted" || i.status === "pending" || !i.isCompliant);
-    id = (pending && pending.id) || (inspections[0] && inspections[0].id) || "INS-1024";
+    id = (pending && pending.id) || (inspections[0] && inspections[0].id) || null;
+  }
+  if (!id) {
+    const emptyEl = document.getElementById("reviewEmptyState");
+    const activeContentEl = document.getElementById("reviewActiveContent");
+    if (emptyEl) emptyEl.classList.remove("hidden");
+    if (activeContentEl) activeContentEl.classList.add("hidden");
+    return;
   }
   currentReviewId = id;
   const item = getInspectionById(id);

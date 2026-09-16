@@ -347,6 +347,46 @@ function createLightweightThumbnail(dataUrl, callback) {
   img.src = dataUrl;
 }
 
+/**
+ * Optimizes high-resolution camera/upload images before sending to AI API.
+ * Downscales images to max 1600px dimension and applies JPEG compression (0.85),
+ * reducing payload size by up to 90% without losing OCR text legibility.
+ */
+function optimizeImageForAiScan(dataUrl, maxDimension = 1600, quality = 0.85) {
+  return new Promise((resolve) => {
+    if (!dataUrl || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
+      return resolve(dataUrl);
+    }
+    const img = new Image();
+    img.onload = function () {
+      let width = img.naturalWidth || img.width;
+      let height = img.naturalHeight || img.height;
+      if (!width || !height || (width <= maxDimension && height <= maxDimension && dataUrl.length < 500000)) {
+        return resolve(dataUrl);
+      }
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
+          height = Math.round((height * maxDimension) / width);
+          width = maxDimension;
+        } else {
+          width = Math.round((width * maxDimension) / height);
+          height = maxDimension;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = function () {
+      resolve(dataUrl);
+    };
+    img.src = dataUrl;
+  });
+}
+
 function setSlotImage(slot, dataUrl) {
   if (!PANEL_DEFINITIONS[slot]) slot = "front";
   panelImages[slot] = dataUrl;
@@ -763,7 +803,7 @@ function captureCameraSnapshot() {
 }
 
 /* ==========================================================================
-   2. FILE UPLOAD & PRESET DEMO SPECIMENS
+   2. FILE UPLOAD & CAMERA CAPTURE
    ========================================================================== */
 
 function handleFileInputChange(event) {
@@ -785,88 +825,6 @@ function processUploadedImageFile(file) {
     });
   };
   reader.readAsDataURL(file);
-}
-
-let currentLoadedSpecimenKey = "tea";
-
-/**
- * Loads realistic demonstration specimen labels for immediate 1-click testing.
- */
-function loadDemoSpecimen(type) {
-  currentLoadedSpecimenKey = type || "tea";
-  const specimens = {
-    tea: {
-      name: "Masala Chai 500g (Compliant Label)",
-      url: "assets/compliant_tea_label.jpg"
-    },
-    chips: {
-      name: "Potato Chips 100g (Defective Label - Missing MRP & Care)",
-      url: "assets/noncompliant_chips_label.jpg"
-    },
-    banana_chips: {
-      name: "Jaggery Coated Banana Chips 200g (ONEEIO Compliant Label)",
-      url: "assets/compliant_tea_label.jpg"
-    },
-    rice: {
-      name: "Basmati Rice Premium 5kg",
-      url: "assets/compliant_tea_label.jpg"
-    },
-    oil: {
-      name: "Sunflower Oil 1L",
-      url: "assets/compliant_tea_label.jpg"
-    },
-    ghee: {
-      name: "Pure Cow Ghee 500ml (Defective)",
-      url: "assets/noncompliant_chips_label.jpg"
-    },
-    detergent: {
-      name: "Synthetic Detergent 1kg",
-      url: "assets/compliant_tea_label.jpg"
-    }
-  };
-
-  const target = specimens[type] || specimens.tea;
-
-  // Convert image to base64 via temporary image & canvas
-  const img = new Image();
-  img.crossOrigin = "anonymous";
-  img.onload = function () {
-    const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth || 600;
-    canvas.height = img.naturalHeight || 400;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-    try {
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-      setSlotImage("front", dataUrl);
-      setSlotImage("back", dataUrl);
-      setSpecimenImage(dataUrl);
-      if (typeof showToast === "function") showToast(`Loaded label specimen: ${target.name}`, "info");
-    } catch (e) {
-      setSlotImage("front", target.url);
-      setSlotImage("back", target.url);
-      setSpecimenImage(target.url);
-    }
-  };
-  img.onerror = function () {
-    fetch(target.url)
-      .then(r => r.blob())
-      .then(blob => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setSlotImage("front", reader.result);
-          setSlotImage("back", reader.result);
-          setSpecimenImage(reader.result);
-          if (typeof showToast === "function") showToast(`Loaded label specimen: ${target.name}`, "info");
-        };
-        reader.readAsDataURL(blob);
-      })
-      .catch(err => {
-        console.warn("Failed to load specimen image:", target.url, err);
-        if (typeof showToast === "function") showToast("Unable to load specimen image from " + target.url, "error");
-      });
-  };
-  img.src = target.url;
 }
 
 /**
@@ -944,9 +902,10 @@ async function executeGeminiVisionInspection(imageDataUrl) {
   };
 
   const activePanelsList = [];
-  PANEL_SLOTS.forEach(slotKey => {
-    const imgUrl = panelImages[slotKey];
-    if (imgUrl) {
+  for (const slotKey of PANEL_SLOTS) {
+    const rawUrl = panelImages[slotKey];
+    if (rawUrl) {
+      const imgUrl = await optimizeImageForAiScan(rawUrl);
       const def = PANEL_DEFINITIONS[slotKey];
       let cleanBase64 = imgUrl;
       let mimeType = "image/jpeg";
@@ -966,12 +925,12 @@ async function executeGeminiVisionInspection(imageDataUrl) {
       // Pass explicit keys for backward compatibility
       payload[def.inputKey] = imgUrl;
     }
-  });
+  }
 
   payload.panels = activePanelsList;
 
   if (activePanelsList.length === 0 && (imageDataUrl || currentUploadedImageDataUrl)) {
-    const targetUrl = imageDataUrl || currentUploadedImageDataUrl;
+    const targetUrl = await optimizeImageForAiScan(imageDataUrl || currentUploadedImageDataUrl);
     let cleanBase64 = targetUrl;
     let mimeType = "image/jpeg";
     if (targetUrl && targetUrl.includes("base64,")) {

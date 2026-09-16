@@ -326,15 +326,15 @@ function renderRecentActivityTable() {
   const raw = localStorage.getItem("adminActivities");
   let activities = raw ? JSON.parse(raw) : [];
 
-  if (activities.length === 0) {
-    activities = [
-      { time: "2 min ago", user: "Field Inspector", action: "New Scan", details: "INS-1024 Basmati Rice scanned & submitted" },
-      { time: "18 min ago", user: "Metrology Officer", action: "Notice Generated", details: "Show-cause order issued for INS-1027" },
-      { time: "45 min ago", user: "Field Inspector", action: "Draft Saved", details: "INS-1029 Detergent Powder draft updated" },
-      { time: "1 hr ago", user: "Administrator", action: "Rules Sync", details: "Updated Legal Metrology Packaged Commodities Schedule" },
-      { time: "2 hrs ago", user: "Metrology Officer", action: "Case Approved", details: "INS-1025 Refined Sunflower Oil verified" }
-    ];
-    localStorage.setItem("adminActivities", JSON.stringify(activities));
+  if (!Array.isArray(activities) || activities.length === 0) {
+    tbody.innerHTML = `
+      <tr class="border-b border-slate-100 text-xs">
+        <td colspan="4" class="px-4 py-6 text-center text-slate-400 font-medium">
+          No audit activity logged yet. Real-time events will appear here as field scans occur.
+        </td>
+      </tr>
+    `;
+    return;
   }
 
   tbody.innerHTML = activities.slice(0, 8).map(item => `
@@ -781,7 +781,7 @@ function deleteUserAction(uname) {
    ADMIN ACTIONS: RESET & EXPORT
    ========================================================================== */
 
-function resetDemoData() {
+function resetSystemStorage() {
   if (confirm("Reset all system data (inspections, commodities) to clean state?")) {
     // Preserve current user session per Zonal Access Control requirements
     const activeSession = localStorage.getItem("currentUser");
@@ -800,17 +800,7 @@ function resetDemoData() {
     window.location.reload();
   }
 }
-
-function triggerLoadSampleData() {
-  if (typeof DemoShowcase !== "undefined" && typeof DemoShowcase.openShowcaseDrawer === "function") {
-    DemoShowcase.enableAllDemos(true);
-    DemoShowcase.openShowcaseDrawer();
-  } else if (confirm("Load official sample inspection records for testing and demonstration?")) {
-    loadSampleDemoData();
-    alert("Sample inspection records loaded successfully!");
-    window.location.reload();
-  }
-}
+window.resetDemoData = resetSystemStorage;
 
 function exportAllData() {
   const payload = {
