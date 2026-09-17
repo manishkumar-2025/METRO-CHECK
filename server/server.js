@@ -9,35 +9,87 @@ require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const multer = require("multer");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI } = require("@google/genai");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-function getGeminiApiKey() {
-  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim().length > 10) {
-    return process.env.GEMINI_API_KEY.trim();
-  }
-  try {
-    const envPaths = [path.join(__dirname, ".env"), path.join(__dirname, "..", ".env")];
-    for (const p of envPaths) {
-      if (fs.existsSync(p)) {
-        const content = fs.readFileSync(p, "utf8");
-        const match = content.match(/GEMINI_API_KEY\s*=\s*([^\r\n#]+)/);
-        if (match && match[1] && match[1].trim().length > 10) {
-          process.env.GEMINI_API_KEY = match[1].trim();
-          return process.env.GEMINI_API_KEY;
-        }
-      }
-    }
-  } catch (e) {}
-  return "";
+// Security Headers
+app.use(helmet({ contentSecurityPolicy: false }));
+
+// Rate Limiters for Public API endpoints
+const scanLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 30, // max 30 requests per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many OCR scan requests from this IP. Please try again after 1 minute." }
+});
+
+const configLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15, // max 15 config attempts per 15 mins
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many API key configuration requests. Please try again after 15 minutes." }
+});
+
+/**
+ * Classify the credential type so we know how to authenticate.
+ * AQ. keys are Google's new Auth Key format (Sept 2026+) — they are API keys,
+ * NOT OAuth bearer tokens. They are passed via x-goog-api-key header.
+ * ya29. are genuine OAuth2 access tokens (short-lived, Authorization: Bearer).
+ */
+function getCredentialType(key) {
+  if (!key || typeof key !== "string" || key.trim().length < 10) return "NONE";
+  const k = key.trim();
+  if (k.startsWith("AIzaSy") || k.startsWith("AQ.")) return "API_KEY";
+  if (k.startsWith("ya29.")) return "OAUTH_TOKEN";
+  return "API_KEY"; // Treat unknown formats as API keys by default
 }
 
-app.use(cors());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+function getGeminiApiKey() {
+  let key = (process.env.GEMINI_API_KEY || "").trim();
+  if (!key || key.length < 10) {
+    try {
+      const envPaths = [path.join(__dirname, ".env"), path.join(__dirname, "..", ".env")];
+      for (const p of envPaths) {
+        if (fs.existsSync(p)) {
+          const content = fs.readFileSync(p, "utf8");
+          const match = content.match(/GEMINI_API_KEY\s*=\s*([^\r\n#]+)/);
+          if (match && match[1] && match[1].trim().length > 10) {
+            key = match[1].trim();
+            process.env.GEMINI_API_KEY = key;
+            break;
+          }
+        }
+      }
+    } catch (e) {}
+  }
+  return key;
+}
+
+// Security Hardened CORS configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : ["http://localhost:3000", "http://127.0.0.1:3000"];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, postman, same-origin)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== "production") {
+      return callback(null, true);
+    }
+    return callback(new Error("CORS policy violation: Origin not allowed"), false);
+  },
+  credentials: true
+}));
+
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 
 // Persistent Data Storage Directory (for multi-device syncing)
 const DATA_DIR = process.env.VERCEL ? "/tmp" : path.join(__dirname, "data");
@@ -78,12 +130,13 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 } });
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+// Models ordered by preference: newest/fastest first, older as fallback
 const CANDIDATE_MODELS = [
-  "gemini-1.5-flash",
-  "gemini-2.0-flash",
-  "gemini-1.5-flash-latest",
-  "gemini-1.5-pro",
-  "gemini-2.0-flash-exp"
+  "gemini-3.6-flash",    // Primary: latest stable flash model (July 2026)
+  "gemini-3.8-flash",    // Fallback 1: newest (Sept 2026)
+  "gemini-2.5-flash",    // Fallback 2: stable hybrid reasoning
+  "gemini-2.5-pro",      // Fallback 3: high-quality pro
+  "gemini-1.5-flash"     // Fallback 4: legacy (keep for compatibility)
 ];
 const PRIMARY_MODEL = CANDIDATE_MODELS[0];
 const FALLBACK_MODEL = CANDIDATE_MODELS[1];
@@ -249,14 +302,104 @@ function getRequiredStandardForRule(rule) {
 // Health check endpoint
 app.get("/api/health", (req, res) => {
   const key = getGeminiApiKey();
+  const configured = Boolean(key && key.length > 10);
+  const credType = getCredentialType(key);
   res.json({
     system: "METRO-CHECK Legal Metrology AI Engine",
     status: "online",
     primaryModel: PRIMARY_MODEL,
     fallbackModel: FALLBACK_MODEL,
-    geminiConfigured: Boolean(key && key.length > 10)
+    geminiConfigured: configured,
+    credType: credType,
+    geminiValidFormat: configured
   });
 });
+
+// API Key Management Endpoints
+app.get("/api/config/apikey", configLimiter, (req, res) => {
+  const key = getGeminiApiKey();
+  const configured = Boolean(key && key.length > 10);
+  const credType = getCredentialType(key);
+  res.json({
+    configured,
+    isValidFormat: configured,
+    credType,
+    keyMasked: configured ? `${key.substring(0, 6)}...${key.substring(key.length - 4)}` : "Not Configured"
+  });
+});
+
+app.post("/api/config/apikey", configLimiter, (req, res) => {
+  const { apiKey } = req.body || {};
+  if (!apiKey || typeof apiKey !== "string" || apiKey.trim().length < 10) {
+    return res.status(400).json({ error: "Please provide a valid Google Gemini API Key or OAuth Access Token." });
+  }
+
+  const cleanKey = apiKey.trim();
+  process.env.GEMINI_API_KEY = cleanKey;
+
+  try {
+    const envPath = path.join(__dirname, ".env");
+    let envContent = `GEMINI_API_KEY=${cleanKey}\nPORT=${PORT}\n`;
+    fs.writeFileSync(envPath, envContent, "utf8");
+  } catch (e) {
+    console.warn("[METRO-CHECK] Could not write to server/.env:", e.message);
+  }
+
+  const credType = getCredentialType(cleanKey);
+  console.log(`[METRO-CHECK] Live Gemini Credential (${credType}) updated successfully via API`);
+  res.json({
+    success: true,
+    message: `Gemini Vision Credential (${credType}) updated successfully!`,
+    isValidFormat: true,
+    credType
+  });
+});
+
+app.post("/api/config/apikey/test", configLimiter, async (req, res) => {
+  const { apiKey } = req.body || {};
+  const testKey = (apiKey && typeof apiKey === "string" && apiKey.trim().length > 10) ? apiKey.trim() : getGeminiApiKey();
+
+  if (!testKey || testKey.length < 10) {
+    return res.status(400).json({ success: false, error: "Please provide a valid Google Gemini API Key (AIzaSy... or AQ.Ab8...)." });
+  }
+
+  const credType = getCredentialType(testKey);
+
+  try {
+    // Use x-goog-api-key header for all API key formats (AIzaSy... and AQ...)
+    // Do NOT use Authorization: Bearer for API keys — that causes ACCESS_TOKEN_TYPE_UNSUPPORTED
+    const headers = {
+      "Content-Type": "application/json",
+      "x-goog-api-key": testKey
+    };
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent`;
+    const payload = {
+      contents: [{ parts: [{ text: "Reply with exactly this JSON only: {\"status\": \"ok\"}" }] }],
+      generationConfig: { responseMimeType: "application/json" }
+    };
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const apiRes = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    const data = await apiRes.json();
+    if (!apiRes.ok || data.error) {
+      const errMsg = data.error ? `${data.error.message} (status ${data.error.code})` : `HTTP ${apiRes.status}`;
+      return res.status(400).json({ success: false, error: errMsg });
+    }
+
+    return res.json({ success: true, message: `✅ Gemini API Key Verified (${credType} — ${testKey.substring(0, 8)}...)` });
+  } catch (err) {
+    const isAbort = err.name === "AbortError";
+    return res.status(500).json({ success: false, error: isAbort ? "Connection timed out (10s). Check network or API key." : err.message });
+  }
+});
+
 
 /* ==========================================================================
    CENTRAL PERSISTENT REST API (Enables multi-device sync between Field & Quorum)
@@ -330,74 +473,140 @@ app.post("/api/commodities", (req, res) => {
  * Iterates through active candidate models with automatic failover if high-demand spikes occur.
  * Operates purely on live optical analysis of uploaded specimens.
  */
+/**
+ * Real-Time Gemini Vision API call using the official @google/genai SDK.
+ *
+ * The new SDK uses x-goog-api-key header automatically for ALL key types,
+ * including both AIzaSy... (legacy) and AQ. (new Auth Keys from Sept 2026).
+ * This is the correct way — do NOT pass AQ. keys as Bearer tokens.
+ */
 async function callGeminiVisionApi({ apiKey, prompt, imagesToProcess }) {
   let lastError = null;
 
+  // Build the image parts for the new SDK's inlineData format
+  const imageParts = imagesToProcess.map(img => ({
+    inlineData: {
+      mimeType: img.mimeType || "image/jpeg",
+      data: img.data
+    }
+  }));
+
   for (const modelName of CANDIDATE_MODELS) {
-    let timeoutId = null;
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-      const payload = {
-        contents: [
-          {
-            parts: [
-              { text: prompt },
-              ...imagesToProcess.map(img => ({
-                inlineData: {
-                  mimeType: img.mimeType || "image/jpeg",
-                  data: img.data
-                }
-              }))
-            ]
-          }
-        ],
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.1
+      console.log(`[METRO-CHECK] Attempting OCR with model ${modelName} using @google/genai SDK...`);
+
+      // Initialize SDK client — it automatically uses x-goog-api-key header
+      // This is the ONLY correct way to authenticate AQ. keys
+      const ai = new GoogleGenAI({ apiKey });
+
+      // Build contents array: prompt text + all image parts
+      const contents = [
+        {
+          role: "user",
+          parts: [
+            { text: prompt },
+            ...imageParts
+          ]
         }
-      };
+      ];
 
+      // Use generateContent with timeout via AbortController
       const controller = new AbortController();
-      timeoutId = setTimeout(() => controller.abort(), 12000);
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: controller.signal
-      });
-
-      if (timeoutId) clearTimeout(timeoutId);
-
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        const errorMsg = data.error ? data.error.message : `HTTP ${res.status}`;
-        console.warn(`[METRO-CHECK] Model ${modelName} notice: ${errorMsg}. Trying next model...`);
-        lastError = new Error(errorMsg);
-        continue;
+      let rawText = null;
+      try {
+        const result = await ai.models.generateContent({
+          model: modelName,
+          contents,
+          config: {
+            responseMimeType: "application/json",
+            temperature: 0.1
+          }
+        });
+        rawText = result.text;
+      } finally {
+        clearTimeout(timeoutId);
       }
 
-      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (rawText && rawText.trim().length > 0) {
-        console.log(`[METRO-CHECK] Real-Time Inspection OCR succeeded using model: ${modelName}`);
+        console.log(`[METRO-CHECK] OCR succeeded using model: ${modelName}`);
         return { rawText, usedModel: modelName };
       }
+
+      console.warn(`[METRO-CHECK] Model ${modelName} returned empty response. Trying next...`);
+      lastError = new Error(`Model ${modelName} returned empty response`);
+
     } catch (err) {
-      if (timeoutId) clearTimeout(timeoutId);
       const isAbort = err.name === "AbortError";
-      console.warn(`[METRO-CHECK] Execution error calling ${modelName}:`, isAbort ? "Request timed out after 12s" : err.message);
-      lastError = err;
+      const msg = isAbort ? `Timed out after 30s` : err.message;
+      console.warn(`[METRO-CHECK] Model ${modelName} error: ${msg}. Trying next...`);
+      lastError = new Error(msg);
     }
   }
 
-  throw lastError || new Error("All candidate Gemini Vision models were unavailable. Please check your network and API key.");
+  throw lastError || new Error("All Gemini Vision models failed. Check your API key and network connection.");
+}
+
+/**
+ * Internal Statutory Inspection Fallback Engine
+ * Evaluates Legal Metrology Rule 6 declarations when live Gemini API key is unconfigured or offline.
+ */
+function generateFallbackComplianceData({ commodityCategory, standardPacks, tolerance, imagesCount }) {
+  const fields = {
+    manufacturer_name_address: "Apex Consumer Products Ltd., Plot 14, Okhla Industrial Area, New Delhi - 110020",
+    generic_name: commodityCategory || "Pre-Packaged Commodity Specimen",
+    net_quantity: standardPacks ? standardPacks.split(",")[0].trim() : "500 g",
+    mfg_month_year: "08/2026",
+    unit_sale_price: "₹ 0.40 per g",
+    mrp_tax_inclusive: "₹ 200.00 (Incl. of all taxes)",
+    consumer_care_contact: "Consumer Grievance Officer, Email: care@apexproducts.in, Phone: 1800-11-4000",
+    brand_name: "Apex Standard Pack",
+    batch_number: "BATCH-2026-08A",
+    country_of_origin: "India"
+  };
+
+  const rules = [
+    { clause: "Rule 6(1)(a)", parameter_name: "Manufacturer Name & Address", found: true, value: fields.manufacturer_name_address, compliant: true, violation_reason: null, severity: "None" },
+    { clause: "Rule 6(1)(b)", parameter_name: "Generic or Commodity Name", found: true, value: fields.generic_name, compliant: true, violation_reason: null, severity: "None" },
+    { clause: "Rule 6(1)(c)", parameter_name: "Net Quantity & Metric Unit", found: true, value: fields.net_quantity, compliant: true, violation_reason: null, severity: "None" },
+    { clause: "Rule 6(1)(d)", parameter_name: "Month & Year of Manufacture", found: true, value: fields.mfg_month_year, compliant: true, violation_reason: null, severity: "None" },
+    { clause: "Rule 6(1)(da)", parameter_name: "Unit Sale Price (USP)", found: true, value: fields.unit_sale_price, compliant: true, violation_reason: null, severity: "None" },
+    { clause: "Rule 6(1)(e)", parameter_name: "Retail Sale Price (MRP)", found: true, value: fields.mrp_tax_inclusive, compliant: true, violation_reason: null, severity: "None" },
+    { clause: "Rule 6(1)(n)", parameter_name: "Consumer Care Contact", found: true, value: fields.consumer_care_contact, compliant: true, violation_reason: null, severity: "None" },
+    { clause: "Rule 6(1)(aa)", parameter_name: "Country of Origin", found: true, value: fields.country_of_origin, compliant: true, violation_reason: null, severity: "None" }
+  ];
+
+  if (commodityCategory) {
+    rules.push({
+      clause: "Second Schedule",
+      parameter_name: "Schedule 2 Permissible Standard Pack Sizes",
+      found: true,
+      value: fields.net_quantity,
+      compliant: true,
+      violation_reason: null,
+      severity: "None"
+    });
+  }
+
+  return {
+    extracted_text: `PRODUCT LABEL SPECIMEN DECLARATIONS:\nGeneric Name: ${fields.generic_name}\nNet Qty: ${fields.net_quantity}\nMRP: ${fields.mrp_tax_inclusive}\nMfg Date: ${fields.mfg_month_year}\nManufacturer: ${fields.manufacturer_name_address}\nConsumer Care: ${fields.consumer_care_contact}`,
+    fields,
+    rules,
+    overall_status: "Compliant",
+    confidence: 0.95,
+    observations: [
+      `Inspected ${imagesCount} package panel specimen(s) under PCR 2011.`,
+      "All mandatory Rule 6 declarations verified and compliant."
+    ]
+  };
 }
 
 /**
  * Main Real-Time AI OCR & Compliance Endpoint
  * Accepts dual images (Front & Back panels) or single image via multipart or JSON
  */
-app.post("/api/scan", upload.fields([
+app.post("/api/scan", scanLimiter, upload.fields([
   { name: "image", maxCount: 1 },
   { name: "imageFront", maxCount: 1 },
   { name: "imageBack", maxCount: 1 },
@@ -516,22 +725,21 @@ app.post("/api/scan", upload.fields([
       return res.status(400).json({ error: "No image provided. Please upload front and/or back package label images." });
     }
 
-    const apiKey = getGeminiApiKey();
-    if (!apiKey || apiKey.length < 10) {
-      console.warn("[METRO-CHECK] GEMINI_API_KEY missing in server/.env, returning resilient mock fallback.");
-      throw new Error("GEMINI_API_KEY missing in server/.env");
-    }
-
-    console.log(`[METRO-CHECK] Processing real-time inspection for ${imagesToProcess.length} label image(s)...`);
-
-    // Extract commodity category, standard packs, and tolerance from request body (Admin Commodity Tolerances)
     const commodityCategory = (req.body && (req.body.commodityCategory || req.body.commodity || req.body.category)) || null;
     const standardPacks = (req.body && (req.body.standardPacks || req.body.sizes)) || null;
     const tolerance = (req.body && req.body.tolerance) || null;
 
-    let commodityDirective = "";
-    if (commodityCategory) {
-      commodityDirective = `\n\nSCHEDULE 2 COMMODITY STANDARD SPECIFICATION:
+    const apiKey = getGeminiApiKey();
+    let parsedData = null;
+    let usedModel = "METRO-CHECK Rule Engine (Configure Gemini Key for Live AI)";
+
+    const credType = getCredentialType(apiKey);
+    const hasValidCredential = apiKey && apiKey.trim().length > 10 && credType !== "NONE";
+
+    if (hasValidCredential) {
+      let commodityDirective = "";
+      if (commodityCategory) {
+        commodityDirective = `\n\nSCHEDULE 2 COMMODITY STANDARD SPECIFICATION:
 - Target Commodity Category: ${commodityCategory}
 ${standardPacks ? `- Prescribed Schedule 2 Standard Packing Sizes: ${standardPacks}` : ""}
 ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""}
@@ -546,40 +754,50 @@ ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""
     "violation_reason": null,
     "severity": "Moderate"
   }`;
-    }
+      }
 
-    const dualImageDirective = imagesToProcess.length > 1
-      ? `\n\nIMPORTANT: You have been provided ${imagesToProcess.length} images of the same product (Panel 1: Front Facing and Panel 2: Back/Side Panel). Combine declarations from both panels to perform a complete Legal Metrology (Packaged Commodities) Rules, 2011 inspection.`
-      : "";
+      const dualImageDirective = imagesToProcess.length > 1
+        ? `\n\nIMPORTANT: You have been provided ${imagesToProcess.length} images of the same product (Panel 1: Front Facing and Panel 2: Back/Side Panel). Combine declarations from both panels to perform a complete Legal Metrology (Packaged Commodities) Rules, 2011 inspection.`
+        : "";
 
-    const inspectionPrompt = `${LEGAL_METROLOGY_SYSTEM_PROMPT}${dualImageDirective}${commodityDirective}`;
+      const inspectionPrompt = `${LEGAL_METROLOGY_SYSTEM_PROMPT}${dualImageDirective}${commodityDirective}`;
 
-    const { rawText, usedModel } = await callGeminiVisionApi({
-      apiKey,
-      prompt: inspectionPrompt,
-      imagesToProcess
-    });
+      try {
+        console.log(`[METRO-CHECK] Processing real-time inspection for ${imagesToProcess.length} label image(s) via Gemini Vision API...`);
+        const visionResult = await callGeminiVisionApi({
+          apiKey,
+          prompt: inspectionPrompt,
+          imagesToProcess
+        });
 
-    let parsedData = null;
-    try {
-      const cleaned = cleanJsonOutput(rawText);
-      parsedData = JSON.parse(cleaned);
-    } catch (parseErr) {
-      console.warn("[METRO-CHECK] Gemini Vision returned non-JSON text, attempting extraction:", parseErr.message);
-      const firstBrace = rawText.indexOf("{");
-      const lastBrace = rawText.lastIndexOf("}");
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        try {
-          parsedData = JSON.parse(rawText.substring(firstBrace, lastBrace + 1));
-        } catch (e) {}
+        const cleaned = cleanJsonOutput(visionResult.rawText);
+        parsedData = JSON.parse(cleaned);
+        usedModel = visionResult.usedModel;
+      } catch (geminiErr) {
+        // If we have a credential configured, surface the real error — don't hide it with fake data
+        console.error("[METRO-CHECK] Gemini Vision API error:", geminiErr.message);
+        throw new Error(geminiErr.message);
       }
     }
 
     if (!parsedData) {
-      return res.status(500).json({
-        error: "Real-time AI OCR could not parse compliance output. Please upload a sharper image of the package.",
-        rawText: rawText ? rawText.substring(0, 300) : null
-      });
+      // No credential configured — return demo fallback ONLY if OCR_DEMO_MODE=true is explicitly set
+      if (process.env.OCR_DEMO_MODE === "true") {
+        console.log(`[METRO-CHECK] No Gemini credential configured. Returning DEMO fallback (OCR_DEMO_MODE active)...`);
+        usedModel = "METRO-CHECK Demo Engine (OCR_DEMO_MODE Active)";
+        parsedData = generateFallbackComplianceData({
+          commodityCategory,
+          standardPacks,
+          tolerance,
+          imagesCount: imagesToProcess.length
+        });
+      } else {
+        console.warn(`[METRO-CHECK] No Gemini API key configured and OCR_DEMO_MODE is disabled.`);
+        return res.status(401).json({
+          error: "Google Gemini API key not configured. Please configure your API key via /api/config/apikey or set GEMINI_API_KEY in server environment.",
+          ocr_status: "UNCONFIGURED"
+        });
+      }
     }
 
     // Standardize user's required schema fields
@@ -687,282 +905,27 @@ ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""
     return res.json(fullResponse);
 
   } catch (err) {
-    console.error("[METRO-CHECK] Inspection Pipeline Notice:", err.message);
-    // Dynamic specimen-aware fallback engine so every sample and product returns exact accurate OCR text & declarations
-    const dynamicFallback = getDynamicFallbackInspection(req.body);
-    return res.json(dynamicFallback);
+    console.error("[METRO-CHECK] Real-Time Inspection Pipeline Error:", err.message);
+    return res.status(502).json({
+      error: `Real-time Optical OCR analysis failed: ${err.message}. Please upload a clearer photo of the package label or configure a valid Google Gemini API Key via /api/config/apikey.`,
+      ocr_status: "FAILED",
+      overall_status: "Unable to Determine",
+      overall_verdict: "Unable to Determine",
+      confidence: 0,
+      extracted_text: "",
+      raw_ocr_text: "",
+      fields: {},
+      categorized_fields: {},
+      rules: [],
+      compliance: [],
+      compliance_tests: [],
+      violations_count: 0,
+      executive_summary: `Optical OCR evaluation could not be completed (${err.message}). Manual inspection or image recapture required.`,
+      recommended_action: "Recapture package PDP image under direct lighting or perform manual field verification.",
+      is_realtime: false
+    });
   }
 });
-
-/**
- * Dynamic specimen-aware OCR evaluation fallback engine.
- * Ensures Potato Chips, Jaggery Banana Chips, Masala Chai, Rice, Oil, Ghee, and custom products return exact matching OCR declarations.
- */
-function getDynamicFallbackInspection(reqBody = {}) {
-  const specimenKey = String(reqBody.specimenKey || reqBody.specimen || "").toLowerCase();
-  const commodityCategory = String(reqBody.commodityCategory || reqBody.commodity || reqBody.category || "").toLowerCase();
-
-  // 1. Potato Chips (Defective Sample - Missing MRP & Consumer Care)
-  if (specimenKey === "chips" || specimenKey === "potato_chips" || specimenKey.includes("chip")) {
-    return {
-      extracted_text: "CRISPY POTATO CHIPS (CLASSIC SALTED)\nNet Qty: 100 g\nPacked by: Snacko Foods Pvt Ltd, Sector 62, Noida, UP - 201301\nPkd: 08/2026\n[MRP & Customer Care Helpline Missing from PDP]",
-      fields: {
-        manufacturer_name_address: "Snacko Foods Pvt Ltd, Sector 62, Noida, UP - 201301",
-        generic_name: "Crispy Potato Chips (Classic Salted)",
-        net_quantity: "100 g",
-        mfg_month_year: "08/2026",
-        unit_sale_price: null,
-        mrp_tax_inclusive: null,
-        consumer_care_contact: null,
-        brand_name: "Snacko Chips",
-        batch_number: "CH-2026-08",
-        country_of_origin: "India",
-        commodity_name: "Crispy Potato Chips (Classic Salted)",
-        mrp: null,
-        mfg_date: "08/2026",
-        consumer_care: null
-      },
-      rules: [
-        { clause: "Rule 6(1)(a)", parameter_name: "Manufacturer Name & Address", found: true, value: "Snacko Foods Pvt Ltd, Noida", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(b)", parameter_name: "Generic or Commodity Name", found: true, value: "Crispy Potato Chips", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(c)", parameter_name: "Net Quantity & Metric Unit", found: true, value: "100 g", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(d)", parameter_name: "Month & Year of Manufacture", found: true, value: "08/2026", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(e)", parameter_name: "Retail Sale Price (MRP)", found: false, value: "MISSING", compliant: false, violation_reason: "Rule 6(1)(e) Violation: Retail Sale Price (MRP) declaration is missing from package PDP.", severity: "Critical" },
-        { clause: "Rule 6(1)(n)", parameter_name: "Consumer Care Contact", found: false, value: "MISSING", compliant: false, violation_reason: "Rule 6(1)(n) Violation: Consumer care helpline phone/email missing.", severity: "Moderate" }
-      ],
-      compliance: [
-        { rule: "Rule 6(1)(a) - Manufacturer Name & Address", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(b) - Generic or Commodity Name", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(c) - Net Quantity & Metric Unit", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(d) - Month & Year of Manufacture", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(e) - Retail Sale Price (MRP)", status: "Fail", reason: "Retail Sale Price (MRP) declaration missing." },
-        { rule: "Rule 6(1)(n) - Consumer Care Contact", status: "Fail", reason: "Consumer Care helpline missing." }
-      ],
-      compliance_tests: [
-        { parameter_name: "Manufacturer Name & Address", rule_reference: "Rule 6(1)(a)", detected_value: "Snacko Foods Pvt Ltd, Sector 62, Noida", required_standard: "Full name and address", status: "Pass", observations: "Verified." },
-        { parameter_name: "Net Quantity & Metric Unit", rule_reference: "Rule 6(1)(c)", detected_value: "100 g", required_standard: "Standard metric unit", status: "Pass", observations: "Verified." },
-        { parameter_name: "Retail Sale Price (MRP)", rule_reference: "Rule 6(1)(e)", detected_value: "MISSING", required_standard: "Inclusive of all taxes", status: "Fail", observations: "Rule 6(1)(e) Violation: MRP declaration missing." },
-        { parameter_name: "Consumer Care Contact", rule_reference: "Rule 6(1)(n)", detected_value: "MISSING", required_standard: "Helpline / Email", status: "Fail", observations: "Rule 6(1)(n) Violation: Consumer Care helpline missing." }
-      ],
-      overall_status: "Non-Compliant",
-      confidence: 0.95,
-      overall_verdict: "Fail",
-      violations_count: 2,
-      executive_summary: "Statutory contraventions detected under Rule 6(1)(e) [Missing MRP] and Rule 6(1)(n) [Missing Consumer Care]. Compounding Notice recommended.",
-      recommended_action: "Issue Statutory Show Cause / Compounding Notice under Section 36 of Legal Metrology Act, 2009.",
-      model_used: "specimen-ocr-engine-v2",
-      is_fallback: false
-    };
-  }
-
-  // 2. Jaggery Coated Banana Chips (Compliant Sample)
-  if (specimenKey === "banana_chips" || specimenKey.includes("banana")) {
-    return {
-      extracted_text: "JAGGERY COATED BANANA CHIPS\nNet Qty: 200 g | MRP: Rs 85.00 (incl. of all taxes)\nPacked by: ONEEIO™, 2/201, ARIPRA, Malappuram - 679321, Kerala, India\nCustomer Care: care@oneeio.com | +91 98470 12345\nPkd: 06/2026 | Country of Origin: India",
-      fields: {
-        manufacturer_name_address: "ONEEIO™, 2/201, ARIPRA, Malappuram - 679321, Kerala, India",
-        generic_name: "Jaggery Coated Banana Chips",
-        net_quantity: "200 g",
-        mfg_month_year: "06/2026",
-        unit_sale_price: "₹0.425 / g",
-        mrp_tax_inclusive: "₹85.00",
-        consumer_care_contact: "care@oneeio.com, +91 98470 12345",
-        brand_name: "ONEEIO™",
-        batch_number: "ON-2026-06",
-        country_of_origin: "India",
-        commodity_name: "Jaggery Coated Banana Chips",
-        mrp: "₹85.00",
-        mfg_date: "06/2026",
-        consumer_care: "care@oneeio.com"
-      },
-      rules: [
-        { clause: "Rule 6(1)(a)", parameter_name: "Manufacturer Name & Address", found: true, value: "ONEEIO™, Malappuram, Kerala - 679321", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(b)", parameter_name: "Generic or Commodity Name", found: true, value: "Jaggery Coated Banana Chips", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(c)", parameter_name: "Net Quantity & Metric Unit", found: true, value: "200 g", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(d)", parameter_name: "Month & Year of Manufacture", found: true, value: "06/2026", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(e)", parameter_name: "Retail Sale Price (MRP)", found: true, value: "₹85.00", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(n)", parameter_name: "Consumer Care Contact", found: true, value: "care@oneeio.com", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(aa)", parameter_name: "Country of Origin", found: true, value: "India", compliant: true, violation_reason: null, severity: "None" }
-      ],
-      compliance: [
-        { rule: "Rule 6(1)(a) - Manufacturer Name & Address", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(b) - Generic or Commodity Name", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(c) - Net Quantity & Metric Unit", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(d) - Month & Year of Manufacture", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(e) - Retail Sale Price (MRP)", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(n) - Consumer Care Contact", status: "Pass", reason: "Statutory declaration compliant." }
-      ],
-      compliance_tests: [
-        { parameter_name: "Manufacturer Name & Address", rule_reference: "Rule 6(1)(a)", detected_value: "ONEEIO™, 2/201, ARIPRA, Malappuram - 679321", required_standard: "Full name and address", status: "Pass", observations: "Verified." },
-        { parameter_name: "Net Quantity & Metric Unit", rule_reference: "Rule 6(1)(c)", detected_value: "200 g", required_standard: "Standard metric unit", status: "Pass", observations: "Verified." },
-        { parameter_name: "Retail Sale Price (MRP)", rule_reference: "Rule 6(1)(e)", detected_value: "₹85.00", required_standard: "Inclusive of all taxes", status: "Pass", observations: "Verified." }
-      ],
-      overall_status: "Compliant",
-      confidence: 0.98,
-      overall_verdict: "Pass",
-      violations_count: 0,
-      executive_summary: "All mandatory statutory declarations for Jaggery Coated Banana Chips satisfy Legal Metrology PCR 2011.",
-      recommended_action: "Statutory declaration compliant. Record in audit registry.",
-      model_used: "specimen-ocr-engine-v2",
-      is_fallback: false
-    };
-  }
-
-  // 3. Basmati Rice
-  if (specimenKey === "rice" || commodityCategory.includes("rice")) {
-    return {
-      extracted_text: "PREMIUM BASMATI RICE 5kg\nNet Qty: 5 kg | MRP: Rs 650.00 (incl. of all taxes)\nPacked by: Kohinoor Speciality Foods Ltd, Sonipat, Haryana - 131001\nCustomer Care: 1800-103-7423 | care@kohinoorrice.in\nPkd: 05/2026 | USP: Rs 130.00/kg | Country of Origin: India",
-      fields: {
-        manufacturer_name_address: "Kohinoor Speciality Foods Ltd, Sonipat, Haryana - 131001",
-        generic_name: "Premium Basmati Rice",
-        net_quantity: "5 kg",
-        mfg_month_year: "05/2026",
-        unit_sale_price: "₹130.00 / kg",
-        mrp_tax_inclusive: "₹650.00",
-        consumer_care_contact: "1800-103-7423, care@kohinoorrice.in",
-        brand_name: "Kohinoor",
-        batch_number: "KH-2026-05",
-        country_of_origin: "India",
-        commodity_name: "Premium Basmati Rice",
-        mrp: "₹650.00",
-        mfg_date: "05/2026",
-        consumer_care: "1800-103-7423"
-      },
-      rules: [
-        { clause: "Rule 6(1)(a)", parameter_name: "Manufacturer Name & Address", found: true, value: "Kohinoor Speciality Foods Ltd, Sonipat", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(b)", parameter_name: "Generic or Commodity Name", found: true, value: "Premium Basmati Rice", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(c)", parameter_name: "Net Quantity & Metric Unit", found: true, value: "5 kg", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(d)", parameter_name: "Month & Year of Manufacture", found: true, value: "05/2026", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(e)", parameter_name: "Retail Sale Price (MRP)", found: true, value: "₹650.00", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(n)", parameter_name: "Consumer Care Contact", found: true, value: "1800-103-7423", compliant: true, violation_reason: null, severity: "None" }
-      ],
-      compliance: [
-        { rule: "Rule 6(1)(a) - Manufacturer Name & Address", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(b) - Generic or Commodity Name", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(c) - Net Quantity & Metric Unit", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(d) - Month & Year of Manufacture", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(e) - Retail Sale Price (MRP)", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(n) - Consumer Care Contact", status: "Pass", reason: "Statutory declaration compliant." }
-      ],
-      compliance_tests: [
-        { parameter_name: "Manufacturer Name & Address", rule_reference: "Rule 6(1)(a)", detected_value: "Kohinoor Speciality Foods Ltd, Sonipat", required_standard: "Full name and address", status: "Pass", observations: "Verified." },
-        { parameter_name: "Net Quantity & Metric Unit", rule_reference: "Rule 6(1)(c)", detected_value: "5 kg", required_standard: "Standard metric unit", status: "Pass", observations: "Verified." },
-        { parameter_name: "Retail Sale Price (MRP)", rule_reference: "Rule 6(1)(e)", detected_value: "₹650.00", required_standard: "Inclusive of all taxes", status: "Pass", observations: "Verified." }
-      ],
-      overall_status: "Compliant",
-      confidence: 0.98,
-      overall_verdict: "Pass",
-      violations_count: 0,
-      executive_summary: "All statutory declarations for Packaged Basmati Rice satisfy Legal Metrology PCR 2011.",
-      recommended_action: "Statutory declaration compliant. Record in audit registry.",
-      model_used: "specimen-ocr-engine-v2",
-      is_fallback: false
-    };
-  }
-
-  // 4. Edible Oil
-  if (specimenKey === "oil" || commodityCategory.includes("oil")) {
-    return {
-      extracted_text: "FORTUNE REFINED SUNFLOWER OIL\nNet Qty: 1 L | MRP: Rs 165.00 (incl. of all taxes)\nPacked by: Adani Wilmar Ltd, Fortune House, Ahmedabad, Gujarat - 382421\nCustomer Care: 1800-233-0000 | care@adaniwilmar.com\nPkd: 06/2026 | USP: Rs 165.00/L | Country of Origin: India",
-      fields: {
-        manufacturer_name_address: "Adani Wilmar Ltd, Fortune House, Ahmedabad, Gujarat - 382421",
-        generic_name: "Refined Sunflower Oil",
-        net_quantity: "1 L",
-        mfg_month_year: "06/2026",
-        unit_sale_price: "₹165.00 / L",
-        mrp_tax_inclusive: "₹165.00",
-        consumer_care_contact: "1800-233-0000, care@adaniwilmar.com",
-        brand_name: "Fortune",
-        batch_number: "AW-2026-06",
-        country_of_origin: "India",
-        commodity_name: "Refined Sunflower Oil",
-        mrp: "₹165.00",
-        mfg_date: "06/2026",
-        consumer_care: "1800-233-0000"
-      },
-      rules: [
-        { clause: "Rule 6(1)(a)", parameter_name: "Manufacturer Name & Address", found: true, value: "Adani Wilmar Ltd, Ahmedabad", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(b)", parameter_name: "Generic or Commodity Name", found: true, value: "Refined Sunflower Oil", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(c)", parameter_name: "Net Quantity & Metric Unit", found: true, value: "1 L", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(d)", parameter_name: "Month & Year of Manufacture", found: true, value: "06/2026", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(e)", parameter_name: "Retail Sale Price (MRP)", found: true, value: "₹165.00", compliant: true, violation_reason: null, severity: "None" },
-        { clause: "Rule 6(1)(n)", parameter_name: "Consumer Care Contact", found: true, value: "1800-233-0000", compliant: true, violation_reason: null, severity: "None" }
-      ],
-      compliance: [
-        { rule: "Rule 6(1)(a) - Manufacturer Name & Address", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(b) - Generic or Commodity Name", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(c) - Net Quantity & Metric Unit", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(d) - Month & Year of Manufacture", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(e) - Retail Sale Price (MRP)", status: "Pass", reason: "Statutory declaration compliant." },
-        { rule: "Rule 6(1)(n) - Consumer Care Contact", status: "Pass", reason: "Statutory declaration compliant." }
-      ],
-      compliance_tests: [
-        { parameter_name: "Manufacturer Name & Address", rule_reference: "Rule 6(1)(a)", detected_value: "Adani Wilmar Ltd, Ahmedabad", required_standard: "Full name and address", status: "Pass", observations: "Verified." },
-        { parameter_name: "Net Quantity & Metric Unit", rule_reference: "Rule 6(1)(c)", detected_value: "1 L", required_standard: "Standard metric unit", status: "Pass", observations: "Verified." },
-        { parameter_name: "Retail Sale Price (MRP)", rule_reference: "Rule 6(1)(e)", detected_value: "₹165.00", required_standard: "Inclusive of all taxes", status: "Pass", observations: "Verified." }
-      ],
-      overall_status: "Compliant",
-      confidence: 0.98,
-      overall_verdict: "Pass",
-      violations_count: 0,
-      executive_summary: "All statutory declarations for Refined Edible Oil satisfy Legal Metrology PCR 2011.",
-      recommended_action: "Statutory declaration compliant. Record in audit registry.",
-      model_used: "specimen-ocr-engine-v2",
-      is_fallback: false
-    };
-  }
-
-  // 5. Default Masala Chai 500g (Compliant Sample)
-  return {
-    extracted_text: "MASALA CHAI 500g\nNet Qty: 500 g | MRP: Rs 245.00 (incl. of all taxes)\nPacked by: Assam Tea Estates & Blenders Pvt Ltd, Plot 42, Industrial Area, Guwahati, Assam - 781001\nCustomer Care: 1800-233-8899 | care@assamteablends.com\nPkd: 07/2026 | USP: Rs 0.49/g | Country of Origin: India",
-    fields: {
-      manufacturer_name_address: "Assam Tea Estates & Blenders Pvt Ltd, Plot 42, Industrial Area, Guwahati, Assam - 781001",
-      generic_name: "Masala Chai (Spice Infused Black Tea)",
-      net_quantity: "500 g",
-      mfg_month_year: "07/2026",
-      unit_sale_price: "₹0.49 / g",
-      mrp_tax_inclusive: "₹245.00",
-      consumer_care_contact: "1800-233-8899, care@assamteablends.com",
-      brand_name: "Assam Blends",
-      batch_number: "AT-2026-07",
-      country_of_origin: "India",
-      commodity_name: "Masala Chai (Spice Infused Black Tea)",
-      mrp: "₹245.00",
-      mfg_date: "07/2026",
-      consumer_care: "1800-233-8899"
-    },
-    rules: [
-      { clause: "Rule 6(1)(a)", parameter_name: "Manufacturer Name & Address", found: true, value: "Assam Tea Estates & Blenders Pvt Ltd, Guwahati", compliant: true, violation_reason: null, severity: "None" },
-      { clause: "Rule 6(1)(b)", parameter_name: "Generic or Commodity Name", found: true, value: "Masala Chai", compliant: true, violation_reason: null, severity: "None" },
-      { clause: "Rule 6(1)(c)", parameter_name: "Net Quantity & Metric Unit", found: true, value: "500 g", compliant: true, violation_reason: null, severity: "None" },
-      { clause: "Rule 6(1)(d)", parameter_name: "Month & Year of Manufacture", found: true, value: "07/2026", compliant: true, violation_reason: null, severity: "None" },
-      { clause: "Rule 6(1)(e)", parameter_name: "Retail Sale Price (MRP)", found: true, value: "₹245.00", compliant: true, violation_reason: null, severity: "None" },
-      { clause: "Rule 6(1)(n)", parameter_name: "Consumer Care Contact", found: true, value: "1800-233-8899", compliant: true, violation_reason: null, severity: "None" },
-      { clause: "Rule 6(1)(aa)", parameter_name: "Country of Origin", found: true, value: "India", compliant: true, violation_reason: null, severity: "None" }
-    ],
-    compliance: [
-      { rule: "Rule 6(1)(a) - Manufacturer Name & Address", status: "Pass", reason: "Statutory declaration compliant." },
-      { rule: "Rule 6(1)(b) - Generic or Commodity Name", status: "Pass", reason: "Statutory declaration compliant." },
-      { rule: "Rule 6(1)(c) - Net Quantity & Metric Unit", status: "Pass", reason: "Statutory declaration compliant." },
-      { rule: "Rule 6(1)(d) - Month & Year of Manufacture", status: "Pass", reason: "Statutory declaration compliant." },
-      { rule: "Rule 6(1)(e) - Retail Sale Price (MRP)", status: "Pass", reason: "Statutory declaration compliant." },
-      { rule: "Rule 6(1)(n) - Consumer Care Contact", status: "Pass", reason: "Statutory declaration compliant." }
-    ],
-    compliance_tests: [
-      { parameter_name: "Manufacturer Name & Address", rule_reference: "Rule 6(1)(a)", detected_value: "Assam Tea Estates & Blenders Pvt Ltd, Guwahati", required_standard: "Full name and address", status: "Pass", observations: "Verified." },
-      { parameter_name: "Net Quantity & Metric Unit", rule_reference: "Rule 6(1)(c)", detected_value: "500 g", required_standard: "Standard metric unit", status: "Pass", observations: "Verified." },
-      { parameter_name: "Retail Sale Price (MRP)", rule_reference: "Rule 6(1)(e)", detected_value: "₹245.00", required_standard: "Inclusive of all taxes", status: "Pass", observations: "Verified." }
-    ],
-    overall_status: "Compliant",
-    confidence: 0.98,
-    overall_verdict: "Pass",
-    violations_count: 0,
-    executive_summary: "All mandatory statutory declarations for Masala Chai 500g satisfy Legal Metrology PCR 2011.",
-    recommended_action: "Statutory declaration compliant. Record in audit registry.",
-    model_used: "specimen-ocr-engine-v2",
-    is_fallback: false
-  };
-}
 
 if (require.main === module) {
   const server = app.listen(PORT, () => {

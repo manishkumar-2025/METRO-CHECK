@@ -6,6 +6,14 @@
 let activeCameraStream = null;
 let currentCameraFacingMode = "environment"; // Default to back camera for package scanning
 let currentUploadedImageDataUrl = null;
+let currentLoadedSpecimenKey = null;
+
+function setLoadedSpecimenKey(key) {
+  currentLoadedSpecimenKey = key;
+}
+if (typeof window !== "undefined") {
+  window.setLoadedSpecimenKey = setLoadedSpecimenKey;
+}
 
 /* ==========================================================================
    SERVER HEALTH BANNER & CONNECTIVITY MONITOR
@@ -875,14 +883,11 @@ function clearSpecimenImage() {
    ========================================================================== */
 
 /**
- * Direct browser scan handler: does not call Google's API directly from the client.
- * Keeps secret API keys securely inside server/.env on the backend server.
+ * Direct browser scan error handler when backend server is unreachable.
+ * Never fabricates fake demo data.
  */
 function performDirectBrowserScan() {
-  if (typeof getDynamicFallbackInspection === "function") {
-    return getDynamicFallbackInspection({ specimenKey: currentLoadedSpecimenKey });
-  }
-  const msg = "Backend Server Disconnected — Check terminal running 'node server.js'";
+  const msg = "Backend AI Server Unreachable — Ensure node server is running on port 3000.";
   showServerDisconnectedBanner();
   if (typeof showToast === "function") {
     showToast(msg, "error");
@@ -894,12 +899,10 @@ const executeDirectBrowserGeminiInspection = performDirectBrowserScan;
 
 /**
  * Dispatches image to backend proxy server (/api/scan).
- * STRICT REAL-TIME INSPECTION: Passes active specimenKey and commodity category.
+ * STRICT REAL-TIME INSPECTION: Passes active specimen panels and commodity category.
  */
 async function executeGeminiVisionInspection(imageDataUrl) {
-  const payload = {
-    specimenKey: currentLoadedSpecimenKey || "tea"
-  };
+  const payload = {};
 
   const activePanelsList = [];
   for (const slotKey of PANEL_SLOTS) {
@@ -922,7 +925,6 @@ async function executeGeminiVisionInspection(imageDataUrl) {
         mimeType: mimeType
       });
 
-      // Pass explicit keys for backward compatibility
       payload[def.inputKey] = imgUrl;
     }
   }
@@ -1160,6 +1162,14 @@ async function startAiOcrInspection() {
         showToast(err.message || "AI inspection failed.", "error");
       } else {
         alert(err.message || "Failed to analyze package label with AI. Please try again.");
+      }
+
+      if (err.message && (err.message.includes("API Key") || err.message.includes("apikey") || err.message.includes("credentials") || err.message.includes("OAuth"))) {
+        if (typeof openApiKeyConfigModal === "function") {
+          setTimeout(() => {
+            openApiKeyConfigModal();
+          }, 600);
+        }
       }
     }
     if (loadingSection) loadingSection.classList.add("hidden");

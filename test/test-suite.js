@@ -1,13 +1,13 @@
 /* ==========================================================================
-   METRO-CHECK - Automated Automated System Test Suite (test/test-suite.js)
-   Tests API Health, Inspection Data Sync, Status Normalization & LM Rules
+   METRO-CHECK - Automated System Test Suite (test/test-suite.js)
+   Tests API Health, Inspection Sync, AQ Credential Validation & Security
    ========================================================================== */
 
 const assert = require("assert");
 const http = require("http");
 
 console.log("==========================================================================");
-console.log("🧪 RUNNING AUTOMATED METRO-CHECK INTEGRATION & UNIT TEST SUITE");
+console.log("🧪 RUNNING AUTOMATED METRO-CHECK INTEGRATION & SECURITY TEST SUITE");
 console.log("==========================================================================");
 
 // 1. Status Normalization Unit Tests
@@ -30,7 +30,6 @@ try {
   process.exit(1);
 }
 
-// 2. HTTP Health API Endpoint Integration Test
 function makeHttpRequest(options, postData) {
   return new Promise((resolve, reject) => {
     const req = http.request(options, (res) => {
@@ -38,9 +37,9 @@ function makeHttpRequest(options, postData) {
       res.on("data", (chunk) => (body += chunk));
       res.on("end", () => {
         try {
-          resolve({ status: res.statusCode, data: JSON.parse(body) });
+          resolve({ status: res.statusCode, data: JSON.parse(body), headers: res.headers });
         } catch (e) {
-          resolve({ status: res.statusCode, body });
+          resolve({ status: res.statusCode, body, headers: res.headers });
         }
       });
     });
@@ -54,6 +53,7 @@ function makeHttpRequest(options, postData) {
 
 async function runApiTests() {
   try {
+    // 2. HTTP Health API Endpoint Integration Test
     const health = await makeHttpRequest({
       hostname: "localhost",
       port: 3000,
@@ -100,8 +100,41 @@ async function runApiTests() {
     assert.strictEqual(patchRes.data.data.status, "OFFICER_APPROVED", "Patched status must match");
     console.log("✅ Integration Test 4 Passed: API /api/inspections/:id/status Patch Adjudication");
 
+    // 5. API Key Protection & Secret Masking Test
+    const apiKeyConfigRes = await makeHttpRequest({
+      hostname: "localhost",
+      port: 3000,
+      path: "/api/config/apikey",
+      method: "GET"
+    });
+    assert.strictEqual(apiKeyConfigRes.status, 200, "API key config status must be 200");
+    assert.ok("configured" in apiKeyConfigRes.data, "API key response must contain 'configured' property");
+    assert.strictEqual(typeof apiKeyConfigRes.data.keyMasked, "string", "Masked key string must be present");
+    assert.ok(
+  !/^AQ\.[A-Za-z0-9_-]{20,}$/.test(apiKeyConfigRes.data.keyMasked),
+  "RAW API KEY MUST NEVER BE EXPOSED IN GET RESPONSE"
+);
+    console.log("✅ Security Test 5 Passed: API Secret Masking (No Raw Secret Exposure)");
+
+    // 6. Gemini Key Validation Test Endpoint (AQ... format support)
+    const testKeyRes = await makeHttpRequest({
+      hostname: "localhost",
+      port: 3000,
+      path: "/api/config/apikey/test",
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    }, {});
+
+    assert.strictEqual(testKeyRes.status, 200, "Key test endpoint must return HTTP 200 for active key");
+    assert.strictEqual(testKeyRes.data.success, true, "Key test endpoint must confirm success");
+    console.log("✅ Integration Test 6 Passed: AQ... Credential Validation & x-goog-api-key Authentication");
+
+    // 7. Security Headers Verification (Helmet)
+    assert.ok(health.headers["x-content-type-options"] || health.headers["x-frame-options"], "Security headers must be present");
+    console.log("✅ Security Test 7 Passed: Helmet Production Security Headers Active");
+
     console.log("==========================================================================");
-    console.log("🎉 ALL AUTOMATED INTEGRATION & UNIT TESTS PASSED SUCCESSFULLY!");
+    console.log("🎉 ALL AUTOMATED INTEGRATION & SECURITY TESTS PASSED SUCCESSFULLY!");
     console.log("==========================================================================");
   } catch (err) {
     console.error("❌ Integration Test Failed:", err.message);

@@ -333,4 +333,192 @@
   } else {
     initMasthead();
   }
+
+  /**
+   * 7. Interactive Google Gemini API Key Configuration Manager
+   */
+  window.openApiKeyConfigModal = async function () {
+    let modal = document.getElementById('geminiApiKeyModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'geminiApiKeyModal';
+      modal.className = 'fixed inset-0 z-[9999] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300';
+      modal.innerHTML = `
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 animate-in fade-in zoom-in duration-200">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl font-bold border border-indigo-200 dark:border-indigo-800 shadow-xs">
+                🔑
+              </div>
+              <div>
+                <h3 class="text-base font-black text-slate-900 dark:text-white tracking-tight">Google Gemini API Key Config</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Secure Live Vision Engine Setup</p>
+              </div>
+            </div>
+            <button type="button" onclick="closeApiKeyConfigModal()" class="w-8 h-8 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition font-bold text-lg">✕</button>
+          </div>
+
+          <div class="space-y-4 text-xs">
+            <div id="apiKeyStatusBox" class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-300 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span id="apiKeyStatusIcon" class="text-base">⚠️</span>
+                <div>
+                  <div id="apiKeyStatusTitle" class="font-bold">Checking API Key Status...</div>
+                  <div id="apiKeyStatusSub" class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">Connecting to /api/config/apikey</div>
+                </div>
+              </div>
+              <span id="apiKeyBadge" class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100">Checking</span>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-slate-700 dark:text-slate-300 font-bold">Paste Gemini API Key (<code class="text-indigo-600 dark:text-indigo-400 font-mono font-black">AQ.Ab8...</code> or legacy <code class="text-slate-500 font-mono">AIzaSy...</code>)</label>
+              <div class="relative">
+                <input type="password" id="geminiApiKeyInput" placeholder="AQ.Ab8... (or AIzaSy...)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition pr-20 shadow-xs" />
+                <button type="button" onclick="toggleApiKeyInputVisibility()" class="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white bg-slate-100 dark:bg-slate-700 rounded-lg transition">Show</button>
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 text-[11px] text-slate-600 dark:text-slate-300 space-y-1">
+              <div class="font-bold text-slate-800 dark:text-slate-200">🔒 Security &amp; Credential Guide:</div>
+              <p>• Credential stored in <code class="font-mono">server/.env</code> — <strong class="text-emerald-600 dark:text-emerald-400">NEVER exposed</strong> to browsers.</p>
+              <p>• <strong>Get a free key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 font-bold underline hover:text-indigo-800">Google AI Studio ↗</a></strong> — keys now start with <code class="font-mono text-indigo-600 dark:text-indigo-400">AQ.</code></p>
+              <p>• Legacy <code class="font-mono">AIzaSy...</code> keys also supported. OAuth tokens (<code class="font-mono">ya29...</code>) are short-lived (~1h).</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-2.5 border-t border-slate-100 dark:border-slate-800 pt-4">
+            <button type="button" onclick="testGeminiApiKeyFromModal()" class="px-4 py-2.5 rounded-xl font-bold text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center gap-1.5 cursor-pointer">
+              <span>⚡</span> <span>Test Connection</span>
+            </button>
+            <button type="button" onclick="saveGeminiApiKeyFromModal()" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 transition flex items-center gap-1.5 cursor-pointer">
+              <span>💾</span> <span>Save API Key</span>
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    } else {
+      modal.classList.remove('hidden');
+    }
+
+    fetchGeminiKeyStatus();
+  };
+
+  window.closeApiKeyConfigModal = function () {
+    const modal = document.getElementById('geminiApiKeyModal');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  window.toggleApiKeyInputVisibility = function () {
+    const input = document.getElementById('geminiApiKeyInput');
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+  };
+
+  async function fetchGeminiKeyStatus() {
+    const statusBox = document.getElementById('apiKeyStatusBox');
+    const title = document.getElementById('apiKeyStatusTitle');
+    const sub = document.getElementById('apiKeyStatusSub');
+    const badge = document.getElementById('apiKeyBadge');
+    const icon = document.getElementById('apiKeyStatusIcon');
+    const input = document.getElementById('geminiApiKeyInput');
+
+    const serverUrl = (typeof SERVER_BASE_URL !== 'undefined') ? SERVER_BASE_URL : window.location.origin;
+
+    try {
+      const res = await fetch(`${serverUrl}/api/config/apikey`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.configured) {
+          const typeLabel = data.credType === 'OAUTH_TOKEN' ? 'Gemini OAuth 2.0 Token Active' : 'Gemini Vision API Key Active';
+          if (title) title.textContent = typeLabel;
+          if (sub) sub.textContent = `Masked Credential: ${data.keyMasked}`;
+          if (badge) {
+            badge.textContent = data.credType === 'OAUTH_TOKEN' ? 'OAUTH ACTIVE' : 'KEY ACTIVE';
+            badge.className = 'px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700';
+          }
+          if (icon) icon.textContent = '🟢';
+          if (statusBox) statusBox.className = 'p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-300 flex items-center justify-between';
+        } else {
+          if (title) title.textContent = 'Gemini Credential Not Configured';
+          if (sub) sub.textContent = 'Paste a valid Gemini API Key (AIzaSy...) or OAuth Token (AQ... / ya29...) below';
+          if (badge) {
+            badge.textContent = 'MISSING';
+            badge.className = 'px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700';
+          }
+          if (icon) icon.textContent = '🔑';
+          if (statusBox) statusBox.className = 'p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-300 flex items-center justify-between';
+        }
+      }
+    } catch (e) {
+      if (title) title.textContent = 'Backend Offline';
+      if (sub) sub.textContent = 'Start node server.js on port 3000';
+    }
+  }
+
+  window.saveGeminiApiKeyFromModal = async function () {
+    const input = document.getElementById('geminiApiKeyInput');
+    const key = (input && input.value || '').trim();
+
+    if (!key || key.length < 10) {
+      if (typeof showToast === 'function') showToast('Please enter a valid Google Gemini API key or OAuth token.', 'error');
+      else alert('Please enter a valid Google Gemini API key or OAuth token.');
+      return;
+    }
+    // Accept AIzaSy... API keys AND ya29.../AQ. OAuth tokens — no format restriction
+
+    const serverUrl = (typeof SERVER_BASE_URL !== 'undefined') ? SERVER_BASE_URL : window.location.origin;
+
+    try {
+      const res = await fetch(`${serverUrl}/api/config/apikey`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: key })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (typeof showToast === 'function') showToast('Gemini Vision API key saved successfully!', 'success');
+        else alert('Gemini Vision API key saved successfully!');
+        if (input) input.value = '';
+        fetchGeminiKeyStatus();
+        window.closeApiKeyConfigModal();
+      } else {
+        throw new Error(data.error || 'Failed to save API key.');
+      }
+    } catch (err) {
+      if (typeof showToast === 'function') showToast(err.message, 'error');
+      else alert(err.message);
+    }
+  };
+
+  window.testGeminiApiKeyFromModal = async function () {
+    const input = document.getElementById('geminiApiKeyInput');
+    const key = (input && input.value || '').trim();
+
+    const serverUrl = (typeof SERVER_BASE_URL !== 'undefined') ? SERVER_BASE_URL : window.location.origin;
+
+    if (typeof showToast === 'function') showToast('Testing Gemini API key connection...', 'info');
+
+    try {
+      const res = await fetch(`${serverUrl}/api/config/apikey/test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: key })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (typeof showToast === 'function') showToast('✅ Connection Successful! Gemini Vision Engine ready.', 'success');
+        else alert('Connection Successful! Gemini Vision Engine ready.');
+        fetchGeminiKeyStatus();
+      } else {
+        throw new Error(data.error || 'Gemini API connection failed.');
+      }
+    } catch (err) {
+      if (typeof showToast === 'function') showToast(`❌ Test Failed: ${err.message}`, 'error');
+      else alert(`Test Failed: ${err.message}`);
+    }
+  };
 })();
+
