@@ -22,7 +22,7 @@
   <!-- 1. Google Font: Inter (Lightweight, Modern & Accessible) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
 
   <!-- Prevent theme flicker / white flash on initial load -->
@@ -457,7 +457,7 @@
   <!-- =========================================================================
        FLOATING SIH EVALUATION MODAL DRAWER
        ========================================================================= -->
-  <div id="sihEvaluationModal"
+  <div id="sihEvaluationModal" role="dialog" aria-modal="true" aria-labelledby="sihEvalTitle"
     class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div
       class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100">
@@ -466,7 +466,7 @@
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <div>
-            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">SIH Evaluation Console</h3>
+            <h3 id="sihEvalTitle" class="text-sm font-bold text-slate-900 dark:text-slate-100">SIH Evaluation Console</h3>
             <p class="text-[11px] text-slate-500 dark:text-slate-400">1-Click Fast Access for Judges & Evaluators</p>
           </div>
         </div>
@@ -621,14 +621,31 @@
   </div>
 
   <script>
+    let sihModalLastFocused = null;
     function openSihEvaluationModal() {
+      sihModalLastFocused = document.activeElement;
       const modal = document.getElementById('sihEvaluationModal');
-      if (modal) modal.classList.remove('hidden');
+      if (modal) {
+        modal.classList.remove('hidden');
+        const firstBtn = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (firstBtn) firstBtn.focus();
+      }
     }
     function closeSihEvaluationModal() {
       const modal = document.getElementById('sihEvaluationModal');
       if (modal) modal.classList.add('hidden');
+      if (sihModalLastFocused && typeof sihModalLastFocused.focus === 'function') {
+        sihModalLastFocused.focus();
+      }
     }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('sihEvaluationModal');
+        if (modal && !modal.classList.contains('hidden')) {
+          closeSihEvaluationModal();
+        }
+      }
+    });
     window.openSihEvaluationModal = openSihEvaluationModal;
     window.closeSihEvaluationModal = closeSihEvaluationModal;
   </script>
@@ -1007,6 +1024,7 @@
   </script>
 
   <!-- 6. Scripts (Authentication & National Masthead Controller) -->
+  <script src="js/storage.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/pdfService.js"></script>
   <script src="js/masthead.js"></script>

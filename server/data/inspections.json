@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "INS-TEST-9999",
+    "date": "2026-09-17",
+    "product": "Test Commodity Package",
+    "status": "OFFICER_APPROVED",
+    "isCompliant": true,
+    "zone": "North",
+    "state": "Delhi UT",
+    "createdAt": "2026-09-17",
+    "reviewComments": "Statutory verified under Rule 6(1)",
+    "reviewedAt": "2026-09-17T10:37:21.617Z"
+  }
+]

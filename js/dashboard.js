@@ -246,12 +246,16 @@ function renderMyInspections() {
   const all = filterByZoneAccess(getInspections());
   const search = (document.getElementById("inspectionsSearchInput")?.value || "").trim().toLowerCase();
 
-  const isPendingStatus = (s) => s === "submitted" || s === "pending" || s === "NON_COMPLIANT_PENDING";
-  const isHistoryStatus = (s) => s === "approved" || s === "rejected" || s === "COMPLIANT_LOGGED" || s === "OFFICER_APPROVED" || s === "NOTICE_ISSUED" || s === "OFFICER_DISMISSED";
+  const isDraftStatus = (s) => (typeof normalizeInspectionStatus === "function" ? normalizeInspectionStatus(s) : String(s||"").toUpperCase()) === "DRAFT";
+  const isPendingStatus = (s) => (typeof normalizeInspectionStatus === "function" ? normalizeInspectionStatus(s) : String(s||"").toUpperCase()) === "SUBMITTED";
+  const isHistoryStatus = (s) => {
+    const norm = typeof normalizeInspectionStatus === "function" ? normalizeInspectionStatus(s) : String(s||"").toUpperCase();
+    return norm === "APPROVED" || norm === "REJECTED";
+  };
 
   // Update tab counts
   const countAll = all.length;
-  const countDraft = all.filter(i => i.status === "draft").length;
+  const countDraft = all.filter(i => isDraftStatus(i.status)).length;
   const countSubmitted = all.filter(i => isPendingStatus(i.status)).length;
   const countHistory = all.filter(i => isHistoryStatus(i.status)).length;
 
@@ -261,7 +265,7 @@ function renderMyInspections() {
   if (document.getElementById("countTabHistory")) document.getElementById("countTabHistory").textContent = countHistory;
 
   let filtered = all;
-  if (activeInspectionSubFilter === "draft") filtered = all.filter(i => i.status === "draft");
+  if (activeInspectionSubFilter === "draft") filtered = all.filter(i => isDraftStatus(i.status));
   else if (activeInspectionSubFilter === "submitted") filtered = all.filter(i => isPendingStatus(i.status));
   else if (activeInspectionSubFilter === "history") filtered = all.filter(i => isHistoryStatus(i.status));
 

@@ -25,6 +25,24 @@ function generateId(prefix = "INS-") {
   return prefix + randomDigits;
 }
 
+/**
+ * Normalizes status strings across all legacy & current formats into canonical uppercase keys:
+ * - "DRAFT"
+ * - "SUBMITTED"
+ * - "APPROVED"
+ * - "REJECTED"
+ */
+function normalizeInspectionStatus(status) {
+  const u = String(status || "").trim().toUpperCase();
+  if (u === "DRAFT") return "DRAFT";
+  if (u === "APPROVED" || u === "COMPLIANT_LOGGED" || u === "OFFICER_APPROVED" || u === "NOTICE_ISSUED") return "APPROVED";
+  if (u === "REJECTED" || u === "DISMISSED" || u === "OFFICER_DISMISSED") return "REJECTED";
+  return "SUBMITTED";
+}
+if (typeof window !== "undefined") {
+  window.normalizeInspectionStatus = normalizeInspectionStatus;
+}
+
 // In-memory cache to eliminate repetitive synchronous JSON.parse & localStorage disk I/O stalls
 let _inspectionsCache = null;
 let _commoditiesCache = null;
@@ -153,26 +171,27 @@ function compressImageForStorage(dataUrl, maxWidth = 350, quality = 0.6) {
   if (!dataUrl || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
     return dataUrl;
   }
+  if (dataUrl.length < 35000) return dataUrl;
   if (typeof document === "undefined") return dataUrl;
   try {
-    const img = new Image();
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = document.createElement("img");
     img.src = dataUrl;
-    if (img.width && img.height) {
-      let w = img.width;
-      let h = img.height;
-      if (w > maxWidth) {
-        h = Math.round((h * maxWidth) / w);
-        w = maxWidth;
-      }
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, w, h);
-      return canvas.toDataURL("image/jpeg", quality);
+    let w = img.naturalWidth || img.width || 350;
+    let h = img.naturalHeight || img.height || 350;
+    if (w > maxWidth) {
+      h = Math.round((h * maxWidth) / w);
+      w = maxWidth;
     }
-  } catch (e) {}
-  return dataUrl;
+    canvas.width = w;
+    canvas.height = h;
+    ctx.drawImage(img, 0, 0, w, h);
+    const res = canvas.toDataURL("image/jpeg", quality);
+    return (res && res.length < dataUrl.length) ? res : dataUrl;
+  } catch (e) {
+    return dataUrl;
+  }
 }
 
 /**
@@ -182,10 +201,23 @@ function saveInspection(inspectionData) {
   // Compress images to max-width 350px and 0.6 JPEG quality before saving to localStorage
   const imgKeys = ["image", "imageFront", "imageBack", "imageLeft", "imageRight", "imageTop", "imageBottom"];
   imgKeys.forEach(k => {
-    if (inspectionData[k] && typeof inspectionData[k] === "string" && inspectionData[k].length > 50000) {
+    if (inspectionData[k] && typeof inspectionData[k] === "string" && inspectionData[k].length > 35000) {
       inspectionData[k] = compressImageForStorage(inspectionData[k], 350, 0.6);
     }
   });
+
+  if (inspectionData.panelImages && typeof inspectionData.panelImages === "object") {
+    const compressedPanels = {};
+    Object.keys(inspectionData.panelImages).forEach(pk => {
+      const pval = inspectionData.panelImages[pk];
+      if (pval && typeof pval === "string" && pval.length > 35000) {
+        compressedPanels[pk] = compressImageForStorage(pval, 350, 0.6);
+      } else {
+        compressedPanels[pk] = pval;
+      }
+    });
+    inspectionData.panelImages = compressedPanels;
+  }
 
   if (!inspectionData.id) inspectionData.id = generateId("INS-");
   if (!inspectionData.date) inspectionData.date = new Date().toISOString().split("T")[0];

@@ -229,7 +229,9 @@ function saveUser(user) {
 function deleteUser(username) {
   const uname = (username || "").trim().toLowerCase();
   if (uname === "admin") {
-    alert("The primary administrator account cannot be removed.");
+    if (typeof showToast === "function") {
+      showToast("The primary administrator account cannot be removed.", "warning");
+    }
     return false;
   }
   const users = getUsers();
@@ -478,6 +480,9 @@ function showToast(message, type = "success") {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
+if (typeof window !== "undefined") {
+  window.showToast = showToast;
+}
 
 /**
  * Full-screen Loading Overlay during AI scan.
@@ -569,6 +574,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.altKey && (e.key === "s" || e.key === "S")) {
       e.preventDefault();
       toggleDesktopSidebar();
+    }
+    if (e.key === "Escape") {
+      const openModals = document.querySelectorAll("[role='dialog']:not(.hidden), .fixed.inset-0:not(.hidden)");
+      openModals.forEach(modal => {
+        if (modal.id === "sidebarBackdrop" || modal.id === "globalLoadingOverlay") return;
+        if (modal.id === "sihEvaluationModal" && typeof closeSihEvaluationModal === "function") {
+          closeSihEvaluationModal();
+        } else {
+          modal.classList.add("hidden");
+        }
+      });
     }
   });
 });
