@@ -1190,7 +1190,7 @@ async function startAiOcrInspection() {
         alert(err.message || "Failed to analyze package label with AI. Please try again.");
       }
 
-      if (err.message && (err.message.includes("API Key") || err.message.includes("apikey") || err.message.includes("credentials") || err.message.includes("OAuth"))) {
+      if (err.ocr_status === "UNCONFIGURED" || err.status === 401 || (err.message && (err.message.includes("not configured") || err.message.includes("Configure your API key")))) {
         if (typeof openApiKeyConfigModal === "function") {
           setTimeout(() => {
             openApiKeyConfigModal();

@@ -122,8 +122,9 @@ function saveJsonFile(filePath, data) {
   }
 }
 
-// Serve frontend static files (HTML, CSS, JS, Assets) from workspace root
-app.use(express.static(path.join(__dirname, "..")));
+// Serve frontend static files (HTML, CSS, JS, Assets) strictly from public directory
+const PUBLIC_DIR = path.join(__dirname, "..", "public");
+app.use(express.static(PUBLIC_DIR));
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 } });
@@ -131,9 +132,8 @@ const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 }
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 // Models ordered by preference: newest/fastest first, older as fallback
 const CANDIDATE_MODELS = [
-  "gemini-2.5-flash",    // Primary: fast & highly accurate vision model
-  "gemini-2.0-flash",    // Fallback 1: fast multimodal flash model
-  "gemini-1.5-flash"     // Fallback 2: standard stable flash vision model
+  "gemini-3.6-flash",       // Primary: active high-precision vision model
+  "gemini-3.5-flash-lite"   // Fallback: active fast flash vision model
 ];
 const PRIMARY_MODEL = CANDIDATE_MODELS[0];
 const FALLBACK_MODEL = CANDIDATE_MODELS[1];
@@ -369,7 +369,7 @@ app.post("/api/config/apikey/test", configLimiter, async (req, res) => {
       "Content-Type": "application/json",
       "x-goog-api-key": testKey
     };
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent`;
     const payload = {
       contents: [{ parts: [{ text: "Reply with exactly this JSON only: {\"status\": \"ok\"}" }] }],
       generationConfig: { responseMimeType: "application/json" }
