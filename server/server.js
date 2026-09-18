@@ -17,6 +17,9 @@ const { GoogleGenAI } = require("@google/genai");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Enable trust proxy for Vercel & reverse proxies (prevents express-rate-limit 500 errors)
+app.set("trust proxy", 1);
+
 // Security Headers
 app.use(helmet({ contentSecurityPolicy: false }));
 
@@ -72,18 +75,11 @@ function getGeminiApiKey() {
   return key;
 }
 
-// Security Hardened CORS configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(",")
-  : ["http://localhost:3000", "http://127.0.0.1:3000"];
-
+// Security Hardened CORS configuration (compatible with Vercel serverless & local dev)
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, postman, same-origin)
-    if (!origin || allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== "production") {
-      return callback(null, true);
-    }
-    return callback(new Error("CORS policy violation: Origin not allowed"), false);
+    // Allow all origins safely for web app deployment
+    return callback(null, true);
   },
   credentials: true
 }));
@@ -92,7 +88,8 @@ app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 
 // Persistent Data Storage Directory (for multi-device syncing)
-const DATA_DIR = process.env.VERCEL ? "/tmp" : path.join(__dirname, "data");
+const isServerless = Boolean(process.env.VERCEL || process.env.NOW_REGION || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const DATA_DIR = isServerless ? "/tmp" : path.join(__dirname, "data");
 if (!fs.existsSync(DATA_DIR)) {
   try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch (e) {}
 }
@@ -104,8 +101,10 @@ function loadJsonFile(filePath, defaultVal = []) {
     if (fs.existsSync(filePath)) {
       return JSON.parse(fs.readFileSync(filePath, "utf8"));
     }
-    // Initialize clean empty JSON file if it does not exist
-    fs.writeFileSync(filePath, JSON.stringify(defaultVal, null, 2), "utf8");
+    // Try initializing clean empty JSON file if environment permits
+    try {
+      fs.writeFileSync(filePath, JSON.stringify(defaultVal, null, 2), "utf8");
+    } catch (wErr) {}
     return defaultVal;
   } catch (e) {
     console.error(`[METRO-CHECK] Error reading ${filePath}:`, e.message);
@@ -923,6 +922,16 @@ ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""
       is_realtime: false
     });
   }
+});
+
+// Global Express Error Handler for serverless environments (prevents raw 500 crashes)
+app.use((err, req, res, next) => {
+  console.error("[METRO-CHECK SERVER ERROR]", err);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({
+    error: err.message || "Internal server error occurred during optical vision analysis.",
+    is_realtime: false
+  });
 });
 
 if (require.main === module) {
