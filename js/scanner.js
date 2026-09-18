@@ -957,36 +957,62 @@ async function executeGeminiVisionInspection(imageDataUrl) {
   }
 
   // Backend Express proxy server (port 3000)
-  try {
-    const res = await fetch(`${SERVER_BASE_URL}/api/scan`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+  // Automatic Network Retry Engine (up to 2 retries on transient network/server glitches)
+  const maxRetries = 2;
+  let lastErr = null;
 
-    let data;
+  for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
     try {
-      data = await res.json();
-    } catch (parseErr) {
-      data = { error: `Invalid response from AI server (${res.status} ${res.statusText})` };
-    }
+      if (attempt > 1) {
+        console.log(`[METRO-CHECK] Network retry attempt ${attempt - 1} of ${maxRetries}...`);
+        if (typeof showToast === "function") {
+          showToast(`⚡ Retrying AI Connection (Attempt ${attempt - 1} of ${maxRetries})...`, "info");
+        }
+        await new Promise(r => setTimeout(r, 1000 * (attempt - 1))); // Exponential backoff (1s, 2s)
+      }
 
-    if (res.ok && data && (data.compliance || data.compliance_tests)) {
-      return data;
-    }
+      const res = await fetch(`${SERVER_BASE_URL}/api/scan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
 
-    if (data && data.error) {
-      console.error("[METRO-CHECK] Backend proxy error:", data.error);
-      throw new Error(data.error);
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        data = { error: `Invalid response from AI server (${res.status} ${res.statusText})` };
+      }
+
+      if (res.ok && data && (data.compliance || data.compliance_tests)) {
+        return data;
+      }
+
+      if (data && data.error) {
+        console.error(`[METRO-CHECK] Backend proxy error (Attempt ${attempt}):`, data.error);
+        // Do not retry 4xx errors (client errors like 400 Bad Request or 401 Unconfigured API key)
+        if (res.status >= 400 && res.status < 500) {
+          throw new Error(data.error);
+        }
+        lastErr = new Error(data.error);
+      } else {
+        lastErr = new Error("AI analysis did not return compliance results.");
+      }
+    } catch (proxyErr) {
+      // Don't retry non-retriable business logic errors
+      if (proxyErr.message && !proxyErr.message.includes("fetch") && !proxyErr.message.includes("Failed to fetch") && !proxyErr.message.includes("502") && !proxyErr.message.includes("503") && !proxyErr.message.includes("network")) {
+        throw proxyErr;
+      }
+      console.warn(`[METRO-CHECK] Network attempt ${attempt} failed:`, proxyErr.message);
+      lastErr = proxyErr;
     }
-    throw new Error("AI analysis did not return compliance results.");
-  } catch (proxyErr) {
-    if (proxyErr.message && !proxyErr.message.includes("fetch") && !proxyErr.message.includes("Failed to fetch")) {
-      throw proxyErr;
-    }
-    console.warn("[METRO-CHECK] Backend server unreachable:", proxyErr);
-    return performDirectBrowserScan();
   }
+
+  console.warn("[METRO-CHECK] All network retry attempts failed. Falling back to connection diagnostic.");
+  if (lastErr && lastErr.message && !lastErr.message.includes("fetch") && !lastErr.message.includes("Failed to fetch")) {
+    throw lastErr;
+  }
+  return performDirectBrowserScan();
 }
 
 /**
