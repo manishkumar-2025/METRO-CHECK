@@ -1,107 +1,32 @@
 /* ==========================================================================
-   METRO-CHECK - Responsive & Mobile Layouts (css/responsive.css)
-   Contains media queries for mobile (<768px, <640px) & tablet (768-1023px) screens.
+   METRO-CHECK - Production Mobile & Responsive Engine (css/responsive.css)
+   Target: Strictly Mobile Devices (320px – 767px) & Small Tablets.
+   Guarantees: Zero regressions on Desktop (1024px+) and Tablets (768px-1023px).
    ========================================================================== */
 
-
-/* Touch-friendly Minimum Tap Size (44px) */
+/* ── 1. GLOBAL TOUCH & SCROLL UTILITIES ── */
 .touch-target {
   min-height: 44px;
   min-width: 44px;
 }
 
-/* Touch Momentum Scrolling for Tables */
 .table-mobile-scroll {
   -webkit-overflow-scrolling: touch;
   overflow-x: auto;
   width: 100%;
 }
 
-/* Mobile & Small Device Responsiveness (< 768px) */
-@media (max-width: 767px) {
-  /* Prevent horizontal document overflow */
-  html, body {
-    overflow-x: hidden;
-  }
-
-  /* Reset main viewport margin & width on mobile */
-  .main-viewport,
-  .sidebar-container ~ .main-viewport,
-  .sidebar-container ~ div.flex-1 {
-    margin-left: 0 !important;
-    width: 100% !important;
-    min-height: auto !important;
-  }
-
-  /* Mobile Off-Canvas Drawer Sidebar Position */
-  .sidebar-container {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    bottom: 0 !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    width: 260px !important;
-    max-width: 85vw !important;
-    z-index: 50 !important;
-  }
-
-  /* Sub-header mobile top position */
-  .main-viewport > header,
-  .sidebar-container ~ div.flex-1 > header {
-    top: 54px !important;
-  }
-
-  /* Popover cards mobile viewport protection */
-  .user-menu-popover,
-  #inspectorNotificationDropdown,
-  #officerNotificationDropdown,
-  #adminNotificationDropdown {
-    max-width: calc(100vw - 1rem) !important;
-    right: 0.5rem !important;
-  }
-
-  /* Modal Dialog Mobile Scrollability */
-  .modal-dialog-container {
-    max-width: 95vw !important;
-    max-height: 90vh !important;
-    overflow-y: auto !important;
-    margin: 0.5rem auto !important;
-  }
+.custom-scroll-x {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.custom-scroll-x::-webkit-scrollbar {
+  display: none;
 }
 
-/* Mobile Small Devices (< 640px) */
-@media (max-width: 639px) {
-  #nationalGovMasthead {
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
-  }
-
-  .captcha-row-container {
-    flex-wrap: wrap;
-  }
-  .captcha-row-container > .captcha-canvas-box {
-    width: 100% !important;
-    max-width: 160px;
-    margin-bottom: 0.25rem;
-  }
-
-  .responsive-table th,
-  .responsive-table td {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-    font-size: 0.75rem !important;
-  }
-
-  .officer-pane-hidden-mobile {
-    display: none !important;
-  }
-}
-
-/* ==========================================================================
-   27. Features Page Dynamic Micro-Interactions & Visual Anchors
-   ========================================================================== */
-
+/* Feature card micro-interactions */
 .card,
 .card-item {
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -159,26 +84,631 @@ body.theme-dark .sticky-frosted-nav {
 }
 
 
-/* Mobile Masthead & Pill Protection (<640px): prevent header multi-row wrapping */
-@media (max-width: 639px) {
+/* ==========================================================================
+   2. MOBILE BREAKPOINT: < 768px (Standard Phone & Phablet Viewports)
+   ========================================================================== */
+@media (max-width: 767px) {
+
+  /* Prevent page-level horizontal blowouts */
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+
+  /* Tricolor strip: strictly 3px height */
+  .tricolor-strip {
+    height: 3px !important;
+    max-height: 3px !important;
+    width: 100% !important;
+  }
+
+  /* Sovereign Masthead on mobile: sticky at top: 0 */
+  #nationalGovMasthead {
+    position: sticky !important;
+    height: 51px !important;
+    max-height: 51px !important;
+    padding: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 50 !important;
+    overflow: hidden !important;
+  }
+  #nationalGovMasthead > div:not(.tricolor-strip) {
+    height: 48px !important;
+    max-height: 48px !important;
+    padding: 0 0.5rem !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  #nationalGovMasthead img {
+    height: 26px !important;
+  }
   #nationalGovMasthead .masthead-ist-clock,
   #nationalGovMasthead #networkSyncPill {
     display: none !important;
   }
-}
-
-/* Extra Small Mobile Devices (< 480px): keep camera & main workspace above the fold */
-@media (max-width: 479px) {
-  #nationalGovMasthead {
-    max-height: 48px !important;
-    padding-top: 0.2rem !important;
-    padding-bottom: 0.2rem !important;
-  }
-  #nationalGovMasthead .text-\[9\.5px\],
-  #nationalGovMasthead .text-\[11\.5px\] {
+  /* Hide secondary English line in masthead on mobile to prevent pill dock displacement */
+  #nationalGovMasthead .flex-col > div:nth-child(2) {
     display: none !important;
   }
-  #nationalGovMasthead img {
-    height: 1.75rem !important;
+  #nationalGovMasthead .flex-col > div:first-child {
+    font-size: 11px !important;
+    max-width: 140px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  /* Hide font-sizer controls on small screens in masthead */
+  #fontSizer-decrease,
+  #fontSizer-normal,
+  #fontSizer-increase,
+  div:has(> #fontSizer-decrease),
+  .masthead-pill-dock > div:first-child,
+  .masthead-pill-dock > div:nth-child(2) {
+    display: none !important;
+  }
+  .masthead-pill-dock {
+    display: flex !important;
+    align-items: center !important;
+    padding: 2px 4px !important;
+    gap: 2px !important;
+    flex-shrink: 0 !important;
+  }
+  .masthead-pill-dock button {
+    min-height: 28px !important;
+    min-width: 26px !important;
+    font-size: 11px !important;
+    padding: 2px !important;
+  }
+
+  /* Global Toast Notifications on Mobile View */
+  #globalToastContainer {
+    top: 58px !important;
+    right: 12px !important;
+    left: 12px !important;
+    max-width: calc(100vw - 24px) !important;
+    align-items: center !important;
+    z-index: 9999 !important;
+  }
+  #globalToastContainer > div {
+    width: 100% !important;
+    max-width: 420px !important;
+  }
+
+  /* Main viewport starts in natural flow right below sticky 51px masthead */
+  .main-viewport,
+  .sidebar-container ~ .main-viewport,
+  .sidebar-container ~ div.flex-1 {
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Sub-header mobile top position directly below 51px masthead */
+  .main-viewport > header,
+  .sidebar-container ~ div.flex-1 > header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 30 !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  /* Standalone pages without .main-viewport (index, report, features) */
+  body:not(:has(.main-viewport)) {
+    padding-top: 0 !important;
+  }
+  body:not(:has(.main-viewport)) #mainContent {
+    padding-top: 1rem !important;
+  }
+
+  /* Hide quick OCR button in subheader on mobile/tablet */
+  #headerQuickOcrBtn {
+    display: none !important;
+  }
+
+  /* Main content padding reduction */
+  #mainContent {
+    padding: 0.875rem !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Mobile Off-Canvas Drawer Sidebar Position */
+  .sidebar-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    width: min(280px, 85vw) !important;
+    min-width: 0 !important;
+    max-width: 85vw !important;
+    z-index: 60 !important;
+  }
+
+  /* Sidebar navigation items touch targets */
+  .sidebar-nav-item,
+  .inspector-nav-btn,
+  .officer-nav-btn {
+    min-height: 44px !important;
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+  }
+
+  /* Sidebar close (✕) and hamburger toggle buttons */
+  aside#leftSidebar button[onclick="toggleMobileSidebar()"],
+  button[onclick="toggleMobileSidebar()"] {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Form inputs: Force 16px to prevent iOS auto-zoom page shift */
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="search"],
+  input[type="date"],
+  select,
+  textarea,
+  .ds-input,
+  .ds-textarea,
+  .ds-select {
+    font-size: 16px !important;
+  }
+
+  /* Form action buttons touch targets */
+  form button[type="submit"],
+  form button[type="reset"],
+  form button[type="button"] {
+    min-height: 44px !important;
+  }
+
+  /* Tables: Ensure all tables inside horizontal scroll wrappers never crush columns */
+  .overflow-x-auto > table,
+  .responsive-table-container > table {
+    min-width: 580px !important;
+    width: 100% !important;
+  }
+
+  #officerDocketTableBody tr td,
+  #officerDocketTableBody thead th,
+  #inspectionsTableBody tr td,
+  #inspectionsTableBody thead th {
+    white-space: nowrap !important;
+  }
+
+  .overflow-x-auto,
+  .responsive-table-container {
+    -webkit-overflow-scrolling: touch !important;
+    overflow-x: auto !important;
+  }
+
+  /* KPI Stat cards: typography scale down */
+  #statTotalScans,
+  #statCompliant,
+  #statViolations,
+  #statPending,
+  #officerStatTotal,
+  #officerStatPending,
+  #officerStatApproved,
+  #officerStatDismissed,
+  #adminTotalInspections,
+  #adminTotalUsers,
+  #adminTotalCommodities,
+  #adminCompliantRatio,
+  #adminViolationsCount,
+  #adminPendingReview {
+    font-size: 1.625rem !important;
+    line-height: 1.2 !important;
+  }
+
+  /* KPI card titles: prevent clipping in 2-col grids */
+  .kpi-card span.uppercase {
+    font-size: 10px !important;
+    letter-spacing: normal !important;
+  }
+
+  /* Card compact padding */
+  .modern-card,
+  .kpi-card {
+    padding: 0.875rem !important;
+    border-radius: 0.875rem !important;
+  }
+
+  /* Officer 3-pane mobile tab switcher buttons */
+  #threePaneMobileTabs button {
+    min-height: 44px !important;
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+  }
+
+  /* Officer 3-pane review top toolbar wrap */
+  #reviewActiveContent > div:first-child {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Login page: Login card first on mobile */
+  #mainContent > div.grid > div:first-child {
+    order: 2;
+  }
+  #mainContent > div.grid > div:last-child {
+    order: 1;
+  }
+
+  /* FAQ accordion summary: allow question text to wrap cleanly */
+  .faq-accordion summary > span:first-child {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+  .faq-accordion summary > span:first-child > span:last-child {
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  /* Details/summary minimum height to avoid touch overlap */
+  details > summary {
+    min-height: 42px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  /* Rules suite sub-tabs: horizontal touch scrolling */
+  #view-rules-suite > div:has(> .rules-sub-tab) {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none;
+  }
+  #view-rules-suite > div:has(> .rules-sub-tab)::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Modern card header wrapping for "View All" links */
+  .modern-card > div.flex.items-center.justify-between {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Zonal Council scope badge in admin portal */
+  #adminZoneRoleBadge {
+    white-space: nowrap !important;
+  }
+  .bg-white > div.flex.items-center.gap-3 > div > div.flex.items-center.gap-2 {
+    flex-wrap: wrap !important;
+  }
+}
+
+
+/* ==========================================================================
+   3. MOBILE BREAKPOINT: < 640px (Phones: 360px – 639px)
+   ========================================================================== */
+@media (max-width: 639px) {
+
+  /* Features page header sign-in link */
+  #nationalGovMasthead a[href="index.html"].bg-emerald-600 {
+    padding: 0.35rem 0.65rem !important;
+    font-size: 11px !important;
+  }
+
+  /* Notification dropdowns: full screen width fit with zero horizontal blowout */
+  #inspectorNotificationDropdown,
+  #officerNotificationDropdown,
+  #adminNotificationDropdown {
+    width: calc(100vw - 16px) !important;
+    max-width: 360px !important;
+    right: -4px !important;
+    left: auto !important;
+  }
+
+  /* Notification filter pills horizontal scroll */
+  #inspectorNotificationDropdown .custom-scroll-x,
+  #officerNotificationDropdown .flex.items-center,
+  #adminNotificationDropdown .flex.items-center {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+  }
+
+  /* All filter tab bars: smooth touch horizontal scrolling */
+  div:has(> .docket-tab),
+  div:has(> .inspection-filter-tab),
+  #commodityCategoryPills,
+  #rulesChapterFilters {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  div:has(> .docket-tab)::-webkit-scrollbar,
+  div:has(> .inspection-filter-tab)::-webkit-scrollbar,
+  #commodityCategoryPills::-webkit-scrollbar,
+  #rulesChapterFilters::-webkit-scrollbar {
+    display: none;
+  }
+  .docket-tab,
+  .inspection-filter-tab,
+  .commodity-cat-pill,
+  .rules-chap-btn {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  /* Modal Dialogs: compact padding & max bounds on phone */
+  [role="dialog"] > div {
+    width: calc(100vw - 1.25rem) !important;
+    max-width: 100% !important;
+    padding: 1.125rem !important;
+    max-height: 92vh !important;
+    border-radius: 1rem !important;
+    margin: 0.5rem auto !important;
+  }
+
+  /* Modal action buttons touch targets */
+  [role="dialog"] .flex.justify-end.gap-2 button,
+  [role="dialog"] form button[type="submit"],
+  [role="dialog"] form button[type="button"] {
+    min-height: 40px !important;
+  }
+
+  /* Close (✕) buttons */
+  [role="dialog"] button[title="Close Modal"],
+  [role="dialog"] button[title="Close Drawer"] {
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+
+  /* Help form captcha row */
+  #view-help .flex.items-center.gap-2 {
+    flex-wrap: wrap !important;
+  }
+  #view-help .flex-1.min-w-0 {
+    width: 100% !important;
+    flex: none !important;
+  }
+
+  /* CAPTCHA row in login page: 2-row clean stack */
+  .captcha-row-container {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+  .captcha-row-container > div:last-child {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  /* MAV tolerance gauge dynamic labels wrapping */
+  .mav-gauge-track ~ div,
+  div:has(> .mav-gauge-track) > div:first-child {
+    flex-wrap: wrap !important;
+    gap: 0.25rem !important;
+  }
+  div:has(> .mav-gauge-track) > div:first-child > span {
+    font-size: 9.5px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Report page (report.html) action bar */
+  body > div.max-w-4xl.mx-auto.my-5 {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.625rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    margin-top: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  body > div.max-w-4xl.mx-auto.my-5 > button:first-child {
+    align-self: flex-start !important;
+  }
+  body > div.max-w-4xl.mx-auto.my-5 > .flex.items-center.gap-3 {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  body > div.max-w-4xl.mx-auto.my-5 button {
+    min-height: 42px !important;
+  }
+  body > div.max-w-4xl.mx-auto.my-5 > .flex.items-center.gap-3 button {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 0.625rem 1rem !important;
+    font-size: 13px !important;
+  }
+
+  /* Report certificate header responsive wrap */
+  #mainContent > header.border-b-2 {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+  #mainContent > header.border-b-2 > div.text-right {
+    text-align: left !important;
+    width: 100% !important;
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 0.5rem;
+  }
+  .max-w-4xl > div.text-center h2 {
+    font-size: 0.9375rem !important;
+    word-break: break-word !important;
+  }
+
+  /* Report certificate centered signatory block on mobile */
+  #reportSignatorySignature {
+    margin: 0 auto;
+  }
+}
+
+
+/* ==========================================================================
+   4. EXTRA SMALL MOBILE BREAKPOINT: < 480px (Phones: 320px – 479px)
+   ========================================================================== */
+@media (max-width: 479px) {
+
+  /* Sub-header page title truncate smoothly */
+  #currentViewHeaderTitle,
+  #officerPageTitle,
+  #adminPageTitle {
+    font-size: 0.8125rem !important;
+    max-width: 140px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* AI Engine ready badge */
+  #aiEngineReadyBadge {
+    max-width: 130px !important;
+    overflow: hidden;
+    flex-shrink: 1;
+  }
+  #aiEngineReadyBadge > span:not(.rounded-full) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 95px;
+    display: inline-block;
+    font-size: 10px !important;
+  }
+
+  /* Camera Mode Viewfinder Height Constraint (ensures controls remain above fold) */
+  #cameraModeBox > div:first-child {
+    max-height: 40vh !important;
+    min-height: 220px !important;
+  }
+  #cameraModeBox #cameraVideoFeed {
+    max-height: 40vh !important;
+  }
+
+  /* Live camera active action buttons */
+  #cameraActiveControls {
+    gap: 0.5rem !important;
+  }
+  #cameraActiveControls button {
+    flex: 1 1 calc(50% - 0.5rem) !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+  }
+  #btnStartCamera {
+    min-height: 44px !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Upload slot cards */
+  button[onclick*="clearSlotImage"] {
+    min-width: 32px !important;
+    min-height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  /* Officer 3-pane switcher button text */
+  #threePaneMobileTabs button {
+    font-size: 11px !important;
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+  }
+
+  /* Stat numbers on smallest phones */
+  #statTotalScans,
+  #statCompliant,
+  #statViolations,
+  #statPending,
+  #officerStatTotal,
+  #officerStatPending,
+  #officerStatApproved,
+  #officerStatDismissed,
+  #adminTotalInspections,
+  #adminTotalUsers,
+  #adminTotalCommodities,
+  #adminCompliantRatio,
+  #adminViolationsCount,
+  #adminPendingReview {
+    font-size: 1.45rem !important;
+  }
+
+  /* Breadcrumbs in subheaders */
+  #officerBreadcrumb,
+  #adminBreadcrumb,
+  #currentViewBreadcrumb {
+    max-width: 110px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: bottom;
+  }
+}
+
+
+/* ==========================================================================
+   5. LANDSCAPE MOBILE ORIENTATION (< 500px Height in Landscape)
+   ========================================================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+
+  #nationalGovMasthead {
+    max-height: 38px !important;
+    padding-top: 0.15rem !important;
+    padding-bottom: 0.15rem !important;
+  }
+
+  .main-viewport,
+  .sidebar-container ~ .main-viewport,
+  .sidebar-container ~ div.flex-1 {
+    padding-top: 38px !important;
+  }
+
+  .main-viewport > header,
+  .sidebar-container ~ div.flex-1 > header {
+    top: 38px !important;
+  }
+
+  #cameraModeBox > div:first-child {
+    max-height: 35vh !important;
+    min-height: 160px !important;
+  }
+  #cameraModeBox #cameraVideoFeed {
+    max-height: 35vh !important;
+  }
+
+  [role="dialog"] > div {
+    max-height: 96vh !important;
+    padding: 0.75rem !important;
+  }
+}
+
+
+/* ==========================================================================
+   6. TABLET BREAKPOINT (768px – 1023px): Seamless Toolbar Alignments
+   ========================================================================== */
+@media (max-width: 1023px) {
+
+  /* Active Target badge + Captured counter: space-between on mobile/tablet */
+  #view-ocr .flex.items-center.justify-between {
+    justify-content: space-between !important;
   }
 }
