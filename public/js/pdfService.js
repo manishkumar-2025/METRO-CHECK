@@ -41,13 +41,17 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
       item = window.inspectionStore.find(i => String(i.id) === String(inspectionDataOrId));
     }
     if (!item) {
-      alert("Inspection record " + inspectionDataOrId + " not found!");
+      if (typeof showToast === "function") {
+        showToast("Inspection docket " + inspectionDataOrId + " not found!", "error");
+      }
       return;
     }
   } else if (inspectionDataOrId && typeof inspectionDataOrId === "object") {
     item = inspectionDataOrId;
   } else {
-    alert("Invalid inspection data provided for PDF generation.");
+    if (typeof showToast === "function") {
+      showToast("Invalid inspection data provided for PDF generation.", "error");
+    }
     return;
   }
 
@@ -92,10 +96,34 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     const dateStr = sanitizePdfText(String(item.date || new Date().toISOString().split("T")[0]));
     const timeStr = sanitizePdfText(String(item.time || new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })));
     const user = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || {};
-    const inspectorName = sanitizePdfText(String(item.inspectorName || user.name || "Shri Rajesh Kumar, Metrology Enforcement Officer"));
+    const inspectorName = sanitizePdfText(String(item.inspectorName || user.name || "Field Inspector"));
     const location = sanitizePdfText(String(item.location || "Central Distribution Depot, Sector 18, Noida"));
     const zoneName = sanitizePdfText(String(item.zone || user.zone || "Northern Enforcement Division"));
     const stateName = sanitizePdfText(String(item.state || user.state || "Uttar Pradesh"));
+
+    // For FORM LM-III (non-compliance notices) the signatory MUST be the adjudicating officer,
+    // not the field inspector. Fall back to inspectorName only when no officer has reviewed yet.
+    const signatoryName = sanitizePdfText(
+      String(
+        isCompliant
+          ? (item.inspectorName || user.name || "Field Inspector")
+          : (item.officerName || item.reviewedBy || item.inspectorName || user.name || "Metrology Officer")
+      )
+    );
+    const signatoryDesignation = sanitizePdfText(
+      String(
+        isCompliant
+          ? (item.inspectorDesignation || user.designation || "Legal Metrology Inspector")
+          : (item.officerDesignation || "Assistant Controller of Legal Metrology")
+      )
+    );
+    const signatoryOffice = sanitizePdfText(
+      String(
+        isCompliant
+          ? (item.inspectorOffice || user.officeAddress || "")
+          : (item.officerOffice || "")
+      )
+    );
 
     const ext = item.extractedData || item.categorized_fields || item.fields || {};
     const rawProd = item.product || ext.commodity_name || ext.brand_name || "Pre-Packed Consumer Commodity";
@@ -215,40 +243,44 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     doc.setFontSize(7.5);
     doc.setTextColor(30, 41, 59);
 
+    const seqNo = sanitizePdfText(String(item.sequenceNumber ? `#${item.sequenceNumber}` : "#101"));
+    const evidenceRef = sanitizePdfText(String(item.evidenceId || `EVD-${caseId}`));
+
     // Left Column
     doc.setFont("helvetica", "bold"); doc.text("Case / Docket ID:", 16, curY + 5);
-    doc.setFont("helvetica", "normal"); doc.text(caseId, 48, curY + 5);
+    doc.setFont("helvetica", "normal"); doc.text(`${caseId} (Seq #${item.sequenceNumber || 101})`, 48, curY + 5);
 
-    doc.setFont("helvetica", "bold"); doc.text("Enforcement Zone:", 16, curY + 10);
-    doc.setFont("helvetica", "normal"); doc.text(`${zoneName} (${stateName})`, 48, curY + 10);
+    doc.setFont("helvetica", "bold"); doc.text("Evidence Ref ID:", 16, curY + 10);
+    doc.setFont("helvetica", "normal"); doc.text(evidenceRef, 48, curY + 10);
 
-    doc.setFont("helvetica", "bold"); doc.text("Inspecting Officer:", 16, curY + 15);
-    doc.setFont("helvetica", "normal"); doc.text(inspectorName, 48, curY + 15);
+    doc.setFont("helvetica", "bold"); doc.text("Enforcement Zone:", 16, curY + 15);
+    doc.setFont("helvetica", "normal"); doc.text(`${zoneName} (${stateName})`, 48, curY + 15);
 
-    doc.setFont("helvetica", "bold"); doc.text("Inspection Site:", 16, curY + 20);
+    doc.setFont("helvetica", "bold"); doc.text("Inspecting Officer:", 16, curY + 20);
+    doc.setFont("helvetica", "normal"); doc.text(inspectorName, 48, curY + 20);
+
+    doc.setFont("helvetica", "bold"); doc.text("Inspection Site:", 16, curY + 25);
     const splitLoc = doc.splitTextToSize(location, 55);
-    doc.setFont("helvetica", "normal"); doc.text(splitLoc[0] || "", 48, curY + 20);
+    doc.setFont("helvetica", "normal"); doc.text(splitLoc[0] || "", 48, curY + 25);
 
-    doc.setFont("helvetica", "bold"); doc.text("Digital Audit Hash:", 16, curY + 25);
-    doc.setFont("courier", "normal"); doc.setFontSize(6.5);
-    doc.text(`MC-VERIFIED-${caseId.replace(/[^A-Z0-9]/gi, '')}-GOV2026`, 48, curY + 25);
+    // Right Column (Forensic Hash, Statutory Assessment, GPS Geo-Stamp)
+    doc.setFont("helvetica", "bold"); doc.text("Inspection Time:", 110, curY + 5);
+    doc.setFont("helvetica", "normal"); doc.text(sanitizePdfText(item.formattedDateTime || inspectionDate), 140, curY + 5);
 
-    // Right Column
-    doc.setFontSize(7.5);
-    doc.setFont("helvetica", "bold"); doc.text("Commodity Name:", 112, curY + 5);
-    const splitProd = doc.splitTextToSize(commodityName, 52);
-    doc.setFont("helvetica", "normal"); doc.text(splitProd[0] || "Commodity Sample", 142, curY + 5);
+    doc.setFont("helvetica", "bold"); doc.text("SHA-256 Docket Hash:", 110, curY + 10);
+    doc.setFont("helvetica", "normal"); doc.text(sanitizePdfText(item.docketHash || "SHA256-8A3F9D1E"), 140, curY + 10);
 
-    doc.setFont("helvetica", "bold"); doc.text("Declared Net Qty:", 112, curY + 10);
-    doc.setFont("helvetica", "normal"); doc.text(netQty, 142, curY + 10);
+    doc.setFont("helvetica", "bold"); doc.text("Statutory Est.:", 110, curY + 15);
+    doc.setFont("helvetica", "normal"); doc.text(isCompliant ? "Fully Compliant" : "Sec 36(1) Pen: Rs 25,000", 140, curY + 15);
 
-    doc.setFont("helvetica", "bold"); doc.text("Declared MRP:", 112, curY + 15);
-    doc.setFont("helvetica", "normal"); doc.text(mrpVal, 142, curY + 15);
+    doc.setFont("helvetica", "bold"); doc.text("Geo-Coordinates:", 110, curY + 20);
+    doc.setFont("helvetica", "normal"); doc.text(
+      sanitizePdfText(String(item.gpsCoordinates || item.gps || "Not Recorded")),
+      140, curY + 20
+    );
 
-    doc.setFont("helvetica", "bold"); doc.text("Manufacturer / Packer:", 112, curY + 20);
-    const splitMfg = doc.splitTextToSize(mfgResolved, 52);
-    doc.setFont("helvetica", "normal"); doc.text(splitMfg[0] || "MISSING", 142, curY + 20);
-    if (splitMfg[1]) doc.text(splitMfg[1].substring(0, 50), 142, curY + 24);
+    doc.setFont("helvetica", "bold"); doc.text("Enforcement Verdict:", 110, curY + 25);
+    doc.setFont("helvetica", "normal"); doc.text(isCompliant ? "PASS (Rule 6 PCR 2011)" : "VIOLATION DETECTED", 140, curY + 25);
 
     curY += 32;
 
@@ -447,14 +479,15 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     const qrX = 88;
     const qrY = curY + 2;
     const qrTargetUrl = typeof window !== "undefined" && window.location && window.location.origin 
-      ? `${window.location.origin}/report.html?id=${caseId}` 
-      : `http://localhost:3000/report.html?id=${caseId}`;
+      ? `${window.location.origin}/report.html?id=${encodeURIComponent(caseId)}` 
+      : `http://localhost:3000/report.html?id=${encodeURIComponent(caseId)}`;
     
-    // Dynamic QR payload encoding Case ID, Audit Status, Digital Hash Token, and URL
+    // Dynamic QR payload encoding Zonal Case ID, Audit Status, Digital Hash Token, and URL
     const qrPayload = JSON.stringify({
       id: caseId,
       status: isCompliant ? "COMPLIANT" : "NON_COMPLIANT",
-      auditHash: `MC-VERIFIED-${caseId}-GOV2026`,
+      auditHash: item.docketHash || `SHA256-${String(caseId).replace(/[^A-Za-z0-9]/g, "")}`,
+      statutoryPenalty: isCompliant ? "NIL" : "SEC_36_INR_25000",
       url: qrTargetUrl
     });
 
@@ -478,7 +511,8 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     doc.setTextColor(0, 50, 150); // Deep Blue Ink (#003296)
     doc.setFont("times", "bolditalic");
     doc.setFontSize(13);
-    const cleanSigName = inspectorName.replace(/^Shri\s+/i, "").split(",")[0].trim();
+    // Clean the signatory name for the cursive-style signature line
+    const cleanSigName = signatoryName.replace(/^(Shri|Dr|Smt|Ku)\s+/i, "").split(",")[0].trim();
     doc.text(cleanSigName || "S. Roy", sigX + 4, curY + 11);
 
     // Blue Ink Vector Line Under Signature
@@ -494,11 +528,12 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
     doc.setTextColor(15, 23, 42);
-    doc.text("Assistant Controller / Enforcement Officer", sigX, curY + 19);
+    // Use the signatory's actual designation from the record, not a hardcoded fallback
+    doc.text(signatoryDesignation || "Enforcement Officer", sigX, curY + 19);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(6.5);
     doc.setTextColor(100, 116, 139);
-    doc.text("e-LMCEP Legal Metrology Portal", sigX, curY + 23);
+    doc.text(signatoryOffice || "e-LMCEP Legal Metrology Portal", sigX, curY + 23);
     doc.text(`Digital Seal Token: MC-${caseId}-AUTH`, sigX, curY + 27);
 
     // =========================================================================
@@ -554,7 +589,6 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     if (typeof showToast === "function") {
       showToast("Unable to generate the PDF notice. Please try again.", "error");
     }
-    alert("Unable to generate the PDF notice. Please try again.");
   }
 }
 

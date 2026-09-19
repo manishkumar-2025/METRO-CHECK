@@ -12,26 +12,42 @@ let activeReportId = null;
 function initReportView() {
   const urlParams = new URLSearchParams(window.location.search);
   const inspections = getInspections();
-  const targetId = urlParams.get("id") || (inspections[0] && inspections[0].id) || null;
+  const rawId = urlParams.get("id");
+  const targetId = rawId ? decodeURIComponent(rawId) : (inspections[0] && inspections[0].id) || null;
   activeReportId = targetId;
 
   if (!targetId) {
-    alert("No inspection records available. Perform a scan in the Field Inspector Portal to generate a report.");
+    if (typeof showToast === "function") {
+      showToast("No inspection records available. Perform a scan in the Field Inspector Portal to generate a report.", "warning");
+    }
     return;
   }
 
   // Fetch the inspection record from localStorage
-  const record = getInspectionById(targetId);
+  const record = getInspectionById(targetId) || (rawId ? getInspectionById(rawId) : null);
   if (!record) {
-    alert("Inspection record " + targetId + " not found!");
+    if (typeof showToast === "function") {
+      showToast("Inspection docket " + targetId + " not found!", "error");
+    }
     return;
   }
 
   // Header Details
   const idDisplay = document.getElementById("reportIdDisplay");
-  if (idDisplay) idDisplay.textContent = record.id || targetId;
+  if (idDisplay) {
+    idDisplay.textContent = record.id || targetId;
+    if (record.sequenceNumber) {
+      idDisplay.textContent += ` (Seq #${record.sequenceNumber})`;
+    }
+  }
   const dateDisplay = document.getElementById("reportDateDisplay");
-  if (dateDisplay) dateDisplay.textContent = record.date || new Date().toISOString().split("T")[0];
+  if (dateDisplay) {
+    dateDisplay.textContent = record.formattedDateTime || (record.date ? `${record.date} ${record.time || ""}`.trim() : new Date().toISOString().split("T")[0]);
+  }
+  const hashDisplay = document.getElementById("reportAuditHashDisplay");
+  if (hashDisplay) {
+    hashDisplay.textContent = record.docketHash || `SHA256-${String(record.id).replace(/[^A-Za-z0-9]/g, "").slice(-8)}`;
+  }
 
   // Extracted declarations with fallback to extractedData, extracted_fields, or fields
   const extracted = record.extractedData || record.extracted_fields || record.fields || {};
@@ -40,11 +56,14 @@ function initReportView() {
   const inspName = document.getElementById("reportInspectorName");
   if (inspName) inspName.textContent = record.inspectorName || "Field Inspector";
   const inspId = document.getElementById("reportInspectorId");
-  if (inspId) inspId.textContent = "OFFICER-ID-" + String(record.id || targetId).replace("INS-", "");
+  if (inspId) inspId.textContent = record.inspectorBadgeNumber || record.inspectorId || ("OFFICER-ID-" + String(record.id || targetId).replace("INS-", ""));
   const inspDate = document.getElementById("reportInspectionDate");
-  if (inspDate) inspDate.textContent = record.date || "-";
+  if (inspDate) inspDate.textContent = record.formattedDateTime || record.date || "-";
   const inspLoc = document.getElementById("reportInspectionLocation");
-  if (inspLoc) inspLoc.textContent = record.location || "Regional Depot / Market";
+  if (inspLoc) {
+    const locParts = [record.location, record.zone, record.officeDivision].filter(Boolean);
+    inspLoc.textContent = locParts.length > 0 ? locParts.join(" • ") : "Regional Depot / Market";
+  }
 
   // 2. Product Information
   const prodNameEl = document.getElementById("reportProductName");
@@ -128,12 +147,48 @@ function initReportView() {
     }
   }
 
-  // 6. Officer Decision
+  // 6. Officer Decision & Authorized Signatory Block
   const decisionStatus = record.status || "submitted";
   const decisionEl = document.getElementById("reportOfficerDecision");
   if (decisionEl) decisionEl.textContent = decisionStatus.toUpperCase();
   const commentsEl = document.getElementById("reportOfficerComments");
   if (commentsEl) commentsEl.textContent = record.reviewComments || "Inspection recorded under standard statutory procedure.";
+
+  const officerNameEl = document.getElementById("reportOfficerName");
+  if (officerNameEl) {
+    if (record.officerName) {
+      const badgeSuffix = record.officerBadgeNumber ? ` (${record.officerBadgeNumber})` : "";
+      officerNameEl.textContent = `${record.officerName}${badgeSuffix}`;
+    } else {
+      officerNameEl.textContent = "";
+    }
+  }
+
+  const officerDesigEl = document.getElementById("reportOfficerDesignation");
+  if (officerDesigEl) {
+    officerDesigEl.textContent = record.officerDesignation || "Legal Metrology Officer";
+  }
+
+  const officerOfficeEl = document.getElementById("reportOfficerOffice");
+  if (officerOfficeEl) {
+    officerOfficeEl.textContent = record.officerOffice || "";
+  }
+
+  const officerSigEl = document.getElementById("reportSignatorySignature");
+  if (officerSigEl) {
+    if (record.officerName) {
+      const cleanSigName = record.officerName.replace(/^(Shri|Dr|Smt|Ku)\s+/i, "").split(",")[0].trim();
+      officerSigEl.textContent = cleanSigName || "Authorized Signatory";
+    } else {
+      officerSigEl.textContent = "Authorized Signatory";
+    }
+  }
+
+  const officerTokenEl = document.getElementById("reportOfficerToken");
+  if (officerTokenEl) {
+    const cleanId = String(record.id || targetId || "AUTH").replace(/[^A-Za-z0-9]/g, "");
+    officerTokenEl.textContent = `Digital Token: MC-${cleanId.slice(-8)}-AUTH`;
+  }
 }
 
 /**

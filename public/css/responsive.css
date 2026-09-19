@@ -157,4 +157,28 @@ body.theme-dark .sticky-frosted-nav {
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
-
+
+
+/* Mobile Masthead & Pill Protection (<640px): prevent header multi-row wrapping */
+@media (max-width: 639px) {
+  #nationalGovMasthead .masthead-ist-clock,
+  #nationalGovMasthead #networkSyncPill {
+    display: none !important;
+  }
+}
+
+/* Extra Small Mobile Devices (< 480px): keep camera & main workspace above the fold */
+@media (max-width: 479px) {
+  #nationalGovMasthead {
+    max-height: 48px !important;
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.2rem !important;
+  }
+  #nationalGovMasthead .text-\[9\.5px\],
+  #nationalGovMasthead .text-\[11\.5px\] {
+    display: none !important;
+  }
+  #nationalGovMasthead img {
+    height: 1.75rem !important;
+  }
+}

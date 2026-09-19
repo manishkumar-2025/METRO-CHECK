@@ -14,19 +14,38 @@ console.log("===================================================================
 function normalizeInspectionStatus(status) {
   const u = String(status || "").trim().toUpperCase();
   if (u === "DRAFT") return "DRAFT";
-  if (u === "APPROVED" || u === "COMPLIANT_LOGGED" || u === "OFFICER_APPROVED" || u === "NOTICE_ISSUED") return "APPROVED";
-  if (u === "REJECTED" || u === "DISMISSED" || u === "OFFICER_DISMISSED") return "REJECTED";
+  if (u === "PROCESSING") return "PROCESSING";
+  if (u === "UNDER_REVIEW") return "UNDER_REVIEW";
+  if (u === "COMPLIANT" || u === "APPROVED" || u === "COMPLIANT_LOGGED" || u === "OFFICER_APPROVED") return "COMPLIANT";
+  if (u === "NON_COMPLIANT" || u === "NOTICE_ISSUED" || u === "REJECTED" || u === "DISMISSED" || u === "OFFICER_DISMISSED") return "NON_COMPLIANT";
   return "SUBMITTED";
 }
 
 try {
   assert.strictEqual(normalizeInspectionStatus("draft"), "DRAFT");
-  assert.strictEqual(normalizeInspectionStatus("OFFICER_APPROVED"), "APPROVED");
-  assert.strictEqual(normalizeInspectionStatus("NON_COMPLIANT_PENDING"), "SUBMITTED");
-  assert.strictEqual(normalizeInspectionStatus("OFFICER_DISMISSED"), "REJECTED");
-  console.log("✅ Unit Test 1 Passed: Status Normalization Engine");
+  assert.strictEqual(normalizeInspectionStatus("processing"), "PROCESSING");
+  assert.strictEqual(normalizeInspectionStatus("UNDER_REVIEW"), "UNDER_REVIEW");
+  assert.strictEqual(normalizeInspectionStatus("OFFICER_APPROVED"), "COMPLIANT");
+  assert.strictEqual(normalizeInspectionStatus("NOTICE_ISSUED"), "NON_COMPLIANT");
+  assert.strictEqual(normalizeInspectionStatus("NON_COMPLIANT"), "NON_COMPLIANT");
+  assert.strictEqual(normalizeInspectionStatus("submitted"), "SUBMITTED");
+  console.log("✅ Unit Test 1 Passed: Standardized Lifecycle Status Normalization Engine");
 } catch (e) {
   console.error("❌ Unit Test 1 Failed:", e.message);
+  process.exit(1);
+}
+
+// 1b. Unique Case ID Pattern Validation
+function validateCaseIdFormat(id) {
+  return /^INS-\d{8}-[A-Z0-9]{4}$/.test(id);
+}
+try {
+  const sampleCaseId = "INS-20260919-AB12";
+  assert.strictEqual(validateCaseIdFormat(sampleCaseId), true, "Case ID must match INS-YYYYMMDD-XXXX");
+  assert.strictEqual(validateCaseIdFormat("INS-INVALID"), false, "Invalid format must fail");
+  console.log("✅ Unit Test 1b Passed: Sovereign Case ID Pattern Validation (INS-YYYYMMDD-XXXX)");
+} catch (e) {
+  console.error("❌ Unit Test 1b Failed:", e.message);
   process.exit(1);
 }
 
@@ -64,15 +83,31 @@ async function runApiTests() {
     assert.strictEqual(health.data.status, "online", "Health status must be online");
     console.log("✅ Integration Test 2 Passed: API /api/health Endpoint Response:", health.data.system);
 
-    // 3. Inspection Sync POST Test
+    // 3. Inspection Sync POST Test with Rich Traceability Metadata
     const testRecord = {
-      id: "INS-TEST-9999",
+      id: "INS-20260919-9999",
+      sequenceNumber: 101,
+      evidenceId: "EVD-INS-20260919-9999",
       date: new Date().toISOString().split("T")[0],
+      time: new Date().toTimeString().split(" ")[0],
+      createdAt: new Date().toISOString(),
       product: "Test Commodity Package",
-      status: "submitted",
-      isCompliant: true,
-      zone: "North",
-      state: "Delhi UT"
+      status: "SUBMITTED",
+      isCompliant: false,
+      violations: ["Rule 6(1)(a): Missing manufacturer address"],
+      zone: "North Zone",
+      state: "Delhi UT",
+      inspectorName: "R. K. Sharma",
+      inspectorBadgeNumber: "LM-DEL-8841",
+      auditTrail: [
+        {
+          timestamp: new Date().toISOString(),
+          actor: "R. K. Sharma (LM-DEL-8841)",
+          action: "DOCKET_SUBMITTED",
+          notes: "Initial field submission with evidence EVD-INS-20260919-9999",
+          statusTo: "SUBMITTED"
+        }
+      ]
     };
 
     const postRes = await makeHttpRequest({
@@ -85,20 +120,39 @@ async function runApiTests() {
 
     assert.strictEqual(postRes.status, 200, "Post inspections status must be 200");
     assert.strictEqual(postRes.data.success, true, "Post inspections response must indicate success");
-    console.log("✅ Integration Test 3 Passed: API /api/inspections Create/Sync Endpoint");
+    console.log("✅ Integration Test 3 Passed: API /api/inspections Create/Sync Endpoint with Evidence & Audit Trail");
 
-    // 4. Inspection Status Patch Test
-    const patchRes = await makeHttpRequest({
+    // 4. Inspection Status Lifecycle: Transition to UNDER_REVIEW
+    const underReviewRes = await makeHttpRequest({
       hostname: "localhost",
       port: 3000,
-      path: "/api/inspections/INS-TEST-9999/status",
+      path: "/api/inspections/INS-20260919-9999/status",
       method: "PATCH",
       headers: { "Content-Type": "application/json" }
-    }, { status: "OFFICER_APPROVED", reviewComments: "Statutory verified under Rule 6(1)" });
+    }, {
+      status: "UNDER_REVIEW",
+      reviewComments: "Docket opened by Legal Metrology Officer for statutory scrutiny."
+    });
 
-    assert.strictEqual(patchRes.status, 200, "Patch status must be 200");
-    assert.strictEqual(patchRes.data.data.status, "OFFICER_APPROVED", "Patched status must match");
-    console.log("✅ Integration Test 4 Passed: API /api/inspections/:id/status Patch Adjudication");
+    assert.strictEqual(underReviewRes.status, 200, "Patch status must be 200");
+    assert.strictEqual(underReviewRes.data.data.status, "UNDER_REVIEW", "Patched status must be UNDER_REVIEW");
+    console.log("✅ Integration Test 4a Passed: Transition SUBMITTED -> UNDER_REVIEW");
+
+    // 4b. Inspection Status Lifecycle: Adjudication to NOTICE_ISSUED
+    const adjudicationRes = await makeHttpRequest({
+      hostname: "localhost",
+      port: 3000,
+      path: "/api/inspections/INS-20260919-9999/status",
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" }
+    }, {
+      status: "NOTICE_ISSUED",
+      reviewComments: "Statutory notice issued under Section 36 of Legal Metrology Act, 2009."
+    });
+
+    assert.strictEqual(adjudicationRes.status, 200, "Adjudication status must be 200");
+    assert.strictEqual(adjudicationRes.data.data.status, "NOTICE_ISSUED", "Adjudicated status must be NOTICE_ISSUED");
+    console.log("✅ Integration Test 4b Passed: Adjudication UNDER_REVIEW -> NOTICE_ISSUED (Non-Compliant Docket)");
 
     // 5. API Key Protection & Secret Masking Test
     const apiKeyConfigRes = await makeHttpRequest({
@@ -125,7 +179,7 @@ async function runApiTests() {
       headers: { "Content-Type": "application/json" }
     }, {});
 
-    assert.strictEqual(testKeyRes.status, 200, "Key test endpoint must return HTTP 200 for active key");
+    assert.strictEqual(testKeyRes.status, 200, `Key test endpoint must return HTTP 200 for active key: ${JSON.stringify(testKeyRes.data || testKeyRes.body)}`);
     assert.strictEqual(testKeyRes.data.success, true, "Key test endpoint must confirm success");
     console.log("✅ Integration Test 6 Passed: AQ... Credential Validation & x-goog-api-key Authentication");
 

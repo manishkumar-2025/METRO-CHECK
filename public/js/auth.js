@@ -90,6 +90,8 @@ const USERS = {
     role: "national",
     name: "Director DoCA",
     designation: "Director General (Legal Metrology)",
+    badgeNumber: "DG-LM-2022-001",
+    officeAddress: "Directorate of Legal Metrology, Krishi Bhawan, New Delhi - 110001",
     zone: "All",
     state: "All",
     status: "Active"
@@ -100,6 +102,8 @@ const USERS = {
     role: "zonal",
     name: "Zonal Officer North",
     designation: "Zonal Enforcement Controller",
+    badgeNumber: "ZEC-NZ-2023-001",
+    officeAddress: "Office of Zonal Enforcement Controller, Northern Zone, New Delhi",
     zone: "North",
     state: "All",
     status: "Active"
@@ -110,6 +114,8 @@ const USERS = {
     role: "zonal",
     name: "Zonal Officer South",
     designation: "Zonal Enforcement Controller",
+    badgeNumber: "ZEC-SZ-2023-001",
+    officeAddress: "Office of Zonal Enforcement Controller, Southern Zone, Chennai",
     zone: "South",
     state: "All",
     status: "Active"
@@ -120,6 +126,8 @@ const USERS = {
     role: "officer",
     name: "Dr S Roy",
     designation: "Assistant Controller of Metrology",
+    badgeNumber: "ACM-DL-2022-017",
+    officeAddress: "Office of ACLM, CGO Complex, Lodhi Road, New Delhi - 110003",
     zone: "North",
     state: "Delhi UT",
     status: "Active"
@@ -130,6 +138,8 @@ const USERS = {
     role: "inspector",
     name: "Shri R Sharma",
     designation: "Legal Metrology Inspector",
+    badgeNumber: "LMI-DL-2024-042",
+    officeAddress: "Office of ACLM, CGO Complex, Lodhi Road, New Delhi - 110003",
     zone: "North",
     state: "Delhi UT",
     status: "Active"
@@ -140,6 +150,8 @@ const USERS = {
     role: "inspector",
     name: "S Kaur",
     designation: "Legal Metrology Inspector",
+    badgeNumber: "LMI-PB-2024-011",
+    officeAddress: "Office of Controller of Legal Metrology, Punjab, Chandigarh - 160017",
     zone: "North",
     state: "Punjab",
     status: "Active"
@@ -150,6 +162,8 @@ const USERS = {
     role: "inspector",
     name: "A Menon",
     designation: "Legal Metrology Inspector",
+    badgeNumber: "LMI-KL-2024-008",
+    officeAddress: "Office of Controller of Legal Metrology, Kerala, Thiruvananthapuram - 695001",
     zone: "South",
     state: "Kerala",
     status: "Active"
@@ -189,7 +203,10 @@ function getUsers() {
       state: (stored[key] && stored[key].state) ? stored[key].state : USERS[key].state,
       role: (stored[key] && stored[key].role) ? stored[key].role : USERS[key].role,
       name: (stored[key] && stored[key].name) ? stored[key].name : USERS[key].name,
-      password: (stored[key] && stored[key].password) ? stored[key].password : USERS[key].password
+      password: (stored[key] && stored[key].password) ? stored[key].password : USERS[key].password,
+      // Always carry badgeNumber and officeAddress from defaults if not overridden in stored
+      badgeNumber:   (stored[key] && stored[key].badgeNumber)   ? stored[key].badgeNumber   : USERS[key].badgeNumber,
+      officeAddress: (stored[key] && stored[key].officeAddress) ? stored[key].officeAddress : USERS[key].officeAddress
     };
   }
 
@@ -213,6 +230,9 @@ function saveUser(user) {
     role: user.role || "inspector",
     name: user.name || (uname.charAt(0).toUpperCase() + uname.slice(1)),
     designation: user.designation || (user.role === "officer" ? "Metrology Officer" : "Field Inspector"),
+    // Real employee badge number and office posting — must be assigned by admin
+    badgeNumber: user.badgeNumber || "",
+    officeAddress: user.officeAddress || "",
     zone: user.zone || "North",
     state: user.state || "Delhi UT",
     status: user.status || "Active",

@@ -17,29 +17,185 @@ const STORAGE_API_BASE = (() => {
   return window.location.origin;
 })();
 
+const STORAGE_KEY_SEQUENCE = "metro_inspection_sequence";
+
 /**
- * Generates a unique Inspection ID like "INS-4821".
+ * Uniform Date and Time Formatter for METRO-CHECK UI, Reports, and PDF exports.
+ * Outputs e.g. "19 Sep 2026, 12:30 PM" or with seconds "19 Sep 2026, 12:30:15 PM"
  */
-function generateId(prefix = "INS-") {
-  const randomDigits = Math.floor(1000 + Math.random() * 9000);
-  return prefix + randomDigits;
+function formatDisplayDateTime(isoOrDateStr, includeSeconds = false) {
+  if (!isoOrDateStr) return "-";
+  try {
+    const d = new Date(isoOrDateStr);
+    if (isNaN(d.getTime())) return String(isoOrDateStr);
+
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    const seconds = String(d.getSeconds()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const hoursStr = String(hours).padStart(2, "0");
+
+    const timeStr = includeSeconds 
+      ? `${hoursStr}:${minutes}:${seconds} ${ampm}` 
+      : `${hoursStr}:${minutes} ${ampm}`;
+
+    return `${day} ${month} ${year}, ${timeStr}`;
+  } catch (e) {
+    return String(isoOrDateStr);
+  }
+}
+
+/**
+ * Gets or increments the persistent docket sequence number (e.g. 101, 102...).
+ */
+function getNextSequenceNumber() {
+  const existing = (typeof getInspections === "function") ? getInspections() : [];
+  let maxSeq = 100;
+  existing.forEach(i => {
+    if (typeof i.sequenceNumber === "number" && i.sequenceNumber > maxSeq) {
+      maxSeq = i.sequenceNumber;
+    }
+  });
+
+  let currentStored = 0;
+  try {
+    currentStored = parseInt(localStorage.getItem(STORAGE_KEY_SEQUENCE) || "0", 10);
+  } catch (e) {}
+
+  const nextSeq = Math.max(maxSeq, currentStored) + 1;
+  try {
+    localStorage.setItem(STORAGE_KEY_SEQUENCE, String(nextSeq));
+  } catch (e) {}
+  return nextSeq;
+}
+
+const STORAGE_KEY_ZONAL_COUNTER = "metrocheck_zonal_counter";
+
+/**
+ * Gets and increments the sequential zonal counter for court-ready docket numbering.
+ */
+function getNextZonalCounter() {
+  let counter = 101;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_ZONAL_COUNTER);
+    if (raw) {
+      const parsed = parseInt(raw, 10);
+      if (!isNaN(parsed) && parsed > 0) counter = parsed;
+    }
+  } catch (e) {}
+  const current = counter;
+  try {
+    localStorage.setItem(STORAGE_KEY_ZONAL_COUNTER, String(counter + 1));
+  } catch (e) {}
+  return current;
+}
+
+/**
+ * Generates an 8-character hex tamper-evident docket hash for government legal metrology records.
+ */
+function generateSha256DocketHash() {
+  const hex = Math.random().toString(16).substring(2, 10) + Math.random().toString(16).substring(2, 6);
+  return `SHA256-${hex.toUpperCase()}`;
+}
+
+/**
+ * Generates a unique, sovereign Zonal Sequential Inspection Case ID formatted as:
+ * LM/NZ/YYYYMMDD/00101-A3K7 (Legal Metrology • Zone • Date • 5-digit counter • 4-char collision-breaker).
+ * The 4-char suffix is derived from Date.now() base-36 to prevent cross-device counter collisions
+ * when two inspectors on different browsers generate IDs on the same day in the same zone.
+ * Strictly checks against existing inspections in storage to prevent further collisions.
+ */
+function generateId(zonePrefix = "NZ") {
+  let zone = zonePrefix;
+  if (!zone || zone === "INS-" || zone.startsWith("INS")) {
+    zone = "NZ";
+  }
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const dateSegment = `${year}${month}${day}`;
+
+  const counter = getNextZonalCounter();
+  const formattedCounter = String(counter).padStart(5, "0");
+  // 4-char alphanumeric suffix from current millisecond timestamp (base-36) — eliminates
+  // cross-device counter collisions without requiring a server round-trip.
+  const suffix = Date.now().toString(36).slice(-4).toUpperCase();
+  const candidateId = `LM/${zone}/${dateSegment}/${formattedCounter}-${suffix}`;
+
+  const existing = (typeof getInspections === "function") ? getInspections() : [];
+  const existingIds = new Set(existing.map(i => i.id));
+  if (!existingIds.has(candidateId)) {
+    return candidateId;
+  }
+  // Extremely unlikely second collision: re-roll suffix with extra entropy
+  const suffix2 = (Date.now() + Math.floor(Math.random() * 9999)).toString(36).slice(-4).toUpperCase();
+  return `LM/${zone}/${dateSegment}/${String(counter + 1).padStart(5, "0")}-${suffix2}`;
+}
+
+/**
+ * Appends a tamper-evident audit log entry to an inspection docket.
+ * actorId (username) is stored alongside the display name so records remain
+ * traceable even when two users share a similar display name.
+ */
+function appendAuditLog(record, action, actor, notes = "", statusFrom = null, statusTo = null) {
+  if (!record) return null;
+  if (!Array.isArray(record.auditTrail)) {
+    record.auditTrail = [];
+  }
+  const timestamp = new Date().toISOString();
+  const actorName = typeof actor === "object" && actor ? (actor.name || actor.username || "System") : (actor || "System");
+  const actorRole = typeof actor === "object" && actor ? (actor.role || actor.designation || "Enforcement Officer") : "System";
+  // Store the authoritative username so the entry is traceable even if display names are ambiguous
+  const actorId   = typeof actor === "object" && actor ? (actor.username || actor.id || null) : null;
+
+  const entry = {
+    id: `AUD-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+    timestamp,
+    formattedTime: formatDisplayDateTime(timestamp, true),
+    action: String(action || "UPDATE").toUpperCase(),
+    actorId,
+    actor: actorName,
+    role: actorRole,
+    notes: String(notes || ""),
+    statusFrom: statusFrom || null,
+    statusTo: statusTo || null
+  };
+
+  record.auditTrail.push(entry);
+  return entry;
 }
 
 /**
  * Normalizes status strings across all legacy & current formats into canonical uppercase keys:
  * - "DRAFT"
+ * - "PROCESSING"
  * - "SUBMITTED"
- * - "APPROVED"
- * - "REJECTED"
+ * - "UNDER_REVIEW"
+ * - "COMPLIANT"
+ * - "NON_COMPLIANT"
  */
 function normalizeInspectionStatus(status) {
   const u = String(status || "").trim().toUpperCase();
   if (u === "DRAFT") return "DRAFT";
-  if (u === "APPROVED" || u === "COMPLIANT_LOGGED" || u === "OFFICER_APPROVED" || u === "NOTICE_ISSUED") return "APPROVED";
-  if (u === "REJECTED" || u === "DISMISSED" || u === "OFFICER_DISMISSED") return "REJECTED";
+  if (u === "PROCESSING") return "PROCESSING";
+  if (u === "UNDER_REVIEW") return "UNDER_REVIEW";
+  if (u === "COMPLIANT" || u === "APPROVED" || u === "COMPLIANT_LOGGED" || u === "OFFICER_APPROVED") return "COMPLIANT";
+  if (u === "NON_COMPLIANT" || u === "REJECTED" || u === "DISMISSED" || u === "OFFICER_DISMISSED" || u === "NOTICE_ISSUED") return "NON_COMPLIANT";
   return "SUBMITTED";
 }
 if (typeof window !== "undefined") {
+  window.formatDisplayDateTime = formatDisplayDateTime;
+  window.getNextSequenceNumber = getNextSequenceNumber;
+  window.generateId = generateId;
+  window.appendAuditLog = appendAuditLog;
   window.normalizeInspectionStatus = normalizeInspectionStatus;
 }
 
@@ -157,11 +313,18 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * Finds and returns a single inspection record matching given ID.
+ * Finds and returns a single inspection record matching given ID (supports encoded/raw slash IDs).
  */
 function getInspectionById(inspectionId) {
+  if (!inspectionId) return null;
+  const rawId = String(inspectionId).trim();
+  const decodedId = decodeURIComponent(rawId);
   const allInspections = getInspections();
-  return allInspections.find(function(item) { return item.id === inspectionId; }) || null;
+  return allInspections.find(function(item) {
+    if (!item || !item.id) return false;
+    const itemId = String(item.id).trim();
+    return itemId === rawId || itemId === decodedId || decodeURIComponent(itemId) === decodedId;
+  }) || null;
 }
 
 /**
@@ -219,8 +382,41 @@ function saveInspection(inspectionData) {
     inspectionData.panelImages = compressedPanels;
   }
 
-  if (!inspectionData.id) inspectionData.id = generateId("INS-");
-  if (!inspectionData.date) inspectionData.date = new Date().toISOString().split("T")[0];
+  if (!inspectionData.id) {
+    const zoneCode = inspectionData.zone ? (inspectionData.zone.includes("North") ? "NZ" : inspectionData.zone.includes("South") ? "SZ" : inspectionData.zone.includes("East") ? "EZ" : inspectionData.zone.includes("West") ? "WZ" : "NZ") : "NZ";
+    inspectionData.id = generateId(zoneCode);
+  }
+  const nowIso = new Date().toISOString();
+  if (!inspectionData.createdAt) inspectionData.createdAt = nowIso;
+  inspectionData.updatedAt = nowIso;
+  if (!inspectionData.timestamp) inspectionData.timestamp = inspectionData.createdAt;
+  if (!inspectionData.date) inspectionData.date = inspectionData.createdAt.split("T")[0];
+  if (!inspectionData.time) {
+    inspectionData.time = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  }
+  if (!inspectionData.formattedDateTime) {
+    inspectionData.formattedDateTime = formatDisplayDateTime(inspectionData.createdAt, true);
+  }
+  if (typeof inspectionData.sequenceNumber !== "number") {
+    inspectionData.sequenceNumber = getNextSequenceNumber();
+  }
+  if (!inspectionData.docketHash) {
+    inspectionData.docketHash = generateSha256DocketHash();
+  }
+  if (!inspectionData.evidenceId) {
+    inspectionData.evidenceId = `EVD-${String(inspectionData.id).replace(/\//g, "-")}`;
+  }
+
+  // Ensure initial audit trail entry exists
+  if (!Array.isArray(inspectionData.auditTrail) || inspectionData.auditTrail.length === 0) {
+    inspectionData.auditTrail = [];
+    appendAuditLog(
+      inspectionData,
+      "CASE_INITIALIZED",
+      inspectionData.inspectorName || "Field Inspector",
+      `Inspection Case Docket ${inspectionData.id} initialized (#${inspectionData.sequenceNumber}) • Hash: ${inspectionData.docketHash}`
+    );
+  }
 
   // Set pendingSync status upfront if offline
   const isOffline = typeof navigator !== "undefined" && navigator.onLine === false;
@@ -236,6 +432,28 @@ function saveInspection(inspectionData) {
   });
 
   if (existingIndex >= 0) {
+    const prev = allInspections[existingIndex];
+    inspectionData.createdAt = prev.createdAt || inspectionData.createdAt;
+    inspectionData.sequenceNumber = prev.sequenceNumber || inspectionData.sequenceNumber;
+    if (prev.auditTrail && Array.isArray(prev.auditTrail)) {
+      // Merge audit trails if needed
+      const existingAudIds = new Set((inspectionData.auditTrail || []).map(a => a.id));
+      prev.auditTrail.forEach(a => {
+        if (!existingAudIds.has(a.id)) {
+          inspectionData.auditTrail.unshift(a);
+        }
+      });
+    }
+    if (prev.status !== inspectionData.status) {
+      appendAuditLog(
+        inspectionData,
+        "STATUS_UPDATED",
+        inspectionData.inspectorName || "System",
+        `Inspection status transitioned from ${prev.status} to ${inspectionData.status}`,
+        prev.status,
+        inspectionData.status
+      );
+    }
     allInspections[existingIndex] = inspectionData;
   } else {
     allInspections.unshift(inspectionData);
@@ -456,52 +674,94 @@ if (typeof window !== "undefined") {
    STANDARDIZED INSPECTION STATE MACHINE
    ========================================================================== */
 const INSPECTION_STATUS = {
-  NON_COMPLIANT_PENDING: "NON_COMPLIANT_PENDING", // Auto-flagged by AI, awaiting review
-  COMPLIANT_LOGGED: "COMPLIANT_LOGGED",           // Passed all checks, archived
-  OFFICER_APPROVED: "OFFICER_APPROVED",           // Confirmed violation; notice ready
-  OFFICER_DISMISSED: "OFFICER_DISMISSED",         // False alarm dismissed by officer
-  NOTICE_ISSUED: "NOTICE_ISSUED"                  // Official statutory notice generated
+  DRAFT: "DRAFT",
+  PROCESSING: "PROCESSING",
+  SUBMITTED: "SUBMITTED",
+  UNDER_REVIEW: "UNDER_REVIEW",
+  COMPLIANT: "COMPLIANT",
+  NON_COMPLIANT: "NON_COMPLIANT",
+
+  // Canonical Statuses & Legacy Aliases
+  NON_COMPLIANT_PENDING: "SUBMITTED",
+  COMPLIANT_LOGGED: "COMPLIANT",
+  OFFICER_APPROVED: "OFFICER_APPROVED",
+  OFFICER_DISMISSED: "OFFICER_DISMISSED",
+  NOTICE_ISSUED: "NOTICE_ISSUED"
 };
 
 function formatStatusLabel(status) {
   const s = String(status || "").toUpperCase();
-  if (s === "NON_COMPLIANT_PENDING" || s === "SUBMITTED" || s === "PENDING") return "Pending Review (Non-Compliant)";
-  if (s === "COMPLIANT_LOGGED" || s === "APPROVED") return "Compliant";
-  if (s === "OFFICER_APPROVED") return "Violation Confirmed";
-  if (s === "OFFICER_DISMISSED" || s === "REJECTED") return "Dismissed";
-  if (s === "NOTICE_ISSUED") return "Notice Issued";
   if (s === "DRAFT") return "Draft";
+  if (s === "PROCESSING") return "Processing (AI Scanning)";
+  if (s === "SUBMITTED" || s === "PENDING" || s === "NON_COMPLIANT_PENDING") return "Submitted (Pending Review)";
+  if (s === "UNDER_REVIEW") return "Under Review";
+  if (s === "COMPLIANT" || s === "COMPLIANT_LOGGED" || s === "APPROVED") return "Compliant";
+  if (s === "OFFICER_APPROVED") return "Violation Confirmed";
+  if (s === "NOTICE_ISSUED") return "Notice Issued";
+  if (s === "OFFICER_DISMISSED" || s === "REJECTED") return "Dismissed";
+  if (s === "NON_COMPLIANT") return "Non-Compliant";
   return status || "Pending";
 }
 
 /**
- * Updates status and optional review fields of an inspection.
+ * Updates status and optional review fields of an inspection with audit logging.
  */
 function updateInspectionStatus(inspectionId, newStatus, comments, reviewFields = {}) {
   const allInspections = getInspections();
   const target = allInspections.find(function(item) { return item.id === inspectionId; });
   if (target) {
+    const prevStatus = target.status;
     target.status = newStatus;
     if (comments) target.reviewComments = comments;
     if (reviewFields.violationsChecked) target.violationsChecked = reviewFields.violationsChecked;
     if (reviewFields.officerPrivateNotes) target.officerPrivateNotes = reviewFields.officerPrivateNotes;
     if (reviewFields.confirmedViolations) target.violations = reviewFields.confirmedViolations;
+    target.updatedAt = new Date().toISOString();
     target.reviewedAt = new Date().toISOString();
+
+    // Persist the adjudicating officer's identity as top-level fields so the statutory
+    // notice PDF can display the correct signatory independently of the audit trail array.
+    const actor = reviewFields.reviewer || (typeof getCurrentUser === "function" ? getCurrentUser() : null) || {};
+    if (actor && typeof actor === "object" && actor.name) {
+      target.reviewedBy          = actor.username || target.reviewedBy || null;
+      target.officerName         = actor.name || target.officerName || null;
+      target.officerDesignation  = actor.designation || target.officerDesignation || null;
+      target.officerBadgeNumber  = actor.badgeNumber || target.officerBadgeNumber || null;
+      target.officerOffice       = actor.officeAddress || target.officerOffice || null;
+    }
+
+    appendAuditLog(
+      target,
+      "OFFICER_ADJUDICATION",
+      actor,
+      comments ? `Adjudication: ${comments}` : `Status transitioned from ${prevStatus} to ${newStatus}`,
+      prevStatus,
+      newStatus
+    );
+
     _inspectionsCache = allInspections.slice();
     try {
       localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(allInspections));
     } catch (e) {}
 
-    // Background server status sync
+    // Background server status sync — include officer identity fields so the server
+    // record is kept in sync for multi-device access.
     if (typeof fetch !== "undefined") {
       fetch(`${STORAGE_API_BASE}/api/inspections/${inspectionId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          status: newStatus, 
+        body: JSON.stringify({
+          status: newStatus,
           reviewComments: comments,
           violationsChecked: reviewFields.violationsChecked,
-          officerPrivateNotes: reviewFields.officerPrivateNotes
+          officerPrivateNotes: reviewFields.officerPrivateNotes,
+          reviewedAt: target.reviewedAt,
+          reviewedBy: target.reviewedBy,
+          officerName: target.officerName,
+          officerDesignation: target.officerDesignation,
+          officerBadgeNumber: target.officerBadgeNumber,
+          officerOffice: target.officerOffice,
+          auditTrail: target.auditTrail
         })
       }).catch(e => {});
     }
@@ -556,7 +816,9 @@ function getCompletedInspections() {
 function exportInspectionsToCSV() {
   const all = filterByZoneAccess(getInspections());
   if (all.length === 0) {
-    alert("No inspection records available to export.");
+    if (typeof showToast === "function") {
+      showToast("No inspection records available to export.", "warning");
+    }
     return;
   }
 
@@ -822,5 +1084,31 @@ function initStorage() {
 
 // Initialize system standards (commodities/rules) and zonal data on script load
 initStorage();
+
+/**
+ * Live Network Sync Health Pill Controller (navigator.onLine)
+ */
+function updateNetworkSyncPill() {
+  if (typeof document === "undefined") return;
+  const pill = document.getElementById("networkSyncPill");
+  if (!pill) return;
+  const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
+  if (isOnline) {
+    pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></span><span class="text-emerald-700 dark:text-emerald-300">Cloud Sync Active</span>`;
+    pill.className = "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 font-mono text-[10px] font-bold shadow-xs";
+  } else {
+    pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span class="text-amber-700 dark:text-amber-300">Offline Queue</span>`;
+    pill.className = "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 font-mono text-[10px] font-bold shadow-xs";
+  }
+}
+if (typeof window !== "undefined") {
+  window.addEventListener("online", updateNetworkSyncPill);
+  window.addEventListener("offline", updateNetworkSyncPill);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", updateNetworkSyncPill);
+  } else {
+    updateNetworkSyncPill();
+  }
+}
 
 

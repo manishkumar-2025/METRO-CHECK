@@ -2996,5 +2996,60 @@ html, body {
   background: #94a3b8;
 }
 
+/* ==========================================================================
+   29. High-Contrast Printable Output Engine (@media print)
+   ========================================================================== */
+@media print {
+  body, html, main, header, footer, div, section {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  header, footer, nav, aside,
+  #nationalGovMasthead,
+  .tricolor-strip,
+  .btn-primary,
+  .no-print,
+  button:not(.printable-btn),
+  #userMenuPopover,
+  #sidebarUserDropdownMenu,
+  #globalToastContainer {
+    display: none !important;
+  }
+
+  a[href]:after {
+    content: none !important;
+  }
+
+  .porcelain-canvas, main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .modern-card, .kpi-card, .glass-panel-elevated {
+    border: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    border: 1px solid #94a3b8 !important;
+    color: #0f172a !important;
+    background: #ffffff !important;
+    padding: 8px !important;
+  }
+}
+
+
 
 

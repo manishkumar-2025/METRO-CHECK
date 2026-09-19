@@ -416,36 +416,100 @@ app.post(["/api/inspections", "/api/inspections/sync"], (req, res) => {
     return res.status(400).json({ error: "Inspection record must specify an ID." });
   }
 
+  // Statuses that represent legally finalized adjudications.
+  // Once a case reaches one of these states it is immutable via the sync endpoint.
+  // Status changes on finalized records must go through PATCH /status with explicit authority.
+  const FINALIZED_STATUSES = new Set(["NOTICE_ISSUED", "OFFICER_APPROVED", "OFFICER_DISMISSED"]);
+
   const inspections = loadJsonFile(INSPECTIONS_FILE, []);
+  const rejected = [];
   items.forEach(item => {
     if (!item || !item.id) return;
     const existingIdx = inspections.findIndex(i => i.id === item.id);
     if (existingIdx >= 0) {
-      inspections[existingIdx] = { ...inspections[existingIdx], ...item, updatedAt: new Date().toISOString() };
+      const existing = inspections[existingIdx];
+      // Protect finalized records: refuse overwrite from the sync endpoint
+      if (FINALIZED_STATUSES.has(existing.status)) {
+        rejected.push(item.id);
+        return; // skip this record silently — client does not need an error for background sync
+      }
+      inspections[existingIdx] = { ...existing, ...item, updatedAt: new Date().toISOString() };
     } else {
       inspections.unshift({ ...item, createdAt: item.date || new Date().toISOString() });
     }
   });
 
   saveJsonFile(INSPECTIONS_FILE, inspections);
-  res.json({ success: true, count: items.length, total: inspections.length, data: items[0] });
+  const response = { success: true, count: items.length, total: inspections.length, data: items[0] };
+  if (rejected.length > 0) {
+    response.skipped = rejected;
+    response.note = `${rejected.length} finalized record(s) were not overwritten: ${rejected.join(", ")}`;
+  }
+  res.json(response);
 });
 
-// 3. Update adjudication status of an inspection
-app.patch("/api/inspections/:id/status", (req, res) => {
-  const { id } = req.params;
+// 3. Update adjudication status of an inspection (supports Zonal slashes & encoded IDs)
+app.patch(["/api/inspections/:id/status", /^\/api\/inspections\/(.+)\/status$/], (req, res) => {
+  const rawId = req.params.id || req.params[0];
+  const id = rawId ? decodeURIComponent(rawId) : "";
   const { status, reviewComments } = req.body;
 
+  const VALID_STATUSES = [
+    "ACCEPTED", "REJECTED", "FLAGGED", "PENDING_REVIEW",
+    "OFFICER_APPROVED", "OFFICER_DISMISSED", "NOTICE_ISSUED",
+    "COMPLIANT_LOGGED", "APPROVED", "SUBMITTED", "DRAFT",
+    "UNDER_REVIEW", "COMPLIANT", "NON_COMPLIANT", "PROCESSING"
+  ];
+  if (status && !VALID_STATUSES.includes(status)) {
+    return res.status(400).json({
+      error: `Invalid status '${status}'. Must be one of: ${VALID_STATUSES.join(", ")}`
+    });
+  }
+
+  // Statuses that represent a legally finalized adjudication.
+  // Moving a record backward from these states is not permitted — it would undermine
+  // the integrity of issued statutory notices and forensic records.
+  const FINALIZED_STATUSES = new Set(["NOTICE_ISSUED", "OFFICER_APPROVED", "OFFICER_DISMISSED"]);
+
   const inspections = loadJsonFile(INSPECTIONS_FILE, []);
-  const target = inspections.find(i => i.id === id);
+  const target = inspections.find(i => i.id === id || i.id === rawId || (i.id && decodeURIComponent(i.id) === id));
   if (target) {
+    // Transition guard: reject attempts to move a finalized case to a non-finalized status
+    if (status && FINALIZED_STATUSES.has(target.status) && !FINALIZED_STATUSES.has(status)) {
+      return res.status(409).json({
+        error: `Case ${id} is already in a finalized state (${target.status}) and cannot be moved to '${status}'. Finalized inspection records are immutable.`
+      });
+    }
+
     if (status) target.status = status;
-    if (reviewComments) target.reviewComments = reviewComments;
-    target.reviewedAt = new Date().toISOString();
+    if (reviewComments !== undefined) target.reviewComments = reviewComments;
+    if (req.body.violationsChecked) target.violationsChecked = req.body.violationsChecked;
+    if (req.body.officerPrivateNotes) target.officerPrivateNotes = req.body.officerPrivateNotes;
+    if (Array.isArray(req.body.auditTrail)) target.auditTrail = req.body.auditTrail;
+    // Persist adjudicating officer identity fields when synced from the client
+    if (req.body.reviewedBy)         target.reviewedBy         = req.body.reviewedBy;
+    if (req.body.officerName)        target.officerName        = req.body.officerName;
+    if (req.body.officerDesignation) target.officerDesignation = req.body.officerDesignation;
+    if (req.body.officerBadgeNumber) target.officerBadgeNumber = req.body.officerBadgeNumber;
+    if (req.body.officerOffice)      target.officerOffice      = req.body.officerOffice;
+    target.updatedAt = new Date().toISOString();
+    target.reviewedAt = req.body.reviewedAt || new Date().toISOString();
     saveJsonFile(INSPECTIONS_FILE, inspections);
     return res.json({ success: true, data: target });
   }
 
+  res.status(404).json({ error: "Inspection case " + id + " not found." });
+});
+
+// 3b. Fetch single inspection record by Case ID
+app.get(["/api/inspections/:id", /^\/api\/inspections\/(.+)$/], (req, res) => {
+  const rawId = req.params.id || req.params[0];
+  const id = rawId ? decodeURIComponent(rawId) : "";
+  const inspections = loadJsonFile(INSPECTIONS_FILE, []);
+  const target = inspections.find(i => i.id === id || i.id === rawId || (i.id && decodeURIComponent(i.id) === id));
+  if (target) {
+    return res.json({ success: true, data: target });
+  }
   res.status(404).json({ error: "Inspection case " + id + " not found." });
 });
 
@@ -895,6 +959,9 @@ ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""
         ? "Statutory declaration compliant. Record in audit registry." 
         : "Issue Statutory Compounding Notice under Section 36 of Legal Metrology Act, 2009.",
       model_used: usedModel,
+      ocr_status: "COMPLETED",
+      ruleValidationTimestamp: new Date().toISOString(),
+      rule_validation_timestamp: new Date().toISOString(),
       is_realtime: true
     };
 

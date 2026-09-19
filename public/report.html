@@ -133,6 +133,13 @@
           <span class="masthead-ist-clock tracking-tight">-- --- ---- | --:--:-- IST</span>
         </div>
 
+        <!-- Live Network / Cloud Sync Health Pill -->
+        <div id="networkSyncPill"
+          class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] font-bold shadow-xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></span>
+          <span>Cloud Sync Active</span>
+        </div>
+
         <!-- Accessibility Pill Dock -->
         <div class="masthead-pill-dock">
           <!-- Font Sizer -->
@@ -263,7 +270,7 @@
         <p class="font-bold text-slate-900">Case ID: <span id="reportIdDisplay"
             class="font-mono text-amber-600 font-bold">INS-0000</span></p>
         <p class="text-slate-500">Date: <span id="reportDateDisplay" class="font-mono">-</span></p>
-        <p class="text-[10px] text-emerald-600 font-bold font-mono">Digital Audit ID: MC-IN-2026-99</p>
+        <p class="text-[10px] text-emerald-600 font-bold font-mono">Digital Audit ID: <span id="reportAuditHashDisplay">SHA256-8A3F9D1E</span></p>
       </div>
     </header>
 
@@ -369,11 +376,14 @@
       <div
         class="text-right flex flex-col items-end border-t sm:border-t-0 sm:border-l border-slate-200 sm:pl-4 pt-2 sm:pt-0 w-full sm:w-1/3">
         <div
-          class="w-32 h-10 border-b border-slate-400 font-cursive text-slate-500 text-sm italic flex items-end justify-center pb-1">
+          id="reportSignatorySignature"
+          class="w-36 h-10 border-b border-slate-400 font-cursive text-blue-900 text-sm italic flex items-end justify-center pb-1">
           Authorized Signatory
         </div>
-        <p class="text-[10px] font-bold text-slate-700 mt-1">Metrology Officer</p>
-        <p class="text-[9px] text-slate-400 font-mono">Digital Token: MC-VERIFIED-AUTH</p>
+        <p id="reportOfficerDesignation" class="text-[10px] font-bold text-slate-700 mt-1">Metrology Officer</p>
+        <p id="reportOfficerName" class="text-[9.5px] font-medium text-slate-600"></p>
+        <p id="reportOfficerOffice" class="text-[8.5px] text-slate-500"></p>
+        <p id="reportOfficerToken" class="text-[9px] text-slate-400 font-mono">Digital Token: MC-VERIFIED-AUTH</p>
       </div>
     </section>
 
