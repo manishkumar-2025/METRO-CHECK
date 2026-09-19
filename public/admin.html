@@ -722,8 +722,8 @@
           </div>
         </div>
 
-        <!-- Sortable Ledger Data Table (Zebra Pattern + Monospace SHA Hash) -->
-        <div class="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" aria-live="polite" aria-atomic="true">
+        <!-- Sortable Ledger Data Table (Zebra Pattern + Monospace SHA Hash) - Desktop/Tablet Only -->
+        <div class="hidden md:block bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" aria-live="polite" aria-atomic="true">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs min-w-[850px]">
               <thead class="bg-[#F8FAFC] text-[#64748B] uppercase font-semibold border-b border-[#E4E7EC] text-[11px] tracking-wider">
@@ -1231,13 +1231,7 @@
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="js/storage.js"></script>
-  <script src="js/rules.js"></script>
-  <script src="js/pdfService.js"></script>
-  <script src="js/notifications.js"></script>
-  <script src="js/admin.js"></script>
-  <script src="js/masthead.js"></script>
+
   <!-- CONTACT SUPPORT & GRIEVANCE MODAL (WCAG AA Compliant) -->
   <div id="contactSupportModal"
     class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
@@ -1366,6 +1360,31 @@
       </form>
     </div>
   </div>
+
+  <!-- Mobile-Only Bottom App Navigation Dock (320px - 767px) -->
+  <nav id="mobileBottomNavAdmin" aria-label="Mobile Navigation"
+    class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 px-2 py-1.5 flex items-center justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.06)] select-none">
+    <button type="button" id="mobileAdminNavBtn-command" onclick="switchAdminTab('command')"
+      class="mobile-nav-admin-item flex flex-col items-center justify-center flex-1 py-1 text-emerald-600 font-bold transition">
+      <span class="text-base leading-none">📊</span>
+      <span class="text-[10px] tracking-tight mt-1">Command</span>
+    </button>
+    <button type="button" id="mobileAdminNavBtn-ledger" onclick="switchAdminTab('ledger')"
+      class="mobile-nav-admin-item flex flex-col items-center justify-center flex-1 py-1 text-slate-500 font-medium transition">
+      <span class="text-base leading-none">📒</span>
+      <span class="text-[10px] tracking-tight mt-1">Ledger</span>
+    </button>
+    <button type="button" id="mobileAdminNavBtn-commodities" onclick="switchAdminTab('commodities')"
+      class="mobile-nav-admin-item flex flex-col items-center justify-center flex-1 py-1 text-slate-500 font-medium transition">
+      <span class="text-base leading-none">📦</span>
+      <span class="text-[10px] tracking-tight mt-1">Rules</span>
+    </button>
+    <button type="button" onclick="toggleMobileSidebar()"
+      class="flex flex-col items-center justify-center flex-1 py-1 text-slate-500 font-medium transition">
+      <span class="text-base leading-none">☰</span>
+      <span class="text-[10px] tracking-tight mt-1">More</span>
+    </button>
+  </nav>
 
   <!-- Scripts -->
   <script src="js/storage.js"></script>

@@ -613,7 +613,7 @@
               </div>
 
               <!-- Filter Tabs: All | Pending | Approved | Rejected -->
-              <div class="inline-flex p-1 bg-[#F1F5F9] rounded-lg gap-1 border border-[#E4E7EC]">
+              <div id="officerDocketFilterTabs" class="inline-flex p-1 bg-[#F1F5F9] rounded-lg gap-1 border border-[#E4E7EC]">
                 <button type="button" data-tab="all" onclick="filterByStatus('all')"
                   class="docket-tab px-3.5 py-1.5 font-semibold text-xs rounded-md bg-[#10B981] text-white shadow-xs">
                   All
@@ -1494,13 +1494,7 @@
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="js/storage.js"></script>
-  <script src="js/rules.js"></script>
-  <script src="js/pdfService.js"></script>
-  <script src="js/notifications.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/masthead.js"></script>
+
   <!-- CONTACT SUPPORT & GRIEVANCE MODAL (WCAG AA Compliant) -->
   <div id="contactSupportModal"
     class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
@@ -1626,6 +1620,35 @@
             <span>✉️ Submit Grievance Ticket</span>
           </button>
         </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Mobile-Only Bottom App Navigation Dock (320px - 767px) -->
+  <nav id="mobileBottomNavOfficer" aria-label="Mobile Navigation"
+    class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 px-2 py-1.5 flex items-center justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.06)] select-none">
+    <button type="button" id="mobileOfficerNavBtn-docket" onclick="switchOfficerTab('docket')"
+      class="mobile-nav-officer-item flex flex-col items-center justify-center flex-1 py-1 text-emerald-600 font-bold transition">
+      <span class="text-base leading-none">📋</span>
+      <span class="text-[10px] tracking-tight mt-1">Docket</span>
+    </button>
+    <button type="button" id="mobileOfficerNavBtn-review" onclick="switchOfficerTab('review')"
+      class="mobile-nav-officer-item flex flex-col items-center justify-center flex-1 py-1 text-slate-500 font-medium transition">
+      <span class="text-base leading-none">🔍</span>
+      <span class="text-[10px] tracking-tight mt-1">Review</span>
+    </button>
+    <button type="button" id="mobileOfficerNavBtn-reports" onclick="switchOfficerTab('reports')"
+      class="mobile-nav-officer-item flex flex-col items-center justify-center flex-1 py-1 text-slate-500 font-medium transition">
+      <span class="text-base leading-none">⚖️</span>
+      <span class="text-[10px] tracking-tight mt-1">Notices</span>
+    </button>
+    <button type="button" onclick="toggleMobileSidebar()"
+      class="flex flex-col items-center justify-center flex-1 py-1 text-slate-500 font-medium transition">
+      <span class="text-base leading-none">☰</span>
+      <span class="text-[10px] tracking-tight mt-1">More</span>
+    </button>
+  </nav>
+
   <!-- Scripts -->
   <script src="js/storage.js"></script>
   <script src="js/rules.js"></script>

@@ -101,27 +101,36 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     const zoneName = sanitizePdfText(String(item.zone || user.zone || "Northern Enforcement Division"));
     const stateName = sanitizePdfText(String(item.state || user.state || "Uttar Pradesh"));
 
+    const rawVerdict = String(item.overall_verdict || item.status || (item.isCompliant ? "COMPLIANT" : "NON-COMPLIANT"));
+    const isCompliant = item.isCompliant === true ||
+      rawVerdict.toLowerCase().includes("pass") ||
+      rawVerdict.toLowerCase() === "approved" ||
+      rawVerdict.toLowerCase() === "compliant";
+
     // For FORM LM-III (non-compliance notices) the signatory MUST be the adjudicating officer,
     // not the field inspector. Fall back to inspectorName only when no officer has reviewed yet.
     const signatoryName = sanitizePdfText(
       String(
-        isCompliant
+        options.signatoryName ||
+        (isCompliant
           ? (item.inspectorName || user.name || "Field Inspector")
-          : (item.officerName || item.reviewedBy || item.inspectorName || user.name || "Metrology Officer")
+          : (item.officerName || item.reviewedBy || item.inspectorName || user.name || "Metrology Officer"))
       )
     );
     const signatoryDesignation = sanitizePdfText(
       String(
-        isCompliant
+        options.signatoryDesignation ||
+        (isCompliant
           ? (item.inspectorDesignation || user.designation || "Legal Metrology Inspector")
-          : (item.officerDesignation || "Assistant Controller of Legal Metrology")
+          : (item.officerDesignation || "Assistant Controller of Legal Metrology"))
       )
     );
     const signatoryOffice = sanitizePdfText(
       String(
-        isCompliant
+        options.signatoryOffice ||
+        (isCompliant
           ? (item.inspectorOffice || user.officeAddress || "")
-          : (item.officerOffice || "")
+          : (item.officerOffice || ""))
       )
     );
 
@@ -140,12 +149,6 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     const mrpVal = sanitizePdfText(ext.mrp != null && ext.mrp !== "" ? ext.mrp : "NOT DECLARED");
     const mfgDate = sanitizePdfText(ext.mfg_date != null && ext.mfg_date !== "" ? ext.mfg_date : "NOT DECLARED");
     const customerCare = sanitizePdfText(ext.consumer_care != null && ext.consumer_care !== "" ? ext.consumer_care : "NOT DECLARED");
-
-    const rawVerdict = String(item.overall_verdict || item.status || (item.isCompliant ? "COMPLIANT" : "NON-COMPLIANT"));
-    const isCompliant = item.isCompliant === true ||
-      rawVerdict.toLowerCase().includes("pass") ||
-      rawVerdict.toLowerCase() === "approved" ||
-      rawVerdict.toLowerCase() === "compliant";
 
     const viols = Array.isArray(item.violations) ? item.violations : [];
 
@@ -265,7 +268,7 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
 
     // Right Column (Forensic Hash, Statutory Assessment, GPS Geo-Stamp)
     doc.setFont("helvetica", "bold"); doc.text("Inspection Time:", 110, curY + 5);
-    doc.setFont("helvetica", "normal"); doc.text(sanitizePdfText(item.formattedDateTime || inspectionDate), 140, curY + 5);
+    doc.setFont("helvetica", "normal"); doc.text(sanitizePdfText(item.formattedDateTime || `${dateStr} ${timeStr}`), 140, curY + 5);
 
     doc.setFont("helvetica", "bold"); doc.text("SHA-256 Docket Hash:", 110, curY + 10);
     doc.setFont("helvetica", "normal"); doc.text(sanitizePdfText(item.docketHash || "SHA256-8A3F9D1E"), 140, curY + 10);

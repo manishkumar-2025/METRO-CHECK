@@ -103,11 +103,11 @@ body.theme-dark .sticky-frosted-nav {
     width: 100% !important;
   }
 
-  /* Sovereign Masthead on mobile: sticky at top: 0 */
+  /* Sovereign Masthead on mobile: sleek compact 38px bar */
   #nationalGovMasthead {
     position: sticky !important;
-    height: 51px !important;
-    max-height: 51px !important;
+    height: 38px !important;
+    max-height: 38px !important;
     padding: 0 !important;
     top: 0 !important;
     left: 0 !important;
@@ -117,8 +117,8 @@ body.theme-dark .sticky-frosted-nav {
     overflow: hidden !important;
   }
   #nationalGovMasthead > div:not(.tricolor-strip) {
-    height: 48px !important;
-    max-height: 48px !important;
+    height: 35px !important;
+    max-height: 35px !important;
     padding: 0 0.5rem !important;
     display: flex !important;
     flex-direction: row !important;
@@ -127,7 +127,7 @@ body.theme-dark .sticky-frosted-nav {
     justify-content: space-between !important;
   }
   #nationalGovMasthead img {
-    height: 26px !important;
+    height: 22px !important;
   }
   #nationalGovMasthead .masthead-ist-clock,
   #nationalGovMasthead #networkSyncPill {
@@ -169,7 +169,7 @@ body.theme-dark .sticky-frosted-nav {
 
   /* Global Toast Notifications on Mobile View */
   #globalToastContainer {
-    top: 58px !important;
+    top: 48px !important;
     right: 12px !important;
     left: 12px !important;
     max-width: calc(100vw - 24px) !important;
@@ -181,7 +181,7 @@ body.theme-dark .sticky-frosted-nav {
     max-width: 420px !important;
   }
 
-  /* Main viewport starts in natural flow right below sticky 51px masthead */
+  /* Main viewport starts in natural flow right below sticky masthead */
   .main-viewport,
   .sidebar-container ~ .main-viewport,
   .sidebar-container ~ div.flex-1 {
@@ -194,13 +194,144 @@ body.theme-dark .sticky-frosted-nav {
     overflow-x: hidden !important;
   }
 
-  /* Sub-header mobile top position directly below 51px masthead */
+  /* Sub-header mobile position sits naturally below 38px masthead with zero overlap */
   .main-viewport > header,
   .sidebar-container ~ div.flex-1 > header {
-    position: sticky !important;
+    position: relative !important;
     top: 0 !important;
     z-index: 30 !important;
-    padding: 0.5rem 0.75rem !important;
+    padding: 0.45rem 0.75rem !important;
+    min-height: 44px !important;
+  }
+  .main-viewport > header h2,
+  .sidebar-container ~ div.flex-1 > header h2 {
+    font-size: 0.9375rem !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    color: #0F172A !important;
+  }
+  /* Hide secondary breadcrumb and telemetry pills on mobile to keep header visually light */
+  .main-viewport > header > div:first-child .text-\[11px\],
+  .sidebar-container ~ div.flex-1 > header > div:first-child .text-\[11px\],
+  .main-viewport > header > div:nth-child(2),
+  .sidebar-container ~ div.flex-1 > header > div:nth-child(2) {
+    display: none !important;
+  }
+
+  /* Compact Mobile Action Hero Banner */
+  #view-dashboard > .modern-card:first-child {
+    padding: 0.875rem 1rem !important;
+    border-radius: 1rem !important;
+    margin-bottom: 0.75rem !important;
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;
+  }
+  #view-dashboard > .modern-card:first-child > div:first-child > div:first-child,
+  #view-dashboard > .modern-card:first-child p {
+    display: none !important;
+  }
+  #view-dashboard > .modern-card:first-child h2 {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+  }
+  #view-dashboard > .modern-card:first-child .btn-ai-scan {
+    width: 100% !important;
+    min-height: 44px !important;
+    margin-top: 0.5rem !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    justify-content: center !important;
+    border-radius: 0.75rem !important;
+  }
+
+  /* Compact 2x2 Mobile KPI Grid across Inspector, Officer, and Admin */
+  .grid:has(> .kpi-card) {
+    gap: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  .kpi-card {
+    padding: 0.625rem 0.75rem !important;
+    border-radius: 0.75rem !important;
+    border-left-width: 3px !important;
+    min-height: 56px !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+  .kpi-card > div:first-child {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  .kpi-card > div:first-child span {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: #64748B !important;
+  }
+  .kpi-card > div:first-child .w-8,
+  .kpi-card > div:first-child .w-7 {
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 11px !important;
+    border-radius: 0.375rem !important;
+  }
+  .kpi-card > div:first-child .w-8 svg,
+  .kpi-card > div:first-child .w-7 svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+  .kpi-card h2 {
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    margin-top: 0.15rem !important;
+    line-height: 1.1 !important;
+  }
+  .kpi-card p {
+    display: none !important;
+  }
+
+  /* Officer Review Docket Filter Bar */
+  #officerView-docket > div.bg-white.rounded-xl.p-5 {
+    padding: 0.75rem !important;
+    border-radius: 0.875rem !important;
+    margin-bottom: 0.75rem !important;
+    gap: 0.5rem !important;
+  }
+  #officerView-docket > div.bg-white.rounded-xl.p-5 h3 {
+    font-size: 0.875rem !important;
+  }
+  #officerZoneBadge {
+    padding: 0.15rem 0.5rem !important;
+    font-size: 10.5px !important;
+  }
+  #pendingCasesCount {
+    display: none !important;
+  }
+  #docketSearchInput {
+    height: 38px !important;
+    font-size: 13px !important;
+    border-radius: 0.625rem !important;
+  }
+  #officerDocketFilterTabs {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.25rem !important;
+    padding: 0.2rem !important;
+    width: 100% !important;
+    background: #F1F5F9 !important;
+    border-radius: 0.625rem !important;
+  }
+  #officerDocketFilterTabs button {
+    padding: 0.35rem 0.25rem !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    justify-content: center !important;
+    min-height: 32px !important;
   }
 
   /* Standalone pages without .main-viewport (index, report, features) */
@@ -208,7 +339,7 @@ body.theme-dark .sticky-frosted-nav {
     padding-top: 0 !important;
   }
   body:not(:has(.main-viewport)) #mainContent {
-    padding-top: 1rem !important;
+    padding-top: 0.75rem !important;
   }
 
   /* Hide quick OCR button in subheader on mobile/tablet */
@@ -216,11 +347,41 @@ body.theme-dark .sticky-frosted-nav {
     display: none !important;
   }
 
-  /* Main content padding reduction */
+  /* Main content padding reduction and safe bottom clearance for mobile nav */
   #mainContent {
-    padding: 0.875rem !important;
+    padding: 0.875rem 0.875rem 5.5rem 0.875rem !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
+  }
+  .main-viewport {
+    padding-bottom: 4rem !important;
+  }
+
+  /* Mobile Bottom Navigation Bar Dock */
+  #mobileBottomNavInspector,
+  #mobileBottomNavOfficer,
+  #mobileBottomNavAdmin {
+    height: 58px !important;
+    padding-bottom: env(safe-area-inset-bottom, 4px) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+    z-index: 45 !important;
+  }
+  .mobile-nav-inspector-item,
+  .mobile-nav-officer-item,
+  .mobile-nav-admin-item {
+    min-height: 44px !important;
+    position: relative;
+  }
+  .mobile-nav-inspector-item.text-emerald-600::before,
+  .mobile-nav-officer-item.text-emerald-600::before,
+  .mobile-nav-admin-item.text-emerald-600::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    width: 22px;
+    height: 3px;
+    background: #10B981;
+    border-radius: 9999px;
   }
 
   /* Mobile Off-Canvas Drawer Sidebar Position */
@@ -325,8 +486,7 @@ body.theme-dark .sticky-frosted-nav {
   }
 
   /* Card compact padding */
-  .modern-card,
-  .kpi-card {
+  .modern-card {
     padding: 0.875rem !important;
     border-radius: 0.875rem !important;
   }
@@ -427,9 +587,41 @@ body.theme-dark .sticky-frosted-nav {
     scrollbar-width: none;
   }
 
-  /* All filter tab bars: smooth touch horizontal scrolling */
+  /* Full-width segmented controls on mobile phone */
+  #officerDocketFilterTabs,
   div:has(> .docket-tab),
-  div:has(> .inspection-filter-tab),
+  div:has(> .inspection-filter-tab) {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    gap: 3px !important;
+    padding: 3px !important;
+    background: #F1F5F9 !important;
+    border-radius: 0.75rem !important;
+  }
+  #officerDocketFilterTabs > button,
+  .docket-tab,
+  .inspection-filter-tab {
+    text-align: center !important;
+    justify-content: center !important;
+    padding: 0.45rem 0.15rem !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    flex: none !important;
+  }
+
+  /* Full-width mobile search inputs */
+  #docketSearchInput,
+  #masterLedgerSearchInput,
+  #myInspectionsSearchInput {
+    width: 100% !important;
+    font-size: 14px !important;
+  }
+
+  /* Horizontal touch scrolling for wide filter pill lists */
   #commodityCategoryPills,
   #rulesChapterFilters {
     overflow-x: auto !important;
@@ -438,18 +630,890 @@ body.theme-dark .sticky-frosted-nav {
     scrollbar-width: none;
     padding-bottom: 2px;
   }
-  div:has(> .docket-tab)::-webkit-scrollbar,
-  div:has(> .inspection-filter-tab)::-webkit-scrollbar,
   #commodityCategoryPills::-webkit-scrollbar,
   #rulesChapterFilters::-webkit-scrollbar {
     display: none;
   }
-  .docket-tab,
-  .inspection-filter-tab,
   .commodity-cat-pill,
   .rules-chap-btn {
     flex-shrink: 0 !important;
     white-space: nowrap !important;
+  }
+
+  /* =========================================================================
+     MOBILE DATA TABLES -> NATIVE CARD LIST TRANSFORMATIONS
+     ========================================================================= */
+
+  /* 1. Inspector Dashboard & My Inspections Case Feed Items */
+  table:has(#inspectionsTableBody),
+  table:has(#myInspectionsTableBody) {
+    min-width: 100% !important;
+    display: block !important;
+  }
+  table:has(#inspectionsTableBody) thead,
+  table:has(#myInspectionsTableBody) thead {
+    display: none !important;
+  }
+  #inspectionsTableBody,
+  #myInspectionsTableBody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.625rem !important;
+    width: 100% !important;
+  }
+  #inspectionsTableBody tr,
+  #myInspectionsTableBody tr {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 0.35rem 0.5rem !important;
+    padding: 0.75rem 0.875rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+  }
+  /* Row 1: Product Name (left) & Status (right) */
+  #inspectionsTableBody tr > td:nth-child(2),
+  #myInspectionsTableBody tr > td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 0.9375rem !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    padding: 0 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  #inspectionsTableBody tr > td:nth-child(5),
+  #myInspectionsTableBody tr > td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: flex-end;
+    display: flex !important;
+    padding: 0 !important;
+    align-items: center !important;
+  }
+  /* Row 2: Case ID (left) & Compliance Badge (right) */
+  #inspectionsTableBody tr > td:nth-child(1),
+  #myInspectionsTableBody tr > td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0 !important;
+    font-size: 11.5px !important;
+    color: #047857 !important;
+    font-weight: 600 !important;
+  }
+  #inspectionsTableBody tr > td:nth-child(4),
+  #myInspectionsTableBody tr > td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-content: flex-end;
+    display: flex !important;
+    padding: 0 !important;
+  }
+  /* Hide verbose date column on card preview */
+  #inspectionsTableBody tr > td:nth-child(3),
+  #myInspectionsTableBody tr > td:nth-child(3) {
+    display: none !important;
+  }
+  /* Row 3: Action Button full-width */
+  #inspectionsTableBody tr > td:nth-child(6),
+  #myInspectionsTableBody tr > td:nth-child(6) {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    padding: 0.45rem 0 0 0 !important;
+    border-top: 1px dashed #E2E8F0 !important;
+    margin-top: 0.2rem !important;
+    width: 100% !important;
+  }
+  #inspectionsTableBody tr > td:nth-child(6) button,
+  #myInspectionsTableBody tr > td:nth-child(6) button {
+    width: 100% !important;
+    min-height: 38px !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    border-radius: 0.625rem !important;
+    background: #ECFDF5 !important;
+    color: #047857 !important;
+    border: 1px solid #A7F3D0 !important;
+  }
+
+  /* 2. Officer Review Docket Purpose-Built Mobile List Items */
+  table:has(#officerDocketTableBody) {
+    min-width: 100% !important;
+    display: block !important;
+  }
+  table:has(#officerDocketTableBody) thead {
+    display: none !important;
+  }
+  #officerDocketTableBody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.625rem !important;
+    width: 100% !important;
+  }
+  #officerDocketTableBody tr {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 0.35rem 0.5rem !important;
+    padding: 0.75rem 0.875rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+  }
+  /* Row 1: Product Name (left) & Status (right) */
+  #officerDocketTableBody tr > td:nth-child(4) {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 0 !important;
+    font-size: 0.9375rem !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  #officerDocketTableBody tr > td:nth-child(8) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: flex-end;
+    display: flex !important;
+    padding: 0 !important;
+    align-items: center !important;
+  }
+
+  /* Row 2: Case ID (left) & Violations (right) */
+  #officerDocketTableBody tr > td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0 !important;
+    font-size: 11.5px !important;
+  }
+  #officerDocketTableBody tr > td:nth-child(6) {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    padding: 0 !important;
+  }
+  #officerDocketTableBody tr > td:nth-child(6) span.text-emerald-600 {
+    font-size: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 2px 7px !important;
+    background: #ECFDF5 !important;
+    color: #059669 !important;
+    border: 1px solid #A7F3D0 !important;
+    border-radius: 9999px !important;
+  }
+  #officerDocketTableBody tr > td:nth-child(6) span.text-emerald-600::before {
+    content: "✓ 0 Violations";
+    font-size: 10.5px !important;
+    font-weight: 600 !important;
+  }
+  #officerDocketTableBody tr > td:nth-child(6) span.bg-red-100 {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 2px 7px !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+  }
+
+  /* Hide verbose redundant columns on mobile card preview */
+  #officerDocketTableBody tr > td:nth-child(2),
+  #officerDocketTableBody tr > td:nth-child(3),
+  #officerDocketTableBody tr > td:nth-child(5),
+  #officerDocketTableBody tr > td:nth-child(7) {
+    display: none !important;
+  }
+
+  /* Row 3: Action Button full-width */
+  #officerDocketTableBody tr > td:nth-child(9) {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    padding: 0.45rem 0 0 0 !important;
+    border-top: 1px dashed #E2E8F0 !important;
+    margin-top: 0.2rem !important;
+    width: 100% !important;
+  }
+  #officerDocketTableBody tr > td:nth-child(9) button {
+    width: 100% !important;
+    min-height: 40px !important;
+    justify-content: center !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    border-radius: 0.625rem !important;
+  }
+
+  /* 3. Statutory Compliance Checklist Matrix Cards */
+  table:has(#reportParametersTableBody) {
+    min-width: 100% !important;
+    display: block !important;
+  }
+  table:has(#reportParametersTableBody) thead {
+    display: none !important;
+  }
+  #reportParametersTableBody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+  }
+  #reportParametersTableBody tr {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.35rem !important;
+    padding: 0.875rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E4E7EC !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+  }
+  #reportParametersTableBody tr > td {
+    padding: 0 !important;
+    white-space: normal !important;
+    border: none !important;
+  }
+  #reportParametersTableBody tr > td:nth-child(1) {
+    font-size: 0.875rem !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+  }
+  #reportParametersTableBody tr > td:nth-child(4) {
+    margin-top: 0.15rem !important;
+  }
+  #reportParametersTableBody tr > td:nth-child(2) {
+    padding: 0.35rem 0.5rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 11.5px !important;
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    margin-top: 0.25rem !important;
+  }
+  #reportParametersTableBody tr > td:nth-child(3) {
+    font-size: 10.5px !important;
+    color: #64748B !important;
+  }
+  #reportParametersTableBody tr > td:nth-child(5) {
+    font-size: 11px !important;
+    color: #334155 !important;
+    padding-top: 0.35rem !important;
+    border-top: 1px dashed #E2E8F0 !important;
+    margin-top: 0.25rem !important;
+  }
+
+  /* 4. Admin System Activity Audit Log Cards */
+  table:has(#adminActivityTableBody) {
+    min-width: 100% !important;
+    display: block !important;
+  }
+  table:has(#adminActivityTableBody) thead {
+    display: none !important;
+  }
+  #adminActivityTableBody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+  #adminActivityTableBody tr {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+    padding: 0.75rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E4E7EC !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+  }
+  #adminActivityTableBody tr > td {
+    padding: 0 !important;
+    white-space: normal !important;
+    border: none !important;
+  }
+
+  /* 5. Report Official AI Extracted Declarations Cards */
+  table:has(#reportDeclarationsTableBody) {
+    min-width: 100% !important;
+    display: block !important;
+  }
+  table:has(#reportDeclarationsTableBody) thead {
+    display: none !important;
+  }
+  #reportDeclarationsTableBody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+  }
+  #reportDeclarationsTableBody tr {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 0.35rem 0.5rem !important;
+    padding: 0.875rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E4E7EC !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+  }
+  #reportDeclarationsTableBody tr > td {
+    padding: 0 !important;
+    white-space: normal !important;
+    border: none !important;
+  }
+  #reportDeclarationsTableBody tr > td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 0.875rem !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    display: flex;
+    align-items: center;
+  }
+  #reportDeclarationsTableBody tr > td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+  #reportDeclarationsTableBody tr > td:nth-child(2) {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+    padding: 0.35rem 0.5rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 12px !important;
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    word-break: break-word !important;
+  }
+  #reportDeclarationsTableBody tr > td:nth-child(3) {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    font-size: 11px !important;
+    color: #64748B !important;
+    font-family: monospace;
+  }
+
+  /* 6. Admin Commodities Standards Table -> Mobile Cards */
+  table:has(#adminCommoditiesTableBody) {
+    min-width: 100% !important;
+    display: block !important;
+  }
+  table:has(#adminCommoditiesTableBody) thead {
+    display: none !important;
+  }
+  #adminCommoditiesTableBody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+  }
+  #adminCommoditiesTableBody tr {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.4rem !important;
+    padding: 0.875rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E4E7EC !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+  }
+  #adminCommoditiesTableBody tr > td {
+    padding: 0 !important;
+    border: none !important;
+    white-space: normal !important;
+  }
+  #adminCommoditiesTableBody tr > td:nth-child(2) {
+    font-size: 0.9375rem !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+  }
+  #adminCommoditiesTableBody tr > td:nth-child(1) {
+    font-size: 11px !important;
+    color: #64748B !important;
+  }
+  #adminCommoditiesTableBody tr > td:nth-child(4) {
+    font-size: 11.5px !important;
+    color: #B45309 !important;
+  }
+  #adminCommoditiesTableBody tr > td:nth-child(7) {
+    display: grid !important;
+    grid-template-columns: 1fr auto auto !important;
+    gap: 0.35rem !important;
+    padding-top: 0.5rem !important;
+    border-top: 1px dashed #E4E7EC !important;
+    margin-top: 0.25rem !important;
+  }
+  #adminCommoditiesTableBody tr > td:nth-child(7) button {
+    min-height: 36px !important;
+    justify-content: center !important;
+  }
+
+  /* 7. Admin User Management Table -> Mobile Cards */
+  table:has(#adminUsersTableBody) {
+    min-width: 100% !important;
+    display: block !important;
+  }
+  table:has(#adminUsersTableBody) thead {
+    display: none !important;
+  }
+  #adminUsersTableBody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+  }
+  #adminUsersTableBody tr {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.4rem !important;
+    padding: 0.875rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E4E7EC !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+  }
+  #adminUsersTableBody tr > td {
+    padding: 0 !important;
+    border: none !important;
+    white-space: normal !important;
+  }
+  #adminUsersTableBody tr > td:nth-child(2) {
+    font-size: 0.9375rem !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+  }
+  #adminUsersTableBody tr > td:nth-child(6) {
+    display: flex !important;
+    gap: 0.5rem !important;
+    padding-top: 0.5rem !important;
+    border-top: 1px dashed #E4E7EC !important;
+    margin-top: 0.25rem !important;
+  }
+  #adminUsersTableBody tr > td:nth-child(6) button {
+    flex: 1 !important;
+    min-height: 38px !important;
+    justify-content: center !important;
+  }
+
+  /* Camera offline state: hide scanning target HUD overlay to avoid obscuring controls */
+  #cameraModeBox:not(.camera-streaming) #cameraScanOverlay {
+    display: none !important;
+  }
+
+  /* Universal Mobile Modal & Dialog Touch Ergonomics */
+  div[role="dialog"] > div {
+    width: 100% !important;
+    max-width: 95vw !important;
+    padding: 1.125rem !important;
+    border-radius: 1.25rem !important;
+    max-height: 88vh !important;
+  }
+  div[role="dialog"] form .flex.justify-end,
+  div[role="dialog"] .flex.justify-end {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.625rem !important;
+    width: 100% !important;
+  }
+  div[role="dialog"] button {
+    min-height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+  }
+
+  /* ==========================================================================
+     FOCUSED MOBILE SCANNING SUITE REDESIGN (320px–767px)
+     Purpose-built compact mobile camera & OCR scanner workflow.
+     Flow: Camera/Upload → Capture → Analyze → Result
+     ========================================================================== */
+
+  /* 1. Module Spacing & Container Hierarchy */
+  #view-ocr {
+    gap: 0.25rem !important;
+    padding-bottom: 3.5rem !important;
+  }
+  #view-ocr.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* 2. Top Command Bar: Ultra-compact Category & Case Ref row */
+  #view-ocr > .modern-card:first-child {
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.625rem !important;
+    gap: 0.25rem !important;
+    margin-bottom: 0.2rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E2E8F0 !important;
+  }
+  /* Remove verbose decorative text, paragraphs, and large headings */
+  #view-ocr > .modern-card:first-child > div.space-y-1,
+  #view-ocr > .modern-card:first-child p,
+  #view-ocr > .modern-card:first-child h3 {
+    display: none !important;
+  }
+  /* Single horizontal flex row for Category Selector and Case ID badge */
+  #view-ocr > .modern-card:first-child > div:last-child {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    width: 100% !important;
+  }
+  #view-ocr > .modern-card:first-child > div:last-child > div:nth-child(2) {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+  #view-ocr > .modern-card:first-child label[for="ocrCommodityCategorySelect"] {
+    display: none !important;
+  }
+  #view-ocr > .modern-card:first-child select#ocrCommodityCategorySelect {
+    width: 100% !important;
+    min-width: 90px !important;
+    height: 28px !important;
+    font-size: 11px !important;
+    padding: 0.15rem 0.35rem !important;
+    border-radius: 0.5rem !important;
+  }
+  #view-ocr > .modern-card:first-child div:has(> #ocrCaseIdDisplay) {
+    padding: 0.15rem 0.4rem !important;
+    font-size: 10px !important;
+    height: 28px !important;
+    line-height: 26px !important;
+    white-space: nowrap !important;
+    border-radius: 0.5rem !important;
+    flex-shrink: 0 !important;
+    max-width: 130px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* 3. Main Inspection Deck Container: remove empty space */
+  #ocrMainCaptureDeck {
+    padding: 0.35rem 0.45rem !important;
+    border-radius: 0.75rem !important;
+    gap: 0.25rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E2E8F0 !important;
+    margin-top: 0 !important;
+  }
+  /* Remove Step 1 decorative headers, subtext, guide button & tip drawer on mobile */
+  #ocrInstructionsHeader {
+    display: none !important;
+  }
+
+  /* 4. Segmented Mode Controller (Camera vs Upload) & Active Target Pill: sleek single row */
+  #ocrActionToolbar {
+    padding: 0.2rem 0.35rem !important;
+    border-radius: 0.625rem !important;
+    gap: 0.2rem !important;
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    margin-bottom: 0.2rem !important;
+  }
+  #ocrActionToolbar > div:first-child {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.25rem !important;
+    width: 100% !important;
+  }
+  #ocrActionToolbar > div:first-child > div:first-child {
+    flex-shrink: 0 !important;
+  }
+  #ocrActionToolbar div[role="tablist"] {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 2px !important;
+    padding: 2px !important;
+    background: #E2E8F0 !important;
+    border-radius: 0.5rem !important;
+  }
+  #ocrActionToolbar #modeBtnCamera,
+  #ocrActionToolbar #modeBtnUpload {
+    min-height: 24px !important;
+    height: 24px !important;
+    font-size: 10px !important;
+    padding: 0 0.3rem !important;
+    justify-content: center !important;
+    border-radius: 0.375rem !important;
+    white-space: nowrap !important;
+    gap: 0.2rem !important;
+  }
+  #ocrActionToolbar > div:first-child > div:last-child {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.25rem !important;
+    min-width: 0 !important;
+    flex-shrink: 0 !important;
+  }
+  #ocrActionToolbar > div:first-child > div:last-child > div:first-child {
+    display: none !important;
+  }
+  #ocrActionToolbar > div:first-child > div:last-child > div:last-child {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    flex-shrink: 0 !important;
+  }
+  #activeSlotBadgeDisplay {
+    display: none !important;
+  }
+  #ocrActionToolbar span:has(> #capturedPanelsCounter),
+  #ocrActionToolbar #capturedPanelsCounter {
+    display: none !important;
+  }
+  #ocrActionToolbar button[onclick*="clearAllPanelImages"] {
+    padding: 0.15rem 0.35rem !important;
+    font-size: 9.5px !important;
+    min-height: 24px !important;
+    height: 24px !important;
+    border-radius: 0.375rem !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* 5. Mobile Camera Viewfinder: compact optical hero frame (135px height) */
+  #cameraModeBox {
+    gap: 0.25rem !important;
+  }
+  #cameraModeBox > div:first-child {
+    height: 135px !important;
+    min-height: 135px !important;
+    max-height: 140px !important;
+    border-radius: 0.75rem !important;
+    background: #090D16 !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+  #cameraModeBox #cameraVideoFeed {
+    height: 100% !important;
+    max-height: 140px !important;
+    object-fit: cover !important;
+    border-radius: 0.75rem !important;
+  }
+  #cameraScanOverlay {
+    inset: 0.35rem !important;
+    padding: 0.25rem !important;
+  }
+  #cameraScanOverlay #cameraTargetLabel {
+    font-size: 8.5px !important;
+  }
+  #cameraScanOverlay > div:last-child {
+    font-size: 8px !important;
+    padding: 1px 4px !important;
+  }
+  #cameraPlaceholder {
+    padding: 0.35rem 0.5rem !important;
+    gap: 0.25rem !important;
+    background: #F8FAFC !important;
+    border-radius: 0.75rem !important;
+  }
+  #cameraPlaceholder > div:first-child {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 14px !important;
+    border-radius: 0.5rem !important;
+    margin-bottom: 0 !important;
+  }
+  #cameraPlaceholder p.text-sm {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+  }
+  #cameraPlaceholder p.text-xs {
+    display: none !important;
+  }
+  #btnStartCamera {
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 0 0.85rem !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25) !important;
+  }
+  /* Active live camera shutter controls (strictly only when streaming/unhidden) */
+  #cameraActiveControls:not(.hidden) {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0.25rem !important;
+    padding-top: 0.2rem !important;
+    width: 100% !important;
+  }
+  #cameraActiveControls button:first-child {
+    flex: 2 !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    border-radius: 0.5rem !important;
+    background: #10B981 !important;
+    color: #ffffff !important;
+    box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3) !important;
+  }
+  #cameraActiveControls button:not(:first-child) {
+    flex: 1 !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    font-size: 11px !important;
+    border-radius: 0.5rem !important;
+    background: #F1F5F9 !important;
+    color: #334155 !important;
+  }
+
+  /* 6. 6-Panel Captured Carousel Strip: ultra-sleek horizontal chip strip */
+  #cameraPanelThumbnailsStrip {
+    padding: 0.2rem 0.35rem !important;
+    border-radius: 0.625rem !important;
+    margin-top: 0.2rem !important;
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+  }
+  #cameraPanelThumbnailsStrip > span {
+    display: none !important;
+  }
+  #cameraPanelThumbnailsStrip > .grid {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    gap: 0.25rem !important;
+    padding: 0 !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+  #cameraPanelThumbnailsStrip > .grid::-webkit-scrollbar {
+    display: none !important;
+  }
+  #cameraPanelThumbnailsStrip > .grid > div {
+    flex: 0 0 46px !important;
+    min-width: 46px !important;
+    padding: 2px !important;
+    border-radius: 0.375rem !important;
+    text-align: center !important;
+    gap: 0.1rem !important;
+    background: #ffffff !important;
+  }
+  #cameraPanelThumbnailsStrip > .grid > div span.block {
+    font-size: 8.5px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  #cameraPanelThumbnailsStrip > .grid > div .h-14 {
+    height: 22px !important;
+    border-radius: 0.25rem !important;
+  }
+  #cameraPanelThumbnailsStrip > .grid > div .h-14 span {
+    font-size: 8px !important;
+  }
+
+  /* 7. Upload Mode: Ultra-Compact 3-Column Micro-Grid */
+  #uploadModeBox {
+    margin-top: 0.2rem !important;
+  }
+  #uploadModeBox .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.25rem !important;
+  }
+  #uploadModeBox .grid > div {
+    min-height: 52px !important;
+    max-height: 58px !important;
+    padding: 0.25rem !important;
+    border-radius: 0.5rem !important;
+    border: 1px solid #E2E8F0 !important;
+  }
+  #uploadModeBox .grid > div .font-bold.text-xs {
+    font-size: 10px !important;
+  }
+  #uploadModeBox .scanner-dropzone {
+    min-height: 28px !important;
+    padding: 0.1rem !important;
+    border-radius: 0.375rem !important;
+    margin-top: 0.15rem !important;
+  }
+  #uploadModeBox .scanner-dropzone > div {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 10px !important;
+    margin-bottom: 0 !important;
+  }
+  #uploadModeBox .scanner-dropzone p {
+    display: none !important;
+  }
+  #uploadModeBox div[id^="slotPreview"] {
+    padding: 0.15rem !important;
+    margin-top: 0.15rem !important;
+    border-radius: 0.375rem !important;
+  }
+  #uploadModeBox div[id^="slotPreview"] img {
+    height: 24px !important;
+  }
+
+  /* 8. Primary AI Scan & Audit Action Button (Thumb-Dominant CTA, No Excess Padding) */
+  #ocrPrimaryCtaDock {
+    padding: 0 !important;
+    border-radius: 0 !important;
+    gap: 0 !important;
+    margin-top: 0.25rem !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  #ocrPrimaryCtaDock > div:first-child {
+    display: none !important;
+  }
+  #btnRunAiAnalysis {
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 0.875rem !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    border-radius: 0.625rem !important;
+    letter-spacing: -0.01em !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+  #btnRunAiAnalysis:not([disabled]) {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+    opacity: 1 !important;
+    cursor: pointer !important;
+  }
+
+  /* 9. Manual Entry Form: Clean Collapsed Fallback Accordion */
+  #manualEntryAccordion {
+    border-radius: 0.625rem !important;
+    margin-top: 0.35rem !important;
+  }
+  #manualEntryAccordion > summary {
+    padding: 0.4rem 0.625rem !important;
+  }
+  #manualEntryAccordion > summary p {
+    display: none !important;
+  }
+  #manualEntryAccordion > summary h4 {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+  }
+  #manualEntryAccordion > summary span.border-amber-200 {
+    font-size: 10px !important;
+    padding: 0.15rem 0.4rem !important;
   }
 
   /* Modal Dialogs: compact padding & max bounds on phone */
@@ -507,34 +1571,50 @@ body.theme-dark .sticky-frosted-nav {
     line-height: 1.2 !important;
   }
 
-  /* Report page (report.html) action bar */
+  /* Report page (report.html) sticky bottom action bar on mobile */
   body > div.max-w-4xl.mx-auto.my-5 {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 0.625rem !important;
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-    margin-top: 0.75rem !important;
-    margin-bottom: 0.75rem !important;
-  }
-  body > div.max-w-4xl.mx-auto.my-5 > button:first-child {
-    align-self: flex-start !important;
-  }
-  body > div.max-w-4xl.mx-auto.my-5 > .flex.items-center.gap-3 {
-    width: 100% !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 !important;
+    padding: 0.625rem 0.875rem !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    border-top: 1px solid #E2E8F0 !important;
+    z-index: 50 !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12) !important;
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     gap: 0.5rem !important;
   }
-  body > div.max-w-4xl.mx-auto.my-5 button {
-    min-height: 42px !important;
+  .dark body > div.max-w-4xl.mx-auto.my-5 {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border-top-color: #1E293B !important;
+  }
+  body > div.max-w-4xl.mx-auto.my-5 > button:first-child {
+    min-height: 40px !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 12px !important;
+    flex-shrink: 0 !important;
+  }
+  body > div.max-w-4xl.mx-auto.my-5 > .flex.items-center.gap-3 {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    flex: 1 !important;
+    justify-content: flex-end !important;
   }
   body > div.max-w-4xl.mx-auto.my-5 > .flex.items-center.gap-3 button {
-    width: 100% !important;
+    flex: 1 !important;
+    min-height: 40px !important;
     justify-content: center !important;
     text-align: center !important;
-    padding: 0.625rem 1rem !important;
-    font-size: 13px !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
   }
 
   /* Report certificate header responsive wrap */
@@ -592,29 +1672,7 @@ body.theme-dark .sticky-frosted-nav {
     font-size: 10px !important;
   }
 
-  /* Camera Mode Viewfinder Height Constraint (ensures controls remain above fold) */
-  #cameraModeBox > div:first-child {
-    max-height: 40vh !important;
-    min-height: 220px !important;
-  }
-  #cameraModeBox #cameraVideoFeed {
-    max-height: 40vh !important;
-  }
-
-  /* Live camera active action buttons */
-  #cameraActiveControls {
-    gap: 0.5rem !important;
-  }
-  #cameraActiveControls button {
-    flex: 1 1 calc(50% - 0.5rem) !important;
-    min-height: 44px !important;
-    justify-content: center !important;
-  }
-  #btnStartCamera {
-    min-height: 44px !important;
-    width: 100% !important;
-    justify-content: center !important;
-  }
+  /* Camera active button touch targets handled in dedicated scanner section */
 
   /* Upload slot cards */
   button[onclick*="clearSlotImage"] {

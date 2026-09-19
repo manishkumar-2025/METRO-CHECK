@@ -84,6 +84,16 @@ function switchInspectorTab(tabId) {
         navBtn.className = "inspector-nav-btn sidebar-nav-item w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left";
       }
     }
+    const mobileBtn = document.getElementById(`mobileNavBtn-${id}`);
+    if (mobileBtn) {
+      if (id === tabId) {
+        mobileBtn.classList.add("text-emerald-600", "font-bold");
+        mobileBtn.classList.remove("text-slate-500", "font-medium");
+      } else {
+        mobileBtn.classList.remove("text-emerald-600", "font-bold");
+        mobileBtn.classList.add("text-slate-500", "font-medium");
+      }
+    }
   });
 
   // Auto-close mobile sidebar drawer on selection
@@ -779,6 +789,16 @@ function switchOfficerTab(tabId) {
         navBtn.className = "officer-nav-btn sidebar-nav-item active w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md bg-gray-100 text-gray-900 font-medium transition text-left";
       } else {
         navBtn.className = "officer-nav-btn sidebar-nav-item w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left";
+      }
+    }
+    const mobileOfficerBtn = document.getElementById(`mobileOfficerNavBtn-${id}`);
+    if (mobileOfficerBtn) {
+      if (id === tabId) {
+        mobileOfficerBtn.classList.add("text-emerald-600", "font-bold");
+        mobileOfficerBtn.classList.remove("text-slate-500", "font-medium");
+      } else {
+        mobileOfficerBtn.classList.remove("text-emerald-600", "font-bold");
+        mobileOfficerBtn.classList.add("text-slate-500", "font-medium");
       }
     }
   });

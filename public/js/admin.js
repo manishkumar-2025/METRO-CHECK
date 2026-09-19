@@ -252,7 +252,27 @@ function switchAdminTab(tabId) {
         navBtn.className = "w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-md sidebar-nav-item text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 transition text-left";
       }
     }
+    const mobileAdminBtn = document.getElementById(`mobileAdminNavBtn-${id}`);
+    if (mobileAdminBtn) {
+      if (id === tabId) {
+        mobileAdminBtn.classList.add("text-emerald-600", "font-bold");
+        mobileAdminBtn.classList.remove("text-slate-500", "font-medium");
+      } else {
+        mobileAdminBtn.classList.remove("text-emerald-600", "font-bold");
+        mobileAdminBtn.classList.add("text-slate-500", "font-medium");
+      }
+    }
   });
+
+  // Auto-close mobile sidebar drawer on selection
+  if (window.innerWidth < 768) {
+    const sidebar = document.getElementById("leftSidebar") || document.querySelector("aside");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    if (sidebar && !sidebar.classList.contains("-translate-x-full")) {
+      sidebar.classList.add("-translate-x-full");
+      if (backdrop) backdrop.classList.add("hidden");
+    }
+  }
 
   const titles = {
     command: { bc: "Command Center", title: "System Health & Live Inspection Stats" },
