@@ -11,13 +11,10 @@
    * 1. Live IST Clock: 05 Sep 2026 | 15:45:12 IST
    * Updates every 1000ms, accurate to Indian Standard Time (UTC + 05:30)
    */
-  function updateISTClock() {
-    const clockEls = document.querySelectorAll('.masthead-ist-clock');
-    if (!clockEls.length) return;
-
-    const now = new Date();
+  function getISTComponents(now) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     try {
-      const options = {
+      const formatter = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Asia/Kolkata',
         day: '2-digit',
         month: 'short',
@@ -26,32 +23,55 @@
         minute: '2-digit',
         second: '2-digit',
         hour12: false
-      };
-      const formatter = new Intl.DateTimeFormat('en-GB', options);
-      const parts = formatter.formatToParts(now);
+      });
+      const parts = formatter.formatToParts(now || new Date());
       const m = {};
       parts.forEach(p => (m[p.type] = p.value));
-
-      const clockStr = `${m.day} ${m.month} ${m.year} | ${m.hour}:${m.minute}:${m.second} IST`;
-      clockEls.forEach(el => {
-        el.textContent = clockStr;
-      });
+      return {
+        day: m.day,
+        month: m.month,
+        year: m.year,
+        hour: m.hour,
+        minute: m.minute,
+        second: m.second
+      };
     } catch (e) {
-      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const n = now || new Date();
+      const utc = n.getTime() + n.getTimezoneOffset() * 60000;
       const istTime = new Date(utc + 3600000 * 5.5);
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const d = String(istTime.getDate()).padStart(2, '0');
-      const m = months[istTime.getMonth()];
-      const y = istTime.getFullYear();
-      const h = String(istTime.getHours()).padStart(2, '0');
-      const mi = String(istTime.getMinutes()).padStart(2, '0');
-      const s = String(istTime.getSeconds()).padStart(2, '0');
-      const clockStr = `${d} ${m} ${y} | ${h}:${mi}:${s} IST`;
-      clockEls.forEach(el => {
-        el.textContent = clockStr;
-      });
+      return {
+        day: String(istTime.getDate()).padStart(2, '0'),
+        month: months[istTime.getMonth()],
+        year: String(istTime.getFullYear()),
+        hour: String(istTime.getHours()).padStart(2, '0'),
+        minute: String(istTime.getMinutes()).padStart(2, '0'),
+        second: String(istTime.getSeconds()).padStart(2, '0')
+      };
     }
   }
+
+  function updateISTClock() {
+    const clockEls = document.querySelectorAll('.masthead-ist-clock');
+    if (!clockEls.length) return;
+
+    const now = new Date();
+    const c = getISTComponents(now);
+    const fullDateStr = `${c.day} ${c.month} ${c.year}`;
+    const timeStr = `${c.hour}:${c.minute}:${c.second} IST`;
+    const fullStr = `${fullDateStr} | ${timeStr}`;
+
+    clockEls.forEach(el => {
+      if (el.dataset.format === 'time-only' || el.classList.contains('masthead-ist-clock-time-only')) {
+        el.textContent = timeStr;
+      } else {
+        el.innerHTML = `<span class="masthead-clock-date hidden md:inline">${fullDateStr} | </span><span class="masthead-clock-time font-bold">${timeStr}</span>`;
+      }
+      el.setAttribute('title', `Indian Standard Time (UTC+05:30): ${fullStr}`);
+      el.setAttribute('aria-label', `Current Indian Standard Time is ${fullStr}`);
+    });
+  }
+
+  window.updateISTClock = updateISTClock;
 
   /**
    * 1b. Static Sticky Navbar Scroll Elevation Controller (GPU Accelerated & Throttled)
@@ -516,6 +536,11 @@
         throw new Error(data.error || 'Gemini API connection failed.');
       }
     } catch (err) {
+      if (typeof showToast === 'function') showToast(`❌ Test Failed: ${err.message}`, 'error');
+      else alert(`Test Failed: ${err.message}`);
+    }
+  };
+
   // Global Escape key listener for accessible modal dismissal & focus restoration
   window.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' || e.keyCode === 27) {

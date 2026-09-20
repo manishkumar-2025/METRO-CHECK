@@ -36,8 +36,26 @@ function initInspectorApp() {
   if (user) {
     const nameEl = document.getElementById("sidebarUserName");
     const roleEl = document.getElementById("sidebarUserRole");
-    if (nameEl) nameEl.textContent = user.name || "Field Inspector";
-    if (roleEl) roleEl.textContent = (user.role || "inspector").toUpperCase();
+    const dropdownName = document.getElementById("sidebarDropdownUserName");
+    const dropdownEmail = document.getElementById("sidebarDropdownUserEmail");
+    const unitBadge = document.getElementById("headerFieldUnitBadge");
+    const triggerBtn = document.getElementById("sidebarUserTriggerBtn");
+    const avatarLetters = document.querySelectorAll(".user-menu-avatar-letter");
+
+    const displayName = user.name || "Field Inspector";
+    const designation = user.designation || (user.role ? user.role.toUpperCase() : "Inspector");
+    const badge = user.badgeNumber || (user.zone ? `${user.zone} Zone` : "Unit-01");
+    const email = user.email || `${user.username || "inspector"}@metrology.gov.in`;
+
+    if (nameEl) nameEl.textContent = displayName;
+    if (roleEl) roleEl.textContent = `${designation} • ${badge}`;
+    if (dropdownName) dropdownName.textContent = displayName;
+    if (dropdownEmail) dropdownEmail.textContent = email;
+    if (unitBadge) unitBadge.textContent = `${badge} • ${user.state || "Active"}`;
+    if (triggerBtn) triggerBtn.title = `${displayName} • ${designation} (${badge})`;
+
+    const initial = displayName.replace(/^(Shri|Smt|Dr|Mr|Ms)\s+/i, "").trim().charAt(0) || "I";
+    avatarLetters.forEach(el => (el.textContent = initial));
   }
 
   // Check URL hash or query param (?view=inspections or #lookup)
@@ -1961,11 +1979,28 @@ if (typeof window !== "undefined") {
   window.runDealerPricingCheck = runDealerPricingCheck;
   window.runPenaltyEstimation = runPenaltyEstimation;
 
-  // Keyboard accessibility: Escape key closes active decision modals
+  // Keyboard accessibility: Escape key closes active decision modals, inspector modals, and menus
   document.addEventListener("keydown", function(e) {
     if (e.key === "Escape" || e.keyCode === 27) {
       if (typeof closeDecisionModal === "function") closeDecisionModal();
       if (typeof closeInspectorDetailModal === "function") closeInspectorDetailModal();
+      if (typeof closeInspectorWalkthroughModal === "function") closeInspectorWalkthroughModal();
+      if (typeof closeContactModal === "function") closeContactModal();
+      if (typeof closeUserProfileModal === "function") closeUserProfileModal();
+      const userMenu = document.getElementById("sidebarUserDropdownMenu");
+      if (userMenu && !userMenu.classList.contains("hidden")) userMenu.classList.add("hidden");
+    }
+  });
+
+  // Modal backdrop click listeners to close on overlay click
+  ["inspectorDetailModal", "inspectorOnboardingModal", "contactSupportModal"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener("click", function(e) {
+        if (e.target === el) {
+          el.classList.add("hidden");
+        }
+      });
     }
   });
 

@@ -129,9 +129,17 @@ body.theme-dark .sticky-frosted-nav {
   #nationalGovMasthead img {
     height: 22px !important;
   }
-  #nationalGovMasthead .masthead-ist-clock,
   #nationalGovMasthead #networkSyncPill {
     display: none !important;
+  }
+  #nationalGovMasthead .masthead-clock-pill {
+    padding: 2px 6px !important;
+    gap: 4px !important;
+    display: inline-flex !important;
+  }
+  #nationalGovMasthead .masthead-ist-clock {
+    font-size: 10px !important;
+    display: inline-block !important;
   }
   /* Hide secondary English line in masthead on mobile to prevent pill dock displacement */
   #nationalGovMasthead .flex-col > div:nth-child(2) {
@@ -1148,211 +1156,187 @@ body.theme-dark .sticky-frosted-nav {
     margin-bottom: 0 !important;
   }
 
-  /* 2. Top Command Bar: Ultra-compact Category & Case Ref row */
+  /* 2. Top Command Bar: Seamlessly Proportioned Header & Specimen Controls */
+  #ocrHeaderStatutoryBar,
   #view-ocr > .modern-card:first-child {
-    padding: 0.25rem 0.5rem !important;
-    border-radius: 0.625rem !important;
-    gap: 0.25rem !important;
-    margin-bottom: 0.2rem !important;
+    padding: 0.75rem 0.875rem !important;
+    border-radius: 0.875rem !important;
+    gap: 0.625rem !important;
+    margin-bottom: 0.35rem !important;
     background: #ffffff !important;
     border: 1px solid #E2E8F0 !important;
   }
-  /* Remove verbose decorative text, paragraphs, and large headings */
-  #view-ocr > .modern-card:first-child > div.space-y-1,
-  #view-ocr > .modern-card:first-child p,
-  #view-ocr > .modern-card:first-child h3 {
-    display: none !important;
+  #ocrHeaderStatutoryBar h3 {
+    font-size: 0.9375rem !important;
+    line-height: 1.25 !important;
+    display: block !important;
   }
-  /* Single horizontal flex row for Category Selector and Case ID badge */
-  #view-ocr > .modern-card:first-child > div:last-child {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 0.25rem !important;
-    width: 100% !important;
+  #ocrHeaderStatutoryBar p {
+    font-size: 0.6875rem !important;
+    line-height: 1.35 !important;
+    display: block !important;
   }
-  #view-ocr > .modern-card:first-child > div:last-child > div:nth-child(2) {
-    flex: 1 !important;
-    min-width: 0 !important;
+  #ocrHeaderStatutoryBar label[for="ocrCommodityCategorySelect"] {
+    display: inline-flex !important;
+    font-size: 0.6875rem !important;
   }
-  #view-ocr > .modern-card:first-child label[for="ocrCommodityCategorySelect"] {
-    display: none !important;
-  }
-  #view-ocr > .modern-card:first-child select#ocrCommodityCategorySelect {
-    width: 100% !important;
-    min-width: 90px !important;
-    height: 28px !important;
-    font-size: 11px !important;
-    padding: 0.15rem 0.35rem !important;
+  #ocrCommodityCategorySelect {
+    height: 38px !important;
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
     border-radius: 0.5rem !important;
   }
-  #view-ocr > .modern-card:first-child div:has(> #ocrCaseIdDisplay) {
-    padding: 0.15rem 0.4rem !important;
-    font-size: 10px !important;
-    height: 28px !important;
-    line-height: 26px !important;
+  #ocrHeaderStatutoryBar div:has(> #ocrCaseIdDisplay) {
+    padding: 0.2rem 0.5rem !important;
+    font-size: 0.6875rem !important;
+    max-width: 100% !important;
     white-space: nowrap !important;
-    border-radius: 0.5rem !important;
-    flex-shrink: 0 !important;
-    max-width: 130px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
   }
 
-  /* 3. Main Inspection Deck Container: remove empty space */
+  /* 3. Main Inspection Deck Container: Balanced Mobile Proportions */
   #ocrMainCaptureDeck {
-    padding: 0.35rem 0.45rem !important;
-    border-radius: 0.75rem !important;
-    gap: 0.25rem !important;
+    padding: 0.75rem 0.875rem !important;
+    border-radius: 0.875rem !important;
+    gap: 0.75rem !important;
     background: #ffffff !important;
     border: 1px solid #E2E8F0 !important;
     margin-top: 0 !important;
   }
-  /* Remove Step 1 decorative headers, subtext, guide button & tip drawer on mobile */
+
+  /* Step 1 Header: Clean Title, Guidance & Inspector Guide Button */
   #ocrInstructionsHeader {
-    display: none !important;
+    display: block !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    padding-bottom: 0.625rem !important;
+  }
+  #ocrInstructionsHeader h4 {
+    font-size: 0.875rem !important;
+    line-height: 1.25 !important;
+  }
+  #ocrInstructionsHeader p {
+    font-size: 0.6875rem !important;
+    line-height: 1.35 !important;
+  }
+  #ocrInstructionsHeader button[onclick*="openInspectorWalkthroughModal"] {
+    min-height: 30px !important;
+    padding: 0.25rem 0.6rem !important;
+    font-size: 10.5px !important;
+  }
+  #ocrInstructionsHeader details {
+    padding: 0.5rem 0.625rem !important;
+    border-radius: 0.625rem !important;
   }
 
-  /* 4. Segmented Mode Controller (Camera vs Upload) & Active Target Pill: sleek single row */
+  /* 4. Action Toolbar & Segmented Mode Controller */
   #ocrActionToolbar {
-    padding: 0.2rem 0.35rem !important;
-    border-radius: 0.625rem !important;
-    gap: 0.2rem !important;
+    padding: 0.625rem 0.75rem !important;
+    border-radius: 0.75rem !important;
+    gap: 0.625rem !important;
     background: #F8FAFC !important;
     border: 1px solid #E2E8F0 !important;
-    margin-bottom: 0.2rem !important;
-  }
-  #ocrActionToolbar > div:first-child {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 0.25rem !important;
-    width: 100% !important;
-  }
-  #ocrActionToolbar > div:first-child > div:first-child {
-    flex-shrink: 0 !important;
-  }
-  #ocrActionToolbar div[role="tablist"] {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 2px !important;
-    padding: 2px !important;
-    background: #E2E8F0 !important;
-    border-radius: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
   }
   #ocrActionToolbar #modeBtnCamera,
   #ocrActionToolbar #modeBtnUpload {
-    min-height: 24px !important;
-    height: 24px !important;
-    font-size: 10px !important;
-    padding: 0 0.3rem !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    font-size: 11px !important;
+    padding: 0 0.5rem !important;
     justify-content: center !important;
-    border-radius: 0.375rem !important;
+    border-radius: 0.5rem !important;
     white-space: nowrap !important;
-    gap: 0.2rem !important;
-  }
-  #ocrActionToolbar > div:first-child > div:last-child {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
     gap: 0.25rem !important;
-    min-width: 0 !important;
-    flex-shrink: 0 !important;
-  }
-  #ocrActionToolbar > div:first-child > div:last-child > div:first-child {
-    display: none !important;
-  }
-  #ocrActionToolbar > div:first-child > div:last-child > div:last-child {
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.25rem !important;
-    flex-shrink: 0 !important;
   }
   #activeSlotBadgeDisplay {
-    display: none !important;
+    display: inline-flex !important;
+    font-size: 10.5px !important;
+    padding: 0.2rem 0.55rem !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
   }
-  #ocrActionToolbar span:has(> #capturedPanelsCounter),
-  #ocrActionToolbar #capturedPanelsCounter {
-    display: none !important;
+  #ocrActionToolbar span:has(> #capturedPanelsCounter) {
+    display: inline-flex !important;
+    font-size: 10.5px !important;
+    padding: 0.2rem 0.5rem !important;
   }
   #ocrActionToolbar button[onclick*="clearAllPanelImages"] {
-    padding: 0.15rem 0.35rem !important;
-    font-size: 9.5px !important;
-    min-height: 24px !important;
-    height: 24px !important;
-    border-radius: 0.375rem !important;
+    min-height: 28px !important;
+    height: 28px !important;
+    font-size: 10.5px !important;
+    padding: 0.2rem 0.5rem !important;
+    border-radius: 0.5rem !important;
     white-space: nowrap !important;
-    flex-shrink: 0 !important;
   }
 
-  /* 5. Mobile Camera Viewfinder: compact optical hero frame (135px height) */
+  /* 5. Mobile Camera Viewfinder: Prominent Optical Frame (240px min-height) */
   #cameraModeBox {
-    gap: 0.25rem !important;
+    gap: 0.5rem !important;
   }
   #cameraModeBox > div:first-child {
-    height: 135px !important;
-    min-height: 135px !important;
-    max-height: 140px !important;
-    border-radius: 0.75rem !important;
+    min-height: 240px !important;
+    max-height: 320px !important;
+    border-radius: 0.875rem !important;
     background: #090D16 !important;
     position: relative !important;
     overflow: hidden !important;
   }
   #cameraModeBox #cameraVideoFeed {
     height: 100% !important;
-    max-height: 140px !important;
+    max-height: 320px !important;
     object-fit: cover !important;
-    border-radius: 0.75rem !important;
+    border-radius: 0.875rem !important;
   }
   #cameraScanOverlay {
-    inset: 0.35rem !important;
-    padding: 0.25rem !important;
+    inset: 0.5rem !important;
+    padding: 0.35rem !important;
   }
   #cameraScanOverlay #cameraTargetLabel {
-    font-size: 8.5px !important;
+    font-size: 9px !important;
   }
   #cameraScanOverlay > div:last-child {
-    font-size: 8px !important;
-    padding: 1px 4px !important;
+    font-size: 8.5px !important;
+    padding: 2px 5px !important;
   }
   #cameraPlaceholder {
-    padding: 0.35rem 0.5rem !important;
-    gap: 0.25rem !important;
+    padding: 1.25rem 0.75rem !important;
+    gap: 0.5rem !important;
     background: #F8FAFC !important;
-    border-radius: 0.75rem !important;
+    border-radius: 0.875rem !important;
   }
   #cameraPlaceholder > div:first-child {
-    width: 26px !important;
-    height: 26px !important;
-    font-size: 14px !important;
-    border-radius: 0.5rem !important;
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 18px !important;
+    border-radius: 0.625rem !important;
     margin-bottom: 0 !important;
   }
   #cameraPlaceholder p.text-sm {
-    font-size: 11px !important;
+    font-size: 12.5px !important;
     font-weight: 700 !important;
     margin: 0 !important;
   }
   #cameraPlaceholder p.text-xs {
-    display: none !important;
+    display: block !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    margin-top: 0.25rem !important;
   }
   #btnStartCamera {
-    min-height: 30px !important;
-    height: 30px !important;
-    padding: 0 0.85rem !important;
-    font-size: 11.5px !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 0 1rem !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
-    border-radius: 0.5rem !important;
-    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25) !important;
+    border-radius: 0.625rem !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25) !important;
   }
-  /* Active live camera shutter controls (strictly only when streaming/unhidden) */
+
+  /* Active live camera shutter controls */
   #cameraActiveControls:not(.hidden) {
     display: flex !important;
-    flex-direction: row !important;
-    gap: 0.25rem !important;
-    padding-top: 0.2rem !important;
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
+    padding-top: 0.25rem !important;
     width: 100% !important;
   }
   #cameraActiveControls button:first-child {
@@ -1361,130 +1345,131 @@ body.theme-dark .sticky-frosted-nav {
     height: 38px !important;
     font-size: 12px !important;
     font-weight: 800 !important;
-    border-radius: 0.5rem !important;
+    border-radius: 0.625rem !important;
     background: #10B981 !important;
     color: #ffffff !important;
-    box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3) !important;
   }
   #cameraActiveControls button:not(:first-child) {
     flex: 1 !important;
     min-height: 38px !important;
     height: 38px !important;
     font-size: 11px !important;
-    border-radius: 0.5rem !important;
-    background: #F1F5F9 !important;
-    color: #334155 !important;
+    border-radius: 0.625rem !important;
   }
 
-  /* 6. 6-Panel Captured Carousel Strip: ultra-sleek horizontal chip strip */
+  /* 6. Captured Panels Gallery Strip */
   #cameraPanelThumbnailsStrip {
-    padding: 0.2rem 0.35rem !important;
-    border-radius: 0.625rem !important;
-    margin-top: 0.2rem !important;
+    padding: 0.625rem 0.75rem !important;
+    border-radius: 0.75rem !important;
+    margin-top: 0.35rem !important;
     background: #F8FAFC !important;
     border: 1px solid #E2E8F0 !important;
   }
   #cameraPanelThumbnailsStrip > span {
-    display: none !important;
+    display: block !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
   }
   #cameraPanelThumbnailsStrip > .grid {
-    display: flex !important;
-    flex-direction: row !important;
-    overflow-x: auto !important;
-    gap: 0.25rem !important;
-    padding: 0 !important;
-    -webkit-overflow-scrolling: touch !important;
-    scrollbar-width: none !important;
-  }
-  #cameraPanelThumbnailsStrip > .grid::-webkit-scrollbar {
-    display: none !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.35rem !important;
   }
   #cameraPanelThumbnailsStrip > .grid > div {
-    flex: 0 0 46px !important;
-    min-width: 46px !important;
-    padding: 2px !important;
-    border-radius: 0.375rem !important;
+    padding: 0.35rem 0.25rem !important;
+    border-radius: 0.5rem !important;
     text-align: center !important;
-    gap: 0.1rem !important;
     background: #ffffff !important;
   }
   #cameraPanelThumbnailsStrip > .grid > div span.block {
-    font-size: 8.5px !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
   }
+  #cameraPanelThumbnailsStrip > .grid > div .h-12,
   #cameraPanelThumbnailsStrip > .grid > div .h-14 {
-    height: 22px !important;
-    border-radius: 0.25rem !important;
+    height: 38px !important;
+    border-radius: 0.375rem !important;
   }
-  #cameraPanelThumbnailsStrip > .grid > div .h-14 span {
-    font-size: 8px !important;
+  #cameraPanelThumbnailsStrip > .grid > div span.font-mono {
+    font-size: 9px !important;
   }
 
-  /* 7. Upload Mode: Ultra-Compact 3-Column Micro-Grid */
+  /* 7. Upload Mode: 2-Column Responsive Touch Grid */
   #uploadModeBox {
-    margin-top: 0.2rem !important;
+    margin-top: 0.35rem !important;
   }
   #uploadModeBox .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 0.25rem !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
   }
   #uploadModeBox .grid > div {
-    min-height: 52px !important;
-    max-height: 58px !important;
-    padding: 0.25rem !important;
-    border-radius: 0.5rem !important;
+    min-height: 125px !important;
+    max-height: none !important;
+    padding: 0.625rem !important;
+    border-radius: 0.75rem !important;
     border: 1px solid #E2E8F0 !important;
   }
   #uploadModeBox .grid > div .font-bold.text-xs {
-    font-size: 10px !important;
+    font-size: 11px !important;
   }
   #uploadModeBox .scanner-dropzone {
-    min-height: 28px !important;
-    padding: 0.1rem !important;
-    border-radius: 0.375rem !important;
-    margin-top: 0.15rem !important;
+    min-height: 65px !important;
+    padding: 0.4rem !important;
+    border-radius: 0.5rem !important;
+    margin-top: 0.35rem !important;
   }
   #uploadModeBox .scanner-dropzone > div {
-    width: 18px !important;
-    height: 18px !important;
-    font-size: 10px !important;
-    margin-bottom: 0 !important;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 12px !important;
+    margin-bottom: 0.2rem !important;
   }
   #uploadModeBox .scanner-dropzone p {
-    display: none !important;
+    display: block !important;
+    font-size: 10px !important;
   }
   #uploadModeBox div[id^="slotPreview"] {
-    padding: 0.15rem !important;
-    margin-top: 0.15rem !important;
-    border-radius: 0.375rem !important;
+    padding: 0.35rem !important;
+    margin-top: 0.25rem !important;
+    border-radius: 0.5rem !important;
   }
   #uploadModeBox div[id^="slotPreview"] img {
-    height: 24px !important;
+    height: 48px !important;
   }
 
-  /* 8. Primary AI Scan & Audit Action Button (Thumb-Dominant CTA, No Excess Padding) */
+  /* 8. Primary AI Scan & Audit Action Button Dock */
   #ocrPrimaryCtaDock {
-    padding: 0 !important;
-    border-radius: 0 !important;
-    gap: 0 !important;
-    margin-top: 0.25rem !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    padding: 0.75rem 0.875rem !important;
+    border-radius: 0.875rem !important;
+    gap: 0.5rem !important;
+    margin-top: 0.5rem !important;
+    background: linear-gradient(to bottom, #ffffff, #F8FAFC) !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
   }
   #ocrPrimaryCtaDock > div:first-child {
-    display: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.35rem !important;
+    flex-wrap: wrap !important;
+  }
+  #ctaMinBadge {
+    display: inline-flex !important;
+    font-size: 10.5px !important;
+    padding: 0.2rem 0.55rem !important;
+  }
+  #ocrPrimaryCtaDock > div:first-child > span {
+    display: inline-flex !important;
+    font-size: 10px !important;
   }
   #btnRunAiAnalysis {
-    min-height: 42px !important;
-    height: 42px !important;
-    padding: 0 0.875rem !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    padding: 0 1rem !important;
     font-size: 13px !important;
     font-weight: 800 !important;
-    border-radius: 0.625rem !important;
+    border-radius: 0.75rem !important;
     letter-spacing: -0.01em !important;
     margin: 0 !important;
     width: 100% !important;

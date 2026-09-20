@@ -287,3 +287,148 @@ function handleReportBack() {
 }
 window.handleReportBack = handleReportBack;
 
+/* ==========================================================================
+   FORENSIC INTEGRITY VERIFICATION & TAMPER SIMULATION
+   Called from the Officer Review page and the Report page.
+   Opens a modal that:
+     1. Re-computes the SHA-256 hash live (browser Web Crypto API)
+     2. Compares against the stored hash (MATCH = chain intact)
+     3. Has a "Simulate Tamper" button that mutates a field, recomputes,
+        and shows HASH MISMATCH — visually proving tamper-detection.
+   ========================================================================== */
+
+/**
+ * Opens the Forensic Integrity Verification modal for a given inspection record.
+ * If recordId is omitted, uses activeReportId.
+ * @param {string} [recordId]
+ */
+async function openForensicIntegrityModal(recordId) {
+  const id = recordId || activeReportId;
+  const record = (typeof getInspectionById === "function") ? getInspectionById(id) : null;
+  if (!record) {
+    if (typeof showToast === "function") showToast("Docket not found: " + id, "error");
+    return;
+  }
+
+  // Remove any existing modal
+  document.getElementById("forensicIntegrityModal")?.remove();
+
+  const storedHash = (record.docketHash || "").toUpperCase();
+  const modal = document.createElement("div");
+  modal.id = "forensicIntegrityModal";
+  modal.className = "fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm";
+  modal.innerHTML = `
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg p-6 relative flex flex-col gap-4 border border-slate-200 dark:border-slate-700">
+      <button onclick="document.getElementById('forensicIntegrityModal')?.remove()"
+        class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none">&times;</button>
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🔐</span>
+        <div>
+          <h2 class="text-base font-black text-slate-900 dark:text-slate-100 tracking-tight">Forensic Integrity Verification</h2>
+          <p class="text-xs text-slate-500">SHA-256 Evidence Chain • Section 63, Bharatiya Sakshya Adhiniyam 2023</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 space-y-2 text-xs border border-slate-200 dark:border-slate-700">
+        <div class="flex justify-between"><span class="text-slate-500 font-semibold">Docket ID</span><span class="font-mono text-slate-800 dark:text-slate-200 text-right max-w-[55%] truncate" title="${record.id}">${record.id}</span></div>
+        <div class="flex justify-between"><span class="text-slate-500 font-semibold">Inspector</span><span class="font-mono text-slate-800 dark:text-slate-200">${record.inspectorName || record.inspectorId || "—"}</span></div>
+        <div class="flex justify-between"><span class="text-slate-500 font-semibold">Status</span><span class="font-mono text-slate-800 dark:text-slate-200">${record.overallStatus || record.status || "—"}</span></div>
+        <div class="flex justify-between"><span class="text-slate-500 font-semibold">Stored Hash</span><span class="font-mono text-emerald-700 dark:text-emerald-400 text-right text-[10px] max-w-[55%] break-all">${storedHash || "Not yet computed"}</span></div>
+      </div>
+
+      <div id="forensicVerifyResult" class="rounded-2xl p-4 text-sm font-semibold text-center border border-dashed border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500">
+        Click "Verify Now" to compute hash and compare...
+      </div>
+
+      <div id="forensicComputedHashRow" class="hidden text-xs font-mono bg-slate-50 dark:bg-slate-800 rounded-xl p-3 break-all text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"></div>
+
+      <div class="flex flex-col sm:flex-row gap-2">
+        <button id="forensicVerifyBtn" onclick="window._runForensicVerify && window._runForensicVerify()"
+          class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Verify Chain Integrity
+        </button>
+        <button id="forensicTamperBtn" onclick="window._runTamperSimulation && window._runTamperSimulation()"
+          class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          Simulate Tamper Attack
+        </button>
+      </div>
+      <p class="text-[10px] text-slate-400 text-center">Tamper simulation mutates a field in memory only — no data is permanently modified.</p>
+    </div>`;
+
+  document.body.appendChild(modal);
+
+  // Store record ref for the inner functions
+  let workingRecord = JSON.parse(JSON.stringify(record)); // deep copy
+
+  window._runForensicVerify = async function() {
+    const btn = document.getElementById("forensicVerifyBtn");
+    const resDiv = document.getElementById("forensicVerifyResult");
+    const hashRow = document.getElementById("forensicComputedHashRow");
+    if (btn) { btn.disabled = true; btn.innerHTML = `<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Computing SHA-256…`; }
+    try {
+      const result = await verifyRecordIntegrity(workingRecord);
+      if (result.verified) {
+        resDiv.className = "rounded-2xl p-4 text-sm font-semibold text-center border-2 border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300";
+        resDiv.innerHTML = `✅ Evidence Chain INTACT<br><span class="text-[11px] font-normal text-emerald-600">${result.reason}</span>`;
+      } else {
+        resDiv.className = "rounded-2xl p-4 text-sm font-semibold text-center border-2 border-rose-400 bg-rose-50 dark:bg-rose-950/30 text-rose-800 dark:text-rose-300";
+        resDiv.innerHTML = `❌ HASH MISMATCH DETECTED<br><span class="text-[11px] font-normal text-rose-600">${result.reason}</span>`;
+      }
+      if (hashRow) {
+        hashRow.className = "text-xs font-mono bg-slate-50 dark:bg-slate-800 rounded-xl p-3 break-all text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700";
+        hashRow.innerHTML = `<b class="text-slate-500">Computed Hash:</b> ${result.computedHash || "—"}<br><b class="text-slate-500">Stored Hash:</b> ${result.storedHash || "—"}`;
+      }
+    } catch(e) {
+      resDiv.textContent = "Verification error: " + e.message;
+    }
+    if (btn) { btn.disabled = false; btn.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Verify Chain Integrity`; }
+  };
+
+  window._runTamperSimulation = async function() {
+    const btn = document.getElementById("forensicTamperBtn");
+    const resDiv = document.getElementById("forensicVerifyResult");
+    const hashRow = document.getElementById("forensicComputedHashRow");
+    if (btn) { btn.disabled = true; btn.innerHTML = `<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> Simulating…`; }
+
+    // Mutate the working copy — change overallStatus to fake a result
+    const originalStatus = workingRecord.overallStatus || workingRecord.status;
+    const tamperValue    = originalStatus === "Compliant" ? "Non-Compliant" : "Compliant";
+    workingRecord.overallStatus = tamperValue;
+    workingRecord.status        = tamperValue;
+
+    resDiv.className = "rounded-2xl p-4 text-xs text-center border-2 border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-800";
+    resDiv.innerHTML = `⚠️ Field tampered in memory:<br><b>overallStatus</b> changed from "<b>${originalStatus}</b>" to "<b>${tamperValue}</b>"<br>Re-computing SHA-256 hash…`;
+
+    await new Promise(r => setTimeout(r, 600));
+
+    try {
+      const computedHash = (await computeRecordHash(workingRecord)).toUpperCase();
+      const storedH = (record.docketHash || "").toUpperCase();
+      const matched = computedHash === storedH;
+      resDiv.className = "rounded-2xl p-4 text-sm font-semibold text-center border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-300";
+      resDiv.innerHTML = matched
+        ? `⚠️ Hash unexpectedly matched — check canonical fields.`
+        : `🚨 TAMPER DETECTED — Evidence Chain BROKEN<br>
+           <span class="text-[11px] font-normal text-rose-700 dark:text-rose-400 mt-1 block">
+             Hash mismatch proves field '<b>overallStatus</b>' was modified.<br>
+             Stored: ${storedH.slice(0,16)}…<br>
+             Tampered: ${computedHash.slice(0,16)}…<br>
+             Section 63 BSA — Inadmissible in court.
+           </span>`;
+      if (hashRow) {
+        hashRow.className = "text-xs font-mono bg-rose-50 dark:bg-rose-950/30 rounded-xl p-3 break-all text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800";
+        hashRow.innerHTML = `<b>Tampered Record Hash:</b> ${computedHash}<br><b>Original Stored Hash:</b> ${storedH}`;
+      }
+    } catch(e) {
+      resDiv.textContent = "Simulation error: " + e.message;
+    }
+    // Restore working record for re-runs
+    workingRecord.overallStatus = originalStatus;
+    workingRecord.status        = originalStatus;
+    if (btn) { btn.disabled = false; btn.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> Simulate Tamper Attack`; }
+  };
+}
+
+window.openForensicIntegrityModal = openForensicIntegrityModal;

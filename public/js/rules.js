@@ -396,9 +396,47 @@ function validateLabel(extractedData) {
     violationsList.push("Rule 6(1)(d): Missing or invalid month and year of packaging, manufacturing, or import.");
   }
 
-  // 5. Rule 6(11) - Unit Sale Price (USP)
+  // 5. Rule 6(11) & Rule 6(1)(da) - Unit Sale Price (USP)
+  // Per 2021 PCR Amendment (w.e.f. 01.12.2022):
+  // - Mandatory for packages with net quantity > 100g or > 100ml.
+  // - Packages <= 100g or <= 100ml are exempt from declaring USP.
   const unitSalePrice = (extractedData.unit_sale_price || "").trim();
-  const uspValid = Boolean(unitSalePrice.length > 0) || true; // Validated conditionally based on net mass
+  let isUspExempt = false;
+  let netQtyMagnitude = 0;
+  let netQtyUnit = "";
+
+  if (netQty) {
+    const qtyMatch = netQty.match(/([\d.]+)\s*([a-zA-Z]+)/);
+    if (qtyMatch) {
+      netQtyMagnitude = parseFloat(qtyMatch[1]) || 0;
+      netQtyUnit = qtyMatch[2].toLowerCase();
+      if ((netQtyUnit === "g" || netQtyUnit === "gm" || netQtyUnit === "gms") && netQtyMagnitude <= 100) {
+        isUspExempt = true;
+      } else if (netQtyUnit === "ml" && netQtyMagnitude <= 100) {
+        isUspExempt = true;
+      } else if ((netQtyUnit === "kg" || netQtyUnit === "kgs") && netQtyMagnitude <= 0.1) {
+        isUspExempt = true;
+      } else if ((netQtyUnit === "l" || netQtyUnit === "litre" || netQtyUnit === "ltr") && netQtyMagnitude <= 0.1) {
+        isUspExempt = true;
+      }
+    }
+  }
+
+  let uspValid = false;
+  let uspReason = null;
+
+  if (unitSalePrice.length > 0) {
+    uspValid = true;
+    uspReason = null;
+  } else if (isUspExempt) {
+    uspValid = true;
+    uspReason = `Statutory Exemption under Rule 6(11): Net quantity (${netQty}) ≤ 100g/ml.`;
+  } else {
+    uspValid = false;
+    uspReason = `Missing mandatory Unit Sale Price under Rule 6(11). Required for pre-packaged commodities exceeding 100g/100ml (Net Qty: ${netQty || "Undeclared"}).`;
+    violationsList.push(`Rule 6(11): Missing Unit Sale Price (USP) for ${netQty || "package > 100g/ml"}. Mandatory per Legal Metrology PCR 2021 amendment.`);
+  }
+
   checkedFieldsMap.unit_sale_price = uspValid;
 
   // 6. Rule 6(1)(e) & Rule 18(2) - Retail Sale Price (MRP - Inclusive of Taxes & Overcharging Check)
@@ -474,10 +512,11 @@ function validateLabel(extractedData) {
       clause: "Rule 6(11)",
       parameter_name: "Unit Sale Price (USP)",
       found: Boolean(unitSalePrice),
-      value: unitSalePrice || "N/A",
-      compliant: true,
-      violation_reason: null,
-      severity: "None"
+      value: unitSalePrice || (isUspExempt ? `EXEMPT (≤ 100g/ml: ${netQty})` : "MISSING"),
+      compliant: uspValid,
+      isExempt: isUspExempt,
+      violation_reason: uspValid ? null : uspReason,
+      severity: uspValid ? "None" : "Moderate"
     },
     {
       clause: "Rule 6(1)(e)",

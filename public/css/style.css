@@ -1123,7 +1123,49 @@ html.dark .masthead-pill-dock {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
+/* National Live IST Clock Component */
+.masthead-clock-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.375rem !important;
+  padding: 0.25rem 0.625rem !important;
+  border-radius: 9999px !important;
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  flex-shrink: 0 !important;
+}
+
+.masthead-ist-clock {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  white-space: nowrap !important;
+}
+
+.masthead-clock-dot {
+  width: 6.5px !important;
+  height: 6.5px !important;
+  border-radius: 9999px !important;
+  background-color: #10b981 !important;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8) !important;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+  flex-shrink: 0 !important;
+}
+
 /* Monospace IST Live Clock Glow in Dark Mode */
+body.theme-dark .masthead-clock-pill,
+html.dark .masthead-clock-pill {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  backdrop-filter: blur(12px) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f1f5f9 !important;
+}
+
 body.theme-dark .masthead-ist-clock,
 html.dark .masthead-ist-clock {
   color: #34d399 !important;
@@ -3050,6 +3092,9 @@ html, body {
   }
 }
 
-
-
-
+/* ==========================================================================
+   OCR Specimen Command Bar & Schedule 2 Statutory Standards
+   ========================================================================== */
+#ocrCommodityStandardBadge:not(.hidden) {
+  display: grid !important;
+}
