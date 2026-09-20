@@ -516,9 +516,15 @@
         throw new Error(data.error || 'Gemini API connection failed.');
       }
     } catch (err) {
-      if (typeof showToast === 'function') showToast(`❌ Test Failed: ${err.message}`, 'error');
-      else alert(`Test Failed: ${err.message}`);
+  // Global Escape key listener for accessible modal dismissal & focus restoration
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+      if (typeof closeContactModal === 'function') closeContactModal();
+      if (typeof closeUserProfileModal === 'function') closeUserProfileModal();
+      if (typeof closeApiKeyConfigModal === 'function') closeApiKeyConfigModal();
+      const openModals = document.querySelectorAll('[role="dialog"]:not(.hidden), .modal:not(.hidden), #contactSupportModal:not(.hidden), #userProfileModal:not(.hidden)');
+      openModals.forEach(m => m.classList.add('hidden'));
     }
-  };
+  });
 })();
 

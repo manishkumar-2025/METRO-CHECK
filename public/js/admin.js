@@ -209,7 +209,7 @@ function initAdminApp() {
   const hash = window.location.hash.replace("#", "");
   const targetTab = urlParams.get("view") || hash || "command";
 
-  switchAdminTab(targetTab);
+  switchAdminTab(targetTab, false);
   initCommandCenter();
   renderMasterLedgerTable();
   renderAnalytics();
@@ -226,10 +226,23 @@ function initAdminApp() {
 /**
  * Switches the active tab view in the Admin interface.
  */
-function switchAdminTab(tabId) {
+function switchAdminTab(tabId, updateUrl = true) {
   const allowed = ["command", "ledger", "analytics", "commodities", "settings"];
   if (!allowed.includes(tabId)) tabId = "command";
   activeAdminTab = tabId;
+
+  // Sync URL hash so Back button and external navigation return to this exact view
+  if (typeof window !== "undefined" && window.location.pathname.includes("admin.html")) {
+    if (updateUrl) {
+      if (window.location.hash !== `#${tabId}`) {
+        history.pushState({ tab: tabId }, "", `#${tabId}`);
+      }
+    } else {
+      if (window.location.hash !== `#${tabId}`) {
+        history.replaceState({ tab: tabId }, "", `#${tabId}`);
+      }
+    }
+  }
 
   allowed.forEach(id => {
     const viewEl = document.getElementById(`adminView-${id}`);
@@ -439,6 +452,13 @@ function renderMasterLedgerTable() {
         <td class="px-3 py-3">${violCount > 0 ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">${violCount} Defect${violCount > 1 ? 's' : ''}</span>` : `<span class="text-emerald-600 font-medium">None</span>`}</td>
         <td class="px-3 py-3"><span class="${badgeClass}">${label}</span></td>
         <td class="px-3 py-3 text-slate-500 italic max-w-xs truncate" title="${item.reviewComments || ''}">${item.reviewComments || "-"}</td>
+        <td class="px-3 py-3 text-right">
+          <button onclick="navigateToReport('${item.id}', 'admin.html#ledger')" 
+                  title="Open Official Report Sheet" 
+                  class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">
+            📄 Sheet
+          </button>
+        </td>
       </tr>
     `;
   }).join("");
@@ -483,6 +503,12 @@ function renderMasterLedgerTable() {
             <div class="flex items-center justify-between text-[11px] pt-1">
               <span>${violCount > 0 ? `<span class="text-red-600 font-bold">⚠️ ${violCount} Defect${violCount > 1 ? 's' : ''}</span>` : `<span class="text-emerald-600 font-bold">✓ Compliant</span>`}</span>
               <span class="text-slate-400 italic truncate max-w-[140px]">${item.reviewComments || "No notes"}</span>
+            </div>
+            <div class="pt-2 border-t border-slate-100 flex justify-end">
+              <button onclick="navigateToReport('${item.id}', 'admin.html#ledger')" 
+                      class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer flex items-center gap-1.5">
+                <span>📄</span> <span>View Official Sheet</span>
+              </button>
             </div>
           </div>
         `;
@@ -886,5 +912,31 @@ if (typeof document !== "undefined") {
       if (typeof closeUserModal === "function") closeUserModal();
     }
   });
+
+  // State-preserving browser Back/Forward & hashchange listeners for Admin portal
+  if (window.location.pathname.includes("admin.html")) {
+    window.addEventListener("popstate", () => {
+      const hash = window.location.hash.replace("#", "");
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetTab = urlParams.get("view") || hash || "command";
+      if (typeof switchAdminTab === "function") {
+        switchAdminTab(targetTab, false);
+      }
+    });
+    window.addEventListener("hashchange", () => {
+      const hash = window.location.hash.replace("#", "");
+      if (hash && typeof switchAdminTab === "function") {
+        switchAdminTab(hash, false);
+      }
+    });
+    window.addEventListener("pageshow", () => {
+      const hash = window.location.hash.replace("#", "");
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetTab = urlParams.get("view") || hash;
+      if (targetTab && targetTab !== activeAdminTab && typeof switchAdminTab === "function") {
+        switchAdminTab(targetTab, false);
+      }
+    });
+  }
 }
 

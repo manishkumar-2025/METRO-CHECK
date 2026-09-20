@@ -400,59 +400,62 @@ function switchRole(targetRole) {
 function checkLogin(requiredRole) {
   let raw = localStorage.getItem("currentUser");
   if (!raw) {
-    const fallbackKey = requiredRole === "admin" ? "admin" : (requiredRole === "officer" ? "officer" : "inspector");
-    const defaultUser = {
-      ...(USERS[fallbackKey] || USERS.admin),
-      loginTime: new Date().toISOString()
-    };
-    try { localStorage.setItem("currentUser", JSON.stringify(defaultUser)); } catch (e) {}
-    return defaultUser;
+    // Unauthenticated: Redirect to login portal
+    if (typeof window !== "undefined" && window.location && !window.location.pathname.endsWith("index.html") && window.location.pathname !== "/") {
+      window.location.replace("index.html?auth_required=1");
+    }
+    return null;
   }
+
   try {
     let user = JSON.parse(raw);
-    if (!user || !user.role) {
-      const fallbackKey = requiredRole === "admin" ? "admin" : (requiredRole === "officer" ? "officer" : "inspector");
-      const defaultUser = {
-        ...(USERS[fallbackKey] || USERS.admin),
-        loginTime: new Date().toISOString()
-      };
-      try { localStorage.setItem("currentUser", JSON.stringify(defaultUser)); } catch (e) {}
-      return defaultUser;
+    if (!user || !user.role || !user.username) {
+      localStorage.removeItem("currentUser");
+      if (typeof window !== "undefined" && window.location && !window.location.pathname.endsWith("index.html") && window.location.pathname !== "/") {
+        window.location.replace("index.html?auth_required=1");
+      }
+      return null;
     }
 
-    // Role check: Allow national and zonal roles into admin dashboard
-    const isRoleMatch = (user.role === requiredRole) ||
-      (requiredRole === "admin" && (user.role === "national" || user.role === "zonal" || user.role === "admin"));
+    // Role Hierarchy & Authorized Role Mappings
+    const authorizedRoles = {
+      admin: ["admin", "national", "zonal"],
+      officer: ["officer", "admin", "national", "zonal"],
+      inspector: ["inspector", "officer", "admin", "national", "zonal"]
+    };
 
-    // Seamlessly adapt session when opening portal directly
-    if (requiredRole && !isRoleMatch) {
-      const fallbackKey = requiredRole === "admin" ? "admin" : (requiredRole === "officer" ? "officer" : "inspector");
-      const defaultUser = {
-        ...(USERS[fallbackKey] || USERS.admin),
-        loginTime: new Date().toISOString()
-      };
-      user = defaultUser;
-      try { localStorage.setItem("currentUser", JSON.stringify(user)); } catch (e) {}
-    } else {
-      // Ensure zone and state exist on currentUser even if loaded from older session
-      if (!user.zone || !user.state) {
-        const found = USERS[user.username];
-        if (found) {
-          user.zone = user.zone || found.zone;
-          user.state = user.state || found.state;
-          try { localStorage.setItem("currentUser", JSON.stringify(user)); } catch (e) {}
-        }
+    const allowed = (authorizedRoles[requiredRole] || [requiredRole]).includes(user.role);
+
+    if (requiredRole && !allowed) {
+      console.warn(`[RBAC] Access denied: User '${user.username}' with role '${user.role}' is not authorized for '${requiredRole}' portal.`);
+      let redirectTarget = "index.html";
+      if (user.role === "inspector") redirectTarget = "inspector.html";
+      else if (user.role === "officer") redirectTarget = "officer.html";
+      else if (["admin", "national", "zonal"].includes(user.role)) redirectTarget = "admin.html";
+      
+      if (typeof window !== "undefined") {
+        window.location.replace(`${redirectTarget}?access_denied=1`);
+      }
+      return null;
+    }
+
+    // Ensure zone and state exist on session
+    if (!user.zone || !user.state) {
+      const found = USERS[user.username];
+      if (found) {
+        user.zone = user.zone || found.zone;
+        user.state = user.state || found.state;
+        try { localStorage.setItem("currentUser", JSON.stringify(user)); } catch (e) {}
       }
     }
+
     return user;
   } catch (e) {
-    const fallbackKey = requiredRole === "admin" ? "admin" : (requiredRole === "officer" ? "officer" : "inspector");
-    const defaultUser = {
-      ...(USERS[fallbackKey] || USERS.admin),
-      loginTime: new Date().toISOString()
-    };
-    try { localStorage.setItem("currentUser", JSON.stringify(defaultUser)); } catch (err) {}
-    return defaultUser;
+    localStorage.removeItem("currentUser");
+    if (typeof window !== "undefined" && window.location && !window.location.pathname.endsWith("index.html") && window.location.pathname !== "/") {
+      window.location.replace("index.html?auth_required=1");
+    }
+    return null;
   }
 }
 
@@ -986,6 +989,14 @@ document.addEventListener("keydown", function (e) {
 /**
  * Detailed Official User Profile Modal Dialog
  */
+function closeUserProfileModal() {
+  const modal = document.getElementById("userProfileModal");
+  if (modal) modal.classList.add("hidden");
+}
+if (typeof window !== "undefined") {
+  window.closeUserProfileModal = closeUserProfileModal;
+}
+
 function openUserProfileModal() {
   let modal = document.getElementById("userProfileModal");
   if (!modal) {
@@ -993,6 +1004,8 @@ function openUserProfileModal() {
     modal.id = "userProfileModal";
     modal.className = "fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4";
     document.body.appendChild(modal);
+  } else {
+    modal.classList.remove("hidden");
   }
 
   const user = getCurrentUser() || {

@@ -84,10 +84,14 @@ async function runApiTests() {
     console.log("✅ Integration Test 2 Passed: API /api/health Endpoint Response:", health.data.system);
 
     // 3. Inspection Sync POST Test with Rich Traceability Metadata
+    const dateSeg = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const rand4 = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const dynamicCaseId = `INS-${dateSeg}-${rand4}`;
+
     const testRecord = {
-      id: "INS-20260919-9999",
+      id: dynamicCaseId,
       sequenceNumber: 101,
-      evidenceId: "EVD-INS-20260919-9999",
+      evidenceId: `EVD-${dynamicCaseId}`,
       date: new Date().toISOString().split("T")[0],
       time: new Date().toTimeString().split(" ")[0],
       createdAt: new Date().toISOString(),
@@ -104,7 +108,7 @@ async function runApiTests() {
           timestamp: new Date().toISOString(),
           actor: "R. K. Sharma (LM-DEL-8841)",
           action: "DOCKET_SUBMITTED",
-          notes: "Initial field submission with evidence EVD-INS-20260919-9999",
+          notes: `Initial field submission with evidence EVD-${dynamicCaseId}`,
           statusTo: "SUBMITTED"
         }
       ]
@@ -126,7 +130,7 @@ async function runApiTests() {
     const underReviewRes = await makeHttpRequest({
       hostname: "localhost",
       port: 3000,
-      path: "/api/inspections/INS-20260919-9999/status",
+      path: `/api/inspections/${encodeURIComponent(dynamicCaseId)}/status`,
       method: "PATCH",
       headers: { "Content-Type": "application/json" }
     }, {
@@ -142,7 +146,7 @@ async function runApiTests() {
     const adjudicationRes = await makeHttpRequest({
       hostname: "localhost",
       port: 3000,
-      path: "/api/inspections/INS-20260919-9999/status",
+      path: `/api/inspections/${encodeURIComponent(dynamicCaseId)}/status`,
       method: "PATCH",
       headers: { "Content-Type": "application/json" }
     }, {

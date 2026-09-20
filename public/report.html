@@ -76,6 +76,30 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/responsive.css">
 
+  <style>
+    /* Ensure sovereign masthead matches executive portal height and flows correctly above action bar */
+    #nationalGovMasthead {
+      position: sticky !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      z-index: 40 !important;
+    }
+
+    /* Keep action buttons fully visible below the top navigation bar across all screens */
+    #reportTopActionBar {
+      position: relative !important;
+      bottom: auto !important;
+      left: auto !important;
+      right: auto !important;
+      margin: 1.25rem auto !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+  </style>
+
   <!-- PDF Generation Library via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -91,12 +115,12 @@
 
   <!-- 1. OFFICIAL NATIONAL MASTHEAD & TRICOLOR HEADER BAR (Screen Only) -->
   <header id="nationalGovMasthead"
-    class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 z-50 flex-shrink-0 select-none text-slate-800 dark:text-slate-200 print:hidden shadow-xs glass-header sticky top-0">
+    class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 sticky top-0 z-40 flex-shrink-0 select-none text-slate-800 dark:text-slate-200 print:hidden shadow-xs glass-header">
     <div class="tricolor-strip print:hidden"></div>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-3">
+    <div class="w-full px-4 sm:px-6 py-2 flex items-center justify-between gap-3">
 
       <!-- Left: Sovereign Emblem & Bilingual Hierarchy -->
-      <div class="flex items-center gap-3 min-w-0">
+      <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
         <!-- Official State Emblem of India (Ashoka Lion Capital) -->
         <a href="index.html" class="flex-shrink-0 flex items-center justify-center focus:outline-none group"
           title="Government of India • State Emblem of India • सत्यमेव जयते">
@@ -108,18 +132,18 @@
         <div class="w-[1px] h-8 bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
 
         <!-- Hierarchy & Official Portal Indicator -->
-        <div class="flex flex-col justify-center min-w-0">
+        <div class="flex flex-col justify-center min-w-0 py-0.5">
           <div
-            class="text-[12px] sm:text-[13.5px] font-bold leading-tight tracking-tight text-slate-900 dark:text-white">
+            class="text-[12px] sm:text-[13px] font-bold leading-tight tracking-tight text-slate-900 dark:text-white truncate">
             उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय
           </div>
           <div
-            class="text-[10px] sm:text-[11.5px] font-medium leading-tight mt-0.5 text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5">
+            class="text-[10px] sm:text-[11px] font-medium leading-tight mt-1 pb-0.5 text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5">
             <span>Ministry of Consumer Affairs, Food & Public Distribution</span>
             <span
               class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono ml-1">e-LMCEP</span>
             <span class="text-slate-400 font-normal hidden lg:inline">(e-Legal Metrology Compliance & Enforcement
-              Portal)</span>
+              Portal / METRO-CHECK)</span>
           </div>
         </div>
       </div>
@@ -197,16 +221,18 @@
   </header>
 
   <!-- Top Action Bar (Hidden automatically when printing) -->
-  <div class="max-w-4xl mx-auto my-5 px-4 sm:px-0 flex items-center justify-between print:hidden">
-    <button type="button" onclick="window.history.back()" class="btn-secondary text-xs flex items-center gap-1.5">
-      <span>←</span> <span>Back</span>
-    </button>
-    <div class="flex items-center gap-3">
-      <button type="button" onclick="printReport()" class="btn-secondary text-xs flex items-center gap-2">
+  <div id="reportTopActionBar" class="max-w-4xl mx-auto my-3 sm:my-5 px-3 sm:px-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 print:hidden">
+    <div class="flex items-center justify-start">
+      <button type="button" onclick="handleReportBack()" class="btn-secondary text-xs flex items-center gap-1.5 cursor-pointer">
+        <span>←</span> <span>Back</span>
+      </button>
+    </div>
+    <div class="flex flex-col xs:flex-row sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+      <button type="button" onclick="printReport()" class="btn-secondary text-xs flex items-center justify-center gap-2 py-2 sm:py-1.5 px-3 text-center">
         <span>🖨️</span> <span>Print Official Report</span>
       </button>
       <button type="button" id="downloadPdfButton" onclick="generatePDF()"
-        class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center gap-2 shadow-sm cursor-pointer">
+        class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center justify-center gap-2 py-2 sm:py-1.5 px-3.5 shadow-sm cursor-pointer text-center">
         <span>📥</span> <span>Download PDF</span>
       </button>
     </div>
@@ -276,8 +302,8 @@
     </header>
 
     <div class="text-center py-1">
-      <h2 class="text-base font-extrabold text-slate-900 uppercase tracking-wide">Legal Metrology Compliance Inspection
-        Report</h2>
+      <h1 class="text-base font-extrabold text-slate-900 uppercase tracking-wide">Legal Metrology Compliance Inspection
+        Report</h1>
       <p class="text-[11px] text-slate-500 mt-0.5">Verification conducted under Legal Metrology (Packaged Commodities)
         Rules, 2011 & Legal Metrology Act, 2009</p>
     </div>
@@ -716,7 +742,7 @@
             </div>
 
             <div class="flex-1 min-w-0">
-              <input type="text" id="contactCaptchaInput" maxlength="6" autocomplete="off" placeholder="Enter Code"
+              <input type="text" id="contactCaptchaInput" aria-label="Enter Grievance Verification Captcha Code" maxlength="6" autocomplete="off" placeholder="Enter Code"
                 required
                 class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm font-mono tracking-widest uppercase text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] text-center font-bold">
             </div>

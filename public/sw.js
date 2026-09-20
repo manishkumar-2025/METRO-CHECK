@@ -14,6 +14,8 @@ const STATIC_ASSETS = [
   '/officer.html',
   '/report.html',
   '/features.html',
+  '/css/style.css',
+  '/css/components.css',
   '/css/responsive.css',
   '/js/admin.js',
   '/js/auth.js',

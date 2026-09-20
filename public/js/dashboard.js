@@ -45,7 +45,7 @@ function initInspectorApp() {
   const hash = window.location.hash.replace("#", "");
   const targetTab = urlParams.get("view") || hash || "dashboard";
 
-  switchInspectorTab(targetTab);
+  switchInspectorTab(targetTab, false);
   renderStats();
   renderRecentDashboardTable();
   renderMyInspections();
@@ -57,10 +57,23 @@ function initInspectorApp() {
 /**
  * Switches the active tab view in the Inspector interface.
  */
-function switchInspectorTab(tabId) {
+function switchInspectorTab(tabId, updateUrl = true) {
   const allowed = ["dashboard", "ocr", "inspections", "lookup", "rules-suite", "reports", "help"];
   if (!allowed.includes(tabId)) tabId = "dashboard";
   activeInspectorTab = tabId;
+
+  // Sync URL hash so Back button and external navigation return to this exact view
+  if (typeof window !== "undefined" && window.location.pathname.includes("inspector.html")) {
+    if (updateUrl) {
+      if (window.location.hash !== `#${tabId}`) {
+        history.pushState({ tab: tabId }, "", `#${tabId}`);
+      }
+    } else {
+      if (window.location.hash !== `#${tabId}`) {
+        history.replaceState({ tab: tabId }, "", `#${tabId}`);
+      }
+    }
+  }
 
   // Toggle view containers with smooth transition
   allowed.forEach(id => {
@@ -576,23 +589,112 @@ function calculateInteractiveMav() {
 window.calculateInteractiveMav = calculateInteractiveMav;
 window.getLegalMavGrams = getLegalMavGrams;
 
+let currentReportsPage = 1;
+const REPORTS_PER_PAGE = 4;
+
+function navigateReportsPage(direction) {
+  const completed = typeof getCompletedInspections === "function" ? getCompletedInspections() : [];
+  const totalPages = Math.max(1, Math.ceil(completed.length / REPORTS_PER_PAGE));
+  if (direction === "prev" && currentReportsPage > 1) {
+    currentReportsPage--;
+    renderCompletedReports();
+  } else if (direction === "next" && currentReportsPage < totalPages) {
+    currentReportsPage++;
+    renderCompletedReports();
+  }
+}
+
+function goToReportsPage(pageNum) {
+  const completed = typeof getCompletedInspections === "function" ? getCompletedInspections() : [];
+  const totalPages = Math.max(1, Math.ceil(completed.length / REPORTS_PER_PAGE));
+  if (pageNum >= 1 && pageNum <= totalPages) {
+    currentReportsPage = pageNum;
+    renderCompletedReports();
+  }
+}
+
 /**
- * 4. My Reports: Renders completed inspections with instant jsPDF download.
+ * 4. My Reports: Renders completed inspections with instant jsPDF download and Previous / Next pagination.
  */
 function renderCompletedReports() {
-  const completed = getCompletedInspections();
+  const completed = typeof getCompletedInspections === "function" ? getCompletedInspections() : [];
   const container = document.getElementById("completedReportsGrid");
   const empty = document.getElementById("completedReportsEmptyState");
+  const topNav = document.getElementById("inspectorReportsTopNav");
+  const topCounter = document.getElementById("inspectorReportsPageCounter");
+  const topPrev = document.getElementById("inspectorReportsPrevBtn");
+  const topNext = document.getElementById("inspectorReportsNextBtn");
+  const totalBadge = document.getElementById("inspectorReportsTotalBadge");
+  const paginationBar = document.getElementById("inspectorReportsPaginationBar");
+  const pageInfo = document.getElementById("inspectorReportsPageInfo");
+  const pageNumbersContainer = document.getElementById("inspectorReportsPageNumbers");
+  const bottomPrev = document.getElementById("inspectorReportsBottomPrevBtn");
+  const bottomNext = document.getElementById("inspectorReportsBottomNextBtn");
+
   if (!container) return;
 
   if (completed.length === 0) {
     container.innerHTML = "";
     if (empty) empty.classList.remove("hidden");
+    if (topNav) {
+      topNav.classList.add("hidden");
+      topNav.classList.remove("flex");
+    }
+    if (totalBadge) totalBadge.classList.add("hidden");
+    if (paginationBar) paginationBar.classList.add("hidden");
     return;
   }
   if (empty) empty.classList.add("hidden");
 
-  container.innerHTML = completed.map(item => {
+  // Calculate pagination boundaries
+  const totalPages = Math.max(1, Math.ceil(completed.length / REPORTS_PER_PAGE));
+  if (currentReportsPage > totalPages) currentReportsPage = totalPages;
+  if (currentReportsPage < 1) currentReportsPage = 1;
+
+  const startIndex = (currentReportsPage - 1) * REPORTS_PER_PAGE;
+  const endIndex = Math.min(startIndex + REPORTS_PER_PAGE, completed.length);
+  const pagedItems = completed.slice(startIndex, endIndex);
+
+  // Update Top Navigation
+  if (topNav) {
+    topNav.classList.remove("hidden");
+    topNav.classList.add("flex");
+  }
+  if (topCounter) {
+    topCounter.textContent = `Page ${currentReportsPage} of ${totalPages}`;
+  }
+  if (topPrev) topPrev.disabled = (currentReportsPage <= 1);
+  if (topNext) topNext.disabled = (currentReportsPage >= totalPages);
+
+  if (totalBadge) {
+    totalBadge.classList.remove("hidden");
+    totalBadge.textContent = `${completed.length} ${completed.length === 1 ? "Record" : "Records"}`;
+  }
+
+  // Update Bottom Pagination Bar
+  if (paginationBar) {
+    paginationBar.classList.remove("hidden");
+  }
+  if (pageInfo) {
+    pageInfo.textContent = `Showing ${startIndex + 1} to ${endIndex} of ${completed.length} reports`;
+  }
+  if (bottomPrev) bottomPrev.disabled = (currentReportsPage <= 1);
+  if (bottomNext) bottomNext.disabled = (currentReportsPage >= totalPages);
+
+  // Generate Page number pills
+  if (pageNumbersContainer) {
+    let pillsHtml = "";
+    for (let p = 1; p <= totalPages; p++) {
+      if (p === currentReportsPage) {
+        pillsHtml += `<button type="button" class="w-7 h-7 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-xs cursor-default">${p}</button>`;
+      } else {
+        pillsHtml += `<button type="button" onclick="goToReportsPage(${p})" class="w-7 h-7 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer">${p}</button>`;
+      }
+    }
+    pageNumbersContainer.innerHTML = pillsHtml;
+  }
+
+  container.innerHTML = pagedItems.map(item => {
     const ext = item.extractedData || {};
     const statusLabel = typeof formatStatusLabel === "function" ? formatStatusLabel(item.status) : (item.status || "Completed");
     const badgeStyle = typeof getStatusBadgeClass === "function" ? getStatusBadgeClass(item.status) : "bg-slate-100 text-slate-800 border border-slate-300";
@@ -619,7 +721,7 @@ function renderCompletedReports() {
         </div>
 
         <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
-          <button onclick="window.location.href='report.html?id=' + encodeURIComponent('${item.id}')" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition text-center">
+          <button onclick="navigateToReport('${item.id}', 'inspector.html#reports')" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition text-center cursor-pointer">
             View Sheet
           </button>
           <button onclick="downloadInspectionPDF('${item.id}')" class="flex-1 py-2 px-3 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow transition text-center flex items-center justify-center gap-1.5">
@@ -629,6 +731,9 @@ function renderCompletedReports() {
       </div>`;
   }).join("");
 }
+
+window.navigateReportsPage = navigateReportsPage;
+window.goToReportsPage = goToReportsPage;
 
 /**
  * Generates an official, structured PDF compliance report on client-side using jsPDF.
@@ -753,9 +858,19 @@ function loadReviewDocket() {
 
   // Check URL param or hash (?view=reports, ?view=legal, ?view=standards)
   const urlParams = new URLSearchParams(window.location.search);
-  const hash = window.location.hash.replace("#", "");
-  const targetView = urlParams.get("view") || hash || "docket";
-  switchOfficerTab(targetView);
+  const rawHash = window.location.hash.replace("#", "");
+  const hashParts = rawHash.split("&");
+  const targetView = urlParams.get("view") || hashParts[0] || "docket";
+  const caseParam = urlParams.get("case") || (hashParts.find(p => p.startsWith("case=")) || "").replace("case=", "");
+  if (caseParam) {
+    currentReviewId = caseParam;
+  }
+
+  switchOfficerTab(targetView, false);
+
+  if (targetView === "review" && caseParam) {
+    loadCaseDetails(caseParam);
+  }
 
   filterByStatus("all");
   initOfficerOfficialReports();
@@ -766,9 +881,23 @@ function loadReviewDocket() {
 /**
  * Switches officer views (docket, reports, legal, standards)
  */
-function switchOfficerTab(tabId) {
+function switchOfficerTab(tabId, updateUrl = true) {
   const allowed = ["docket", "review", "reports", "legal", "standards"];
   if (!allowed.includes(tabId)) tabId = "docket";
+
+  // Sync URL hash
+  if (typeof window !== "undefined" && window.location.pathname.includes("officer.html")) {
+    const targetHash = (tabId === "review" && currentReviewId) ? `#review&case=${currentReviewId}` : `#${tabId}`;
+    if (updateUrl) {
+      if (window.location.hash !== targetHash) {
+        history.pushState({ tab: tabId, caseId: currentReviewId }, "", targetHash);
+      }
+    } else {
+      if (window.location.hash !== targetHash) {
+        history.replaceState({ tab: tabId, caseId: currentReviewId }, "", targetHash);
+      }
+    }
+  }
 
   allowed.forEach(id => {
     const viewEl = document.getElementById(`officerView-${id}`);
@@ -934,18 +1063,33 @@ function renderTable(inspections) {
         <td class="px-3 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${pBadge}">${pIcon} ${item.priority || "Standard"}</span></td>
         <td class="px-3 py-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(item.status)}">${displayStatus}</span></td>
         <td class="px-3 py-3 text-right">
-          <button onclick="openCase('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold ${canReview ? 'bg-[#10B981] hover:bg-[#059669] text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'} transition cursor-pointer">
-            ${canReview ? "Review →" : "View"}
-          </button>
+          <div class="inline-flex items-center gap-1.5 justify-end">
+            <button onclick="openCase('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold ${canReview ? 'bg-[#10B981] hover:bg-[#059669] text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'} transition cursor-pointer">
+              ${canReview ? "Review →" : "View"}
+            </button>
+            <button onclick="navigateToReport('${item.id}', 'officer.html#docket')" title="Open Official Report Sheet" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">
+              📄 Sheet
+            </button>
+          </div>
         </td>
       </tr>`;
   }).join("");
 }
 
 function openCase(id) { 
+  currentReviewId = id;
   loadCaseDetails(id);
-  switchOfficerTab("review");
+  switchOfficerTab("review", true);
 }
+
+function openCurrentReportSheet() {
+  if (currentReviewId) {
+    navigateToReport(currentReviewId, `officer.html#review&case=${currentReviewId}`);
+  } else {
+    if (typeof showToast === 'function') showToast('No active case selected.', 'warning');
+  }
+}
+window.openCurrentReportSheet = openCurrentReportSheet;
 
 /**
  * Traverses forward or backward through cases in the officer review workspace.
@@ -1329,6 +1473,54 @@ function submitDecision(id, decision, comments) {
    OFFICER: 📄 OFFICIAL REPORTS GENERATOR (With Digital Signature & jsPDF)
    ========================================================================== */
 
+function updateNoticeNavigationControls() {
+  const caseSelect = document.getElementById("officialReportCaseSelect");
+  if (!caseSelect) return;
+
+  const total = caseSelect.options.length;
+  const currentIdx = caseSelect.selectedIndex;
+
+  const topCounter = document.getElementById("officialNoticeCounter");
+  const bottomCounter = document.getElementById("officialNoticeBottomCounter");
+  const topPrev = document.getElementById("noticePrevBtn");
+  const topNext = document.getElementById("noticeNextBtn");
+  const bottomPrev = document.getElementById("noticeBottomPrevBtn");
+  const bottomNext = document.getElementById("noticeBottomNextBtn");
+
+  const counterText = total === 0 ? "No Cases" : `Case ${currentIdx + 1} of ${total}`;
+
+  if (topCounter) topCounter.textContent = counterText;
+  if (bottomCounter) bottomCounter.textContent = counterText;
+
+  const isFirst = (currentIdx <= 0 || total === 0);
+  const isLast = (currentIdx >= total - 1 || total === 0);
+
+  if (topPrev) topPrev.disabled = isFirst;
+  if (bottomPrev) bottomPrev.disabled = isFirst;
+  if (topNext) topNext.disabled = isLast;
+  if (bottomNext) bottomNext.disabled = isLast;
+}
+
+function navigateNoticeCase(direction) {
+  const caseSelect = document.getElementById("officialReportCaseSelect");
+  if (!caseSelect || caseSelect.options.length === 0) return;
+
+  const total = caseSelect.options.length;
+  let newIdx = caseSelect.selectedIndex;
+
+  if (direction === "prev") {
+    if (newIdx > 0) newIdx--;
+  } else if (direction === "next") {
+    if (newIdx < total - 1) newIdx++;
+  }
+
+  if (newIdx !== caseSelect.selectedIndex) {
+    caseSelect.selectedIndex = newIdx;
+    updateOfficialReportPreview();
+    updateNoticeNavigationControls();
+  }
+}
+
 function initOfficerOfficialReports() {
   const caseSelect = document.getElementById("officialReportCaseSelect");
   if (!caseSelect) return;
@@ -1339,6 +1531,7 @@ function initOfficerOfficialReports() {
   `).join("");
 
   updateOfficialReportPreview();
+  updateNoticeNavigationControls();
 }
 
 function updateOfficialReportPreview() {
@@ -1368,7 +1561,11 @@ function updateOfficialReportPreview() {
       <li class="text-red-700 font-semibold">${i + 1}. Contravention of Rule 6/9: ${v}</li>
     `).join("");
   }
+  updateNoticeNavigationControls();
 }
+
+window.navigateNoticeCase = navigateNoticeCase;
+window.updateNoticeNavigationControls = updateNoticeNavigationControls;
 
 /**
  * Generates an official violation notice PDF with official watermark & signature.
@@ -1771,7 +1968,78 @@ if (typeof window !== "undefined") {
       if (typeof closeInspectorDetailModal === "function") closeInspectorDetailModal();
     }
   });
+
+  // State-preserving browser Back/Forward & hashchange listeners for Inspector portal
+  if (window.location.pathname.includes("inspector.html")) {
+    window.addEventListener("popstate", () => {
+      const hash = window.location.hash.replace("#", "");
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetTab = urlParams.get("view") || hash || "dashboard";
+      if (typeof switchInspectorTab === "function") {
+        switchInspectorTab(targetTab, false);
+      }
+    });
+    window.addEventListener("hashchange", () => {
+      const hash = window.location.hash.replace("#", "");
+      if (hash && typeof switchInspectorTab === "function") {
+        switchInspectorTab(hash, false);
+      }
+    });
+    window.addEventListener("pageshow", () => {
+      const hash = window.location.hash.replace("#", "");
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetTab = urlParams.get("view") || hash;
+      if (targetTab && targetTab !== activeInspectorTab && typeof switchInspectorTab === "function") {
+        switchInspectorTab(targetTab, false);
+      }
+    });
+  }
+
+  // State-preserving browser Back/Forward & hashchange listeners for Officer portal
+  if (window.location.pathname.includes("officer.html")) {
+    window.addEventListener("popstate", () => {
+      const rawHash = window.location.hash.replace("#", "");
+      const hashParts = rawHash.split("&");
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetView = urlParams.get("view") || hashParts[0] || "docket";
+      const caseParam = urlParams.get("case") || (hashParts.find(p => p.startsWith("case=")) || "").replace("case=", "");
+      if (caseParam) {
+        currentReviewId = caseParam;
+        if (typeof loadCaseDetails === "function") loadCaseDetails(caseParam);
+      }
+      if (typeof switchOfficerTab === "function") {
+        switchOfficerTab(targetView, false);
+      }
+    });
+    window.addEventListener("hashchange", () => {
+      const rawHash = window.location.hash.replace("#", "");
+      const hashParts = rawHash.split("&");
+      const targetView = hashParts[0] || "docket";
+      const caseParam = (hashParts.find(p => p.startsWith("case=")) || "").replace("case=", "");
+      if (caseParam) {
+        currentReviewId = caseParam;
+        if (typeof loadCaseDetails === "function") loadCaseDetails(caseParam);
+      }
+      if (typeof switchOfficerTab === "function") {
+        switchOfficerTab(targetView, false);
+      }
+    });
+    window.addEventListener("pageshow", () => {
+      const rawHash = window.location.hash.replace("#", "");
+      const hashParts = rawHash.split("&");
+      const targetView = hashParts[0];
+      const caseParam = (hashParts.find(p => p.startsWith("case=")) || "").replace("case=", "");
+      if (caseParam) {
+        currentReviewId = caseParam;
+        if (typeof loadCaseDetails === "function") loadCaseDetails(caseParam);
+      }
+      if (targetView && typeof switchOfficerTab === "function") {
+        switchOfficerTab(targetView, false);
+      }
+    });
+  }
 }
+
 
 
 

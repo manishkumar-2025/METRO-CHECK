@@ -209,7 +209,8 @@
         <!-- Brand Logo Header -->
         <div class="flex items-center justify-between pb-3 border-b border-gray-200">
           <div class="flex items-center gap-2.5 sidebar-brand-wrapper min-w-0">
-            <img src="logo/logo.png" alt="METRO-CHECK Logo" class="w-8 h-8 rounded-lg object-contain bg-white p-0.5 border border-gray-200 shadow-xs flex-shrink-0" />
+            <img src="logo/logo.png" alt="METRO-CHECK Logo"
+              class="w-8 h-8 rounded-lg object-contain bg-white p-0.5 border border-gray-200 shadow-xs flex-shrink-0" />
             <div class="min-w-0 sidebar-hide-on-collapse">
               <h1 class="text-gray-900 font-semibold text-xs tracking-tight truncate">METRO-CHECK</h1>
               <p class="text-[10px] text-gray-500 font-medium tracking-wide uppercase font-mono truncate">Legal
@@ -259,8 +260,7 @@
             <div class="space-y-0.5">
               <!-- 1. Review Docket -->
               <button type="button" onclick="switchOfficerTab('docket')" id="officerNavBtn-docket"
-                class="officer-nav-btn sidebar-nav-item active"
-                title="Review Docket">
+                class="officer-nav-btn sidebar-nav-item active" title="Review Docket">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <span class="text-sm flex-shrink-0">📋</span>
                   <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Review Docket</span>
@@ -269,8 +269,7 @@
 
               <!-- 2. Case Evidence Workspace -->
               <button type="button" onclick="switchOfficerTab('review')" id="officerNavBtn-review"
-                class="officer-nav-btn sidebar-nav-item"
-                title="Case Evidence (3-Pane)">
+                class="officer-nav-btn sidebar-nav-item" title="Case Evidence (3-Pane)">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <span class="text-sm flex-shrink-0">🔬</span>
                   <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Case Evidence</span>
@@ -280,8 +279,7 @@
 
               <!-- 3. Official Reports -->
               <button type="button" onclick="switchOfficerTab('reports')" id="officerNavBtn-reports"
-                class="officer-nav-btn sidebar-nav-item"
-                title="Official Reports & Notices">
+                class="officer-nav-btn sidebar-nav-item" title="Official Reports & Notices">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <span class="text-sm flex-shrink-0">📄</span>
                   <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Official Notices</span>
@@ -298,8 +296,7 @@
             <div class="space-y-0.5">
               <!-- 4. Legal Reference -->
               <button type="button" onclick="switchOfficerTab('legal')" id="officerNavBtn-legal"
-                class="officer-nav-btn sidebar-nav-item"
-                title="Legal Reference (Act 2009)">
+                class="officer-nav-btn sidebar-nav-item" title="Legal Reference (Act 2009)">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <span class="text-sm flex-shrink-0">⚖️</span>
                   <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Legal Reference</span>
@@ -308,8 +305,7 @@
 
               <!-- 5. Commodity Standards -->
               <button type="button" onclick="switchOfficerTab('standards')" id="officerNavBtn-standards"
-                class="officer-nav-btn sidebar-nav-item"
-                title="Commodity Standards">
+                class="officer-nav-btn sidebar-nav-item" title="Commodity Standards">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <span class="text-sm flex-shrink-0">📦</span>
                   <span class="sidebar-hide-on-collapse truncate text-xs font-medium">Commodity Standards</span>
@@ -533,13 +529,16 @@
             </div>
 
             <!-- Pending Adjudication -->
-            <div class="kpi-card border-l-4 border-l-[#F59E0B] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+            <div
+              class="kpi-card border-l-4 border-l-[#F59E0B] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               style="--kpi-accent: #F59E0B;">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Pending Review</span>
-                <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-[#F59E0B] border border-amber-200/80 dark:border-amber-900/50 flex items-center justify-center flex-shrink-0 shadow-xs">
+                <div
+                  class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-[#F59E0B] border border-amber-200/80 dark:border-amber-900/50 flex items-center justify-center flex-shrink-0 shadow-xs">
                   <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
@@ -551,13 +550,16 @@
             </div>
 
             <!-- Approved / Notices Issued -->
-            <div class="kpi-card border-l-4 border-l-[#10B981] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+            <div
+              class="kpi-card border-l-4 border-l-[#10B981] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               style="--kpi-accent: #10B981;">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Notices Issued</span>
-                <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-[#10B981] border border-emerald-200/80 dark:border-emerald-900/50 flex items-center justify-center flex-shrink-0 shadow-xs">
+                <div
+                  class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-[#10B981] border border-emerald-200/80 dark:border-emerald-900/50 flex items-center justify-center flex-shrink-0 shadow-xs">
                   <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
@@ -569,13 +571,16 @@
             </div>
 
             <!-- Dismissed / Rejected -->
-            <div class="kpi-card border-l-4 border-l-[#EF4444] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+            <div
+              class="kpi-card border-l-4 border-l-[#EF4444] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               style="--kpi-accent: #EF4444;">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Dismissed / Defect</span>
-                <div class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/40 text-[#EF4444] border border-red-200/80 dark:border-red-900/50 flex items-center justify-center flex-shrink-0 shadow-xs">
+                <div
+                  class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/40 text-[#EF4444] border border-red-200/80 dark:border-red-900/50 flex items-center justify-center flex-shrink-0 shadow-xs">
                   <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
               </div>
@@ -607,13 +612,14 @@
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <!-- Search Bar -->
               <div class="relative">
-                <input type="text" id="docketSearchInput" oninput="debouncedFilterByStatus(activeDocketFilter)"
+                <input type="text" id="docketSearchInput" aria-label="Search Legal Metrology Enforcement Docket Cases" oninput="debouncedFilterByStatus(activeDocketFilter)"
                   placeholder="Search docket cases..." class="ds-input pl-8 pr-3 py-2 text-xs w-full sm:w-56">
                 <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
               </div>
 
               <!-- Filter Tabs: All | Pending | Approved | Rejected -->
-              <div id="officerDocketFilterTabs" class="inline-flex p-1 bg-[#F1F5F9] rounded-lg gap-1 border border-[#E4E7EC]">
+              <div id="officerDocketFilterTabs"
+                class="inline-flex p-1 bg-[#F1F5F9] rounded-lg gap-1 border border-[#E4E7EC]">
                 <button type="button" data-tab="all" onclick="filterByStatus('all')"
                   class="docket-tab px-3.5 py-1.5 font-semibold text-xs rounded-md bg-[#10B981] text-white shadow-xs">
                   All
@@ -690,10 +696,29 @@
         <section id="officerView-reports" class="hidden space-y-6">
 
           <div class="bg-white rounded-xl p-6 border border-[#E4E7EC] shadow-sm space-y-4">
-            <div>
-              <h3 class="text-base font-semibold text-[#0F172A]">Official Violation Notice Generator</h3>
-              <p class="text-xs text-[#64748B]">Draft legally binding compounding show-cause notices under Section 36 of
-                Legal Metrology Act, 2009</p>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#E4E7EC] pb-3.5">
+              <div>
+                <h3 class="text-base font-semibold text-[#0F172A]">Official Violation Notice Generator</h3>
+                <p class="text-xs text-[#64748B]">Draft legally binding compounding show-cause notices under Section 36 of
+                  Legal Metrology Act, 2009</p>
+              </div>
+
+              <!-- Notice Case Traversal Options (Previous / Next) -->
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <div class="inline-flex items-center rounded-lg bg-[#F7F8FA] p-0.5 border border-[#E4E7EC] text-xs shadow-xs">
+                  <button type="button" id="noticePrevBtn" onclick="navigateNoticeCase('prev')" title="Previous Case Notice"
+                    class="px-2.5 py-1 hover:bg-white text-[#0F172A] font-semibold rounded-md transition flex items-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+                    <span>◀</span> <span>Previous</span>
+                  </button>
+                  <span id="officialNoticeCounter" class="px-2.5 font-mono text-[11px] text-slate-600 font-semibold border-x border-[#E4E7EC] select-none">
+                    Case 1 of 1
+                  </span>
+                  <button type="button" id="noticeNextBtn" onclick="navigateNoticeCase('next')" title="Next Case Notice"
+                    class="px-2.5 py-1 hover:bg-white text-[#0F172A] font-semibold rounded-md transition flex items-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+                    <span>Next</span> <span>▶</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <!-- Configuration Form -->
@@ -703,10 +728,21 @@
                 <label for="officialReportCaseSelect"
                   class="block font-semibold text-[#0F172A] uppercase tracking-wider mb-1.5">Select Case from
                   Docket</label>
-                <select id="officialReportCaseSelect" onchange="updateOfficialReportPreview()"
+                <select id="officialReportCaseSelect" onchange="updateOfficialReportPreview(); updateNoticeNavigationControls();"
                   class="ds-select text-xs w-full">
                   <!-- Populated dynamically -->
                 </select>
+                <div class="flex items-center gap-1.5 mt-1.5">
+                  <button type="button" onclick="navigateNoticeCase('prev')" title="Previous Case in Docket"
+                    class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md font-semibold text-[10.5px] transition flex items-center gap-1 cursor-pointer">
+                    <span>◀</span> <span>Prev</span>
+                  </button>
+                  <button type="button" onclick="navigateNoticeCase('next')" title="Next Case in Docket"
+                    class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md font-semibold text-[10.5px] transition flex items-center gap-1 cursor-pointer">
+                    <span>Next</span> <span>▶</span>
+                  </button>
+                  <span class="text-[10px] text-slate-400 ml-auto font-mono">Step through cases</span>
+                </div>
               </div>
 
               <!-- Digital Signature Name -->
@@ -795,11 +831,27 @@
               </div>
             </div>
 
-            <!-- Action Button -->
-            <div class="pt-4 text-center">
+            <!-- Action & Traversal Bar -->
+            <div class="pt-5 border-t border-[#E4E7EC] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <!-- Bottom Case Traversal -->
+              <div class="inline-flex items-center rounded-lg bg-[#F7F8FA] p-0.5 border border-[#E4E7EC] text-xs shadow-xs">
+                <button type="button" id="noticeBottomPrevBtn" onclick="navigateNoticeCase('prev')" title="Previous Case Notice"
+                  class="px-3 py-1.5 hover:bg-white text-[#0F172A] font-semibold rounded-md transition flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+                  <span>◀</span> <span>Previous Notice</span>
+                </button>
+                <span id="officialNoticeBottomCounter" class="px-3 font-mono text-[11px] text-slate-600 font-semibold border-x border-[#E4E7EC] select-none">
+                  Case 1 of 1
+                </span>
+                <button type="button" id="noticeBottomNextBtn" onclick="navigateNoticeCase('next')" title="Next Case Notice"
+                  class="px-3 py-1.5 hover:bg-white text-[#0F172A] font-semibold rounded-md transition flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+                  <span>Next Notice</span> <span>▶</span>
+                </button>
+              </div>
+
+              <!-- Action Button -->
               <button type="button" onclick="generateOfficialNoticePDF()"
-                class="btn-primary active:scale-95 transition-transform duration-100 py-3 px-6 text-xs sm:text-sm font-semibold shadow-md flex items-center justify-center gap-2 mx-auto">
-                <span>📥</span> <span>Generate & Download Official Notice PDF (with Watermark)</span>
+                class="btn-primary active:scale-95 transition-transform duration-100 py-2.5 px-5 text-xs sm:text-sm font-semibold shadow-md flex items-center justify-center gap-2">
+                <span>📥</span> <span>Generate & Download Official Notice PDF</span>
               </button>
             </div>
           </div>
@@ -826,7 +878,7 @@
 
             <!-- Real-Time Search Bar -->
             <div class="relative">
-              <input type="text" id="legalSearchInput" oninput="debouncedSearchLegalReference()"
+              <input type="text" id="legalSearchInput" aria-label="Search Legal Metrology Statutory Provisions & Sections" oninput="debouncedSearchLegalReference()"
                 placeholder="Search legal sections (e.g., 'Section 36', 'MRP', 'font size', 'tolerance', 'compounding', 'Rule 6')..."
                 class="ds-input pl-10 pr-4 py-3 text-xs sm:text-sm font-medium w-full">
               <span class="absolute left-3.5 top-3.5 text-slate-400 text-sm">🔍</span>
@@ -1014,234 +1066,247 @@
                 <span class="text-xs text-slate-300 hidden sm:inline">|</span>
                 <h3 class="text-sm font-semibold text-[#0F172A]">Case Evidence Review: <span id="caseIdText"
                     class="font-mono text-emerald-600 font-bold">...</span></h3>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span id="statutoryPenaltyBadge"
-                  class="hidden px-2.5 py-1 text-xs rounded-lg font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1 shadow-xs">
-                  <span>⚖️</span> <span>Sec 36(1) Est. Penalty: ₹25,000</span>
-                </span>
-                <span id="caseStatusBadge"
-                  class="px-3 py-1 text-xs rounded-full font-semibold bg-amber-50 text-amber-700 border border-amber-200">PENDING</span>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span id="statutoryPenaltyBadge"
+                    class="hidden px-2.5 py-1 text-xs rounded-lg font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1 shadow-xs">
+                    <span>⚖️</span> <span>Sec 36(1) Est. Penalty: ₹25,000</span>
+                  </span>
+                  <span id="caseStatusBadge"
+                    class="px-3 py-1 text-xs rounded-full font-semibold bg-amber-50 text-amber-700 border border-amber-200">PENDING</span>
+                </div>
+              </div>
+
+              <!-- Right: View Full Official Report Sheet in New Tab -->
+              <div class="flex items-center gap-2 ml-auto">
+                <button type="button" onclick="openCurrentReportSheet()"
+                  class="btn-secondary text-xs flex items-center gap-1.5 cursor-pointer py-1.5 px-3"
+                  title="View statutory compliance inspection report sheet in new tab">
+                  <span>📄</span> <span>View Official Sheet</span>
+                </button>
+              </div>
+
+              <!-- Responsive Pane Switcher for Tablets & Smaller Screens (< 1024px) -->
+              <div id="threePaneMobileTabs"
+                class="flex lg:hidden items-center p-1 bg-slate-100 rounded-xl gap-1 border border-[#E4E7EC] w-full text-xs font-semibold shadow-xs">
+                <button type="button" onclick="switchThreePaneTab('center')" id="threePaneTab-center"
+                  class="flex-1 py-2 px-2.5 rounded-lg bg-[#10B981] text-white shadow-xs text-center transition flex items-center justify-center gap-1.5">
+                  <span>📸</span> <span>Evidence & OCR</span>
+                </button>
+                <button type="button" onclick="switchThreePaneTab('left')" id="threePaneTab-left"
+                  class="flex-1 py-2 px-2.5 rounded-lg text-[#64748B] hover:bg-slate-200 text-center transition flex items-center justify-center gap-1.5">
+                  <span>📋</span> <span>Particulars</span>
+                </button>
+                <button type="button" onclick="switchThreePaneTab('right')" id="threePaneTab-right"
+                  class="flex-1 py-2 px-2.5 rounded-lg text-[#64748B] hover:bg-slate-200 text-center transition flex items-center justify-center gap-1.5">
+                  <span>⚖️</span> <span>Judicial Decision</span>
+                </button>
+              </div>
+
+              <!-- 3-Pane Desktop Grid (3/6/3 Ratio: 25% Left / 50% Center / 25% Right) -->
+              <div class="three-pane-review-grid grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+                <!-- LEFT PANEL (3 cols / 25%): Metadata & Timeline -->
+                <section id="reviewPane-left"
+                  class="w-full lg:col-span-3 bg-white p-5 rounded-xl border border-[#E4E7EC] shadow-sm space-y-4">
+                  <div class="border-b border-[#E4E7EC] pb-3">
+                    <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Case Particulars</h4>
+                    <p id="caseProductName" class="text-sm font-semibold text-[#0F172A] mt-1">Loading...</p>
+                    <p class="text-xs text-[#64748B] mt-0.5">Location: <span id="caseLocationText"
+                        class="font-medium text-[#0F172A]">Regional Depot</span></p>
+                  </div>
+
+                  <div class="border-b border-[#E4E7EC] pb-3 text-xs space-y-2">
+                    <div><span class="text-[#64748B]">Inspector:</span> <strong id="caseInspectorName"
+                        class="text-[#0F172A] block mt-0.5">Field Inspector</strong></div>
+                    <div><span class="text-[#64748B]">Inspection Date:</span> <strong id="caseDateText"
+                        class="text-[#0F172A] font-mono block mt-0.5">-</strong></div>
+                  </div>
+
+                  <!-- Verification Timeline -->
+                  <div class="border-b border-[#E4E7EC] pb-3">
+                    <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2">Audit Timeline</h4>
+                    <div class="text-xs space-y-2.5 relative border-l-2 border-[#E4E7EC] ml-2 pl-3">
+                      <div>
+                        <p class="font-medium text-[#0F172A]">📸 Scanned by Inspector</p>
+                        <span id="timelineScannedDate" class="text-[10px] text-[#64748B]">Recorded</span>
+                      </div>
+                      <div>
+                        <p class="font-medium text-[#0F172A]">📤 Submitted for Review</p>
+                        <span id="timelineSubmittedDate" class="text-[10px] text-[#64748B]">Recorded</span>
+                      </div>
+                      <div>
+                        <p class="font-semibold text-emerald-600">👁️ Opened by Officer</p>
+                        <span class="text-[10px] text-[#64748B]">Active Review</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Officer Private Notes -->
+                  <div>
+                    <label for="officerPrivateNotes"
+                      class="block text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-1.5">Officer Private
+                      Notes</label>
+                    <textarea id="officerPrivateNotes" rows="4" placeholder="Confidential judicial notes..."
+                      class="ds-textarea text-xs w-full resize-none"></textarea>
+                  </div>
+                </section>
+
+                <!-- CENTER PANEL (6 cols / 50%): Specimen Visual, Indigo OCR Overlay Toggle, Declarations -->
+                <section id="reviewPane-center"
+                  class="w-full lg:col-span-6 bg-white p-5 rounded-xl border border-[#E4E7EC] shadow-sm space-y-4">
+                  <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Package Visual Evidence
+                    </h4>
+                    <!-- Indigo "OCR Overlay" Toggle -->
+                    <button type="button" id="btnToggleOcrFocus" onclick="toggleOcrOverlay()"
+                      class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 font-semibold text-xs rounded-lg transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95">
+                      <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+                      <span id="ocrFocusBtnText">OCR Overlay</span>
+                    </button>
+                  </div>
+
+                  <!-- Specimen Visual & Placeholder -->
+                  <div
+                    class="relative bg-slate-50 rounded-xl overflow-hidden text-center min-h-[280px] flex items-center justify-center p-3 border border-slate-200">
+                    <img id="reviewSpecimenImage" src="" alt="Specimen Label"
+                      class="max-h-72 mx-auto object-contain rounded-lg shadow-sm">
+                    <div id="reviewNoImagePlaceholder"
+                      class="hidden flex flex-col items-center justify-center text-slate-500 p-8">
+                      <span class="text-4xl mb-2">📋</span>
+                      <span class="text-xs font-semibold">Manual Log Entry — No Specimen Photo</span>
+                    </div>
+                  </div>
+
+                  <!-- AI Confidence Progress Bar (Indigo Gradient) -->
+                  <div class="bg-[#F7F8FA] p-3.5 rounded-xl border border-[#E4E7EC]">
+                    <div class="flex justify-between text-xs font-medium mb-1.5">
+                      <span class="text-[#64748B]">AI OCR Recognition Confidence</span>
+                      <span id="reviewConfidenceValue" class="text-indigo-600 font-semibold">98% (High Fidelity)</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                      <div id="reviewConfidenceBar"
+                        class="bg-gradient-to-r from-indigo-500 to-indigo-600 h-2 rounded-full transition-all duration-500"
+                        style="width: 98%"></div>
+                    </div>
+                  </div>
+
+                  <!-- Extracted Declarations Card -->
+                  <div id="reviewExtractedCard"
+                    class="border border-[#E4E7EC] bg-white rounded-xl p-4 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">
+                      <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">AI Extracted
+                        Declarations
+                      </h4>
+                      <span id="ocrFocusIndicator"
+                        class="hidden text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 animate-pulse">OCR
+                        Focus Active</span>
+                    </div>
+                    <div id="reviewExtractedFields" class="space-y-1"></div>
+                  </div>
+                </section>
+
+                <!-- RIGHT PANEL (3 cols / 25%): Clickable Bordered Violation Cards + 3 Large Buttons -->
+                <section id="reviewPane-right"
+                  class="w-full lg:col-span-3 bg-white p-5 rounded-xl border border-[#E4E7EC] shadow-sm space-y-4 flex flex-col justify-between">
+
+                  <div class="space-y-4">
+                    <!-- Violation Checklist as Clickable Bordered Cards -->
+                    <div>
+                      <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2.5">Violation
+                        Checklist
+                      </h4>
+                      <div class="space-y-2 text-xs">
+                        <label class="violation-card">
+                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>⚖️</span>
+                            <span>Underweight / Overweight</span></span>
+                          <input type="checkbox" data-rule="weight"
+                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
+                        </label>
+                        <label class="violation-card">
+                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>🏷️</span>
+                            <span>Missing / Defective MRP</span></span>
+                          <input type="checkbox" data-rule="mrp"
+                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
+                        </label>
+                        <label class="violation-card">
+                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>🏭</span>
+                            <span>Missing Manufacturer</span></span>
+                          <input type="checkbox" data-rule="manufacturer"
+                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
+                        </label>
+                        <label class="violation-card">
+                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>📅</span>
+                            <span>Missing Mfg Date</span></span>
+                          <input type="checkbox" data-rule="date"
+                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
+                        </label>
+                        <label class="violation-card">
+                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>📞</span>
+                            <span>Missing Consumer Care</span></span>
+                          <input type="checkbox" data-rule="consumer care"
+                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
+                        </label>
+                        <label class="violation-card">
+                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>📏</span>
+                            <span>Incorrect Font Size</span></span>
+                          <input type="checkbox" data-rule="font"
+                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
+                        </label>
+                        <label class="violation-card">
+                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>⚠️</span>
+                            <span>Misleading Declaration</span></span>
+                          <input type="checkbox" data-rule="misleading"
+                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
+                        </label>
+                      </div>
+                    </div>
+
+                    <!-- Collapsible Legal Reference -->
+                    <details
+                      class="bg-[#F7F8FA] rounded-lg border border-[#E4E7EC] p-3 text-xs text-[#64748B] cursor-pointer">
+                      <summary class="font-semibold text-[#0F172A] select-none flex items-center justify-between">
+                        <span>⚖️ Legal References</span>
+                        <span class="text-[10px] text-slate-400">▼</span>
+                      </summary>
+                      <div
+                        class="mt-2 space-y-2 text-[11px] text-[#64748B] border-t border-[#E4E7EC] pt-2 leading-relaxed">
+                        <p><strong>Rule 6:</strong> Every package shall bear name, net qty, mfg month/year, and consumer
+                          care details.</p>
+                        <p><strong>Rule 9:</strong> MRP must be prominently displayed inclusive of all taxes.</p>
+                        <p><strong>Section 39:</strong> Seizure of non-conforming packages in case of severe
+                          contravention.</p>
+                      </div>
+                    </details>
+                  </div>
+
+                  <!-- 3 Large Decision Buttons at Bottom: Approve (emerald), Reject (red), Escalate (amber) -->
+                  <div class="space-y-2.5 pt-4 border-t border-[#E4E7EC] mt-4">
+                    <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2">Official Decision
+                    </h4>
+
+                    <!-- Approve (emerald) -->
+                    <button type="button" onclick="openDecisionModal('approved')"
+                      class="btn-primary active:scale-95 transition-transform duration-100 w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">
+                      <span>⚖️</span> <span>Approve & Issue Notice</span>
+                    </button>
+
+                    <!-- Reject (red) -->
+                    <button type="button" onclick="openDecisionModal('rejected')"
+                      class="btn-danger w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">
+                      <span>✕</span> <span>Dismiss Violation</span>
+                    </button>
+
+                    <!-- Escalate (amber) -->
+                    <button type="button" onclick="openDecisionModal('escalated')"
+                      class="btn-warning w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">
+                      <span>⬆️</span> <span>Escalate Case</span>
+                    </button>
+                  </div>
+
+                </section>
+
               </div>
             </div>
-
-            <!-- Responsive Pane Switcher for Tablets & Smaller Screens (< 1024px) -->
-            <div id="threePaneMobileTabs"
-              class="flex lg:hidden items-center p-1 bg-slate-100 rounded-xl gap-1 border border-[#E4E7EC] w-full text-xs font-semibold shadow-xs">
-              <button type="button" onclick="switchThreePaneTab('center')" id="threePaneTab-center"
-                class="flex-1 py-2 px-2.5 rounded-lg bg-[#10B981] text-white shadow-xs text-center transition flex items-center justify-center gap-1.5">
-                <span>📸</span> <span>Evidence & OCR</span>
-              </button>
-              <button type="button" onclick="switchThreePaneTab('left')" id="threePaneTab-left"
-                class="flex-1 py-2 px-2.5 rounded-lg text-[#64748B] hover:bg-slate-200 text-center transition flex items-center justify-center gap-1.5">
-                <span>📋</span> <span>Particulars</span>
-              </button>
-              <button type="button" onclick="switchThreePaneTab('right')" id="threePaneTab-right"
-                class="flex-1 py-2 px-2.5 rounded-lg text-[#64748B] hover:bg-slate-200 text-center transition flex items-center justify-center gap-1.5">
-                <span>⚖️</span> <span>Judicial Decision</span>
-              </button>
-            </div>
-
-            <!-- 3-Pane Desktop Grid (3/6/3 Ratio: 25% Left / 50% Center / 25% Right) -->
-            <div class="three-pane-review-grid grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-
-              <!-- LEFT PANEL (3 cols / 25%): Metadata & Timeline -->
-              <section id="reviewPane-left"
-                class="w-full lg:col-span-3 bg-white p-5 rounded-xl border border-[#E4E7EC] shadow-sm space-y-4">
-                <div class="border-b border-[#E4E7EC] pb-3">
-                  <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Case Particulars</h4>
-                  <p id="caseProductName" class="text-sm font-semibold text-[#0F172A] mt-1">Loading...</p>
-                  <p class="text-xs text-[#64748B] mt-0.5">Location: <span id="caseLocationText"
-                      class="font-medium text-[#0F172A]">Regional Depot</span></p>
-                </div>
-
-                <div class="border-b border-[#E4E7EC] pb-3 text-xs space-y-2">
-                  <div><span class="text-[#64748B]">Inspector:</span> <strong id="caseInspectorName"
-                      class="text-[#0F172A] block mt-0.5">Field Inspector</strong></div>
-                  <div><span class="text-[#64748B]">Inspection Date:</span> <strong id="caseDateText"
-                      class="text-[#0F172A] font-mono block mt-0.5">-</strong></div>
-                </div>
-
-                <!-- Verification Timeline -->
-                <div class="border-b border-[#E4E7EC] pb-3">
-                  <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2">Audit Timeline</h4>
-                  <div class="text-xs space-y-2.5 relative border-l-2 border-[#E4E7EC] ml-2 pl-3">
-                    <div>
-                      <p class="font-medium text-[#0F172A]">📸 Scanned by Inspector</p>
-                      <span id="timelineScannedDate" class="text-[10px] text-[#64748B]">Recorded</span>
-                    </div>
-                    <div>
-                      <p class="font-medium text-[#0F172A]">📤 Submitted for Review</p>
-                      <span id="timelineSubmittedDate" class="text-[10px] text-[#64748B]">Recorded</span>
-                    </div>
-                    <div>
-                      <p class="font-semibold text-emerald-600">👁️ Opened by Officer</p>
-                      <span class="text-[10px] text-[#64748B]">Active Review</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Officer Private Notes -->
-                <div>
-                  <label for="officerPrivateNotes"
-                    class="block text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-1.5">Officer Private
-                    Notes</label>
-                  <textarea id="officerPrivateNotes" rows="4" placeholder="Confidential judicial notes..."
-                    class="ds-textarea text-xs w-full resize-none"></textarea>
-                </div>
-              </section>
-
-              <!-- CENTER PANEL (6 cols / 50%): Specimen Visual, Indigo OCR Overlay Toggle, Declarations -->
-              <section id="reviewPane-center"
-                class="w-full lg:col-span-6 bg-white p-5 rounded-xl border border-[#E4E7EC] shadow-sm space-y-4">
-                <div class="flex items-center justify-between">
-                  <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Package Visual Evidence</h4>
-                  <!-- Indigo "OCR Overlay" Toggle -->
-                  <button type="button" id="btnToggleOcrFocus" onclick="toggleOcrOverlay()"
-                    class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 font-semibold text-xs rounded-lg transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95">
-                    <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
-                    <span id="ocrFocusBtnText">OCR Overlay</span>
-                  </button>
-                </div>
-
-                <!-- Specimen Visual & Placeholder -->
-                <div
-                  class="relative bg-slate-50 rounded-xl overflow-hidden text-center min-h-[280px] flex items-center justify-center p-3 border border-slate-200">
-                  <img id="reviewSpecimenImage" src="" alt="Specimen Label"
-                    class="max-h-72 mx-auto object-contain rounded-lg shadow-sm">
-                  <div id="reviewNoImagePlaceholder"
-                    class="hidden flex flex-col items-center justify-center text-slate-500 p-8">
-                    <span class="text-4xl mb-2">📋</span>
-                    <span class="text-xs font-semibold">Manual Log Entry — No Specimen Photo</span>
-                  </div>
-                </div>
-
-                <!-- AI Confidence Progress Bar (Indigo Gradient) -->
-                <div class="bg-[#F7F8FA] p-3.5 rounded-xl border border-[#E4E7EC]">
-                  <div class="flex justify-between text-xs font-medium mb-1.5">
-                    <span class="text-[#64748B]">AI OCR Recognition Confidence</span>
-                    <span id="reviewConfidenceValue" class="text-indigo-600 font-semibold">98% (High Fidelity)</span>
-                  </div>
-                  <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                    <div id="reviewConfidenceBar"
-                      class="bg-gradient-to-r from-indigo-500 to-indigo-600 h-2 rounded-full transition-all duration-500"
-                      style="width: 98%"></div>
-                  </div>
-                </div>
-
-                <!-- Extracted Declarations Card -->
-                <div id="reviewExtractedCard"
-                  class="border border-[#E4E7EC] bg-white rounded-xl p-4 transition-all duration-300">
-                  <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">
-                    <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">AI Extracted Declarations
-                    </h4>
-                    <span id="ocrFocusIndicator"
-                      class="hidden text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 animate-pulse">OCR
-                      Focus Active</span>
-                  </div>
-                  <div id="reviewExtractedFields" class="space-y-1"></div>
-                </div>
-              </section>
-
-              <!-- RIGHT PANEL (3 cols / 25%): Clickable Bordered Violation Cards + 3 Large Buttons -->
-              <section id="reviewPane-right"
-                class="w-full lg:col-span-3 bg-white p-5 rounded-xl border border-[#E4E7EC] shadow-sm space-y-4 flex flex-col justify-between">
-
-                <div class="space-y-4">
-                  <!-- Violation Checklist as Clickable Bordered Cards -->
-                  <div>
-                    <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2.5">Violation Checklist
-                    </h4>
-                    <div class="space-y-2 text-xs">
-                      <label class="violation-card">
-                        <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>⚖️</span>
-                          <span>Underweight / Overweight</span></span>
-                        <input type="checkbox" data-rule="weight"
-                          class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                      </label>
-                      <label class="violation-card">
-                        <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>🏷️</span>
-                          <span>Missing / Defective MRP</span></span>
-                        <input type="checkbox" data-rule="mrp"
-                          class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                      </label>
-                      <label class="violation-card">
-                        <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>🏭</span>
-                          <span>Missing Manufacturer</span></span>
-                        <input type="checkbox" data-rule="manufacturer"
-                          class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                      </label>
-                      <label class="violation-card">
-                        <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>📅</span>
-                          <span>Missing Mfg Date</span></span>
-                        <input type="checkbox" data-rule="date"
-                          class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                      </label>
-                      <label class="violation-card">
-                        <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>📞</span>
-                          <span>Missing Consumer Care</span></span>
-                        <input type="checkbox" data-rule="consumer care"
-                          class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                      </label>
-                      <label class="violation-card">
-                        <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>📏</span>
-                          <span>Incorrect Font Size</span></span>
-                        <input type="checkbox" data-rule="font"
-                          class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                      </label>
-                      <label class="violation-card">
-                        <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>⚠️</span>
-                          <span>Misleading Declaration</span></span>
-                        <input type="checkbox" data-rule="misleading"
-                          class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                      </label>
-                    </div>
-                  </div>
-
-                  <!-- Collapsible Legal Reference -->
-                  <details
-                    class="bg-[#F7F8FA] rounded-lg border border-[#E4E7EC] p-3 text-xs text-[#64748B] cursor-pointer">
-                    <summary class="font-semibold text-[#0F172A] select-none flex items-center justify-between">
-                      <span>⚖️ Legal References</span>
-                      <span class="text-[10px] text-slate-400">▼</span>
-                    </summary>
-                    <div
-                      class="mt-2 space-y-2 text-[11px] text-[#64748B] border-t border-[#E4E7EC] pt-2 leading-relaxed">
-                      <p><strong>Rule 6:</strong> Every package shall bear name, net qty, mfg month/year, and consumer
-                        care details.</p>
-                      <p><strong>Rule 9:</strong> MRP must be prominently displayed inclusive of all taxes.</p>
-                      <p><strong>Section 39:</strong> Seizure of non-conforming packages in case of severe
-                        contravention.</p>
-                    </div>
-                  </details>
-                </div>
-
-                <!-- 3 Large Decision Buttons at Bottom: Approve (emerald), Reject (red), Escalate (amber) -->
-                <div class="space-y-2.5 pt-4 border-t border-[#E4E7EC] mt-4">
-                  <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2">Official Decision</h4>
-
-                  <!-- Approve (emerald) -->
-                  <button type="button" onclick="openDecisionModal('approved')"
-                    class="btn-primary active:scale-95 transition-transform duration-100 w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">
-                    <span>⚖️</span> <span>Approve & Issue Notice</span>
-                  </button>
-
-                  <!-- Reject (red) -->
-                  <button type="button" onclick="openDecisionModal('rejected')"
-                    class="btn-danger w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">
-                    <span>✕</span> <span>Dismiss Violation</span>
-                  </button>
-
-                  <!-- Escalate (amber) -->
-                  <button type="button" onclick="openDecisionModal('escalated')"
-                    class="btn-warning w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">
-                    <span>⬆️</span> <span>Escalate Case</span>
-                  </button>
-                </div>
-
-              </section>
-
-            </div>
-          </div>
         </section>
 
         <!-- Visually Polished Divider Bar -->
@@ -1275,7 +1340,8 @@
                     Legal Metrology Compliance & Enforcement Platform
                   </div>
                   <div class="text-[11px] text-slate-500 dark:text-slate-400">
-                    Department of Consumer Affairs • Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India
+                    Department of Consumer Affairs • Ministry of Consumer Affairs, Food & Public Distribution • Govt. of
+                    India
                   </div>
                 </div>
               </div>
@@ -1291,7 +1357,8 @@
             </div>
 
             <!-- Row 2: 4-Column Official Navigation & Resources -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6 text-slate-600 dark:text-slate-400">
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6 text-slate-600 dark:text-slate-400">
 
               <!-- Column 1: Core System Portals -->
               <div class="space-y-2">
@@ -1412,7 +1479,7 @@
                   <div class="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono">1800-11-4000</div>
                   <div
                     class="text-[10.5px] text-slate-500 dark:text-slate-500 pt-1 border-t border-slate-200 dark:border-slate-800/80">
-                    Operating Hours: 09:30 AM to 05:30 PM (All Working Days)
+                    Available daily except national holidays, 08:00 AM – 08:00 PM
                   </div>
                 </div>
               </div>
@@ -1431,10 +1498,12 @@
               <a href="#overview" class="hover:text-slate-900 dark:hover:text-emerald-400 transition-colors">Copyright
                 Policy</a>
               <span>•</span>
-              <a href="#overview" class="hover:text-slate-900 dark:hover:text-emerald-400 transition-colors">Hyperlinking
+              <a href="#overview"
+                class="hover:text-slate-900 dark:hover:text-emerald-400 transition-colors">Hyperlinking
                 Policy</a>
               <span>•</span>
-              <a href="#overview" class="hover:text-slate-900 dark:hover:text-emerald-400 transition-colors">Accessibility
+              <a href="#overview"
+                class="hover:text-slate-900 dark:hover:text-emerald-400 transition-colors">Accessibility
                 Statement</a>
               <span>•</span>
               <span class="text-emerald-700 dark:text-emerald-400 font-mono font-semibold">GIGW 3.0 & WCAG 2.1 AAA
@@ -1602,7 +1671,7 @@
             </div>
 
             <div class="flex-1 min-w-0">
-              <input type="text" id="contactCaptchaInput" maxlength="6" autocomplete="off" placeholder="Enter Code"
+              <input type="text" id="contactCaptchaInput" aria-label="Enter Grievance Verification Captcha Code" maxlength="6" autocomplete="off" placeholder="Enter Code"
                 required
                 class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm font-mono tracking-widest uppercase text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] text-center font-bold">
             </div>

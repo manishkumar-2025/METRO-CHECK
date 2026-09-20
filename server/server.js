@@ -485,7 +485,20 @@ app.patch(["/api/inspections/:id/status", /^\/api\/inspections\/(.+)\/status$/],
     if (reviewComments !== undefined) target.reviewComments = reviewComments;
     if (req.body.violationsChecked) target.violationsChecked = req.body.violationsChecked;
     if (req.body.officerPrivateNotes) target.officerPrivateNotes = req.body.officerPrivateNotes;
-    if (Array.isArray(req.body.auditTrail)) target.auditTrail = req.body.auditTrail;
+    if (req.body.penaltyAmount !== undefined) target.penaltyAmount = req.body.penaltyAmount;
+    if (req.body.penaltySection !== undefined) target.penaltySection = req.body.penaltySection;
+    if (Array.isArray(req.body.auditTrail)) {
+      target.auditTrail = req.body.auditTrail;
+    } else if (req.body.actor || req.body.notes) {
+      if (!Array.isArray(target.auditTrail)) target.auditTrail = [];
+      target.auditTrail.push({
+        timestamp: new Date().toISOString(),
+        actor: req.body.actor || "Officer",
+        action: status,
+        notes: req.body.notes || reviewComments || `Status updated to ${status}`,
+        statusTo: status
+      });
+    }
     // Persist adjudicating officer identity fields when synced from the client
     if (req.body.reviewedBy)         target.reviewedBy         = req.body.reviewedBy;
     if (req.body.officerName)        target.officerName        = req.body.officerName;
@@ -609,59 +622,7 @@ async function callGeminiVisionApi({ apiKey, prompt, imagesToProcess }) {
   throw lastError || new Error("All Gemini Vision models failed. Check your API key and network connection.");
 }
 
-/**
- * Internal Statutory Inspection Fallback Engine
- * Evaluates Legal Metrology Rule 6 declarations when live Gemini API key is unconfigured or offline.
- */
-function generateFallbackComplianceData({ commodityCategory, standardPacks, tolerance, imagesCount }) {
-  const fields = {
-    manufacturer_name_address: "Apex Consumer Products Ltd., Plot 14, Okhla Industrial Area, New Delhi - 110020",
-    generic_name: commodityCategory || "Pre-Packaged Commodity Specimen",
-    net_quantity: standardPacks ? standardPacks.split(",")[0].trim() : "500 g",
-    mfg_month_year: "08/2026",
-    unit_sale_price: "₹ 0.40 per g",
-    mrp_tax_inclusive: "₹ 200.00 (Incl. of all taxes)",
-    consumer_care_contact: "Consumer Grievance Officer, Email: care@apexproducts.in, Phone: 1800-11-4000",
-    brand_name: "Apex Standard Pack",
-    batch_number: "BATCH-2026-08A",
-    country_of_origin: "India"
-  };
 
-  const rules = [
-    { clause: "Rule 6(1)(a)", parameter_name: "Manufacturer Name & Address", found: true, value: fields.manufacturer_name_address, compliant: true, violation_reason: null, severity: "None" },
-    { clause: "Rule 6(1)(b)", parameter_name: "Generic or Commodity Name", found: true, value: fields.generic_name, compliant: true, violation_reason: null, severity: "None" },
-    { clause: "Rule 6(1)(c)", parameter_name: "Net Quantity & Metric Unit", found: true, value: fields.net_quantity, compliant: true, violation_reason: null, severity: "None" },
-    { clause: "Rule 6(1)(d)", parameter_name: "Month & Year of Manufacture", found: true, value: fields.mfg_month_year, compliant: true, violation_reason: null, severity: "None" },
-    { clause: "Rule 6(1)(da)", parameter_name: "Unit Sale Price (USP)", found: true, value: fields.unit_sale_price, compliant: true, violation_reason: null, severity: "None" },
-    { clause: "Rule 6(1)(e)", parameter_name: "Retail Sale Price (MRP)", found: true, value: fields.mrp_tax_inclusive, compliant: true, violation_reason: null, severity: "None" },
-    { clause: "Rule 6(1)(n)", parameter_name: "Consumer Care Contact", found: true, value: fields.consumer_care_contact, compliant: true, violation_reason: null, severity: "None" },
-    { clause: "Rule 6(1)(aa)", parameter_name: "Country of Origin", found: true, value: fields.country_of_origin, compliant: true, violation_reason: null, severity: "None" }
-  ];
-
-  if (commodityCategory) {
-    rules.push({
-      clause: "Second Schedule",
-      parameter_name: "Schedule 2 Permissible Standard Pack Sizes",
-      found: true,
-      value: fields.net_quantity,
-      compliant: true,
-      violation_reason: null,
-      severity: "None"
-    });
-  }
-
-  return {
-    extracted_text: `PRODUCT LABEL SPECIMEN DECLARATIONS:\nGeneric Name: ${fields.generic_name}\nNet Qty: ${fields.net_quantity}\nMRP: ${fields.mrp_tax_inclusive}\nMfg Date: ${fields.mfg_month_year}\nManufacturer: ${fields.manufacturer_name_address}\nConsumer Care: ${fields.consumer_care_contact}`,
-    fields,
-    rules,
-    overall_status: "Compliant",
-    confidence: 0.95,
-    observations: [
-      `Inspected ${imagesCount} package panel specimen(s) under PCR 2011.`,
-      "All mandatory Rule 6 declarations verified and compliant."
-    ]
-  };
-}
 
 /**
  * Main Real-Time AI OCR & Compliance Endpoint
@@ -842,23 +803,11 @@ ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""
     }
 
     if (!parsedData) {
-      // No credential configured — return demo fallback ONLY if OCR_DEMO_MODE=true is explicitly set
-      if (process.env.OCR_DEMO_MODE === "true") {
-        console.log(`[METRO-CHECK] No Gemini credential configured. Returning DEMO fallback (OCR_DEMO_MODE active)...`);
-        usedModel = "METRO-CHECK Demo Engine (OCR_DEMO_MODE Active)";
-        parsedData = generateFallbackComplianceData({
-          commodityCategory,
-          standardPacks,
-          tolerance,
-          imagesCount: imagesToProcess.length
-        });
-      } else {
-        console.warn(`[METRO-CHECK] No Gemini API key configured and OCR_DEMO_MODE is disabled.`);
-        return res.status(401).json({
-          error: "Google Gemini API key not configured. Please configure your API key via /api/config/apikey or set GEMINI_API_KEY in server environment.",
-          ocr_status: "UNCONFIGURED"
-        });
-      }
+      console.warn("[METRO-CHECK] No valid Gemini API key configured. Refusing fake fallback.");
+      return res.status(401).json({
+        error: "Google Gemini API key not configured. Please configure your API key via /api/config/apikey or set GEMINI_API_KEY in server environment.",
+        ocr_status: "UNCONFIGURED"
+      });
     }
 
     // Standardize user's required schema fields

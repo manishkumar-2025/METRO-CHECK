@@ -233,3 +233,57 @@ function generatePDF() {
 function printReport() {
   window.print();
 }
+
+/**
+ * Resilient, state-preserving Back navigation.
+ * Returns users to the exact originating page, active tab, and docket workspace
+ * (e.g. inspector.html#reports, officer.html#review&case=INS-..., admin.html#ledger).
+ */
+function handleReportBack() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const fromParam = urlParams.get("from");
+  let sessionOrigin = null;
+  try {
+    sessionOrigin = sessionStorage.getItem("report_origin_url");
+  } catch (e) {}
+  const rawTarget = fromParam ? decodeURIComponent(fromParam) : (sessionOrigin || "");
+
+  // 1. If child window opened with empty history, attempt window close first
+  if (window.opener && window.history.length <= 1) {
+    try {
+      window.close();
+      return;
+    } catch (e) {}
+  }
+
+  // 2. If explicit target is available and safe within current app, navigate directly to it
+  if (rawTarget) {
+    try {
+      const cleanTarget = rawTarget.replace(/^[/\\]+/, "").trim();
+      if (!cleanTarget.includes("://") && (cleanTarget.endsWith(".html") || cleanTarget.includes(".html?") || cleanTarget.includes(".html#"))) {
+        try { sessionStorage.removeItem("report_origin_url"); } catch (e) {}
+        window.location.href = cleanTarget;
+        return;
+      }
+    } catch (e) {}
+  }
+
+  // 3. If history has previous page on same host, navigate back
+  if (window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host)) {
+    try { sessionStorage.removeItem("report_origin_url"); } catch (e) {}
+    window.history.back();
+    return;
+  }
+
+  // 4. Role-based fallback with exact section
+  let returnUrl = "index.html";
+  try {
+    const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
+    if (user && user.role === "officer") returnUrl = "officer.html#docket";
+    else if (user && user.role === "admin") returnUrl = "admin.html#ledger";
+    else if (user && user.role === "inspector") returnUrl = "inspector.html#reports";
+  } catch (e) {}
+  window.location.href = returnUrl;
+}
+window.handleReportBack = handleReportBack;
+

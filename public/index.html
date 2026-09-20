@@ -22,7 +22,8 @@
   <!-- 1. Google Font: Inter (Lightweight, Modern & Accessible) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
 
   <!-- Prevent theme flicker / white flash on initial load -->
@@ -123,14 +124,17 @@
 
         <!-- Navy Ministry Hierarchy Text -->
         <div class="flex flex-col justify-center min-w-0">
-          <div class="text-[11px] sm:text-[13px] font-bold leading-tight tracking-tight text-[#0F172A] dark:text-slate-100 truncate">
+          <div
+            class="text-[11px] sm:text-[13px] font-bold leading-tight tracking-tight text-[#0F172A] dark:text-slate-100 truncate">
             उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय
           </div>
           <div
             class="text-[9.5px] sm:text-[11.5px] font-medium leading-tight mt-0.5 text-[#64748B] dark:text-slate-400 flex flex-wrap items-center gap-x-1.5 truncate">
             <span>Ministry of Consumer Affairs, Food & Public Distribution</span>
-            <span class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono ml-1">e-LMCEP</span>
-            <span class="text-[#64748B] dark:text-slate-400 font-normal hidden lg:inline">(e-Legal Metrology Compliance & Enforcement Portal / METRO-CHECK)</span>
+            <span
+              class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono ml-1">e-LMCEP</span>
+            <span class="text-[#64748B] dark:text-slate-400 font-normal hidden lg:inline">(e-Legal Metrology Compliance
+              & Enforcement Portal / METRO-CHECK)</span>
           </div>
         </div>
       </div>
@@ -314,6 +318,30 @@
           </div>
         </div>
 
+        <!-- Public Docket Verification Box (Instant Citizen & Trader Verification) -->
+        <div class="mt-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-600 text-sm">🔍</span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Verify Official Compliance Report</h3>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Live Verification</span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Enter a Case Docket ID or scan code from an official inspection notice to view the cryptographically signed compliance sheet:</p>
+          <form onsubmit="handlePublicReportLookup(event)" class="flex flex-col sm:flex-row items-stretch gap-2">
+            <div class="relative flex-1">
+              <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-mono">#</span>
+              <input type="text" id="publicReportSearchInput" aria-label="Search Public Inspection Docket by Case ID" placeholder="e.g. INS-4821 or INS-1001" 
+                class="ds-input pl-7 pr-3 py-2 text-xs w-full font-mono uppercase" required />
+            </div>
+            <button type="submit" 
+              class="btn-primary py-2 px-4 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 transition-transform duration-100">
+              <span>Verify Certificate</span>
+              <span>→</span>
+            </button>
+          </form>
+        </div>
+
       </div>
 
       <!-- RIGHT COLUMN: FOCUSED SIGN-IN CARD -->
@@ -411,7 +439,7 @@
 
                 <!-- CAPTCHA Input -->
                 <div class="flex-1 min-w-[120px] w-full sm:w-auto">
-                  <input type="text" id="loginCaptchaInput" maxlength="6" autocomplete="off" placeholder="Enter Code"
+                  <input type="text" id="loginCaptchaInput" aria-label="Enter Security Verification Captcha Code" maxlength="6" autocomplete="off" placeholder="Enter Code"
                     required
                     class="w-full px-3 py-2.5 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm font-mono tracking-widest uppercase text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition duration-150 text-center font-bold">
                 </div>
@@ -467,7 +495,8 @@
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <div>
-            <h3 id="sihEvalTitle" class="text-sm font-bold text-slate-900 dark:text-slate-100">SIH Evaluation Console</h3>
+            <h3 id="sihEvalTitle" class="text-sm font-bold text-slate-900 dark:text-slate-100">SIH Evaluation Console
+            </h3>
             <p class="text-[11px] text-slate-500 dark:text-slate-400">1-Click Fast Access for Judges & Evaluators</p>
           </div>
         </div>
@@ -821,7 +850,7 @@
             <div class="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono">1800-11-4000</div>
             <div
               class="text-[10.5px] text-slate-500 dark:text-slate-500 pt-1 border-t border-slate-200 dark:border-slate-800/80">
-              Operating Hours: 09:30 AM to 05:30 PM (All Working Days)
+              Available daily except national holidays, 08:00 AM – 08:00 PM
             </div>
           </div>
         </div>
@@ -987,7 +1016,7 @@
             </div>
 
             <div class="flex-1 min-w-0">
-              <input type="text" id="contactCaptchaInput" maxlength="6" autocomplete="off" placeholder="Enter Code"
+              <input type="text" id="contactCaptchaInput" aria-label="Enter Grievance Verification Captcha Code" maxlength="6" autocomplete="off" placeholder="Enter Code"
                 required
                 class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm font-mono tracking-widest uppercase text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] text-center font-bold">
             </div>
@@ -1022,6 +1051,45 @@
         if (icon) icon.classList.toggle('rotate-180', isCollapsed);
       }
     }
+
+    function handlePublicReportLookup(event) {
+      if (event) event.preventDefault();
+      const input = document.getElementById('publicReportSearchInput');
+      const val = (input?.value || '').trim();
+      if (!val) return;
+      if (typeof navigateToReport === 'function') {
+        navigateToReport(val, 'index.html');
+      } else {
+        window.location.href = 'report.html?id=' + encodeURIComponent(val) + '&from=index.html';
+      }
+    }
+    window.handlePublicReportLookup = handlePublicReportLookup;
+
+    // Check for authorization redirects
+    document.addEventListener("DOMContentLoaded", function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("auth_required") === "1") {
+        const errContainer = document.getElementById("errorMessageContainer");
+        const errText = document.getElementById("errorMessageText");
+        const errEl = document.getElementById("errorMessage");
+        if (errText) errText.textContent = "Authentication Required: Please sign in to access official enforcement portals.";
+        if (errContainer) {
+          errContainer.classList.remove("max-h-0", "opacity-0", "pointer-events-none");
+          errContainer.classList.add("max-h-24", "opacity-100", "mb-2");
+        }
+        if (errEl) errEl.classList.remove("hidden");
+      } else if (params.get("access_denied") === "1") {
+        const errContainer = document.getElementById("errorMessageContainer");
+        const errText = document.getElementById("errorMessageText");
+        const errEl = document.getElementById("errorMessage");
+        if (errText) errText.textContent = "Access Restricted: Your account role does not have authorization for that portal.";
+        if (errContainer) {
+          errContainer.classList.remove("max-h-0", "opacity-0", "pointer-events-none");
+          errContainer.classList.add("max-h-24", "opacity-100", "mb-2");
+        }
+        if (errEl) errEl.classList.remove("hidden");
+      }
+    });
   </script>
 
   <!-- 6. Scripts (Authentication & National Masthead Controller) -->

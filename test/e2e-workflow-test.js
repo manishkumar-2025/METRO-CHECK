@@ -92,11 +92,12 @@ async function runFullVerification() {
 
   // Step 4: Verify Full API Workflow Cycle on Live Server with Zonal Slashed Case ID
   const dateSegment = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-  const testCaseId = `LM/NZ/${dateSegment}/00101`;
+  const dynamicSeq = Math.floor(10000 + Math.random() * 89999);
+  const testCaseId = `LM/NZ/${dateSegment}/${dynamicSeq}`;
   const initialDocket = {
     id: testCaseId,
-    sequenceNumber: 101,
-    evidenceId: `EVD-LM-NZ-${dateSegment}-00101`,
+    sequenceNumber: dynamicSeq,
+    evidenceId: `EVD-LM-NZ-${dateSegment}-${dynamicSeq}`,
     docketHash: "SHA256-8A3F9D1E",
     date: new Date().toISOString().split("T")[0],
     time: new Date().toTimeString().split(" ")[0],
@@ -132,7 +133,7 @@ async function runFullVerification() {
         timestamp: new Date().toISOString(),
         actor: "R. K. Sharma (LM-DEL-9024)",
         action: "DOCKET_SUBMITTED",
-        notes: "Submitted to Legal Metrology Officer with evidence EVD-LM-NZ-" + dateSegment + "-00101",
+        notes: `Submitted to Legal Metrology Officer with evidence EVD-LM-NZ-${dateSegment}-${dynamicSeq}`,
         statusFrom: "PROCESSING",
         statusTo: "SUBMITTED"
       }

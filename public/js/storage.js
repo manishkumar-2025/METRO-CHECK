@@ -631,6 +631,17 @@ async function syncInspectionsWithServer(onSyncComplete) {
           try {
             localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(local));
           } catch (e) {}
+
+          // Automatically re-render active portal views with fresh synced records
+          if (typeof renderDocketTable === "function") renderDocketTable();
+          if (typeof renderStats === "function") renderStats();
+          if (typeof renderRecentDashboardTable === "function") renderRecentDashboardTable();
+          if (typeof renderMyInspections === "function") renderMyInspections();
+          if (typeof renderMasterLedgerTable === "function") renderMasterLedgerTable();
+          if (typeof initCommandCenter === "function") initCommandCenter();
+          try {
+            window.dispatchEvent(new CustomEvent("metro:inspectionsSynced", { detail: local }));
+          } catch (e) {}
         }
         if (onSyncComplete) onSyncComplete(local);
       }
@@ -1110,5 +1121,21 @@ if (typeof window !== "undefined") {
     updateNetworkSyncPill();
   }
 }
+
+/**
+ * Seamless, state-preserving navigation to report.html.
+ * Records the exact return URL (page + section/tab + caseId) in sessionStorage
+ * and query parameters so clicking "Back" restores the user's exact workspace.
+ */
+function navigateToReport(caseId, returnUrl) {
+  const currentPath = (window.location.pathname.split("/").pop() || "index.html");
+  const origin = returnUrl || (currentPath + (window.location.search || "") + (window.location.hash || ""));
+  try {
+    sessionStorage.setItem("report_origin_url", origin);
+  } catch (e) {}
+  window.location.href = `report.html?id=${encodeURIComponent(caseId)}&from=${encodeURIComponent(origin)}`;
+}
+window.navigateToReport = navigateToReport;
+
 
 
