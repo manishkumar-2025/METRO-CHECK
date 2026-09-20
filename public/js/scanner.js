@@ -113,7 +113,7 @@ async function checkServerHealth() {
       }
       const badge = document.getElementById("aiEngineReadyBadge");
       if (badge) {
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span> <span class="hidden md:inline">Automated </span><span class="hidden sm:inline">Vision Engine </span><span>Connected</span>`;
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span> <span class="hidden md:inline">Automated </span><span class="hidden sm:inline">Vision Engine </span><span>Connected</span>`;
         badge.className = "flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-emerald-50 text-emerald-700 font-bold text-[10px] sm:text-xs rounded-full border border-emerald-200 flex-shrink-0";
       }
       return true;
@@ -145,7 +145,7 @@ function showServerDisconnectedBanner() {
     banner.innerHTML = `
       <div class="flex items-center gap-2 max-w-7xl mx-auto w-full justify-between">
         <div class="flex items-center gap-2.5">
-          <span class="text-base animate-pulse">⚠️</span>
+          <span class="text-base">⚠️</span>
           <span>Backend Server Disconnected — Check terminal running 'node server.js'</span>
         </div>
         <button type="button" onclick="checkServerHealth()" class="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-bold transition flex items-center gap-1">
@@ -685,6 +685,10 @@ function resetInspectionWorkspace() {
   if (resultsSection) resultsSection.classList.add("hidden");
   const loadingSection = document.getElementById("ocrLoadingSection");
   if (loadingSection) loadingSection.classList.add("hidden");
+  const headerBar = document.getElementById("ocrHeaderStatutoryBar");
+  if (headerBar) headerBar.classList.remove("hidden");
+  const captureDeck = document.getElementById("ocrMainCaptureDeck");
+  if (captureDeck) captureDeck.classList.remove("hidden");
 
   const notesEl = document.getElementById("inspectorNotesInput");
   if (notesEl) notesEl.value = "";
@@ -1030,23 +1034,74 @@ function setSpecimenImage(dataUrl) {
 
 function clearSpecimenImage() {
   currentUploadedImageDataUrl = null;
+  currentInspectionResult = null;
+  currentInspectionThumbnail = null;
+  currentCaseId = typeof generateId === "function" ? generateId("INS-") : "INS-" + Date.now().toString(36).toUpperCase();
+  activeSpecimenImageList = [];
+  currentSpecimenImageIndex = 0;
+  if (typeof renderSpecimenImageViewport === "function") renderSpecimenImageViewport();
 
+  // 1. Reset all panel slots and in-memory images
+  if (Array.isArray(PANEL_SLOTS)) {
+    PANEL_SLOTS.forEach(slot => {
+      if (typeof clearSlotImage === "function") {
+        clearSlotImage(slot);
+      }
+      if (typeof panelImages !== "undefined" && panelImages) {
+        panelImages[slot] = null;
+      }
+    });
+  }
+
+  // 2. Clear all file inputs so re-selecting the same file fires onchange
+  const fileInputIds = [
+    "specimenFileInput", "packageImageInput",
+    "packageImageFrontInput", "packageImageBackInput",
+    "packageImageLeftInput", "packageImageRightInput",
+    "packageImageTopInput", "packageImageBottomInput"
+  ];
+  fileInputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  // 3. Reset single specimen previews & cards
   const previewBox = document.getElementById("specimenPreviewContainer");
+  const previewImg = document.getElementById("specimenPreviewImg");
   const uploadPrompt = document.getElementById("uploadPromptContent");
   const analyzeBtn = document.getElementById("btnRunAiAnalysis");
   const resultsCard = document.getElementById("ocrReportResultsSection");
   const captureDeck = document.getElementById("ocrMainCaptureDeck");
   const manualAccordion = document.getElementById("manualEntryAccordion");
+  const headerBar = document.getElementById("ocrHeaderStatutoryBar");
 
   if (previewBox) previewBox.classList.add("hidden");
+  if (previewImg) previewImg.src = "";
   if (uploadPrompt) uploadPrompt.classList.remove("hidden");
   if (resultsCard) resultsCard.classList.add("hidden");
   if (captureDeck) captureDeck.classList.remove("hidden");
   if (manualAccordion) manualAccordion.classList.remove("hidden");
+  if (headerBar) headerBar.classList.remove("hidden");
 
+  // 4. Reset analyze button state
   if (analyzeBtn) {
     analyzeBtn.disabled = true;
-    analyzeBtn.classList.add("opacity-50", "cursor-not-allowed");
+    analyzeBtn.className = "w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer opacity-50 cursor-not-allowed";
+    analyzeBtn.innerHTML = `<span>⚡</span> <span>Run Forensic AI Inspection</span>`;
+  }
+
+  // 5. Update multi-panel counter & minimum badges
+  if (typeof updateMultiPanelState === "function") {
+    updateMultiPanelState();
+  }
+
+  // 6. Smoothly scroll back to the capture deck
+  if (captureDeck) {
+    captureDeck.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  if (typeof showToast === "function") {
+    showToast("Ready for a new inspection scan. Upload or capture package panels.", "info");
   }
 }
 
@@ -1054,17 +1109,37 @@ function returnToCaptureDeck() {
   const captureDeck = document.getElementById("ocrMainCaptureDeck");
   const manualAccordion = document.getElementById("manualEntryAccordion");
   const resultsCard = document.getElementById("ocrReportResultsSection");
+  const headerBar = document.getElementById("ocrHeaderStatutoryBar");
 
   if (captureDeck) captureDeck.classList.remove("hidden");
   if (manualAccordion) manualAccordion.classList.remove("hidden");
   if (resultsCard) resultsCard.classList.add("hidden");
+  if (headerBar) headerBar.classList.remove("hidden");
 
   captureDeck?.scrollIntoView({ behavior: "smooth", block: "start" });
   if (typeof showToast === "function") {
     showToast("Returned to Specimen Capture mode. You may add or change panels.", "info");
   }
 }
+
+function confirmAndClearSpecimen() {
+  const hasImages = (activeSpecimenImageList && activeSpecimenImageList.length > 0) ||
+    (typeof panelImages !== "undefined" && panelImages && Object.values(panelImages).some(Boolean));
+  const hasDocket = Boolean(currentInspectionResult);
+
+  if (hasImages || hasDocket) {
+    if (confirm("Start a New Scan? This will discard current specimen captures and reset the active inspection docket.")) {
+      clearSpecimenImage();
+      if (typeof showToast === "function") showToast("Specimen reset. Ready for new scan.", "info");
+    }
+  } else {
+    clearSpecimenImage();
+  }
+}
+
 window.returnToCaptureDeck = returnToCaptureDeck;
+window.clearSpecimenImage = clearSpecimenImage;
+window.confirmAndClearSpecimen = confirmAndClearSpecimen;
 
 /* ==========================================================================
    3. REAL-TIME AI VISION OCR & STATUTORY COMPLIANCE ANALYSIS (Gemini Vision)
@@ -1255,8 +1330,10 @@ async function startAiOcrInspection() {
     if (loadingSection) loadingSection.classList.add("hidden");
     const captureDeck = document.getElementById("ocrMainCaptureDeck");
     const manualAccordion = document.getElementById("manualEntryAccordion");
+    const headerBar = document.getElementById("ocrHeaderStatutoryBar");
     if (captureDeck) captureDeck.classList.add("hidden");
     if (manualAccordion) manualAccordion.classList.add("hidden");
+    if (headerBar) headerBar.classList.add("hidden");
     if (resultsSection) resultsSection.classList.remove("hidden");
 
     // Step B: Live result renders with color-coded Rule 6 checklist
@@ -1306,24 +1383,47 @@ async function startAiOcrInspection() {
       // Inject the full Diagnostic Pill Dock into the dedicated container (if present in HTML)
       const telDock = document.getElementById("scannerTelemetryDock");
       if (telDock) {
-        const qualityColor = (iq.score || 100) >= 70 ? "emerald" : (iq.score || 100) >= 50 ? "amber" : "rose";
+        let qualityBgClass = "bg-emerald-50/90 dark:bg-emerald-950/30 border-emerald-200/90 dark:border-emerald-800/70";
+        let qualityTextClass = "text-emerald-800 dark:text-emerald-200";
+        let qualityBadgeClass = "text-emerald-600 dark:text-emerald-400";
+        if ((iq.score || 100) < 50) {
+          qualityBgClass = "bg-rose-50/90 dark:bg-rose-950/30 border-rose-200/90 dark:border-rose-800/70";
+          qualityTextClass = "text-rose-800 dark:text-rose-200";
+          qualityBadgeClass = "text-rose-600 dark:text-rose-400";
+        } else if ((iq.score || 100) < 70) {
+          qualityBgClass = "bg-amber-50/90 dark:bg-amber-950/30 border-amber-200/90 dark:border-amber-800/70";
+          qualityTextClass = "text-amber-800 dark:text-amber-200";
+          qualityBadgeClass = "text-amber-600 dark:text-amber-400";
+        }
         telDock.innerHTML = `
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-            <div class="flex flex-col gap-0.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">AI Engine</span>
-              <span class="font-semibold text-slate-800 dark:text-slate-100 truncate" title="${modelName}">${modelName}</span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+            <div class="flex flex-col justify-between gap-1 bg-slate-50/90 dark:bg-slate-800/70 border border-slate-200/90 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 shadow-2xs hover:border-emerald-500/40 transition">
+              <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                <span>AI Engine</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              </div>
+              <span class="font-bold text-slate-900 dark:text-slate-100 truncate text-xs font-mono" title="${modelName}">${modelName}</span>
             </div>
-            <div class="flex flex-col gap-0.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Latency</span>
-              <span class="font-semibold text-slate-800 dark:text-slate-100">${latencyVal}s <span class="text-[10px] text-slate-400 font-normal">(Infer: ${inferMs} | AST: ${ruleMs})</span></span>
+            <div class="flex flex-col justify-between gap-1 bg-slate-50/90 dark:bg-slate-800/70 border border-slate-200/90 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 shadow-2xs hover:border-emerald-500/40 transition">
+              <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                <span>Total Latency</span>
+                <span class="text-[9.5px] font-mono text-emerald-600 dark:text-emerald-400">⚡ Live</span>
+              </div>
+              <span class="font-bold text-slate-900 dark:text-slate-100 text-xs font-mono">${latencyVal}s <span class="text-[10px] text-slate-400 font-normal font-mono">(Infer: ${inferMs} | AST: ${ruleMs})</span></span>
             </div>
-            <div class="flex flex-col gap-0.5 bg-${qualityColor}-50 dark:bg-${qualityColor}-950/30 border border-${qualityColor}-200 dark:border-${qualityColor}-800 rounded-xl px-3 py-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-${qualityColor}-500">Image Quality</span>
-              <span class="font-semibold text-${qualityColor}-700 dark:text-${qualityColor}-300">${clarityPct} Sharpness • Glare: ${glareIdx}</span>
+            <div class="flex flex-col justify-between gap-1 ${qualityBgClass} border rounded-xl px-3.5 py-2.5 shadow-2xs hover:border-emerald-400 transition">
+              <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${qualityBadgeClass} font-mono">
+                <span>Image Quality</span>
+                <span class="text-[9.5px] font-mono">Optics</span>
+              </div>
+              <span class="font-bold ${qualityTextClass} text-xs font-mono">${clarityPct} Sharpness • Glare: ${glareIdx}</span>
             </div>
-            <div class="flex flex-col gap-0.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl px-3 py-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-500">Evidence Chain</span>
-              <span class="font-semibold text-emerald-700 dark:text-emerald-300">🔐 SHA-256 Sealing…</span>
+            <div class="flex flex-col justify-between gap-1 bg-emerald-50/90 dark:bg-emerald-950/30 border border-emerald-200/90 dark:border-emerald-800/70 rounded-xl px-3.5 py-2.5 shadow-2xs hover:border-emerald-400 transition">
+              <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-mono">
+                <span>Evidence Chain</span>
+                <span class="text-[9.5px] font-mono text-emerald-600">Sec 63</span>
+              </div>
+              <span class="font-bold text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-1 font-mono"><span>🔐</span> <span>SHA-256 Sealed</span></span>
             </div>
           </div>`;
         telDock.classList.remove("hidden");
@@ -1608,31 +1708,31 @@ function renderAutoFilledComplianceReport(data) {
 
   if (banner) {
     if (overallStatus === "Compliant" || overallStatus === "Pass") {
-      banner.className = "p-5 rounded-2xl bg-gradient-to-r from-emerald-700 via-emerald-800 to-teal-900 text-white shadow-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-emerald-600/50";
-      bannerTitle.innerHTML = `<span class="text-2xl mr-2">🛡️</span> VERDICT: STATUTORY COMPLIANT (PASS)`;
-      bannerSub.textContent = `All mandatory Rule 6, 7 & 8 declarations satisfy Legal Metrology (Packaged Commodities) Rules, 2011. AI Confidence: ${confidenceScore}%`;
+      banner.className = "p-4 sm:p-5 bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 text-white space-y-3 transition-all border-y border-emerald-700/80 shadow-inner";
+      bannerTitle.innerHTML = `<span class="inline-flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-emerald-400/30"></span> <span class="font-black tracking-tight text-emerald-300">STATUTORY COMPLIANT (PASS)</span></span>`;
+      bannerSub.textContent = `All mandatory Rule 6, 7 & 8 declarations satisfy Legal Metrology Rules, 2011. AI Confidence: ${confidenceScore}%`;
     } else if (overallStatus === "Non-Compliant" || overallStatus === "Fail") {
-      banner.className = "p-5 rounded-2xl bg-gradient-to-r from-rose-700 via-red-800 to-rose-950 text-white shadow-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-rose-600/50";
-      bannerTitle.innerHTML = `<span class="text-2xl mr-2">⚠️</span> VERDICT: STATUTORY NON-COMPLIANT (FAIL)`;
+      banner.className = "p-4 sm:p-5 bg-gradient-to-r from-rose-950 via-slate-900 to-rose-950 text-white space-y-3 transition-all border-y border-rose-700/80 shadow-inner";
+      bannerTitle.innerHTML = `<span class="inline-flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-rose-400 ring-2 ring-rose-400/30"></span> <span class="font-black tracking-tight text-rose-300">STATUTORY NON-COMPLIANT (FAIL)</span></span>`;
       bannerSub.textContent = `Flagged statutory contraventions detected under Section 36 of Legal Metrology Act, 2009. AI Confidence: ${confidenceScore}%`;
     } else {
-      banner.className = "p-5 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-700 to-slate-900 text-white shadow-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-amber-500/50";
-      bannerTitle.innerHTML = `<span class="text-2xl mr-2">⚖️</span> VERDICT: PARTIAL / REQUIRES OFFICER REVIEW`;
-      bannerSub.textContent = `Partial declarations or ambiguities detected. Case docket prepared for Metrology Officer adjudication. AI Confidence: ${confidenceScore}%`;
+      banner.className = "p-4 sm:p-5 bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950 text-white space-y-3 transition-all border-y border-amber-700/80 shadow-inner";
+      bannerTitle.innerHTML = `<span class="inline-flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-amber-400/30"></span> <span class="font-black tracking-tight text-amber-300">REQUIRES OFFICER REVIEW</span></span>`;
+      bannerSub.textContent = `Partial declarations or ambiguities detected. Case docket prepared for Metrology Officer review. AI Confidence: ${confidenceScore}%`;
     }
   }
 
   // 2. Confidence Badge
   const confText = document.getElementById("reportConfidenceScoreText");
   const confBadge = document.getElementById("reportConfidenceBadge");
-  if (confText) confText.textContent = `AI Confidence: ${confidenceScore}%`;
+  if (confText) confText.textContent = `${confidenceScore}%`;
   if (confBadge) {
     confBadge.className = confidenceScore >= 90
-      ? "px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-300 flex items-center gap-1.5 self-start sm:self-auto"
-      : "px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-300 flex items-center gap-1.5 self-start sm:self-auto";
+      ? "px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 shadow-2xs"
+      : "px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center gap-1.5 shadow-2xs";
   }
 
-  // 3. Extracted Statutory Declarations Grid with 3-Box Hybrid Intelligence (AI OCR + Rule Engine + User Edit)
+  // 3. Extracted Statutory Declarations Grid with Clean GovTech Ledger Cards
   const fieldsGrid = document.getElementById("reportExtractedFieldsGrid");
   if (fieldsGrid) {
     // Preserve original AI OCR fields snapshot on initial inspection load
@@ -1725,21 +1825,36 @@ function renderAutoFilledComplianceReport(data) {
     ];
 
     fieldsGrid.innerHTML = `
-      <div class="col-span-full mb-3 p-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl text-white shadow-md border border-indigo-500/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h4 class="text-sm font-black tracking-tight flex items-center gap-2">
-            <span class="text-indigo-400 text-base">✏️</span>
-            <span>Review & Edit Extracted Statutory Declarations</span>
-          </h4>
-          <p class="text-xs text-slate-300 mt-0.5">
-            Hybrid Intelligence Architecture: <span class="text-indigo-300 font-bold">1. AI Vision OCR</span> + <span class="text-indigo-300 font-bold">2. Rule Engine (rules.js)</span> + <span class="text-indigo-300 font-bold">3. Inspector Correction</span>
+      <!-- Top Action & Architecture Banner -->
+      <div class="declaration-banner col-span-full mb-3 p-3.5 sm:p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-extrabold text-xs flex items-center justify-center font-mono border border-indigo-200/60 dark:border-indigo-800/60">⚖️</span>
+            <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+              Mandatory Statutory Declarations Audit
+            </h4>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 pl-8">
+            Tri-Layer Verification: <span class="text-slate-700 dark:text-slate-300 font-semibold">1. AI Vision OCR</span> • <span class="text-slate-700 dark:text-slate-300 font-semibold">2. PCR 2011 Rule Engine</span> • <span class="text-slate-700 dark:text-slate-300 font-semibold">3. Officer Adjudication</span>
           </p>
         </div>
-        <button type="button" onclick="revalidateUserCorrectedDeclarations()" class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-lg transition duration-200 flex items-center gap-1.5 cursor-pointer self-start sm:self-auto active:scale-95">
+        <button type="button" onclick="revalidateUserCorrectedDeclarations()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition duration-200 flex items-center justify-center gap-1.5 cursor-pointer self-stretch sm:self-auto active:scale-98 whitespace-nowrap">
           <span>⚡</span> <span>Re-Validate Compliance</span>
         </button>
       </div>
 
+      <!-- Reactive Pending Re-Evaluation Alert Banner (Visible when officer edits a field) -->
+      <div id="ocrPendingRevalAlert" class="hidden col-span-full mb-3 p-3 sm:p-3.5 bg-amber-500/10 dark:bg-amber-950/40 border border-amber-400/80 dark:border-amber-700/80 rounded-2xl text-xs text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row items-center justify-between gap-2.5 shadow-2xs">
+        <div class="flex items-center gap-2 font-medium">
+          <span class="text-base flex-shrink-0">⚠️</span>
+          <span><strong>Declaration Overrides Detected:</strong> Unsaved field corrections detected. Re-validate to recalculate the statutory verdict and legal citations.</span>
+        </div>
+        <button type="button" onclick="revalidateUserCorrectedDeclarations()" class="w-full sm:w-auto px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
+          <span>⚡</span> <span>Re-Validate Now</span>
+        </button>
+      </div>
+
+      <!-- Unified Smart Declaration Cards -->
       ${fieldDefinitions.map(f => {
         const rawAiVal = f.origVal && f.origVal !== "null" && f.origVal !== "MISSING" && f.origVal !== "N/A" ? String(f.origVal).trim() : "";
         const curVal = f.currentVal && f.currentVal !== "null" && f.currentVal !== "MISSING" && f.currentVal !== "N/A" ? String(f.currentVal).trim() : "";
@@ -1748,128 +1863,115 @@ function renderAutoFilledComplianceReport(data) {
         // Use accurate field-specific rule resolver to eliminate cross-field contamination
         const { ruleStatus, ruleReason } = resolveFieldRuleEvaluation(f, curVal, ruleEval, data);
 
-        // Rule badge styling
-        let ruleBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1"><span>✓</span> <span>Statutory Compliant</span></span>`;
-        let ruleBoxBg = "bg-emerald-50/50";
-        let ruleBoxBorder = "border-emerald-200";
-        let ruleBoxHeaderColor = "text-emerald-900";
-        let ruleBoxSubColor = "text-emerald-700";
-
-        if (ruleStatus === "NON-COMPLIANT" || ruleStatus === "Fail") {
-          ruleBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-100 text-red-800 border border-red-300 flex items-center gap-1"><span>✕</span> <span>Statutory Contravention</span></span>`;
-          ruleBoxBg = "bg-red-50/60";
-          ruleBoxBorder = "border-red-200";
-          ruleBoxHeaderColor = "text-red-900";
-          ruleBoxSubColor = "text-red-700";
-        } else if (ruleStatus === "NEEDS VERIFICATION" || ruleStatus === "Review") {
-          ruleBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1"><span>🟡</span> <span>Verification Recommended</span></span>`;
-          ruleBoxBg = "bg-amber-50/60";
-          ruleBoxBorder = "border-amber-200";
-          ruleBoxHeaderColor = "text-amber-900";
-          ruleBoxSubColor = "text-amber-700";
-        }
-
         const escapedRawAiVal = escapeHtml(rawAiVal);
         const escapedCurrentVal = escapeHtml(curVal);
         const escapedRuleReason = escapeHtml(ruleReason);
 
+        // Modern Rule Badge & Status Tokens with Statutory Tooltip
+        let ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>✓</span> <span>Compliant</span></span>`;
+        let ruleBoxHeaderColor = "text-emerald-700 dark:text-emerald-400";
+        let cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
+
+        if (ruleStatus.includes("EXEMPT")) {
+          ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>ℹ️</span> <span>Exempt (Rule 6(11))</span></span>`;
+          ruleBoxHeaderColor = "text-blue-700 dark:text-blue-400";
+          cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
+        } else if (ruleStatus === "NON-COMPLIANT" || ruleStatus === "Fail") {
+          ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>✕</span> <span>Contravention</span></span>`;
+          ruleBoxHeaderColor = "text-rose-700 dark:text-rose-400";
+          cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
+        } else if (ruleStatus === "NEEDS VERIFICATION" || ruleStatus === "Review") {
+          ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>🟡</span> <span>Officer Review</span></span>`;
+          ruleBoxHeaderColor = "text-amber-700 dark:text-amber-400";
+          cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
+        }
+
         return `
-          <div class="col-span-full bg-slate-50/90 rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3 transition hover:shadow-md">
+          <div class="declaration-card col-span-full rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-3.5 transition-all duration-200 hover:shadow-md ${cardBorderAccent}">
             <!-- Card Header -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-1 rounded-lg bg-indigo-100 text-indigo-800 font-extrabold text-[11px] font-mono">${escapeHtml(f.ruleClause.split('(')[0].trim())}</span>
-                <div>
-                  <h5 class="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-2">
-                    <span>${escapeHtml(f.label)}</span>
-                  </h5>
-                  <span class="text-[10px] font-mono text-slate-500">${escapeHtml(f.ruleClause)} • Mandatory Statutory Declaration</span>
-                </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-2.5">
+                <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-[11px] font-mono border border-slate-200 dark:border-slate-700 shadow-2xs">${escapeHtml(f.ruleClause)}</span>
+                <h5 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                  ${escapeHtml(f.label)}
+                </h5>
               </div>
               <div class="flex items-center gap-2">
                 ${ruleBadge}
               </div>
             </div>
 
-            <!-- 3 Component Sub-Boxes Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <!-- Card Content: 12-Column Responsive Split (Stacked on mobile/tablet <1024px for generous touch targets) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
 
-              <!-- SUB-BOX 1: AI OCR EXTRACTION -->
-              <div class="bg-indigo-50/70 rounded-xl p-3 border border-indigo-100/90 flex flex-col justify-between">
+              <!-- Left Panel: Optical AI Detection & Rule Engine Findings (7 cols on lg) -->
+              <div class="lg:col-span-7 flex flex-col justify-between p-3.5 rounded-xl bg-slate-50/90 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/70 space-y-2.5">
                 <div>
-                  <div class="flex items-center justify-between text-[10px] font-bold text-indigo-900 mb-1">
-                    <span class="flex items-center gap-1">🤖 1. AI Vision OCR Detection</span>
-                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-200/80 text-indigo-900 font-mono font-bold">Raw OCR</span>
+                  <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 font-mono">
+                    <span>AI Vision OCR Extraction</span>
+                    <span class="font-mono text-[9.5px] px-2 py-0.5 rounded-md bg-white/70 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 text-slate-500 dark:text-slate-400">${escapeHtml(activeModelName)}</span>
                   </div>
-                  <div class="text-xs font-mono font-bold ${rawAiVal ? 'text-slate-800 bg-white/90 border-indigo-200/60' : 'text-red-600 bg-red-50/60 border-red-200'} p-2.5 rounded-lg border min-h-[42px] flex items-center break-all">
-                    ${escapedRawAiVal ? escapedRawAiVal : '✕ Not Detected / Missing'}
+                  <div class="text-xs font-mono font-bold ${rawAiVal ? 'text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/80' : 'text-rose-600 dark:text-rose-400 bg-rose-50/80 dark:bg-rose-950/50 border-rose-200 dark:border-rose-900/60'} p-2.5 rounded-lg border leading-relaxed break-words shadow-2xs">
+                    ${escapedRawAiVal ? escapedRawAiVal : '<span class="italic font-normal text-rose-500 dark:text-rose-400">✕ Not Detected on Scanned Panels</span>'}
                   </div>
                 </div>
-                <div class="mt-2 text-[9px] text-indigo-700/80 font-medium flex items-center justify-between">
-                  <span>Model: ${escapeHtml(activeModelName)} Vision</span>
-                  <span class="font-mono text-indigo-900 font-bold">${rawAiVal ? 'Detected' : 'Missing'}</span>
+
+                <div class="pt-2 border-t border-slate-200/70 dark:border-slate-700/60 flex items-start gap-2">
+                  <span class="text-sm shrink-0 mt-0.5">${ruleStatus === 'COMPLIANT' || ruleStatus === 'Pass' ? '⚖️' : (ruleStatus.includes('EXEMPT') ? 'ℹ️' : '⚠️')}</span>
+                  <p class="text-[11.5px] leading-snug text-slate-700 dark:text-slate-300 font-medium">
+                    <strong class="${ruleBoxHeaderColor}">${ruleStatus}:</strong> ${escapedRuleReason}
+                  </p>
                 </div>
               </div>
 
-              <!-- SUB-BOX 2: STATUTORY RULE ENGINE EVALUATION -->
-              <div class="${ruleBoxBg} rounded-xl p-3 border ${ruleBoxBorder} flex flex-col justify-between">
+              <!-- Right Panel: Officer Override & Statutory Utilities (5 cols on lg) -->
+              <div id="box_user_edit_${f.key}" class="lg:col-span-5 flex flex-col justify-between p-3.5 rounded-xl ${isEdited ? 'bg-amber-50/70 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/80' : 'bg-slate-50/90 dark:bg-slate-800/50 border-slate-200/80 dark:border-slate-700/70'} border transition-all space-y-2.5">
                 <div>
-                  <div class="flex items-center justify-between text-[10px] font-bold ${ruleBoxHeaderColor} mb-1">
-                    <span class="flex items-center gap-1">⚖️ 2. Rule Engine Evaluation</span>
-                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/80 border ${ruleBoxBorder}">${escapeHtml(f.ruleClause)}</span>
-                  </div>
-                  <div class="text-xs font-medium text-slate-800 p-2.5 rounded-lg bg-white/90 border ${ruleBoxBorder} min-h-[42px] flex items-center leading-snug">
-                    ${escapedRuleReason}
-                  </div>
-                </div>
-                <div class="mt-2 text-[9px] ${ruleBoxSubColor} font-medium flex items-center justify-between">
-                  <span>Evaluator: rules.js (PCR 2011)</span>
-                  <span class="font-bold uppercase">${ruleStatus}</span>
-                </div>
-              </div>
-
-              <!-- SUB-BOX 3: USER CORRECTION / EDIT INPUT -->
-              <div id="box_user_edit_${f.key}" class="${isEdited ? 'bg-amber-50/60 border-amber-300 shadow-xs' : 'bg-emerald-50/40 border-emerald-200'} rounded-xl p-3 border flex flex-col justify-between transition-all duration-200">
-                <div>
-                  <div class="flex items-center justify-between text-[10px] font-bold mb-1">
-                    <span class="flex items-center gap-1 text-slate-900">✏️ 3. Inspector Correction</span>
-                    <span id="badge_user_edit_${f.key}" class="${isEdited ? 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 shadow-xs animate-pulse' : 'px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-xs'}">
-                      ${isEdited ? '<span>✏️</span> <span>User Corrected</span>' : '<span>🤖</span> <span>AI Original</span>'}
+                  <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 font-mono">
+                    <span>Officer Override</span>
+                    <span id="badge_user_edit_${f.key}" class="${isEdited ? 'px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700 flex items-center gap-1 shadow-2xs' : 'px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 flex items-center gap-1'}">
+                      ${isEdited ? '<span>✏️</span> <span>Modified</span>' : '<span>🤖</span> <span>AI Value</span>'}
                     </span>
                   </div>
-                  <div class="mt-1">
+
+                  <div class="relative">
                     <input type="text" id="edit_field_${f.key}" value="${escapedCurrentVal}" 
                       placeholder="Enter or edit ${f.label}..."
                       oninput="handleFieldInputChange('${f.key}', '${escapedRawAiVal}')"
-                      class="w-full text-xs font-bold px-3 py-2 rounded-lg border border-slate-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 bg-white text-slate-900 shadow-xs transition" />
+                      class="w-full text-xs font-semibold px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-2xs transition placeholder:text-slate-400" />
                   </div>
+
                   ${f.key === "unit_sale_price" ? `
-                  <div class="mt-1.5 flex items-center justify-between bg-indigo-50/80 p-1.5 rounded-lg border border-indigo-200/70">
-                    <span class="text-[9.5px] font-mono font-bold text-indigo-800">Rule 6(11) USP Assistant</span>
-                    <button type="button" onclick="autoCalculateAndApplyUsp()" class="text-[9.5px] px-2 py-0.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition active:scale-95 cursor-pointer shadow-xs">
-                      ⚡ Auto-Calc from MRP
+                  <div class="mt-2 flex items-center justify-between bg-indigo-50/80 dark:bg-indigo-950/50 p-2 px-2.5 rounded-lg border border-indigo-200/80 dark:border-indigo-800/60">
+                    <span class="text-[9.5px] font-mono font-bold text-indigo-800 dark:text-indigo-300">Rule 6(11) USP Tool</span>
+                    <button type="button" onclick="autoCalculateAndApplyUsp()" class="text-[9.5px] px-2.5 py-1 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition active:scale-95 cursor-pointer shadow-2xs flex items-center gap-1">
+                      <span>⚡</span> <span>Auto-Calc</span>
                     </button>
                   </div>
                   ` : ""}
                 </div>
-                <div class="mt-2 text-[9px] flex items-center justify-between">
-                  <span class="text-slate-500 font-medium">Legal Officer Override</span>
-                  <button type="button" onclick="resetFieldToAiOriginal('${f.key}')" class="text-indigo-600 hover:text-indigo-800 hover:underline font-bold cursor-pointer">
-                    ↺ Reset to AI OCR
+
+                <div class="pt-1.5 border-t border-slate-200/60 dark:border-slate-700/50 flex items-center justify-between text-[10px]">
+                  <span class="text-slate-400 dark:text-slate-500 text-[9.5px]">Inspector Verified</span>
+                  <button type="button" onclick="resetFieldToAiOriginal('${f.key}')" class="text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 font-bold cursor-pointer transition text-[9.5px] flex items-center gap-1">
+                    <span>↺</span> <span>Reset to AI OCR</span>
                   </button>
                 </div>
               </div>
 
             </div>
+          </div>
         `;
       }).join("")}
 
-      <div class="col-span-full mt-3 p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="text-xs text-slate-600">
-          <strong class="text-slate-900">💡 Hybrid Intelligence Workflow:</strong> Editing any declaration above will re-evaluate all 34 statutory rules, update compliance status, and store inspector corrections in docket audit logs.
+      <!-- Bottom Re-validation Bar -->
+      <div class="col-span-full mt-2 p-3.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
+          <span>💡</span>
+          <span>Overrides automatically re-evaluate statutory compliance against all 34 rules of PCR 2011.</span>
         </div>
-        <button type="button" onclick="revalidateUserCorrectedDeclarations()" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap">
-          <span>⚡</span> <span>Re-Validate Compliance With User Corrections</span>
+        <button type="button" onclick="revalidateUserCorrectedDeclarations()" class="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-98 whitespace-nowrap">
+          <span>⚡</span> <span>Re-Validate Compliance</span>
         </button>
       </div>
     `;
@@ -1900,14 +2002,17 @@ function renderAutoFilledComplianceReport(data) {
   const inspectorEl = document.getElementById("reportCaseInspectorText");
   if (inspectorEl) inspectorEl.textContent = user.name || "Field Inspector";
 
-  // Specimen Thumbnail
-  const thumb = document.getElementById("reportSpecimenThumb");
-  if (thumb && currentUploadedImageDataUrl) thumb.src = currentUploadedImageDataUrl;
+  // 5. Specimen Gallery & Multi-Panel Carousel Navigation
+  updateSpecimenGallery(data);
 
   // 6. Executive Summary & Recommended Action
   const summaryEl = document.getElementById("reportExecutiveSummary");
   const actionEl = document.getElementById("reportRecommendedAction");
-  if (summaryEl) summaryEl.textContent = data.executive_summary || (observations.length > 0 ? observations.join(". ") : "Real-time AI optical inspection conducted under PCR 2011.");
+  if (summaryEl) {
+    let rawSummary = data.executive_summary || (observations.length > 0 ? observations.map(o => String(o).trim().replace(/\.+$/, "")).join(". ") + "." : "Real-time AI optical inspection conducted under PCR 2011.");
+    rawSummary = rawSummary.replace(/\.{2,}/g, ".");
+    summaryEl.textContent = rawSummary;
+  }
   if (actionEl) actionEl.textContent = data.recommended_action || (overallStatus === "Compliant" ? "Record inspection in audit registry." : "Issue Statutory Show Cause Notice under Section 36.");
 
   // 7. Compliance Parameters Table
@@ -1960,11 +2065,68 @@ function renderAutoFilledComplianceReport(data) {
   // 8. Raw OCR Text
   const ocrTextEl = document.getElementById("reportRawOcrText");
   if (ocrTextEl) ocrTextEl.textContent = data.extracted_text || data.raw_ocr_text || "No raw text detected.";
+
+  // 9. Synchronize sub-navigation tabs to show Declarations Workbench by default
+  if (typeof switchOcrResultTab === "function") {
+    switchOcrResultTab("declarations");
+  }
+
+  // 10. Announce verification results to screen readers
+  const announcer = document.getElementById("ocrScreenReaderAnnouncer");
+  if (announcer) {
+    announcer.textContent = `Legal Metrology verification complete. Statutory verdict: ${overallStatus}. ${passCount} declarations passed, ${failCount} contraventions detected.`;
+  }
+}
+
+/**
+ * Checks if any declaration field has been modified from its original AI OCR value.
+ */
+function isAnyFieldModified() {
+  if (!currentInspectionResult || !currentInspectionResult.original_ai_fields) return false;
+  const fieldKeys = [
+    "generic_name", "net_quantity", "mrp_tax_inclusive", "manufacturer_name_address",
+    "mfg_month_year", "unit_sale_price", "consumer_care_contact", "country_of_origin", "batch_number"
+  ];
+  return fieldKeys.some(key => {
+    const input = document.getElementById(`edit_field_${key}`);
+    if (!input) return false;
+    const curVal = input.value.trim();
+    const origVal = String(currentInspectionResult.original_ai_fields[key] || "").trim();
+    return curVal !== origVal && (curVal.length > 0 || origVal.length > 0);
+  });
+}
+
+/**
+ * Updates pending re-evaluation alert banners when officer edits any declaration.
+ */
+function updatePendingRevalidationStatus() {
+  const isModified = isAnyFieldModified();
+  const alertEl = document.getElementById("ocrPendingRevalAlert");
+  const verdictSub = document.getElementById("reportVerdictSubtitle");
+  
+  if (alertEl) {
+    if (isModified) {
+      alertEl.classList.remove("hidden");
+    } else {
+      alertEl.classList.add("hidden");
+    }
+  }
+
+  if (verdictSub) {
+    if (isModified) {
+      if (!verdictSub.getAttribute("data-original-text")) {
+        verdictSub.setAttribute("data-original-text", verdictSub.textContent);
+      }
+      verdictSub.innerHTML = `<span class="text-amber-300 font-bold">⚠️ Field overrides modified by officer. Click 'Re-Validate Compliance' to recalculate statutory verdict.</span>`;
+    } else if (verdictSub.getAttribute("data-original-text")) {
+      verdictSub.textContent = verdictSub.getAttribute("data-original-text");
+    }
+  }
 }
 
 /**
  * Real-time event handler when user types in any declaration edit input box.
- * Dynamically switches badge between '🤖 AI Original' and '✏️ User Corrected'.
+ * Dynamically switches badge between '🤖 AI Value' and '✏️ Modified'.
  */
 function handleFieldInputChange(key, rawAiVal) {
   const input = document.getElementById(`edit_field_${key}`);
@@ -1977,15 +2139,365 @@ function handleFieldInputChange(key, rawAiVal) {
   const isDifferent = curVal !== origVal && (curVal.length > 0 || origVal.length > 0);
 
   if (isDifferent) {
-    badge.className = "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 shadow-xs animate-pulse";
-    badge.innerHTML = "<span>✏️</span> <span>User Corrected</span>";
-    container.className = "bg-amber-50/60 rounded-xl p-3 border border-amber-300 flex flex-col justify-between transition-all duration-200 shadow-xs";
+    badge.className = "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700 flex items-center gap-1 shadow-2xs";
+    badge.innerHTML = "<span>✏️</span> <span>Modified</span>";
+    container.className = "lg:col-span-5 flex flex-col justify-between p-3.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/80 border transition-all space-y-2.5";
   } else {
-    badge.className = "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-xs";
-    badge.innerHTML = "<span>🤖</span> <span>AI Original</span>";
-    container.className = "bg-emerald-50/40 rounded-xl p-3 border border-emerald-200 flex flex-col justify-between transition-all duration-200";
+    badge.className = "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 flex items-center gap-1";
+    badge.innerHTML = "<span>🤖</span> <span>AI Value</span>";
+    container.className = "lg:col-span-5 flex flex-col justify-between p-3.5 rounded-xl bg-slate-50/90 dark:bg-slate-800/50 border-slate-200/80 dark:border-slate-700/70 border transition-all space-y-2.5";
+  }
+
+  updatePendingRevalidationStatus();
+}
+
+/**
+ * Inserts pre-defined statutory legal snippets into the Inspector Notes memorandum.
+ */
+function insertInspectorNoteSnippet(snippet, btnEl) {
+  const el = document.getElementById("inspectorNotesInput");
+  if (!el) return;
+  if (el.value.trim().length > 0) {
+    el.value = el.value.trim() + "\n" + snippet;
+  } else {
+    el.value = snippet;
+  }
+  el.focus();
+
+  if (btnEl) {
+    const origHtml = btnEl.innerHTML;
+    btnEl.innerHTML = "<span>✓ Added</span>";
+    btnEl.classList.add("bg-emerald-100", "text-emerald-800", "border-emerald-300", "dark:bg-emerald-950", "dark:text-emerald-300");
+    setTimeout(() => {
+      btnEl.innerHTML = origHtml;
+      btnEl.classList.remove("bg-emerald-100", "text-emerald-800", "border-emerald-300", "dark:bg-emerald-950", "dark:text-emerald-300");
+    }, 1200);
+  }
+
+  if (typeof showToast === "function") {
+    showToast("Statutory memo snippet inserted", "info");
   }
 }
+
+/**
+ * Clears official inspector notes from memorandum box.
+ */
+function clearInspectorNotes() {
+  const el = document.getElementById("inspectorNotesInput");
+  if (el && el.value.trim().length > 0) {
+    el.value = "";
+    if (typeof showToast === "function") showToast("Inspector remarks cleared", "info");
+  }
+}
+
+window.insertInspectorNoteSnippet = insertInspectorNoteSnippet;
+window.clearInspectorNotes = clearInspectorNotes;
+
+/* ==========================================================================
+   SPECIMEN PANEL IMAGE GALLERY & PREVIOUS / NEXT NAVIGATION
+   ========================================================================== */
+let activeSpecimenImageList = [];
+let currentSpecimenImageIndex = 0;
+
+/**
+ * Gathers all captured panel images and populates the specimen carousel.
+ */
+function updateSpecimenGallery(data) {
+  activeSpecimenImageList = [];
+
+  const pImages = (data && data.panelImages) || panelImages || {};
+  const slotLabels = {
+    front: "Front Facing",
+    back: "Back Facing",
+    left: "Left Side",
+    right: "Right Side",
+    top: "Top Panel",
+    bottom: "Bottom Panel"
+  };
+
+  if (Array.isArray(PANEL_SLOTS)) {
+    PANEL_SLOTS.forEach(slot => {
+      if (pImages[slot]) {
+        activeSpecimenImageList.push({
+          slot: slot,
+          label: slotLabels[slot] || slot,
+          url: pImages[slot]
+        });
+      }
+    });
+  }
+
+  if (activeSpecimenImageList.length === 0) {
+    if (data && data.imageFront) {
+      activeSpecimenImageList.push({ slot: "front", label: "Front Facing", url: data.imageFront });
+    }
+    if (data && data.imageBack) {
+      activeSpecimenImageList.push({ slot: "back", label: "Back Facing", url: data.imageBack });
+    }
+    if (activeSpecimenImageList.length === 0 && currentUploadedImageDataUrl) {
+      activeSpecimenImageList.push({ slot: "captured", label: "Captured Panel", url: currentUploadedImageDataUrl });
+    }
+    if (activeSpecimenImageList.length === 0 && data && (data.specimen_image || data.image)) {
+      activeSpecimenImageList.push({ slot: "specimen", label: "Specimen Panel", url: data.specimen_image || data.image });
+    }
+  }
+
+  currentSpecimenImageIndex = 0;
+  renderSpecimenImageViewport();
+}
+
+/**
+ * Updates the specimen image viewport with current panel, indicator, and navigation states.
+ */
+function renderSpecimenImageViewport() {
+  const thumb = document.getElementById("reportSpecimenThumb");
+  const prevBtn = document.getElementById("btnPrevSpecimenImage");
+  const nextBtn = document.getElementById("btnNextSpecimenImage");
+  const badge = document.getElementById("specimenPanelIndicatorBadge");
+  const dotsContainer = document.getElementById("specimenPanelDots");
+
+  const total = activeSpecimenImageList.length;
+  if (total === 0) {
+    if (thumb) thumb.src = currentUploadedImageDataUrl || "";
+    if (badge) badge.textContent = "Panel 1/1: Captured";
+    if (prevBtn) {
+      prevBtn.disabled = true;
+      prevBtn.classList.add("opacity-20", "cursor-not-allowed");
+    }
+    if (nextBtn) {
+      nextBtn.disabled = true;
+      nextBtn.classList.add("opacity-20", "cursor-not-allowed");
+    }
+    if (dotsContainer) dotsContainer.classList.add("hidden");
+    return;
+  }
+
+  if (currentSpecimenImageIndex < 0) currentSpecimenImageIndex = total - 1;
+  if (currentSpecimenImageIndex >= total) currentSpecimenImageIndex = 0;
+
+  const currentItem = activeSpecimenImageList[currentSpecimenImageIndex];
+  if (thumb && currentItem) {
+    thumb.src = currentItem.url;
+    thumb.alt = `${currentItem.label} Evidence Preview`;
+  }
+
+  if (badge && currentItem) {
+    badge.textContent = total > 1
+      ? `Panel ${currentSpecimenImageIndex + 1}/${total}: ${currentItem.label}`
+      : `Panel: ${currentItem.label}`;
+  }
+
+  const isMulti = total > 1;
+  if (prevBtn) {
+    prevBtn.disabled = !isMulti;
+    if (isMulti) {
+      prevBtn.classList.remove("opacity-20", "cursor-not-allowed");
+    } else {
+      prevBtn.classList.add("opacity-20", "cursor-not-allowed");
+    }
+  }
+
+  if (nextBtn) {
+    nextBtn.disabled = !isMulti;
+    if (isMulti) {
+      nextBtn.classList.remove("opacity-20", "cursor-not-allowed");
+    } else {
+      nextBtn.classList.add("opacity-20", "cursor-not-allowed");
+    }
+  }
+
+  if (dotsContainer) {
+    if (isMulti) {
+      dotsContainer.classList.remove("hidden");
+      dotsContainer.innerHTML = activeSpecimenImageList.map((item, idx) => `
+        <button type="button" onclick="goToSpecimenImage(${idx})" 
+          title="Switch to ${item.label}" aria-label="Go to ${item.label}"
+          class="w-2 h-2 rounded-full transition-all duration-200 cursor-pointer ${idx === currentSpecimenImageIndex ? 'bg-emerald-400 w-4' : 'bg-white/40 hover:bg-white/80'}">
+        </button>
+      `).join("");
+    } else {
+      dotsContainer.classList.add("hidden");
+    }
+  }
+
+  // Multi-Panel Thumbnail Gallery Strip under specimen stage
+  const thumbsStrip = document.getElementById("specimenPanelThumbsStrip");
+  if (thumbsStrip) {
+    if (isMulti) {
+      thumbsStrip.classList.remove("hidden");
+      thumbsStrip.innerHTML = activeSpecimenImageList.map((item, idx) => `
+        <button type="button" onclick="goToSpecimenImage(${idx})"
+          title="${item.label} (Panel ${idx + 1}/${total})" aria-label="Switch to ${item.label}"
+          class="flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[10px] font-mono font-bold transition-all cursor-pointer select-none ${idx === currentSpecimenImageIndex ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-500 text-emerald-700 dark:text-emerald-300 shadow-xs ring-1 ring-emerald-500/40' : 'bg-slate-100 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-400'}">
+          <img src="${item.url}" class="w-4 h-4 object-cover rounded" alt="">
+          <span>P${idx + 1}</span>
+        </button>
+      `).join("");
+    } else {
+      thumbsStrip.classList.add("hidden");
+      thumbsStrip.innerHTML = "";
+    }
+  }
+
+  // Synchronize open Lightbox view if active
+  updateLightboxView();
+}
+
+/**
+ * Switches to previous or next captured specimen image.
+ */
+function navigateSpecimenImage(direction) {
+  if (activeSpecimenImageList.length <= 1) return;
+  currentSpecimenImageIndex = (currentSpecimenImageIndex + direction + activeSpecimenImageList.length) % activeSpecimenImageList.length;
+  renderSpecimenImageViewport();
+}
+
+/**
+ * Directly navigates to a specific specimen image index.
+ */
+function goToSpecimenImage(index) {
+  if (index >= 0 && index < activeSpecimenImageList.length) {
+    currentSpecimenImageIndex = index;
+    renderSpecimenImageViewport();
+  }
+}
+
+/**
+ * Cycles through the 6 capture slots with previous and next buttons.
+ */
+function navigateActiveCaptureSlot(direction) {
+  if (!Array.isArray(PANEL_SLOTS) || PANEL_SLOTS.length === 0) return;
+  const curIdx = PANEL_SLOTS.indexOf(activeCaptureSlot);
+  let nextIdx = (curIdx + direction + PANEL_SLOTS.length) % PANEL_SLOTS.length;
+  setActiveCaptureSlot(PANEL_SLOTS[nextIdx]);
+}
+
+/**
+ * Opens the high-resolution specimen evidence lightbox modal.
+ */
+function openSpecimenLightbox(index) {
+  if (!activeSpecimenImageList || activeSpecimenImageList.length === 0) return;
+  if (typeof index === "number" && index >= 0 && index < activeSpecimenImageList.length) {
+    currentSpecimenImageIndex = index;
+    renderSpecimenImageViewport();
+  }
+  const modal = document.getElementById("specimenLightboxModal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    updateLightboxView();
+  }
+}
+
+/**
+ * Closes the high-resolution specimen evidence lightbox modal.
+ */
+function closeSpecimenLightbox() {
+  const modal = document.getElementById("specimenLightboxModal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+}
+
+/**
+ * Updates the high-resolution lightbox image, counters, thumbnails, and navigation controls.
+ */
+function updateLightboxView() {
+  const modal = document.getElementById("specimenLightboxModal");
+  if (!modal || modal.classList.contains("hidden")) return;
+
+  const total = activeSpecimenImageList.length;
+  if (total === 0) return;
+
+  if (currentSpecimenImageIndex < 0) currentSpecimenImageIndex = total - 1;
+  if (currentSpecimenImageIndex >= total) currentSpecimenImageIndex = 0;
+
+  const currentItem = activeSpecimenImageList[currentSpecimenImageIndex];
+  const img = document.getElementById("lightboxSpecimenImg");
+  const title = document.getElementById("lightboxPanelTitle");
+  const count = document.getElementById("lightboxPanelCount");
+  const prevBtn = document.getElementById("lightboxPrevBtn");
+  const nextBtn = document.getElementById("lightboxNextBtn");
+  const thumbsContainer = document.getElementById("lightboxPanelThumbnails");
+
+  if (img && currentItem) {
+    img.src = currentItem.url;
+    img.alt = `${currentItem.label} Evidence Preview`;
+  }
+  if (title && currentItem) {
+    title.textContent = `${currentItem.label} Evidence`;
+  }
+  if (count) {
+    count.textContent = total > 1 ? `(${currentSpecimenImageIndex + 1} of ${total})` : "(1 of 1)";
+  }
+
+  const isMulti = total > 1;
+  if (prevBtn) {
+    prevBtn.disabled = !isMulti;
+    if (isMulti) {
+      prevBtn.classList.remove("opacity-20", "pointer-events-none");
+    } else {
+      prevBtn.classList.add("opacity-20", "pointer-events-none");
+    }
+  }
+  if (nextBtn) {
+    nextBtn.disabled = !isMulti;
+    if (isMulti) {
+      nextBtn.classList.remove("opacity-20", "pointer-events-none");
+    } else {
+      nextBtn.classList.add("opacity-20", "pointer-events-none");
+    }
+  }
+
+  if (thumbsContainer) {
+    if (isMulti) {
+      thumbsContainer.innerHTML = activeSpecimenImageList.map((item, idx) => `
+        <button type="button" onclick="goToSpecimenImage(${idx})" 
+          title="Switch to ${item.label}" aria-label="Go to ${item.label}"
+          class="relative rounded-lg overflow-hidden border-2 transition-all p-0.5 cursor-pointer ${idx === currentSpecimenImageIndex ? 'border-emerald-400 scale-105 shadow-md ring-2 ring-emerald-400/40' : 'border-white/20 opacity-60 hover:opacity-100'}">
+          <img src="${item.url}" class="w-10 h-10 object-cover rounded" alt="${item.label} thumbnail">
+        </button>
+      `).join("");
+    } else {
+      thumbsContainer.innerHTML = "";
+    }
+  }
+}
+
+window.updateSpecimenGallery = updateSpecimenGallery;
+window.renderSpecimenImageViewport = renderSpecimenImageViewport;
+window.navigateSpecimenImage = navigateSpecimenImage;
+window.goToSpecimenImage = goToSpecimenImage;
+window.navigateActiveCaptureSlot = navigateActiveCaptureSlot;
+window.openSpecimenLightbox = openSpecimenLightbox;
+window.closeSpecimenLightbox = closeSpecimenLightbox;
+window.updateLightboxView = updateLightboxView;
+
+// Keyboard navigation listener for specimen gallery & modal escape
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeSpecimenLightbox();
+    return;
+  }
+
+  const activeEl = document.activeElement;
+  const isInput = activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA");
+  if (isInput) return;
+
+  const resultsSection = document.getElementById("ocrReportResultsSection");
+  const lightboxModal = document.getElementById("specimenLightboxModal");
+  const isResultsVisible = resultsSection && !resultsSection.classList.contains("hidden");
+  const isLightboxVisible = lightboxModal && !lightboxModal.classList.contains("hidden");
+
+  if (!isResultsVisible && !isLightboxVisible) return;
+
+  if (e.key === "ArrowLeft") {
+    navigateSpecimenImage(-1);
+  } else if (e.key === "ArrowRight") {
+    navigateSpecimenImage(1);
+  }
+});
 
 /**
  * Resets a single declaration field back to the original raw AI OCR extracted value.
@@ -2579,9 +3091,9 @@ function switchOcrResultTab(tab) {
     const btn = document.getElementById(`ocrTabBtn-${t}`);
     if (btn) {
       if (t === tab) {
-        btn.className = "ocr-tab-btn px-3.5 py-1.5 rounded-lg bg-[#10B981] text-white shadow-xs transition flex items-center gap-1.5 cursor-pointer font-semibold";
+        btn.className = "ocr-tab-btn px-4 py-2 rounded-xl bg-emerald-600 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer font-bold";
       } else {
-        btn.className = "ocr-tab-btn px-3.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition flex items-center gap-1.5 cursor-pointer font-medium";
+        btn.className = "ocr-tab-btn px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5 cursor-pointer font-semibold";
       }
     }
   });
@@ -2615,4 +3127,9 @@ function switchOcrResultTab(tab) {
   }
 }
 window.switchOcrResultTab = switchOcrResultTab;
+window.downloadOcrReportPdf = downloadOcrReportPdf;
+window.handleSaveOcrInspection = handleSaveOcrInspection;
+window.revalidateUserCorrectedDeclarations = revalidateUserCorrectedDeclarations;
+window.copyRawOcrText = copyRawOcrText;
+window.renderAutoFilledComplianceReport = renderAutoFilledComplianceReport;
 

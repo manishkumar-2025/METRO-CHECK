@@ -381,8 +381,10 @@ html.dark .btn-secondary:hover {
 }
 
 /* Dark Inspector AI Extracted Fields Grid */
-body.theme-dark #reportExtractedFieldsGrid > div,
-html.dark #reportExtractedFieldsGrid > div {
+body.theme-dark #reportExtractedFieldsGrid > div.declaration-card,
+html.dark #reportExtractedFieldsGrid > div.declaration-card,
+body.theme-dark #reportExtractedFieldsGrid > div.legacy-field-card,
+html.dark #reportExtractedFieldsGrid > div.legacy-field-card {
   background-color: rgba(15, 23, 42, 0.85) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   color: #f8fafc !important;
@@ -390,11 +392,13 @@ html.dark #reportExtractedFieldsGrid > div {
   transition: all 0.18s ease !important;
 }
 
-body.theme-dark #reportExtractedFieldsGrid > div:hover,
-html.dark #reportExtractedFieldsGrid > div:hover {
-  border-color: rgba(16, 185, 129, 0.4) !important;
+body.theme-dark #reportExtractedFieldsGrid > div.declaration-card:hover,
+html.dark #reportExtractedFieldsGrid > div.declaration-card:hover,
+body.theme-dark #reportExtractedFieldsGrid > div.legacy-field-card:hover,
+html.dark #reportExtractedFieldsGrid > div.legacy-field-card:hover {
+  border-color: rgba(99, 102, 241, 0.4) !important;
   box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.6),
-              0 0 15px -2px rgba(16, 185, 129, 0.15) !important;
+              0 0 15px -2px rgba(99, 102, 241, 0.15) !important;
   transform: translateY(-1.5px);
 }
 

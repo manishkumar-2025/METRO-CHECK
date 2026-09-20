@@ -3,50 +3,6 @@
    Contains camera scanner, AI extracted fields grid, & OCR overlays.
    ========================================================================== */
 
-
-/* Inspector 2-Column AI Results Field Grid */
-#reportExtractedFieldsGrid > div {
-  background-color: #FFFFFF;
-  border: 1px solid #E4E7EC;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-}
-
-#reportExtractedFieldsGrid > div:hover {
-  border-color: #CBD5E1;
-  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
-}
-
-/* Green Check Pills for Detected Declarations */
-#reportExtractedFieldsGrid .text-emerald-600 {
-  display: inline-flex !important;
-  align-items: center !important;
-  padding: 0.15rem 0.6rem !important;
-  border-radius: 9999px !important;
-  background-color: #ECFDF5 !important;
-  color: #047857 !important;
-  border: 1px solid #A7F3D0 !important;
-  font-size: 0.7rem !important;
-  font-weight: 600 !important;
-  line-height: 1.2 !important;
-}
-
-/* Red X Pills for Missing Declarations */
-#reportExtractedFieldsGrid .text-red-600 {
-  display: inline-flex !important;
-  align-items: center !important;
-  padding: 0.15rem 0.6rem !important;
-  border-radius: 9999px !important;
-  background-color: #FEF2F2 !important;
-  color: #B91C1C !important;
-  border: 1px solid #FECACA !important;
-  font-size: 0.7rem !important;
-  font-weight: 600 !important;
-  line-height: 1.2 !important;
-}
-
 /* Center Image Card: Indigo "OCR Overlay" Toggle */
 #btnToggleOcrFocus {
   background-color: #EEF2FF !important;
@@ -76,4 +32,3 @@
   background-color: #EEF2FF !important;
   border-color: #C7D2FE !important;
 }
-

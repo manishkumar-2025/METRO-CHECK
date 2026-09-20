@@ -2014,8 +2014,8 @@ textarea:focus-visible {
   background-color: #F8FAFC;
 }
 
-/* Inspector 2-Column AI Results Field Grid */
-#reportExtractedFieldsGrid > div {
+/* Inspector AI Results Field Grid (Legacy Fallback) */
+#reportExtractedFieldsGrid > div.legacy-field-card {
   background-color: #FFFFFF;
   border: 1px solid #E4E7EC;
   border-radius: 0.75rem;
@@ -2024,37 +2024,37 @@ textarea:focus-visible {
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
-#reportExtractedFieldsGrid > div:hover {
+#reportExtractedFieldsGrid > div.legacy-field-card:hover {
   border-color: #CBD5E1;
   box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
 }
 
-/* Green Check Pills for Detected Declarations */
-#reportExtractedFieldsGrid .text-emerald-600 {
-  display: inline-flex !important;
-  align-items: center !important;
-  padding: 0.15rem 0.6rem !important;
-  border-radius: 9999px !important;
-  background-color: #ECFDF5 !important;
-  color: #047857 !important;
-  border: 1px solid #A7F3D0 !important;
-  font-size: 0.7rem !important;
-  font-weight: 600 !important;
-  line-height: 1.2 !important;
+/* Green Check Pills for Detected Declarations (Legacy) */
+#reportExtractedFieldsGrid .legacy-field-card .text-emerald-600 {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 9999px;
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
-/* Red X Pills for Missing Declarations */
-#reportExtractedFieldsGrid .text-red-600 {
-  display: inline-flex !important;
-  align-items: center !important;
-  padding: 0.15rem 0.6rem !important;
-  border-radius: 9999px !important;
-  background-color: #FEF2F2 !important;
-  color: #B91C1C !important;
-  border: 1px solid #FECACA !important;
-  font-size: 0.7rem !important;
-  font-weight: 600 !important;
-  line-height: 1.2 !important;
+/* Red X Pills for Missing Declarations (Legacy) */
+#reportExtractedFieldsGrid .legacy-field-card .text-red-600 {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 9999px;
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 /* Standardized Sidebar & Filter Overrides */
@@ -2913,11 +2913,7 @@ body.theme-dark tr.schedule-row:hover {
 }
 
 .status-dot {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  opacity: 1;
 }
 
 .sticky-frosted-nav {
@@ -3097,4 +3093,41 @@ html, body {
    ========================================================================== */
 #ocrCommodityStandardBadge:not(.hidden) {
   display: grid !important;
+}
+
+/* ==========================================================================
+   GovTech Declaration Ledger & Smart Inspection Workbench
+   ========================================================================== */
+.declaration-card {
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.declaration-card:hover {
+  box-shadow: 0 6px 20px -3px rgba(15, 23, 42, 0.08);
+}
+
+body.theme-dark .declaration-card:hover,
+.dark .declaration-card:hover {
+  box-shadow: 0 6px 24px -3px rgba(0, 0, 0, 0.45);
+}
+
+.declaration-card input:focus {
+  outline: none;
+}
+
+/* Forensic Specimen Stage with calibrated optical reticle */
+.specimen-stage {
+  background-color: #030712;
+  background-image: radial-gradient(circle, rgba(16, 185, 129, 0.12) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* Telemetry Dock Instrument Styling */
+#scannerTelemetryDock {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+}
+
+.dark #scannerTelemetryDock,
+body.theme-dark #scannerTelemetryDock {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(2, 6, 23, 0.95) 100%);
 }
