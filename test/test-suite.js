@@ -83,6 +83,43 @@ async function runApiTests() {
     assert.strictEqual(health.data.status, "online", "Health status must be online");
     console.log("✅ Integration Test 2 Passed: API /api/health Endpoint Response:", health.data.system);
 
+    // 2b. Operational Portals RBAC & Unauthenticated Redirect Tests
+    const unauthPortalRes = await makeHttpRequest({
+      hostname: "localhost",
+      port: 3000,
+      path: "/inspector.html",
+      method: "GET"
+    });
+    assert.strictEqual(unauthPortalRes.status, 302, "Unauthenticated portal request must return 302 redirect");
+    assert.ok(unauthPortalRes.headers.location.includes("index.html?auth_required=1"), "Must redirect to login page");
+    console.log("✅ Security Test 2b Passed: Unauthenticated Portal Access Redirected to Login");
+
+    // 2c. Authenticate Officer Session for Authorized Adjudication Workflow
+    const officerAuthRes = await makeHttpRequest({
+      hostname: "localhost",
+      port: 3000,
+      path: "/api/auth/login",
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    }, { username: "officer", password: "officer123" });
+    assert.strictEqual(officerAuthRes.status, 200, "Officer login must succeed");
+    const officerCookie = Array.isArray(officerAuthRes.headers["set-cookie"])
+      ? officerAuthRes.headers["set-cookie"][0].split(";")[0]
+      : officerAuthRes.headers["set-cookie"].split(";")[0];
+    assert.ok(officerCookie.startsWith("metro_session="), "Must receive signed session cookie");
+    console.log("✅ Security Test 2c Passed: Officer Authenticated with Signed Session Cookie");
+
+    // 2d. Role-Based Access Control: Officer Denied Access to Admin Command Center
+    const officerAdminDeny = await makeHttpRequest({
+      hostname: "localhost",
+      port: 3000,
+      path: "/admin.html",
+      method: "GET",
+      headers: { Cookie: officerCookie }
+    });
+    assert.strictEqual(officerAdminDeny.status, 403, "Officer must receive 403 Forbidden for admin.html");
+    console.log("✅ Security Test 2d Passed: RBAC Boundary Enforced — Officer Denied Admin Portal (HTTP 403)");
+
     // 3. Inspection Sync POST Test with Rich Traceability Metadata
     const dateSeg = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const rand4 = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -119,7 +156,10 @@ async function runApiTests() {
       port: 3000,
       path: "/api/inspections",
       method: "POST",
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: officerCookie
+      }
     }, testRecord);
 
     assert.strictEqual(postRes.status, 200, "Post inspections status must be 200");
@@ -132,7 +172,10 @@ async function runApiTests() {
       port: 3000,
       path: `/api/inspections/${encodeURIComponent(dynamicCaseId)}/status`,
       method: "PATCH",
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: officerCookie
+      }
     }, {
       status: "UNDER_REVIEW",
       reviewComments: "Docket opened by Legal Metrology Officer for statutory scrutiny."
@@ -148,7 +191,10 @@ async function runApiTests() {
       port: 3000,
       path: `/api/inspections/${encodeURIComponent(dynamicCaseId)}/status`,
       method: "PATCH",
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: officerCookie
+      }
     }, {
       status: "NOTICE_ISSUED",
       reviewComments: "Statutory notice issued under Section 36 of Legal Metrology Act, 2009."

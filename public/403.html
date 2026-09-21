@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>403 Access Denied | e-LMCEP (METRO-CHECK)</title>
+  <link rel="icon" type="image/png" href="logo/logo.png">
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sih: {
+              green: '#10B981',
+              darkGreen: '#059669',
+              lightGreen: '#ECFDF5',
+              navy: '#0F172A',
+              slate: '#1E293B',
+              gray: '#64748B',
+              lightGray: '#F8FAFC',
+              border: '#E2E8F0'
+            }
+          },
+          animation: {
+            'radar-pulse': 'radarPulse 2.5s cubic-bezier(0, 0, 0.2, 1) infinite',
+            'float-slow': 'floatSlow 4s ease-in-out infinite'
+          },
+          keyframes: {
+            radarPulse: {
+              '0%': { transform: 'scale(0.95)', opacity: '0.8' },
+              '50%': { transform: 'scale(1.2)', opacity: '0' },
+              '100%': { transform: 'scale(0.95)', opacity: '0' }
+            },
+            floatSlow: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-6px)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col justify-between font-sans antialiased selection:bg-rose-500 selection:text-white bg-pattern-subtle">
+
+  <!-- =========================================================================
+       TOP SOVEREIGN SECURITY HEADER
+       ========================================================================= -->
+  <header class="w-full bg-slate-900/90 border-b border-rose-900/40 py-3 px-4 sm:px-8 flex items-center justify-between backdrop-blur-md sticky top-0 z-30 shadow-md">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="p-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-slate-500 transition-all hover:scale-105" title="State Emblem of India • Return to Gateway">
+        <img src="logo/logo.png" alt="Emblem of India" class="h-8 sm:h-9 w-auto object-contain">
+      </a>
+      <div>
+        <div class="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-2 font-heading">
+          <a href="index.html" class="hover:text-emerald-400 transition-colors">e-LMCEP (METRO-CHECK)</a>
+          <span class="px-2 py-0.5 rounded-full bg-rose-950/90 text-rose-300 border border-rose-800 text-[10px] font-mono font-bold tracking-wider">
+            RBAC FIREWALL
+          </span>
+        </div>
+        <div class="text-[10.5px] text-slate-400 font-medium hidden sm:block">
+          Department of Consumer Affairs • Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Controls: Status Badge + Theme / Direct Home Link -->
+    <div class="flex items-center gap-2 sm:gap-3 text-xs">
+      <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono font-bold text-[11px]">
+        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+        HTTP 403 ACCESS FORBIDDEN
+      </span>
+      <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 font-semibold text-xs transition active:scale-95">
+        <span>🏛️</span>
+        <span class="hidden sm:inline">Portal Home</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       MAIN 403 INTERACTIVE CONTAINER
+       ========================================================================= -->
+  <main class="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative">
+    <div class="max-w-2xl w-full bg-slate-900/90 border border-rose-900/50 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl shadow-rose-950/60 backdrop-blur-xl relative overflow-hidden text-center space-y-6">
+
+      <!-- Ambient Glow Orbs -->
+      <div class="absolute -top-32 -left-32 w-72 h-72 bg-rose-600/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-32 -right-32 w-72 h-72 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Animated Security Shield Emblem -->
+      <div class="relative inline-flex items-center justify-center mx-auto my-1 animate-float-slow">
+        <div class="absolute w-28 h-28 rounded-full bg-rose-500/10 animate-radar-pulse pointer-events-none"></div>
+        <div class="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-gradient-to-br from-rose-950 to-slate-900 border-2 border-rose-500/60 text-rose-400 text-4xl sm:text-5xl flex items-center justify-center shadow-lg shadow-rose-950/60 relative z-10">
+          🛡️
+        </div>
+      </div>
+
+      <!-- Main Headline & Description -->
+      <div class="space-y-2">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono font-bold uppercase tracking-widest">
+          <span>⛔</span>
+          <span>Statutory Security Boundary Enforced</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight font-heading">
+          403 — Unauthorized Operational Access
+        </h1>
+        <p id="denialReasonText" class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-lg mx-auto font-normal">
+          Under Department of Consumer Affairs sovereign RBAC protocols, your authenticated credential does not have clearance to access this operational console.
+        </p>
+      </div>
+
+      <!-- Dynamic Attempted Resource Strip -->
+      <div class="p-3.5 rounded-xl bg-slate-950/90 border border-rose-900/30 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-left">
+        <div class="flex items-center gap-2">
+          <span class="text-rose-400 text-base">⚠️</span>
+          <div>
+            <div class="text-[10px] uppercase font-mono text-slate-400 font-bold">Attempted Resource</div>
+            <div id="targetResourceName" class="font-mono text-slate-100 font-bold text-xs sm:text-sm tracking-tight">
+              Protected Operational Portal
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+          <span class="text-[10.5px] font-mono text-slate-400">Required Clearance:</span>
+          <span id="requiredClearanceBadge" class="px-2 py-0.5 rounded bg-rose-900/50 text-rose-300 border border-rose-700 font-mono font-bold text-[10.5px]">
+            Restricted Role
+          </span>
+        </div>
+      </div>
+
+      <!-- Interactive Credential Diagnostic Card -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-slate-950/80 border border-slate-800 text-left space-y-3.5 text-xs font-mono relative">
+        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <span>🪪</span>
+            <span>Your Active Session Clearance</span>
+          </span>
+          <span id="sessionStatusBadge" class="text-emerald-400 font-bold flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Authenticated
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-slate-300 text-[11.5px]">
+          <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
+            <span class="text-slate-500 block text-[10px] mb-0.5">USERNAME</span>
+            <span id="diagUsername" class="font-bold text-white block truncate">—</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
+            <span class="text-slate-500 block text-[10px] mb-0.5">ASSIGNED ROLE</span>
+            <span id="diagRole" class="font-bold text-rose-400 capitalize block truncate">—</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
+            <span class="text-slate-500 block text-[10px] mb-0.5">JURISDICTION ZONE</span>
+            <span id="diagZone" class="text-slate-200 block truncate">—</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
+            <span class="text-slate-500 block text-[10px] mb-0.5">STATUTORY BADGE</span>
+            <span id="diagBadge" class="text-slate-200 block truncate">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button Controls (Responsive & High-Contrast) -->
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-1">
+        <!-- 1. Smart Primary Button (Routes to user's authorized console) -->
+        <button type="button" id="returnPortalBtn" onclick="returnToAuthorizedPortal()"
+          class="flex-1 sm:flex-initial min-w-[220px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-emerald-950/50 hover:shadow-emerald-900/70 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 cursor-pointer">
+          <span class="text-base">↩</span>
+          <span id="returnPortalText">Return to My Authorized Console</span>
+        </button>
+
+        <!-- 2. Go Back Button -->
+        <button type="button" onclick="handleGoBack()"
+          class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs sm:text-sm font-semibold border border-slate-700 hover:border-slate-600 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 cursor-pointer"
+          title="Return to the previous page (Alt + Left Arrow)">
+          <span>←</span>
+          <span>Go Back</span>
+        </button>
+
+        <!-- 3. Return Home Button -->
+        <a href="index.html"
+          class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs sm:text-sm font-semibold border border-slate-700 hover:border-slate-600 hover:-translate-y-0.5 transition-all duration-200 active:scale-95"
+          title="Go to official sovereign portal gateway">
+          <span>🏠</span>
+          <span>Portal Home</span>
+        </a>
+
+        <!-- 4. Sign In / Switch Officer Account Button -->
+        <button type="button" onclick="handleSwitchAccount()"
+          class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-200 hover:text-white text-xs sm:text-sm font-semibold border border-rose-800 hover:border-rose-700 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 cursor-pointer"
+          title="Terminate active session and authenticate with different credentials">
+          <span>🔑</span>
+          <span>Sign In as Different Officer</span>
+        </button>
+      </div>
+
+      <!-- Collapsible Statutory Clearance Matrix & Security Details -->
+      <div class="border-t border-slate-800/80 pt-4 text-left">
+        <button type="button" onclick="toggleMatrixDrawer()"
+          class="w-full flex items-center justify-between text-xs font-mono text-slate-400 hover:text-slate-200 p-2 rounded-lg hover:bg-slate-800/50 transition cursor-pointer">
+          <span class="flex items-center gap-2 font-semibold">
+            <span>ℹ️</span>
+            <span>View Statutory Clearance & RBAC Matrix</span>
+          </span>
+          <span id="matrixChevron" class="text-slate-500 transform transition-transform duration-200 font-bold">▼</span>
+        </button>
+
+        <div id="matrixDrawer" class="hidden mt-3 p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs font-mono space-y-3">
+          <div class="text-[11px] text-slate-400 leading-relaxed font-sans">
+            Under the <strong>Legal Metrology Act, 2009</strong> and sovereign GovTech frameworks, operational consoles are strictly segregated to maintain legal chain-of-custody:
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px]">
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
+                <span>📸</span> <span>Field Inspector</span>
+              </div>
+              <p class="text-slate-400 text-[10px] leading-normal font-sans">
+                Optical OCR capture, live barcode scanning, and initial specimen submission.
+              </p>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="font-bold text-indigo-400 mb-1 flex items-center gap-1.5">
+                <span>🛡️</span> <span>Metrology Officer</span>
+              </div>
+              <p class="text-slate-400 text-[10px] leading-normal font-sans">
+                Review dockets, legal compounding adjudication, and Form-V statutory notices.
+              </p>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+                <span>🏛️</span> <span>Command Admin</span>
+              </div>
+              <p class="text-slate-400 text-[10px] leading-normal font-sans">
+                Pan-India Master Audit Ledger, user account provisioning, and statutory rule config.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footnote with Interactive Incident ID Copy & Helpdesk -->
+      <div class="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[11px] text-slate-500 font-mono">
+        <div class="flex items-center gap-1.5">
+          <span>Audit Incident Ref:</span>
+          <button type="button" onclick="copyIncidentId()"
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold transition active:scale-95 cursor-pointer"
+            title="Click to copy Incident ID for helpdesk escalation">
+            <span id="incidentId">SEC-2026-XXXX</span>
+            <span id="copyIcon" class="text-slate-400 text-[10px]">📋</span>
+          </button>
+          <span id="copyFeedback" class="hidden text-emerald-400 text-[10px] font-bold">Copied!</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <a href="tel:1915" class="hover:text-emerald-400 transition-colors flex items-center gap-1" title="Call National Metrology Helpline 1915">
+            <span>📞</span> <span>Toll-Free 1915</span>
+          </a>
+          <span class="text-slate-700">•</span>
+          <a href="features.html" class="hover:text-emerald-400 transition-colors">
+            Statutory Mandates ↗
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       BOTTOM SOVEREIGN SECURITY FOOTER
+       ========================================================================= -->
+  <footer class="w-full bg-slate-950 border-t border-slate-800/80 py-3 px-4 text-center text-xs text-slate-500 font-mono flex flex-col sm:flex-row items-center justify-between gap-2 max-w-7xl mx-auto">
+    <div>
+      e-LMCEP Sovereign Security Gateway • Legal Metrology Act, 2009
+    </div>
+    <div class="text-[11px] text-slate-600">
+      Department of Consumer Affairs • National Informatics Centre (NIC)
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       INTERACTIVE CONTROLLER SCRIPT
+       ========================================================================= -->
+  <script>
+    // Generate secure incident identifier
+    const incidentCode = 'SEC-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+    const incidentEl = document.getElementById('incidentId');
+    if (incidentEl) incidentEl.textContent = incidentCode;
+
+    let currentUser = null;
+    try {
+      const raw = localStorage.getItem('currentUser');
+      if (raw) currentUser = JSON.parse(raw);
+    } catch (e) {}
+
+    // Determine target requested resource from URL search params or document referrer
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetUrl = urlParams.get('target') || document.referrer || '';
+    renderTargetResource(targetUrl);
+
+    // Introspect active server session
+    fetch('/api/auth/me', { headers: { 'Accept': 'application/json' } })
+      .then(res => res.json())
+      .then(data => {
+        if (data.authenticated && data.user) {
+          currentUser = data.user;
+          renderDiagnostics(currentUser);
+        } else if (currentUser) {
+          renderDiagnostics(currentUser);
+        } else {
+          renderUnauthenticatedState();
+        }
+      })
+      .catch(() => {
+        if (currentUser) {
+          renderDiagnostics(currentUser);
+        } else {
+          renderUnauthenticatedState();
+        }
+      });
+
+    function renderTargetResource(target) {
+      const nameEl = document.getElementById('targetResourceName');
+      const reqBadgeEl = document.getElementById('requiredClearanceBadge');
+      const reasonEl = document.getElementById('denialReasonText');
+
+      const cleanTarget = (target || '').toLowerCase();
+      if (cleanTarget.includes('admin')) {
+        nameEl.textContent = 'Pan-India Master Audit Ledger (/admin.html)';
+        reqBadgeEl.textContent = 'National / Zonal Admin Only';
+        reasonEl.textContent = 'Access to the Master Audit Ledger and Zonal Rule Configurations requires National or Zonal Enforcement clearance.';
+      } else if (cleanTarget.includes('officer')) {
+        nameEl.textContent = 'Zonal Officer Adjudication Console (/officer.html)';
+        reqBadgeEl.textContent = 'Metrology Officer Clearance';
+        reasonEl.textContent = 'Adjudication dockets and Form-V statutory compounding notices are restricted to designated Metrology Officers.';
+      } else if (cleanTarget.includes('inspector')) {
+        nameEl.textContent = 'Field Inspector Optical Capture (/inspector.html)';
+        reqBadgeEl.textContent = 'Field Inspector Clearance';
+        reasonEl.textContent = 'Field specimen capture is allocated exclusively to registered Legal Metrology Field Inspectors.';
+      } else {
+        nameEl.textContent = 'Restricted Sovereign Operational Portal';
+        reqBadgeEl.textContent = 'Official Authorization Required';
+      }
+    }
+
+    function renderDiagnostics(user) {
+      if (!user) return;
+      document.getElementById('diagUsername').textContent = user.username || '—';
+      document.getElementById('diagRole').textContent = user.role || '—';
+      document.getElementById('diagZone').textContent = user.zone || 'All Zones';
+      document.getElementById('diagBadge').textContent = user.badgeNumber || user.designation || 'Active';
+
+      const btn = document.getElementById('returnPortalBtn');
+      const text = document.getElementById('returnPortalText');
+      if (user.role === 'inspector') {
+        text.textContent = 'Return to Field Inspector Capture';
+      } else if (user.role === 'officer') {
+        text.textContent = 'Return to Zonal Officer Console';
+      } else if (['admin', 'national', 'zonal'].includes(user.role)) {
+        text.textContent = 'Return to Master Audit Command';
+      }
+    }
+
+    function renderUnauthenticatedState() {
+      document.getElementById('sessionStatusBadge').innerHTML = '<span class="text-rose-400 font-bold">● Unauthenticated</span>';
+      document.getElementById('diagUsername').textContent = 'Anonymous Visitor';
+      document.getElementById('diagRole').textContent = 'None';
+      document.getElementById('diagZone').textContent = 'Unverified';
+      document.getElementById('diagBadge').textContent = 'No Clearance';
+      document.getElementById('returnPortalText').textContent = 'Sign In to Official Portal';
+    }
+
+    function returnToAuthorizedPortal() {
+      if (!currentUser || !currentUser.role) {
+        window.location.replace('index.html');
+        return;
+      }
+      if (currentUser.role === 'inspector') {
+        window.location.replace('inspector.html');
+      } else if (currentUser.role === 'officer') {
+        window.location.replace('officer.html');
+      } else if (['admin', 'national', 'zonal'].includes(currentUser.role)) {
+        window.location.replace('admin.html');
+      } else {
+        window.location.replace('index.html');
+      }
+    }
+
+    function handleGoBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        returnToAuthorizedPortal();
+      }
+    }
+
+    function handleSwitchAccount() {
+      fetch('/api/auth/logout', { method: 'POST' })
+        .finally(() => {
+          localStorage.removeItem('currentUser');
+          sessionStorage.clear();
+          window.location.replace('index.html?switch_account=1');
+        });
+    }
+
+    function toggleMatrixDrawer() {
+      const drawer = document.getElementById('matrixDrawer');
+      const chevron = document.getElementById('matrixChevron');
+      if (!drawer) return;
+      const isHidden = drawer.classList.contains('hidden');
+      if (isHidden) {
+        drawer.classList.remove('hidden');
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+      } else {
+        drawer.classList.add('hidden');
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+      }
+    }
+
+    function copyIncidentId() {
+      const code = document.getElementById('incidentId')?.textContent || incidentCode;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(() => showCopyFeedback());
+      } else {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        showCopyFeedback();
+      }
+    }
+
+    function showCopyFeedback() {
+      const feedback = document.getElementById('copyFeedback');
+      const icon = document.getElementById('copyIcon');
+      if (feedback) feedback.classList.remove('hidden');
+      if (icon) icon.textContent = '✅';
+      setTimeout(() => {
+        if (feedback) feedback.classList.add('hidden');
+        if (icon) icon.textContent = '📋';
+      }, 2000);
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', function (e) {
+      // Escape -> Portal Home
+      if (e.key === 'Escape') {
+        window.location.replace('index.html');
+      }
+      // Alt + Left Arrow -> Go Back
+      if (e.altKey && e.key === 'ArrowLeft') {
+        handleGoBack();
+      }
+    });
+  </script>
+</body>
+
+</html>

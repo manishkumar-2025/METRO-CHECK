@@ -1,5 +1,95 @@
 [
   {
+    "id": "INS-20260921-THA5",
+    "sequenceNumber": 101,
+    "evidenceId": "EVD-INS-20260921-THA5",
+    "date": "2026-09-21",
+    "time": "12:10:26",
+    "createdAt": "2026-09-21T06:40:26.970Z",
+    "product": "Test Commodity Package",
+    "status": "NOTICE_ISSUED",
+    "isCompliant": false,
+    "violations": [
+      "Rule 6(1)(a): Missing manufacturer address"
+    ],
+    "zone": "North Zone",
+    "state": "Delhi UT",
+    "inspectorName": "R. K. Sharma",
+    "inspectorBadgeNumber": "LM-DEL-8841",
+    "auditTrail": [
+      {
+        "timestamp": "2026-09-21T06:40:26.970Z",
+        "actor": "R. K. Sharma (LM-DEL-8841)",
+        "action": "DOCKET_SUBMITTED",
+        "notes": "Initial field submission with evidence EVD-INS-20260921-THA5",
+        "statusTo": "SUBMITTED"
+      }
+    ],
+    "reviewComments": "Statutory notice issued under Section 36 of Legal Metrology Act, 2009.",
+    "updatedAt": "2026-09-21T06:40:29.165Z",
+    "reviewedAt": "2026-09-21T06:40:29.165Z"
+  },
+  {
+    "id": "INS-20260921-K8Y5",
+    "sequenceNumber": 101,
+    "evidenceId": "EVD-INS-20260921-K8Y5",
+    "date": "2026-09-21",
+    "time": "11:31:49",
+    "createdAt": "2026-09-21T06:01:49.556Z",
+    "product": "Test Commodity Package",
+    "status": "NOTICE_ISSUED",
+    "isCompliant": false,
+    "violations": [
+      "Rule 6(1)(a): Missing manufacturer address"
+    ],
+    "zone": "North Zone",
+    "state": "Delhi UT",
+    "inspectorName": "R. K. Sharma",
+    "inspectorBadgeNumber": "LM-DEL-8841",
+    "auditTrail": [
+      {
+        "timestamp": "2026-09-21T06:01:49.556Z",
+        "actor": "R. K. Sharma (LM-DEL-8841)",
+        "action": "DOCKET_SUBMITTED",
+        "notes": "Initial field submission with evidence EVD-INS-20260921-K8Y5",
+        "statusTo": "SUBMITTED"
+      }
+    ],
+    "reviewComments": "Statutory notice issued under Section 36 of Legal Metrology Act, 2009.",
+    "updatedAt": "2026-09-21T06:01:51.519Z",
+    "reviewedAt": "2026-09-21T06:01:51.519Z"
+  },
+  {
+    "id": "INS-20260921-61CB",
+    "sequenceNumber": 101,
+    "evidenceId": "EVD-INS-20260921-61CB",
+    "date": "2026-09-21",
+    "time": "11:12:43",
+    "createdAt": "2026-09-21T05:42:43.639Z",
+    "product": "Test Commodity Package",
+    "status": "NOTICE_ISSUED",
+    "isCompliant": false,
+    "violations": [
+      "Rule 6(1)(a): Missing manufacturer address"
+    ],
+    "zone": "North Zone",
+    "state": "Delhi UT",
+    "inspectorName": "R. K. Sharma",
+    "inspectorBadgeNumber": "LM-DEL-8841",
+    "auditTrail": [
+      {
+        "timestamp": "2026-09-21T05:42:43.639Z",
+        "actor": "R. K. Sharma (LM-DEL-8841)",
+        "action": "DOCKET_SUBMITTED",
+        "notes": "Initial field submission with evidence EVD-INS-20260921-61CB",
+        "statusTo": "SUBMITTED"
+      }
+    ],
+    "reviewComments": "Statutory notice issued under Section 36 of Legal Metrology Act, 2009.",
+    "updatedAt": "2026-09-21T05:42:44.810Z",
+    "reviewedAt": "2026-09-21T05:42:44.810Z"
+  },
+  {
     "id": "LM/NZ/20260921/00156-RT9N",
     "evidenceId": "EVD-LM/NZ/20260921/00156-RT9N",
     "sequenceNumber": 95187,

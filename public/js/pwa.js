@@ -53,6 +53,8 @@
 
   // Helper: Hide Install App button and container
   function hideInstallButton() {
+    const fab = document.getElementById('metrocheck-pwa-fab-container');
+    if (fab) fab.style.display = 'none';
     const btn = document.getElementById('metrocheck-install-app-btn');
     if (btn) btn.style.display = 'none';
     const container = document.getElementById('pwa-install-container');
@@ -87,7 +89,7 @@
     });
   } catch (err) {}
 
-  // 4. Render "Install App" Button in Footer on DOM Ready (Only if not installed)
+  // 4. Render "Install App" Floating Action Button (FAB) Pinned with Collapse Toggle
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', renderInstallButton);
   } else {
@@ -100,27 +102,89 @@
       return;
     }
 
-    // Locate target footer container
-    const container = document.getElementById('pwa-install-container') || document.querySelector('footer .max-w-7xl') || document.querySelector('footer');
-    if (!container || document.getElementById('metrocheck-install-app-btn')) return;
+    let fab = document.getElementById('metrocheck-pwa-fab-container');
+    if (!fab) {
+      fab = document.createElement('div');
+      fab.id = 'metrocheck-pwa-fab-container';
+      fab.className = 'fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 select-none print:hidden transition-all duration-300';
+      fab.setAttribute('role', 'region');
+      fab.setAttribute('aria-label', 'METRO-CHECK App Installation');
+      
+      fab.innerHTML = `
+        <!-- Expanded PWA FAB Button -->
+        <div id="metrocheck-pwa-fab-expanded" class="flex items-center gap-1.5 p-1.5 bg-slate-950/95 dark:bg-[#020B09]/95 backdrop-blur-md border border-emerald-500/50 rounded-2xl shadow-2xl shadow-emerald-950/40 transition-all duration-300">
+          <button id="metrocheck-install-app-btn" type="button" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-extrabold text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer border border-emerald-400/40 active:scale-95" title="Install Official METRO-CHECK App">
+            <span class="text-base flex-shrink-0 animate-bounce">📥</span>
+            <span class="tracking-tight">Install METRO-CHECK App</span>
+            <span id="pwa-ready-badge" class="px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-mono font-black border border-amber-300 shadow-xs">READY</span>
+          </button>
+          <button id="metrocheck-pwa-fab-toggle" type="button" class="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-800/80 rounded-xl transition-colors cursor-pointer" title="Minimize to icon" aria-label="Minimize Install App FAB">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+        </div>
 
-    // Ensure container is visible if previously hidden
-    container.style.display = '';
+        <!-- Collapsed Mini FAB -->
+        <div id="metrocheck-pwa-fab-collapsed" class="hidden">
+          <button id="metrocheck-pwa-fab-expand-btn" type="button" class="relative group flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white shadow-xl shadow-emerald-950/50 border border-emerald-400/50 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer" title="Install METRO-CHECK App [ READY ] (Click to Expand)" aria-label="Install METRO-CHECK App">
+            <span class="text-lg">📥</span>
+            <span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-400 rounded-full border-2 border-slate-950 animate-pulse"></span>
+            <span class="pointer-events-none absolute right-full mr-3 whitespace-nowrap px-2.5 py-1 text-[11px] font-bold text-slate-100 bg-slate-900/95 backdrop-blur-md rounded-lg shadow-lg border border-emerald-800/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              Install App [ READY ]
+            </span>
+          </button>
+        </div>
+      `;
 
-    const btn = document.createElement('button');
-    btn.id = 'metrocheck-install-app-btn';
-    btn.type = 'button';
-    btn.className = 'inline-flex items-center gap-2 px-3.5 py-2 text-xs font-extrabold text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 rounded-xl shadow-md hover:shadow-lg dark:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all duration-200 cursor-pointer border border-emerald-400/40 active:scale-95 text-xs select-none';
-    btn.innerHTML = `
-      <svg class="w-4 h-4 text-emerald-200 flex-shrink-0 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-      </svg>
-      <span>Install METRO-CHECK App</span>
-      <span id="pwa-ready-badge" class="px-1.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 text-[10px] font-mono font-bold border border-emerald-500/50">PWA</span>
-    `;
+      document.body.appendChild(fab);
 
-    btn.addEventListener('click', handleInstallClick);
-    container.appendChild(btn);
+      // Event Listeners
+      const installBtn = document.getElementById('metrocheck-install-app-btn');
+      if (installBtn) installBtn.addEventListener('click', handleInstallClick);
+
+      const toggleBtn = document.getElementById('metrocheck-pwa-fab-toggle');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          setFabCollapsed(true, true);
+        });
+      }
+
+      const expandBtn = document.getElementById('metrocheck-pwa-fab-expand-btn');
+      if (expandBtn) {
+        expandBtn.addEventListener('click', () => {
+          setFabCollapsed(false, true);
+        });
+      }
+
+      // Initial state: collapse if previously collapsed or if viewport height is short (<= 640px)
+      const userCollapsed = localStorage.getItem('metrocheck_fab_collapsed') === 'true';
+      const isShortViewport = window.innerHeight <= 640;
+      if (userCollapsed || (isShortViewport && localStorage.getItem('metrocheck_fab_collapsed') === null)) {
+        setFabCollapsed(true, false);
+      }
+    }
+
+    fab.style.display = '';
+  }
+
+  function setFabCollapsed(collapsed, isUserAction = false) {
+    const expandedEl = document.getElementById('metrocheck-pwa-fab-expanded');
+    const collapsedEl = document.getElementById('metrocheck-pwa-fab-collapsed');
+    const container = document.getElementById('metrocheck-pwa-fab-container');
+    if (!expandedEl || !collapsedEl) return;
+
+    if (isUserAction && container) {
+      container.classList.add('fab-user-override');
+    }
+
+    if (collapsed) {
+      expandedEl.classList.add('hidden');
+      collapsedEl.classList.remove('hidden');
+      if (isUserAction) localStorage.setItem('metrocheck_fab_collapsed', 'true');
+    } else {
+      expandedEl.classList.remove('hidden');
+      collapsedEl.classList.add('hidden');
+      if (isUserAction) localStorage.setItem('metrocheck_fab_collapsed', 'false');
+    }
   }
 
   function updateInstallButtonBadge(isReady) {
@@ -128,7 +192,7 @@
     if (badge) {
       badge.textContent = isReady ? 'READY' : 'PWA';
       badge.className = isReady 
-        ? 'px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-mono font-black border border-amber-300 animate-pulse'
+        ? 'px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-mono font-black border border-amber-300 animate-pulse shadow-xs'
         : 'px-1.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 text-[10px] font-mono font-bold border border-emerald-500/50';
     }
   }
