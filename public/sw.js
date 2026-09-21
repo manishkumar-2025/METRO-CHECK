@@ -5,21 +5,21 @@
 
 const CACHE_NAME = 'metrocheck-pwa-v1';
 
-// Static assets to pre-cache on Service Worker installation
+// Static assets to pre-cache on Service Worker installation (unauthenticated public + offline core)
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/inspector.html',
-  '/admin.html',
-  '/officer.html',
-  '/report.html',
   '/features.html',
+  '/403.html',
+  '/404.html',
+  '/500.html',
   '/css/style.css',
   '/css/components.css',
   '/css/responsive.css',
   '/js/admin.js',
   '/js/auth.js',
   '/js/dashboard.js',
+  '/js/jspdf.umd.min.js',
   '/js/masthead.js',
   '/js/notifications.js',
   '/js/pdfService.js',

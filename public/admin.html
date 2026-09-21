@@ -16,8 +16,8 @@
   <meta name="apple-mobile-web-app-title" content="METRO-CHECK">
   <link rel="apple-touch-icon" href="logo/pwa-icon-192.png">
   <script src="js/pwa.js" defer></script>
-  <!-- jsPDF Library for In-Browser Official Legal Notice PDF Generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- jsPDF Library for In-Browser Official Legal Notice PDF Generation (Local Offline PWA) -->
+  <script src="js/jspdf.umd.min.js"></script>
 
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -541,9 +541,9 @@
 
           <!-- ROW 1: 6 Standardized KPI Metric Cards (gap-4) -->
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <!-- Card 1: Total Scans -->
+            <!-- Card 1: Total Scans / Inspections -->
             <div
-              class="kpi-card border-l-4 border-l-[#3B82F6] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              class="kpi-card border-t-2 border-blue-500 border-l-4 border-l-[#3B82F6] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               style="--kpi-accent: #3B82F6;">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Total Scans</span>
@@ -563,9 +563,9 @@
               </div>
             </div>
 
-            <!-- Card 2: Registered Users -->
+            <!-- Card 2: Registered Users / Compliant -->
             <div
-              class="kpi-card border-l-4 border-l-[#10B981] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              class="kpi-card border-t-2 border-emerald-500 border-l-4 border-l-[#10B981] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               style="--kpi-accent: #10B981;">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Active Officers</span>
@@ -584,9 +584,9 @@
               </div>
             </div>
 
-            <!-- Card 3: Pending Reviews -->
+            <!-- Card 3: Pending Reviews / Penalties -->
             <div
-              class="kpi-card border-l-4 border-l-[#F59E0B] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              class="kpi-card border-t-2 border-amber-500 border-l-4 border-l-[#F59E0B] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               style="--kpi-accent: #F59E0B;">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Pending Queue</span>
@@ -606,9 +606,9 @@
               </div>
             </div>
 
-            <!-- Card 4: System Status -->
+            <!-- Card 4: System Status / Violations -->
             <div
-              class="kpi-card border-l-4 border-l-[#10B981] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              class="kpi-card border-t-2 border-rose-500 border-l-4 border-l-[#10B981] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               style="--kpi-accent: #10B981;">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">SLA Status</span>

@@ -1,3 +1,4 @@
+process.env.NODE_ENV = "test";
 /* ==========================================================================
    METRO-CHECK - Automated System Test Suite (test/test-suite.js)
    Tests API Health, Inspection Sync, AQ Credential Validation & Security

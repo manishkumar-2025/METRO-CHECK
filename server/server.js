@@ -258,8 +258,8 @@ function parseCookies(req) {
 }
 
 function getRequestUser(req) {
-  // Allow internal test runner bypass if designated header is provided
-  if (req.headers["x-test-internal"] === "METRO_CHECK_TEST_RUNNER") {
+  // Allow internal test runner bypass strictly in test environments
+  if ((process.env.NODE_ENV === "test" || process.env.SIH_TEST_MODE === "true") && req.headers["x-test-internal"] === "METRO_CHECK_TEST_RUNNER") {
     const testRole = req.headers["x-test-role"] || "admin";
     return { username: "test_runner", role: testRole, name: "Automated Test Runner", zone: "All", state: "All" };
   }
@@ -396,10 +396,11 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 } });
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-// Models ordered by preference: newest/fastest first, older as fallback
+// Models ordered by preference: fastest/lowest-latency first, heavy reasoning as safety net
 const CANDIDATE_MODELS = [
-  "gemini-3.6-flash",       // Primary: active high-precision vision model
-  "gemini-3.5-flash-lite"   // Fallback: active fast flash vision model
+  "gemini-3.5-flash-lite",   // Primary: Ultra-fast (~1.5s) multimodal OCR & rule verification
+  "gemini-3.8-flash",        // Fallback: High-precision multimodal vision model (~4.4s)
+  "gemini-3.7-flash"         // Quality / Deep Fallback: Hybrid thinking/reasoning model
 ];
 const PRIMARY_MODEL = CANDIDATE_MODELS[0];
 const FALLBACK_MODEL = CANDIDATE_MODELS[1];
@@ -709,7 +710,7 @@ app.post("/api/config/apikey/test", configLimiter, async (req, res) => {
       "Content-Type": "application/json",
       "x-goog-api-key": testKey
     };
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${PRIMARY_MODEL}:generateContent`;
     const payload = {
       contents: [{ parts: [{ text: "Reply with exactly this JSON only: {\"status\": \"ok\"}" }] }],
       generationConfig: { responseMimeType: "application/json" }
@@ -946,9 +947,10 @@ async function callGeminiVisionApi({ apiKey, prompt, imagesToProcess }) {
         }
       ];
 
-      // Use generateContent with timeout via AbortController
+      // Use generateContent with model-appropriate timeout (15s for fast flash, 30s for reasoning)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const timeoutMs = modelName.includes("3.7") ? 30000 : 15000;
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
       let rawText = null;
       try {
@@ -1366,7 +1368,7 @@ ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""
       rule_validation_timestamp: new Date().toISOString(),
       is_realtime: true,
 
-      // Live telemetry — proves AI is real and running, not mocked
+      // Real-time inference telemetry (latency breakdown, token diagnostics, image quality)
       latency: (tTotal / 1000).toFixed(2),
       telemetry
     };
@@ -1397,14 +1399,25 @@ ${tolerance ? `- Maximum Allowable Variation (MAV Tolerance): ${tolerance}` : ""
   }
 });
 
+// Catch-All 404 Route for Unmapped Endpoints (API-safe)
+app.use((req, res) => {
+  if (req.path.startsWith("/api/")) {
+    return res.status(404).json({ error: "API endpoint not found" });
+  }
+  return res.status(404).sendFile(path.join(PUBLIC_DIR, "404.html"));
+});
+
 // Global Express Error Handler for serverless environments (prevents raw 500 crashes)
 app.use((err, req, res, next) => {
   console.error("[METRO-CHECK SERVER ERROR]", err);
   if (res.headersSent) return next(err);
-  res.status(err.status || 500).json({
-    error: err.message || "Internal server error occurred during optical vision analysis.",
-    is_realtime: false
-  });
+  if (req.path.startsWith("/api/")) {
+    return res.status(err.status || 500).json({
+      error: err.message || "Internal server error occurred during optical vision analysis.",
+      is_realtime: false
+    });
+  }
+  return res.status(err.status || 500).sendFile(path.join(PUBLIC_DIR, "500.html"));
 });
 
 if (require.main === module) {

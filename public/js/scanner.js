@@ -434,7 +434,7 @@ function drawForensicEvidenceWatermark(canvas, ctx) {
   }
 }
 
-function optimizeImageForAiScan(dataUrl, maxDimension = 1600, quality = 0.85) {
+function optimizeImageForAiScan(dataUrl, maxDimension = 1200, quality = 0.80) {
   return new Promise((resolve) => {
     if (!dataUrl || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
       return resolve(dataUrl);
@@ -443,7 +443,7 @@ function optimizeImageForAiScan(dataUrl, maxDimension = 1600, quality = 0.85) {
     img.onload = function () {
       let width = img.naturalWidth || img.width;
       let height = img.naturalHeight || img.height;
-      if (!width || !height || (width <= maxDimension && height <= maxDimension && dataUrl.length < 500000)) {
+      if (!width || !height || (width <= maxDimension && height <= maxDimension && dataUrl.length < 400000)) {
         const canvas = document.createElement("canvas");
         canvas.width = width;
         canvas.height = height;
@@ -476,7 +476,7 @@ function optimizeImageForAiScan(dataUrl, maxDimension = 1600, quality = 0.85) {
   });
 }
 
-function fileToDataUrl(file, maxWidth = 1600, quality = 0.85) {
+function fileToDataUrl(file, maxWidth = 1200, quality = 0.80) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = function (e) {
@@ -1146,8 +1146,8 @@ window.confirmAndClearSpecimen = confirmAndClearSpecimen;
    ========================================================================== */
 
 /**
- * Direct browser scan error handler when backend server is unreachable.
- * Never fabricates fake demo data.
+ * Offline Heuristic Fallback Handler when cloud vision server is unreachable.
+ * Notifies inspector to verify server connectivity or switch to manual input docket.
  */
 function performDirectBrowserScan() {
   const msg = "Backend AI Server Unreachable — Ensure node server is running on port 3000.";
@@ -1360,8 +1360,7 @@ async function startAiOcrInspection() {
       currentInspectionThumbnail = thumbImage || rawImage;
 
       // ── DIAGNOSTIC TELEMETRY PILL DOCK ──────────────────────────────
-      // Surfaces real server-side telemetry so judges can see the AI is live,
-      // not a mocked timer. Shows engine, latency breakdown, and image quality.
+      // Displays real-time server telemetry: active vision model, latency breakdown, and image quality metrics.
       const confScore   = Math.round((analysis.confidence || 0.98) * 100);
       const latencyVal  = analysis.latency || "--";
       const tel         = analysis.telemetry || {};
