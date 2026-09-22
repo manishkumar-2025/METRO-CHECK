@@ -1751,3 +1751,459 @@ body.theme-dark .sticky-frosted-nav {
     justify-content: space-between !important;
   }
 }
+
+
+/* ==========================================================================
+   7. PHASE 2 AUDIT REFINEMENTS — Targeted gap fixes across all pages
+   Applied after comprehensive code review (September 2026)
+   ========================================================================== */
+
+/* ── 7A. GLOBAL: Orphaned masthead dividers when font-sizer hidden ── */
+@media (max-width: 767px) {
+
+  /* Hide w-[1px] separator dividers inside pill dock since
+     the font-sizer buttons they border are already hidden */
+  .masthead-pill-dock > [class*="w-[1px]"],
+  .masthead-pill-dock > [class="w-[1px] h-3 bg-slate-200 dark:bg-slate-700"],
+  .masthead-pill-dock > div[style*="width: 1px"],
+  .masthead-pill-dock > div:not(button):not([class*="flex"]) {
+    display: none !important;
+  }
+
+  /* Specifically hide the first two dividers in the pill dock
+     (between hidden font sizer and HC button) */
+  #nationalGovMasthead .masthead-pill-dock > div:nth-child(2),
+  #nationalGovMasthead .masthead-pill-dock > div:nth-child(4) {
+    display: none !important;
+  }
+}
+
+/* ── 7B. XS MOBILE: Hide IST clock at < 360px ── */
+@media (max-width: 359px) {
+
+  .masthead-clock-pill {
+    display: none !important;
+  }
+
+  #nationalGovMasthead > div:not(.tricolor-strip) {
+    gap: 4px !important;
+    padding: 0 0.375rem !important;
+  }
+
+  #nationalGovMasthead .flex-col > div:first-child {
+    font-size: 10px !important;
+    max-width: 120px !important;
+  }
+}
+
+/* ── 7C. LOGIN PAGE: CAPTCHA row — robust stack at mobile ── */
+@media (max-width: 767px) {
+
+  .captcha-row-container {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+  }
+
+  .captcha-canvas-box {
+    flex-shrink: 0 !important;
+    width: 130px !important;
+  }
+
+  .captcha-row-container > div.flex.items-center {
+    flex-shrink: 0 !important;
+  }
+
+  /* Captcha input full width on its own row */
+  .captcha-row-container > div:last-child {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+
+  #loginSubmitButton {
+    min-height: 46px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+  }
+}
+
+/* ── 7D. INDEX PAGE: Bento capability cards — compact padding on mobile ── */
+@media (max-width: 767px) {
+
+  /* Landing page bento 3-column grid cards */
+  #mainContent section.mt-12 .grid > div {
+    padding: 1rem !important;
+  }
+
+  /* Bento icon size */
+  #mainContent section.mt-12 .grid > div .w-12 {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  /* Bento heading */
+  #mainContent section.mt-12 .grid > div h3 {
+    font-size: 0.875rem !important;
+    margin-top: 0.25rem !important;
+  }
+
+  /* Landing page hero stat cards: tighter on mobile */
+  .grid.grid-cols-2.sm\:grid-cols-4 > div {
+    padding: 0.625rem 0.75rem !important;
+  }
+}
+
+/* ── 7E. SIH EVALUATION MODAL: scroll safety on small screens ── */
+@media (max-width: 767px) {
+
+  #sihEvaluationModal > div {
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 1rem !important;
+    border-radius: 1.25rem !important;
+  }
+
+  #sihConsoleGrid .flex.flex-wrap button {
+    padding: 0.3rem 0.6rem !important;
+    font-size: 11px !important;
+  }
+}
+
+/* ── 7F. FEATURES PAGE: Quick nav tab bar — horizontal scroll on mobile ── */
+@media (max-width: 767px) {
+
+  /* Reveal the nav bar on mobile (it has hidden md:block) */
+  nav.hidden {
+    display: block !important;
+  }
+
+  /* Make the features quick-nav bar scrollable */
+  nav.border-t > div > div.flex.items-center {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+    padding-bottom: 2px !important;
+    gap: 1.25rem !important;
+  }
+  nav.border-t > div > div.flex.items-center::-webkit-scrollbar {
+    display: none !important;
+  }
+  nav.border-t > div > div.flex.items-center a {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    font-size: 11.5px !important;
+  }
+
+  /* Hide the right-side mono badge on mobile */
+  nav.border-t > div > div.text-\[11px\] {
+    display: none !important;
+  }
+
+  /* Features hero: compact heading */
+  #overview h1 {
+    font-size: 1.625rem !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Features hero: hide the logo badge (saves space) */
+  #overview .flex-col.lg\:flex-row > div.flex-shrink-0 {
+    display: none !important;
+  }
+
+  /* Features hero: inner stat metrics compact padding */
+  #overview .grid.grid-cols-2 > div {
+    padding: 0.625rem 0.75rem !important;
+  }
+  #overview .grid.grid-cols-2 > div > div:first-child {
+    font-size: 1.1rem !important;
+    font-weight: 800 !important;
+  }
+
+  /* Feature cards: compact padding */
+  .card.card-item,
+  div.card.card-item {
+    padding: 1rem !important;
+  }
+
+  /* Features page hero section padding */
+  #overview {
+    padding: 1.25rem !important;
+    border-radius: 1.25rem !important;
+  }
+}
+
+/* ── 7G. OFFICER PAGE: 3-pane tab bar at 320px ── */
+@media (max-width: 359px) {
+
+  #threePaneMobileTabs button {
+    font-size: 10px !important;
+    padding-left: 0.2rem !important;
+    padding-right: 0.2rem !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  #officerDocketFilterTabs button {
+    font-size: 9.5px !important;
+    padding: 0.3rem 0.15rem !important;
+  }
+}
+
+/* ── 7H. ADMIN: Zone/scope badge + title overflow ── */
+@media (max-width: 767px) {
+
+  #adminZoneRoleBadge {
+    max-width: 130px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    flex-shrink: 1 !important;
+  }
+
+  #adminPageTitle {
+    max-width: 160px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* ── 7I. ERROR PAGES (403, 404, 500): Action buttons — 2×2 grid on XS ── */
+@media (max-width: 479px) {
+
+  main .flex.flex-wrap.items-center.justify-center.gap-3 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  /* Primary button spans both columns */
+  main .flex.flex-wrap.items-center.justify-center.gap-3 > button:first-child,
+  main .flex.flex-wrap.items-center.justify-center.gap-3 > a:first-child {
+    grid-column: 1 / span 2 !important;
+    min-width: unset !important;
+  }
+
+  main .flex.flex-wrap.items-center.justify-center.gap-3 > button,
+  main .flex.flex-wrap.items-center.justify-center.gap-3 > a {
+    min-height: 44px !important;
+    font-size: 12px !important;
+    padding: 0.625rem 0.5rem !important;
+    justify-content: center !important;
+    width: 100% !important;
+    flex: none !important;
+  }
+}
+
+/* ── 7J. PATH/RESOURCE STRINGS: break-all for long URLs ── */
+#targetPathName {
+  word-break: break-all !important;
+  overflow-wrap: anywhere !important;
+  max-width: 100% !important;
+}
+
+/* ── 7K. INSPECTOR: Manual entry form open state — full-width inputs ── */
+@media (max-width: 767px) {
+
+  details[id="manualEntryAccordion"][open] input,
+  details[id="manualEntryAccordion"][open] select,
+  details[id="manualEntryAccordion"][open] textarea,
+  #manualEntryAccordion[open] input,
+  #manualEntryAccordion[open] select,
+  #manualEntryAccordion[open] textarea {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* ── 7L. INSPECTOR: Sub-header title — 480-767px gap fill ── */
+@media (min-width: 480px) and (max-width: 767px) {
+
+  #currentViewHeaderTitle {
+    max-width: 220px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 0.9375rem !important;
+  }
+
+  #aiEngineReadyBadge {
+    max-width: 160px !important;
+    overflow: hidden !important;
+    flex-shrink: 1 !important;
+  }
+}
+
+/* ── 7M. NOTIFICATIONS: Safe z-index stacking on XS ── */
+@media (max-width: 639px) {
+
+  #inspectorNotificationDropdown,
+  #officerNotificationDropdown,
+  #adminNotificationDropdown {
+    z-index: 55 !important;
+    top: calc(100% + 4px) !important;
+  }
+}
+
+/* ── 7N. DARK MODE: Masthead pill dock — proper dark bg on mobile ── */
+@media (max-width: 767px) {
+
+  .dark .masthead-pill-dock,
+  body.theme-dark .masthead-pill-dock {
+    background: rgba(30, 41, 59, 0.9) !important;
+    border-color: rgba(51, 65, 85, 0.8) !important;
+  }
+
+  .dark #nationalGovMasthead,
+  body.theme-dark #nationalGovMasthead {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border-bottom-color: rgba(30, 41, 59, 0.9) !important;
+  }
+}
+
+/* ── 7O. REPORT PAGE: Extra safe bottom clearance ── */
+@media (max-width: 767px) {
+
+  .max-w-4xl.mx-auto > * {
+    padding-bottom: 0 !important;
+  }
+
+  body > main.max-w-4xl {
+    padding-bottom: 5.5rem !important;
+  }
+
+  body > div.max-w-4xl.mx-auto.my-5 > .flex.items-center.gap-3 button {
+    min-height: 42px !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+  }
+}
+
+/* ── 7P. OFFICER PAGE: Review header breadcrumb overflow fix ── */
+@media (max-width: 639px) {
+
+  #officerBreadcrumb {
+    max-width: 130px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+  }
+
+  #officerPageTitle {
+    max-width: 170px !important;
+    font-size: 0.875rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* ── 7Q. ADMIN: Compact KPI cards + breadcrumb ── */
+@media (max-width: 767px) {
+
+  #adminBreadcrumb {
+    max-width: 120px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    vertical-align: bottom !important;
+  }
+}
+
+/* ── 7R. TABLET INTERMEDIATE POLISH (768px – 1023px) ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+
+  /* Clock pill visible at tablet */
+  .masthead-clock-pill {
+    display: inline-flex !important;
+    padding: 3px 8px !important;
+  }
+  .masthead-ist-clock {
+    font-size: 10.5px !important;
+  }
+
+  /* Features quick nav: visible on tablet */
+  nav.border-t > div > div.flex.items-center {
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+  }
+
+  /* Officer docket filter tabs — readable on tablet */
+  #officerDocketFilterTabs button {
+    font-size: 12px !important;
+    padding: 0.45rem 0.5rem !important;
+  }
+
+  /* Tablet: KPI grid 3 columns */
+  .grid.grid-cols-2.sm\:grid-cols-4.gap-4 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* ── 7S. LANDSCAPE PHONE: Features hero compact ── */
+@media (max-height: 500px) and (orientation: landscape) {
+
+  #overview {
+    padding: 1rem !important;
+  }
+  #overview h1 {
+    font-size: 1.375rem !important;
+  }
+  #overview > div.flex > div.space-y-4 > p {
+    display: none !important;
+  }
+
+  main .rounded-3xl {
+    padding: 1rem !important;
+  }
+  main .animate-float-slow {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  main .w-20.h-20 {
+    width: 3rem !important;
+    height: 3rem !important;
+    font-size: 1.5rem !important;
+  }
+}
+
+/* ── 7T. PRINT STYLES: Hide chrome, preserve content ── */
+@media print {
+
+  #nationalGovMasthead,
+  #mobileBottomNavInspector,
+  #mobileBottomNavOfficer,
+  #mobileBottomNavAdmin,
+  aside#leftSidebar,
+  .sidebar-container,
+  #sidebarBackdrop {
+    display: none !important;
+  }
+
+  body {
+    font-size: 12pt !important;
+    color: #000 !important;
+    background: #fff !important;
+  }
+
+  .main-viewport {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+
+  .modern-card,
+  .kpi-card,
+  .ds-card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}

@@ -67,7 +67,7 @@
 </head>
 
 <body
-  class="bg-[#F7F8FA] dark:bg-[#090d16] min-h-screen flex flex-col justify-between text-slate-600 dark:text-slate-400 font-sans antialiased text-sm bg-pattern-subtle">
+  class="bg-[#F7F8FA] dark:bg-[#090d16] features-dot-matrix-bg min-h-screen flex flex-col justify-between text-slate-600 dark:text-slate-400 font-sans antialiased text-sm">
 
   <a href="#mainContent"
     class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#10B981] focus:text-white focus:rounded-lg font-medium">
@@ -83,11 +83,11 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
 
         <div class="flex items-center gap-3 min-w-0">
-          <a href="index.html" class="flex-shrink-0 flex items-center justify-center focus:outline-none group"
+          <div class="flex-shrink-0 flex items-center justify-center focus:outline-none group cursor-default"
             title="Government of India • State Emblem of India">
             <img src="logo/header-logo-emblem.png" alt="State Emblem of India"
               class="h-9 sm:h-11 w-auto object-contain select-none group-hover:scale-105 transition-transform" />
-          </a>
+          </div>
 
           <div class="w-[1px] h-8 bg-[#E4E7EC] dark:bg-slate-800 hidden sm:block"></div>
 
@@ -187,11 +187,11 @@
   </div>
 
   <!-- Main Content Area -->
-  <main id="mainContent" class="w-full max-w-7xl mx-auto flex-1 px-4 sm:px-6 py-8 space-y-12">
+  <main id="mainContent" class="w-full max-w-7xl mx-auto flex-1 px-4 sm:px-6 py-5 sm:py-8 space-y-8 sm:space-y-12">
 
     <!-- 1. HERO & STATUTORY FOUNDATION -->
     <section id="overview"
-      class="relative overflow-hidden p-6 sm:p-10 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 border-t-[3px] border-t-[#059669] bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.08),transparent_50%)]">
+      class="relative overflow-hidden p-4 sm:p-6 lg:p-10 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 sm:space-y-6 border-t-[3px] border-t-[#059669] bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.08),transparent_50%)]">
 
       <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         <div class="space-y-4 max-w-3xl">
@@ -202,8 +202,8 @@
           </div>
 
           <h1
-            class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-heading leading-tight">
-            Comprehensive Statutory Inspection & Enforcement Ecosystem
+            class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-heading leading-tight">
+            Comprehensive Statutory Inspection &amp; Enforcement Ecosystem
           </h1>
 
           <p class="text-base text-slate-600 dark:text-slate-300 leading-relaxed">
@@ -393,7 +393,7 @@
               Capture</h3>
             <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               Integrates Google Gemini AI Vision Engine for real-time extraction of curved, reflective, or distorted
-              label text on field inspections. Extracts all mandatory Rule 6 attributes in under 2 seconds.
+              label text on field inspections. Extracts all mandatory Rule 6 attributes in real time.
             </p>
           </div>
           <ul
@@ -759,9 +759,9 @@
         class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3.5 sm:gap-5 pb-3.5 sm:pb-5 border-b border-slate-300/80 dark:border-slate-800/90">
         <!-- Left: Emblem + Ministry Title -->
         <div class="flex items-center gap-3 sm:gap-4 w-full lg:w-auto">
-          <a href="index.html" class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:scale-105 transition-all duration-200" title="State Emblem of India • e-LMCEP Home">
+          <div class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-default" title="State Emblem of India • e-LMCEP">
             <img src="logo/logo.png" alt="State Emblem of India" class="h-8 w-auto sm:h-10 lg:h-12 object-contain" />
-          </a>
+          </div>
           <div class="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <a href="index.html"
@@ -1001,10 +1001,10 @@
   <!-- =========================================================================
        CONTACT SUPPORT & GRIEVANCE MODAL (WCAG AA Compliant)
        ========================================================================= -->
-  <div id="contactSupportModal"
-    class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+  <div id="contactSupportModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle" onclick="if (event.target === this) closeContactModal()"
+    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
     <div
-      class="bg-white dark:bg-slate-900 border border-[#E4E7EC] dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[95vh] overflow-y-auto text-[#0F172A] dark:text-slate-100">
+      class="bg-white dark:bg-slate-900 border border-[#E4E7EC] dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-[#0F172A] dark:text-slate-100 modal-animate-in">
 
       <div class="flex items-center justify-between border-b border-[#E4E7EC] dark:border-slate-800 pb-3.5">
         <div class="flex items-center gap-3">
@@ -1013,13 +1013,13 @@
             📞
           </div>
           <div>
-            <h3 class="text-base font-semibold text-[#0F172A] dark:text-slate-100">National Metrology Helpdesk</h3>
+            <h3 id="contactModalTitle" class="text-base font-semibold text-[#0F172A] dark:text-slate-100">National Metrology Helpdesk</h3>
             <p class="text-xs text-[#64748B] dark:text-slate-400">Department of Consumer Affairs • Grievance Redressal
             </p>
           </div>
         </div>
         <button type="button" onclick="closeContactModal()"
-          class="text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
           title="Close Modal">✕</button>
       </div>
 

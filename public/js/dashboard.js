@@ -837,23 +837,26 @@ function openInspectorDetailModal(id) {
   }
 
   modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
 }
 
 function closeInspectorDetailModal() {
   const modal = document.getElementById("inspectorDetailModal");
   if (modal) modal.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
 }
 
 function getStatusBadgeClass(status) {
   const s = String(status || "").toUpperCase();
-  if (s === "COMPLIANT" || s === "APPROVED" || s === "COMPLIANT_LOGGED") return "bg-emerald-100 text-emerald-800 border border-emerald-300";
-  if (s === "NOTICE_ISSUED" || s === "OFFICER_APPROVED") return "bg-amber-100 text-amber-900 border border-amber-300";
-  if (s === "REJECTED" || s === "OFFICER_DISMISSED") return "bg-slate-100 text-slate-700 border border-slate-300";
-  if (s === "DRAFT") return "bg-slate-200 text-slate-700 border border-slate-300";
-  if (s === "UNDER_REVIEW") return "bg-indigo-100 text-indigo-800 border border-indigo-300 animate-pulse";
-  if (s === "PROCESSING") return "bg-blue-100 text-blue-800 border border-blue-300 animate-pulse";
-  if (s === "SUBMITTED" || s === "PENDING" || s === "NON_COMPLIANT_PENDING") return "bg-amber-50 text-amber-800 border border-amber-300";
-  return "bg-rose-100 text-rose-800 border border-rose-300";
+  if (s === "COMPLIANT" || s === "APPROVED" || s === "COMPLIANT_LOGGED") return "bg-emerald-50 text-emerald-700 border border-emerald-300 font-bold";
+  if (s === "SUBMITTED" || s === "PENDING" || s === "NON_COMPLIANT_PENDING") return "bg-amber-50 text-amber-800 border border-amber-300 font-bold";
+  if (s === "UNDER_REVIEW") return "bg-orange-50 text-orange-800 border border-orange-300 animate-pulse font-bold";
+  if (s === "ESCALATED" || s === "FLAGGED") return "bg-purple-50 text-purple-800 border border-purple-300 font-bold";
+  if (s === "NOTICE_ISSUED" || s === "OFFICER_APPROVED") return "bg-rose-50 text-rose-800 border border-rose-300 font-bold";
+  if (s === "OFFICER_DISMISSED" || s === "REJECTED" || s === "DISMISSED") return "bg-slate-100 text-slate-700 border border-slate-300 font-bold";
+  if (s === "DRAFT") return "bg-slate-200 text-slate-700 border border-slate-300 font-bold";
+  if (s === "PROCESSING") return "bg-blue-100 text-blue-800 border border-blue-300 animate-pulse font-bold";
+  return "bg-amber-50 text-amber-800 border border-amber-300 font-bold";
 }
 
 /* ==========================================================================
@@ -973,59 +976,72 @@ function switchOfficerTab(tabId, updateUrl = true) {
   if (bcEl) bcEl.textContent = meta.bc;
   if (tEl) tEl.textContent = meta.title;
 
-  if (tabId === "review") {
+  if (tabId === "docket") {
+    filterByStatus(activeDocketFilter || "all");
+  } else if (tabId === "review") {
     if (!currentReviewId) {
       const all = filterByZoneAccess(getInspections());
-      const firstTarget = all.find(i => i.status === "submitted" || i.status === "pending") || all[0];
+      const firstTarget = all.find(i => isUnderReview(i.status) || isSubmitted(i.status)) || all[0];
       if (firstTarget) loadCaseDetails(firstTarget.id);
     } else {
       loadCaseDetails(currentReviewId);
     }
+  } else if (tabId === "reports") {
+    initOfficerOfficialReports();
+  } else if (tabId === "standards") {
+    if (typeof renderOfficerCommodityStandards === "function") renderOfficerCommodityStandards();
   }
-  if (tabId === "reports") initOfficerOfficialReports();
-  if (tabId === "standards") renderOfficerCommodityStandards();
 }
 
 function filterByStatus(status) {
   activeDocketFilter = status;
+  
+  const all = filterByZoneAccess(getInspections());
+
+  const countAll = all.length;
+  const countPending = all.filter(i => isSubmitted(i.status)).length;
+  const countReview = all.filter(i => isUnderReview(i.status)).length;
+  const countEscalated = all.filter(i => isEscalated(i.status)).length;
+  const countApproved = all.filter(i => isNoticeIssued(i.status)).length;
+  const countRejected = all.filter(i => isDismissed(i.status)).length;
+
+  const tabTitles = {
+    all: `All (${countAll})`,
+    pending: `⚪ Submitted (${countPending})`,
+    under_review: `🔵 Under Review (${countReview})`,
+    escalated: `🟡 Escalated (${countEscalated})`,
+    approved: `🟢 Notice Issued (${countApproved})`,
+    rejected: `🔴 Dismissed (${countRejected})`
+  };
+
   document.querySelectorAll(".docket-tab").forEach(tab => {
-    const isCurrent = tab.getAttribute("data-tab") === status;
-    tab.className = isCurrent 
-      ? "docket-tab px-4 py-2 font-semibold text-xs rounded-xl bg-[#10B981] text-white shadow-xs" 
-      : "docket-tab px-4 py-2 font-medium text-xs rounded-xl text-slate-600 hover:bg-slate-200 transition";
+    const tabKey = tab.getAttribute("data-tab");
+    if (tabTitles[tabKey]) tab.textContent = tabTitles[tabKey];
+    const isCurrent = tabKey === status;
+    tab.className = isCurrent
+      ? "docket-tab px-3.5 py-1.5 font-bold text-xs rounded-xl bg-emerald-600 text-white shadow-sm flex items-center gap-1 transition"
+      : "docket-tab px-3.5 py-1.5 font-semibold text-xs rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition flex items-center gap-1";
   });
 
-  const all = filterByZoneAccess(getInspections());
-  const isPendingStatus = (s) => {
-    const u = String(s || "").toUpperCase();
-    return u === "SUBMITTED" || u === "PENDING" || u === "NON_COMPLIANT_PENDING";
-  };
-  const isApprovedStatus = (s) => {
-    const u = String(s || "").toUpperCase();
-    return u === "APPROVED" || u === "COMPLIANT_LOGGED" || u === "OFFICER_APPROVED" || u === "NOTICE_ISSUED";
-  };
-  const isRejectedStatus = (s) => {
-    const u = String(s || "").toUpperCase();
-    return u === "REJECTED" || u === "OFFICER_DISMISSED";
-  };
-
-  const pendingCount = all.filter(i => isPendingStatus(i.status)).length;
+  const pendingCount = countPending + countReview;
   const countEl = document.getElementById("pendingCasesCount");
-  if (countEl) countEl.textContent = `${pendingCount} cases pending review`;
+  if (countEl) countEl.textContent = `${pendingCount} case${pendingCount === 1 ? '' : 's'} awaiting action`;
 
   const statTotalEl = document.getElementById("officerStatTotal");
   const statPendingEl = document.getElementById("officerStatPending");
   const statApprovedEl = document.getElementById("officerStatApproved");
   const statDismissedEl = document.getElementById("officerStatDismissed");
-  if (statTotalEl) statTotalEl.textContent = all.length;
+  if (statTotalEl) statTotalEl.textContent = countAll;
   if (statPendingEl) statPendingEl.textContent = pendingCount;
-  if (statApprovedEl) statApprovedEl.textContent = all.filter(i => isApprovedStatus(i.status)).length;
-  if (statDismissedEl) statDismissedEl.textContent = all.filter(i => isRejectedStatus(i.status)).length;
+  if (statApprovedEl) statApprovedEl.textContent = countApproved;
+  if (statDismissedEl) statDismissedEl.textContent = countRejected;
 
   let filtered = all;
-  if (status === "pending") filtered = all.filter(i => isPendingStatus(i.status));
-  else if (status === "approved") filtered = all.filter(i => isApprovedStatus(i.status));
-  else if (status === "rejected") filtered = all.filter(i => isRejectedStatus(i.status));
+  if (status === "pending") filtered = all.filter(i => isSubmitted(i.status));
+  else if (status === "under_review") filtered = all.filter(i => isUnderReview(i.status));
+  else if (status === "escalated") filtered = all.filter(i => isEscalated(i.status));
+  else if (status === "approved") filtered = all.filter(i => isNoticeIssued(i.status));
+  else if (status === "rejected") filtered = all.filter(i => isDismissed(i.status));
 
   const search = (document.getElementById("docketSearchInput")?.value || "").trim().toLowerCase();
   if (search) {
@@ -1033,12 +1049,23 @@ function filterByStatus(status) {
       const p = (i.product || "").toLowerCase();
       const id = (i.id || "").toLowerCase();
       const insp = (i.inspectorName || "").toLowerCase();
-      return p.includes(search) || id.includes(search) || insp.includes(search);
+      const st = (i.state || "").toLowerCase();
+      const seq = i.sequenceNumber ? String(i.sequenceNumber).toLowerCase() : "";
+      const evd = (i.evidenceId || "").toLowerCase();
+      return p.includes(search) || id.includes(search) || insp.includes(search) || st.includes(search) || seq.includes(search) || evd.includes(search);
     });
   }
 
   renderTable(filtered);
 }
+
+// ── Status classifier helpers ──────────────────────────────────────────
+function normS(s) { return String(s || "").toUpperCase().trim(); }
+function isSubmitted(s) { const u = normS(s); return u === "SUBMITTED" || u === "PENDING" || u === "NON_COMPLIANT_PENDING" || u === "DRAFT" || u === "NEW" || u === "CREATED"; }
+function isUnderReview(s) { const u = normS(s); return u === "UNDER_REVIEW" || u === "IN_REVIEW" || u === "NON_COMPLIANT" || u === "REVIEWING" || u === "INVESTIGATING"; }
+function isEscalated(s) { const u = normS(s); return u === "ESCALATED" || u === "FLAGGED" || u === "ZONAL_ESCALATED" || u === "NATIONAL_ESCALATED"; }
+function isNoticeIssued(s) { const u = normS(s); return u === "NOTICE_ISSUED" || u === "OFFICER_APPROVED" || u === "APPROVED" || u === "COMPLIANT" || u === "COMPLIANT_LOGGED" || u === "CLOSED_NOTICE"; }
+function isDismissed(s) { const u = normS(s); return u === "REJECTED" || u === "DISMISSED" || u === "OFFICER_DISMISSED" || u === "CLOSED_REJECTED" || u === "VOID"; }
 
 function renderTable(inspections) {
   const tbody = document.getElementById("officerDocketTableBody");
@@ -1052,47 +1079,377 @@ function renderTable(inspections) {
   }
   if (empty) empty.classList.add("hidden");
 
-  const isPendingStatus = (s) => {
-    const u = String(s || "").toUpperCase();
-    return u === "SUBMITTED" || u === "PENDING" || u === "NON_COMPLIANT_PENDING";
+  // ── Rule-chip tooltip descriptions ────────────────────────────────────
+  const RULE_TOOLTIPS = {
+    "6(1)(a)": "Manufacturer Name & Address",
+    "6(1)(b)": "Generic / Commodity Name",
+    "6(1)(c)": "Net Quantity & Standard Units",
+    "6(1)(d)": "Month & Year of Manufacturing",
+    "6(1)(da)": "Unit Sale Price Declaration",
+    "6(1)(e)": "Maximum Retail Price (MRP)",
+    "6(1)(f)": "Consumer Care Contact",
+    "7":       "Principal Display Panel & Font Height",
+    "9":       "MRP Declaration Manner",
+    "32":      "Power to Inspect & Seize",
+    "36":      "Penalty for Non-Standard Packages"
   };
 
-  tbody.innerHTML = inspections.map(item => {
-    const pBadge = item.priority === "Urgent" ? "bg-red-100 text-red-700" : item.priority === "Low" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700";
-    const pIcon = item.priority === "Urgent" ? "🔴" : item.priority === "Low" ? "🟢" : "🟡";
-    const violCount = item.violations ? item.violations.length : 0;
-    const canReview = isPendingStatus(item.status);
-    const displayStatus = typeof formatStatusLabel === "function" ? formatStatusLabel(item.status) : item.status;
+  // ── Current officer role (for escalated gating) ────────────────────────
+  const currentUser = typeof getCurrentUser === "function" ? (getCurrentUser() || {}) : {};
+  const canActEscalated = ["zonal_admin", "national_admin", "admin"].includes((currentUser.role || "").toLowerCase());
 
+  // ── SLA helpers ────────────────────────────────────────────────────────
+  function computeSlaHtml(item) {
+    const created = item.createdAt || item.date || item.submittedAt;
+    if (!created) return `<span class="docket-sla-ok text-slate-400 text-[10px]">SLA: N/A</span>`;
+    const ageMs = Date.now() - new Date(created).getTime();
+    const slaMs = 48 * 60 * 60 * 1000;  // 48 h statutory SLA
+    const remainMs = Math.max(0, slaMs - ageMs);
+    const remainH = Math.floor(remainMs / 3600000);
+    const remainM = Math.floor((remainMs % 3600000) / 60000);
+    const isUrgent = remainH < 4;
+    const isCritical = remainH < 1;
+    if (isDismissed(item.status) || isNoticeIssued(item.status)) {
+      return `<span class="text-slate-400 text-[10px]">SLA: Closed</span>`;
+    }
+    if (remainMs === 0) {
+      return `<span class="docket-sla-breach text-red-600 font-bold text-[10px] flex items-center gap-1">⚠️ SLA Breached</span>`;
+    }
+    if (isCritical) {
+      return `<span class="docket-sla-critical text-red-600 font-bold text-[10px] flex items-center gap-1 animate-pulse">⚠️ ${remainH}h ${remainM}m left</span>`;
+    }
+    if (isUrgent) {
+      return `<span class="docket-sla-warn text-red-500 font-semibold text-[10px] flex items-center gap-1">⚠️ ${remainH}h ${remainM}m left</span>`;
+    }
+    return `<span class="docket-sla-ok text-slate-400 text-[10px]">SLA: ${remainH}h remaining</span>`;
+  }
+
+  // ── Priority border color ──────────────────────────────────────────────
+  function priorityBorderStyle(item) {
+    if (item.priority === "Urgent") return "border-left: 4px solid #EF4444;";
+    if (item.priority === "Low")    return "border-left: 4px solid #22C55E;";
+    return "border-left: 4px solid #F59E0B;";
+  }
+
+  // ── Violation chips with tooltips & deduplication (Fixed Formatting) ──
+  function buildViolationChips(item) {
+    const viol = item.violations || [];
+    if (!viol.length) return `<span class="docket-rule-chip-none">✓ None Found</span>`;
+    
+    const seenChips = new Set();
+    const formattedChips = [];
+    
+    viol.forEach(v => {
+      const raw = typeof v === "string" ? v : (v.rule || v.reason || v.name || "");
+      let ruleKey = "";
+      let shortLabel = "";
+      
+      const match = raw.match(/Rule?\s*([\d()a-z]{2,})/i) || raw.match(/Section\s*([\d()a-z]{2,})/i);
+      if (match && match[1] && match[1] !== ")" && match[1] !== "s") {
+        ruleKey = match[1];
+        shortLabel = `Rule ${ruleKey}`;
+      } else if (raw.toLowerCase().includes("manufacturer") || raw.toLowerCase().includes("address")) {
+        shortLabel = "Rule 6(1)(a)";
+        ruleKey = "6(1)(a)";
+      } else if (raw.toLowerCase().includes("commodity") || raw.toLowerCase().includes("generic")) {
+        shortLabel = "Rule 6(1)(b)";
+        ruleKey = "6(1)(b)";
+      } else if (raw.toLowerCase().includes("quantity") || raw.toLowerCase().includes("net")) {
+        shortLabel = "Rule 6(1)(c)";
+        ruleKey = "6(1)(c)";
+      } else if (raw.toLowerCase().includes("mrp") || raw.toLowerCase().includes("price")) {
+        shortLabel = "Rule 6(1)(e)";
+        ruleKey = "6(1)(e)";
+      } else if (raw.toLowerCase().includes("date") || raw.toLowerCase().includes("month") || raw.toLowerCase().includes("mfg") || raw.toLowerCase().includes("packing")) {
+        shortLabel = "Rule 6(1)(d)";
+        ruleKey = "6(1)(d)";
+      } else if (raw.toLowerCase().includes("consumer") || raw.toLowerCase().includes("contact") || raw.toLowerCase().includes("helpline")) {
+        shortLabel = "Rule 6(1)(f)";
+        ruleKey = "6(1)(f)";
+      } else {
+        const clean = raw.replace(/^Rule\s+/i, "").replace(/:.*/, "").trim();
+        if (!clean || clean === ")" || clean.toLowerCase() === "s") {
+          shortLabel = "Rule Violation";
+        } else {
+          shortLabel = clean.length > 16 ? clean.substring(0, 14) + "…" : clean;
+        }
+      }
+
+      if (!seenChips.has(shortLabel)) {
+        seenChips.add(shortLabel);
+        const tooltip = RULE_TOOLTIPS[ruleKey] || raw || "Statutory violation under Legal Metrology Act";
+        formattedChips.push(`<span class="docket-rule-chip" title="${escapeHtml(tooltip)}" data-tooltip="${escapeHtml(tooltip)}">${escapeHtml(shortLabel)}</span>`);
+      }
+    });
+
+    const count = viol.length;
+    const displayedChips = formattedChips.slice(0, 3).join("");
+    const extra = count > 3 ? `<span class="docket-rule-more">+${count - 3} more</span>` : "";
+    return `<div class="docket-viol-container"><div class="text-[11px] font-bold text-rose-700 dark:text-rose-400 mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block"></span> ${count} Violation${count > 1 ? "s" : ""} Found</div><div class="flex flex-wrap gap-1">${displayedChips}${extra}</div></div>`;
+  }
+
+  // ── Status pill (Col 5) ────────────────────────────────────────────────
+  function buildStatusPill(item) {
+    const s = item.status;
+    if (isSubmitted(s))    return `<span class="docket-status-pill docket-pill-submitted">⚪ Submitted</span>`;
+    if (isUnderReview(s))  return `<span class="docket-status-pill docket-pill-review">🔵 Under Review</span>`;
+    if (isEscalated(s))    return `<span class="docket-status-pill docket-pill-escalated">🟡 Escalated</span>`;
+    if (isNoticeIssued(s)) return `<span class="docket-status-pill docket-pill-notice">🟢 Notice Issued</span>`;
+    if (isDismissed(s))    return `<span class="docket-status-pill docket-pill-dismissed">🔴 Dismissed</span>`;
+    return `<span class="docket-status-pill docket-pill-submitted">${escapeHtml(s || "Pending")}</span>`;
+  }
+
+  // ── Action button (Col 6) — context-driven ─────────────────────────────
+  function buildActionButton(item) {
+    const s = item.status;
+    const id = item.id;
+    if (isSubmitted(s)) {
+      return `<button onclick="openCase('${id}')" class="docket-action-btn docket-btn-start" title="Start Review — Open 3-Pane Officer Desk">Start Review →</button>`;
+    }
+    if (isUnderReview(s)) {
+      return `<button onclick="openCase('${id}')" class="docket-action-btn docket-btn-decide" title="Make a judicial decision on this case">Make Decision</button>`;
+    }
+    if (isEscalated(s)) {
+      if (canActEscalated) {
+        return `<button onclick="openCase('${id}')" class="docket-action-btn docket-btn-escalated" title="View escalated case — Zonal/National Admin">View Escalation</button>`;
+      } else {
+        return `<button disabled class="docket-action-btn docket-btn-locked" title="Insufficient permissions — Only Zonal/National Admins can act on escalated cases">🔒 Escalated</button>`;
+      }
+    }
+    if (isNoticeIssued(s)) {
+      return `<button onclick="navigateToReport('${id}', 'officer.html#docket')" class="docket-action-btn docket-btn-pdf" title="Download Form-V / Show Cause Notice PDF">📄 View PDF</button>`;
+    }
+    if (isDismissed(s)) {
+      return `<button onclick="openCase('${id}')" class="docket-action-btn docket-btn-archive" title="Read-only archive — Dismissed record">🔒 View Record</button>`;
+    }
+    return `<button onclick="openCase('${id}')" class="docket-action-btn docket-btn-start">Review →</button>`;
+  }
+
+// ── Centralized Inspector Credentials & Profile Resolver ──────────────────
+const DOCKET_INSPECTOR_MAP = {
+  "inspector": {
+    name: "Shri R. Sharma",
+    badgeNumber: "LMI-DL-2024-042",
+    designation: "Legal Metrology Inspector (Senior)",
+    officeAddress: "Office of ACLM, CGO Complex, Lodhi Road, New Delhi - 110003",
+    zone: "North",
+    state: "Delhi UT",
+    phone: "+91 11 2436 0000",
+    email: "r.sharma.lm@gov.in"
+  },
+  "inspector_pb": {
+    name: "S. Kaur",
+    badgeNumber: "LMI-PB-2024-011",
+    designation: "Legal Metrology Inspector",
+    officeAddress: "Office of Controller of Legal Metrology, Punjab, Chandigarh - 160017",
+    zone: "North",
+    state: "Punjab",
+    phone: "+91 172 274 0000",
+    email: "s.kaur.lm@pb.gov.in"
+  },
+  "inspector_south": {
+    name: "A. Menon",
+    badgeNumber: "LMI-KL-2024-008",
+    designation: "Legal Metrology Inspector",
+    officeAddress: "Office of Controller of Legal Metrology, Kerala, Thiruvananthapuram - 695001",
+    zone: "South",
+    state: "Kerala",
+    phone: "+91 471 230 0000",
+    email: "a.menon.lm@kl.gov.in"
+  },
+  "inspector_ne": {
+    name: "T. Longkumer",
+    badgeNumber: "LMI-AS-2024-015",
+    designation: "Legal Metrology Inspector",
+    officeAddress: "Office of ACLM, Legal Metrology Complex, R.G. Baruah Road, Guwahati - 781024",
+    zone: "North East",
+    state: "Assam",
+    phone: "+91 361 252 0000",
+    email: "t.longkumer.lm@as.gov.in"
+  },
+  "inspector_northeast": {
+    name: "T. Longkumer",
+    badgeNumber: "LMI-AS-2024-015",
+    designation: "Legal Metrology Inspector",
+    officeAddress: "Office of ACLM, Legal Metrology Complex, R.G. Baruah Road, Guwahati - 781024",
+    zone: "North East",
+    state: "Assam",
+    phone: "+91 361 252 0000",
+    email: "t.longkumer.lm@as.gov.in"
+  }
+};
+
+function resolveInspectorInfo(item) {
+  if (!item) {
+    return {
+      name: "Shri R. Sharma",
+      badgeNumber: "LMI-DL-2024-042",
+      designation: "Legal Metrology Inspector",
+      officeAddress: "Office of ACLM, CGO Complex, Lodhi Road, New Delhi - 110003",
+      zone: "North",
+      state: "Delhi UT",
+      phone: "+91 11 2436 0000",
+      email: "r.sharma.lm@gov.in",
+      status: "Active & Authorized"
+    };
+  }
+
+  const rawKey = (item.inspectorId || item.inspectorName || item.inspector || "").trim().toLowerCase();
+  const known = DOCKET_INSPECTOR_MAP[rawKey];
+  
+  let name = item.inspectorName || (known ? known.name : null);
+  if (!name || name.toLowerCase() === "field inspector" || name.toLowerCase() === "system" || name === rawKey) {
+    if (known) {
+      name = known.name;
+    } else if (rawKey.startsWith("inspector_")) {
+      const part = rawKey.replace("inspector_", "").toUpperCase();
+      name = `Inspector ${part}`;
+    } else {
+      name = "Shri R. Sharma";
+    }
+  }
+
+  if (name.includes("_") || (name === name.toLowerCase() && !name.includes(" "))) {
+    name = name.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  }
+
+  const badgeNumber = item.inspectorBadgeNumber || item.badgeNumber || (known ? known.badgeNumber : null) || `LMI-${(item.zone || "DL").substring(0,2).toUpperCase()}-2026-${String(item.sequenceNumber || "042").padStart(3, "0")}`;
+  const designation = item.inspectorDesignation || (known ? known.designation : "Legal Metrology Inspector");
+  const officeAddress = item.officeAddress || (known ? known.officeAddress : `Office of ACLM, CGO Complex, Lodhi Road, New Delhi - 110003`);
+  const zone = item.zone || (known ? known.zone : "North");
+  const state = item.state || (known ? known.state : "Delhi UT");
+  const email = item.inspectorEmail || (known ? known.email : `${rawKey || 'inspector'}@lm.gov.in`);
+  const phone = item.inspectorPhone || (known ? known.phone : "+91 11 2436 0000");
+
+  return {
+    name,
+    badgeNumber,
+    designation,
+    officeAddress,
+    zone,
+    state,
+    email,
+    phone,
+    status: "Active & Authorized"
+  };
+}
+window.resolveInspectorInfo = resolveInspectorInfo;
+
+  // ── Product image option button (Opens Lightbox Modal on click) ───────
+  function buildProductImageOption(item) {
+    const productName = item.product || "Product Photo";
+    if (item.image && item.image.trim()) {
+      return `<button type="button" onclick="event.stopPropagation();openDocketImageModal('${escapeHtml(item.image)}', '${escapeHtml(productName)}', '${escapeHtml(item.id)}')" class="docket-view-photo-btn" title="View Product Evidence Photo">🖼️ View Photo</button>`;
+    }
+    return `<span class="text-[10px] text-slate-400 font-medium">📷 No Photo</span>`;
+  }
+
+  tbody.innerHTML = inspections.map(item => {
     const formattedDt = item.formattedDateTime || (typeof formatDisplayDateTime === "function" ? formatDisplayDateTime(item.createdAt || item.date) : (item.date || "-"));
+    const inspInfo = resolveInspectorInfo(item);
+    const jurisdiction = `${item.state || item.location || "Delhi UT"}${item.zone ? ` (${item.zone} Zone)` : ""}`;
+    const slaHtml = computeSlaHtml(item);
+    const violHtml = buildViolationChips(item);
+    const statusPill = buildStatusPill(item);
+    const actionBtn = buildActionButton(item);
+    const photoOptHtml = buildProductImageOption(item);
+    const priorityStyle = priorityBorderStyle(item);
+    const caseDisplayId = item.sequenceNumber ? `<span class="text-emerald-700 font-bold font-mono">#${item.sequenceNumber}</span> • ` : "";
+
     return `
-      <tr class="hover:bg-slate-50 border-b border-slate-100 text-xs sm:text-sm">
-        <td class="px-3 py-3">
-          <div class="font-mono font-bold text-slate-900">${item.id}</div>
-          <div class="text-[10px] text-slate-500 font-mono mt-0.5">
-            ${item.sequenceNumber ? `<span class="font-bold text-emerald-700">#${item.sequenceNumber}</span> • ` : ''}${item.evidenceId || ('EVD-' + item.id)}
+      <tr class="docket-master-row" style="${priorityStyle}" data-case-id="${escapeHtml(item.id)}">
+        <!-- Col 1: Case ID & Jurisdiction -->
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-1.5">
+            <div class="font-mono font-bold text-slate-900 text-xs tracking-tight leading-tight">${caseDisplayId}${escapeHtml(item.id)}</div>
+            <button class="docket-copy-btn" onclick="event.stopPropagation();navigator.clipboard&&navigator.clipboard.writeText('${escapeHtml(item.id)}');" title="Copy Case ID" aria-label="Copy Case ID">📋</button>
+          </div>
+          <div class="text-[10px] text-slate-400 font-medium mt-0.5 tracking-wide uppercase">${escapeHtml(jurisdiction)}</div>
+        </td>
+        <!-- Col 2: Product & Inspector -->
+        <td class="px-4 py-3">
+          <div class="min-w-0 space-y-1">
+            <div class="font-semibold text-slate-900 text-xs leading-tight truncate max-w-[170px]" title="${escapeHtml(item.product || '-')}">${escapeHtml(item.product || "-")}</div>
+            <div class="truncate max-w-[170px]">
+              <button type="button" onclick="event.stopPropagation();openInspectorProfileModal('${escapeHtml(item.id)}')" 
+                class="docket-inspector-btn" title="Click to view Inspector Profile & Credentials">
+                👤 <span class="underline decoration-dotted underline-offset-2">${escapeHtml(inspInfo.name)}</span>
+              </button>
+            </div>
+            <div>${photoOptHtml}</div>
           </div>
         </td>
-        <td class="px-3 py-3 text-slate-600">${item.inspectorName || "Inspector"}</td>
-        <td class="px-3 py-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">${item.state || "Delhi UT"}</span></td>
-        <td class="px-3 py-3 font-semibold text-slate-900">${item.product || "-"}</td>
-        <td class="px-3 py-3 text-slate-600 font-mono text-xs">${formattedDt}</td>
-        <td class="px-3 py-3">${violCount > 0 ? `<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700">${violCount} Found</span>` : `<span class="text-emerald-600 font-medium text-xs">None</span>`}</td>
-        <td class="px-3 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${pBadge}">${pIcon} ${item.priority || "Standard"}</span></td>
-        <td class="px-3 py-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(item.status)}">${displayStatus}</span></td>
-        <td class="px-3 py-3 text-right">
-          <div class="inline-flex items-center gap-1.5 justify-end">
-            <button onclick="openCase('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold ${canReview ? 'bg-[#10B981] hover:bg-[#059669] text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'} transition cursor-pointer">
-              ${canReview ? "Review →" : "View"}
-            </button>
-            <button onclick="navigateToReport('${item.id}', 'officer.html#docket')" title="Open Official Report Sheet" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">
-              📄 Sheet
-            </button>
-          </div>
+        <!-- Col 3: Date & SLA -->
+        <td class="px-4 py-3">
+          <div class="font-mono text-xs text-slate-700 font-medium leading-tight">${escapeHtml(formattedDt)}</div>
+          <div class="mt-1">${slaHtml}</div>
         </td>
+        <!-- Col 4: Violations -->
+        <td class="px-4 py-3">${violHtml}</td>
+        <!-- Col 5: Status -->
+        <td class="px-4 py-3">${statusPill}</td>
+        <!-- Col 6: Action -->
+        <td class="px-4 py-3 text-right">${actionBtn}</td>
       </tr>`;
   }).join("");
 }
+
+function openDocketImageModal(imgUrl, title, caseId) {
+  const modal = document.getElementById("docketImageModal");
+  const imgEl = document.getElementById("docketImagePreview");
+  const titleEl = document.getElementById("docketImageTitle");
+  const captionEl = document.getElementById("docketImageCaption");
+  if (!modal || !imgEl) return;
+  imgEl.src = imgUrl;
+  if (titleEl) titleEl.textContent = title || "Product Evidence Photo";
+  if (captionEl) captionEl.textContent = `Case ID: ${caseId || '-'}`;
+  modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+}
+
+function closeDocketImageModal() {
+  const modal = document.getElementById("docketImageModal");
+  if (modal) modal.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+}
+window.openDocketImageModal = openDocketImageModal;
+window.closeDocketImageModal = closeDocketImageModal;
+
+function openInspectorProfileModal(caseId) {
+  const inspections = typeof getInspections === "function" ? getInspections() : [];
+  const item = inspections.find(i => String(i.id) === String(caseId)) || { id: caseId };
+  const info = resolveInspectorInfo(item);
+  
+  const modal = document.getElementById("inspectorProfileModal");
+  if (!modal) return;
+
+  const titleEl = document.getElementById("modalInspectorTitle");
+  const desigEl = document.getElementById("modalInspectorDesignation");
+  const badgeEl = document.getElementById("modalInspectorBadge");
+  const zoneEl = document.getElementById("modalInspectorZone");
+  const officeEl = document.getElementById("modalInspectorOffice");
+  const emailEl = document.getElementById("modalInspectorEmail");
+  const phoneEl = document.getElementById("modalInspectorPhone");
+
+  if (titleEl) titleEl.textContent = info.name;
+  if (desigEl) desigEl.textContent = info.designation;
+  if (badgeEl) badgeEl.textContent = info.badgeNumber;
+  if (zoneEl) zoneEl.textContent = `${info.zone} Zone (${info.state})`;
+  if (officeEl) officeEl.textContent = info.officeAddress;
+  if (emailEl) emailEl.textContent = info.email;
+  if (phoneEl) phoneEl.textContent = info.phone;
+
+  modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+}
+
+function closeInspectorProfileModal() {
+  const modal = document.getElementById("inspectorProfileModal");
+  if (modal) modal.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+}
+window.openInspectorProfileModal = openInspectorProfileModal;
+window.closeInspectorProfileModal = closeInspectorProfileModal;
 
 function openCase(id) { 
   currentReviewId = id;
@@ -1196,7 +1553,7 @@ function loadCaseDetails(id) {
   }
   if (!id) {
     const inspections = filterByZoneAccess(getInspections());
-    const pending = inspections.find(i => i.status === "submitted" || i.status === "pending" || !i.isCompliant);
+    const pending = inspections.find(i => isUnderReview(i.status) || isSubmitted(i.status) || !i.isCompliant);
     id = (pending && pending.id) || (inspections[0] && inspections[0].id) || null;
   }
   if (!id) {
@@ -1255,7 +1612,7 @@ function loadCaseDetails(id) {
   }
   const penaltyBadge = document.getElementById("statutoryPenaltyBadge");
   if (penaltyBadge) {
-    const hasViolations = !item.isCompliant || (Array.isArray(item.violations) && item.violations.length > 0) || item.status === "NON_COMPLIANT" || item.status === "NOTICE_ISSUED";
+    const hasViolations = !item.isCompliant || (Array.isArray(item.violations) && item.violations.length > 0) || item.status === "NON_COMPLIANT" || isNoticeIssued(item.status);
     if (hasViolations) {
       penaltyBadge.classList.remove("hidden");
       penaltyBadge.innerHTML = `<span>⚖️</span> <span>Sec 36(1) Est. Penalty: ₹25,000</span>`;
@@ -1265,7 +1622,8 @@ function loadCaseDetails(id) {
   }
   const inspNameEl = document.getElementById("caseInspectorName");
   if (inspNameEl) {
-    inspNameEl.textContent = `${item.inspectorName || "Field Inspector"} (${item.inspectorBadgeNumber || "Officer"})`;
+    const info = resolveInspectorInfo(item);
+    inspNameEl.innerHTML = `<button type="button" onclick="openInspectorProfileModal('${escapeHtml(item.id)}')" class="hover:underline text-emerald-700 dark:text-emerald-400 font-semibold cursor-pointer" title="Click to view full Inspector Profile">👤 ${escapeHtml(info.name)} (${escapeHtml(info.badgeNumber)})</button>`;
   }
   const dateEl = document.getElementById("caseDateText");
   if (dateEl) {
@@ -1282,6 +1640,58 @@ function loadCaseDetails(id) {
   const subDateEl = document.getElementById("timelineSubmittedDate");
   if (subDateEl) {
     subDateEl.textContent = item.submittedAt ? (typeof formatDisplayDateTime === "function" ? formatDisplayDateTime(item.submittedAt, true) : item.submittedAt) : (item.date || "Recorded");
+  }
+
+  // Top Dynamic Status Banner (#reviewStatusBanner)
+  const bannerEl = document.getElementById("reviewStatusBanner");
+  const bannerIcon = document.getElementById("reviewBannerIcon");
+  const bannerTitle = document.getElementById("reviewBannerTitle");
+  const bannerSub = document.getElementById("reviewBannerSubtitle");
+  const bannerActions = document.getElementById("reviewBannerActions");
+
+  if (bannerEl) {
+    bannerEl.classList.remove("hidden");
+    if (isNoticeIssued(item.status)) {
+      bannerEl.className = "rounded-xl p-4 border flex flex-wrap items-center justify-between gap-4 transition-all bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 shadow-xs";
+      if (bannerIcon) bannerIcon.textContent = "🟢";
+      if (bannerTitle) bannerTitle.textContent = "Statutory Legal Notice Issued (Form-V Show Cause)";
+      if (bannerSub) bannerSub.textContent = `Show Cause Notice Ref: ${item.noticeRef || ('LM/NOTICE/' + item.id)} | Date: ${item.noticeIssuedAt ? formatDisplayDateTime(item.noticeIssuedAt, true) : (item.updatedAt ? formatDisplayDateTime(item.updatedAt, true) : 'Recorded')}`;
+      if (bannerActions) {
+        bannerActions.innerHTML = `
+          <button type="button" onclick="downloadNoticePdf('${escapeHtml(item.id)}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg transition shadow-xs flex items-center gap-1.5">
+            <span>📄</span> <span>Download Form-V PDF</span>
+          </button>
+          <button type="button" onclick="openCurrentReportSheet()" class="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium text-xs rounded-lg border border-emerald-300 dark:border-slate-600 transition flex items-center gap-1.5">
+            <span>📊</span> <span>View Report</span>
+          </button>
+        `;
+      }
+    } else if (isDismissed(item.status)) {
+      bannerEl.className = "rounded-xl p-4 border flex flex-wrap items-center justify-between gap-4 transition-all bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-100 shadow-xs";
+      if (bannerIcon) bannerIcon.textContent = "🔴";
+      if (bannerTitle) bannerTitle.textContent = "Inspection Case Dismissed / Defect Closed";
+      if (bannerSub) bannerSub.textContent = `Dismissed on ${item.updatedAt ? formatDisplayDateTime(item.updatedAt, true) : 'Record'} | Case closed without statutory fine`;
+      if (bannerActions) {
+        bannerActions.innerHTML = `
+          <span class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700 flex items-center gap-1">
+            <span>📁</span> <span>Archived Closed Record</span>
+          </span>
+        `;
+      }
+    } else {
+      // Under Review / Submitted / Escalated
+      bannerEl.className = "rounded-xl p-4 border flex flex-wrap items-center justify-between gap-4 transition-all bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100 shadow-xs";
+      if (bannerIcon) bannerIcon.textContent = isEscalated(item.status) ? "🟡" : "🔵";
+      if (bannerTitle) bannerTitle.textContent = isEscalated(item.status) ? "Escalated to Zonal/National Authority" : "Case Under Active Judicial Review";
+      if (bannerSub) bannerSub.textContent = "Examine specimen label evidence, verify extracted optical declarations, and select decision action.";
+      if (bannerActions) {
+        bannerActions.innerHTML = `
+          <button type="button" onclick="openDecisionModal('notice_issued')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg transition shadow-xs flex items-center gap-1.5">
+            <span>⚡</span> <span>Issue Legal Notice</span>
+          </button>
+        `;
+      }
+    }
   }
 
   // Center Panel: Visual Evidence & AI Extracted Declarations
@@ -1312,9 +1722,12 @@ function loadCaseDetails(id) {
       ["Consumer Care", extracted.consumer_care]
     ];
     listEl.innerHTML = rows.map(([lbl, val]) => `
-      <div class="ocr-field-row flex justify-between py-1.5 px-2 rounded-lg border-b border-slate-100 text-xs transition-colors duration-200">
-        <span class="text-slate-500 font-medium">${escapeHtml(lbl)}:</span>
-        <span class="${val ? 'font-semibold text-slate-800' : 'text-red-600 font-bold bg-red-50 px-1.5 rounded'}">${escapeHtml(val || "MISSING")}</span>
+      <div class="ocr-field-row flex items-center justify-between py-1.5 px-2 rounded-lg border-b border-slate-100 text-xs transition-colors duration-200">
+        <span class="text-slate-500 font-medium flex items-center gap-1.5">
+          <span class="${val ? 'text-emerald-600 font-bold' : 'text-rose-500 font-bold'}">${val ? '✓' : '✕'}</span>
+          <span>${escapeHtml(lbl)}:</span>
+        </span>
+        <span class="${val ? 'font-semibold text-slate-800 dark:text-slate-200' : 'text-rose-600 font-bold bg-rose-50 dark:bg-rose-950/40 px-1.5 rounded'}">${escapeHtml(val || "MISSING")}</span>
       </div>`).join("");
   }
 
@@ -1327,12 +1740,177 @@ function loadCaseDetails(id) {
   if (badge) badge.classList.add("hidden");
   if (btnText) btnText.textContent = "Highlight OCR Declarations";
 
-  // Right Panel: populate checklist checks
-  const viol = item.violations || [];
-  document.querySelectorAll(".violation-check").forEach(c => {
-    const val = c.getAttribute("data-rule");
-    c.checked = viol.some(v => (typeof v === "string" ? v : (v.reason || v.rule || "")).toLowerCase().includes(val.toLowerCase()));
-  });
+  // Dynamic Right Panel Container (#reviewRightPanelContainer)
+  const rightContainer = document.getElementById("reviewRightPanelContainer");
+  if (rightContainer) {
+    if (isNoticeIssued(item.status)) {
+      const viol = item.violations || [];
+      const formattedViolations = viol.map(v => typeof v === "string" ? v : (v.reason || v.rule || "")).filter(Boolean);
+      rightContainer.innerHTML = `
+        <div class="bg-gradient-to-b from-emerald-50/80 to-white dark:from-emerald-950/30 dark:to-slate-900 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/60 shadow-xs space-y-3.5">
+          <div class="flex items-center justify-between pb-2 border-b border-emerald-100 dark:border-emerald-800/40">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">📜</span>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">Legal Notice Summary</h4>
+            </div>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border border-emerald-300">Active Notice</span>
+          </div>
+
+          <div class="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+            <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
+              <span class="text-slate-500 dark:text-slate-400 font-medium">Notice Reference:</span>
+              <span class="font-mono font-bold text-emerald-700 dark:text-emerald-400">${escapeHtml(item.noticeRef || ('LM/NOTICE/' + item.id))}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
+              <span class="text-slate-500 dark:text-slate-400 font-medium">Statutory Provision:</span>
+              <span class="font-semibold text-slate-900 dark:text-white">Sec 36(1) PCR 2011</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
+              <span class="text-slate-500 dark:text-slate-400 font-medium">Compounding Fine:</span>
+              <span class="font-bold text-rose-600 dark:text-rose-400">₹25,000</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
+              <span class="text-slate-500 dark:text-slate-400 font-medium">Issuing Officer:</span>
+              <span class="font-medium text-slate-800 dark:text-slate-200">${escapeHtml(item.approvedBy || (typeof getCurrentUser === 'function' ? (getCurrentUser() || {}).name : 'Metrology Officer') || 'Metrology Officer')}</span>
+            </div>
+            <div class="flex justify-between py-1">
+              <span class="text-slate-500 dark:text-slate-400 font-medium">Date & Time Issued:</span>
+              <span class="font-mono text-slate-700 dark:text-slate-300">${item.noticeIssuedAt ? formatDisplayDateTime(item.noticeIssuedAt, true) : (item.updatedAt ? formatDisplayDateTime(item.updatedAt, true) : '-')}</span>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
+            <span class="text-[11px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider block mb-1.5">Established Violations:</span>
+            <div class="flex flex-wrap gap-1.5">
+              ${formattedViolations.length > 0
+                ? formattedViolations.map(v => `<span class="px-2 py-0.5 text-[11px] font-semibold rounded bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800">⚠️ ${escapeHtml(v)}</span>`).join('')
+                : '<span class="text-xs text-slate-500 italic">Statutory Rule 6 Non-Compliance</span>'}
+            </div>
+          </div>
+
+          <div class="pt-3 space-y-2">
+            <button type="button" onclick="downloadNoticePdf('${escapeHtml(item.id)}')"
+              class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg transition shadow-xs flex items-center justify-center gap-2">
+              <span>📄</span> <span>Download Form-V Legal Notice (PDF)</span>
+            </button>
+            <button type="button" onclick="openCurrentReportSheet()"
+              class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium text-xs rounded-lg transition flex items-center justify-center gap-1.5">
+              <span>📊</span> <span>View Official Inspection Sheet</span>
+            </button>
+          </div>
+        </div>
+      `;
+    } else if (isDismissed(item.status)) {
+      rightContainer.innerHTML = `
+        <div class="bg-gradient-to-b from-rose-50/60 to-white dark:from-rose-950/20 dark:to-slate-900 p-4 rounded-xl border border-rose-200 dark:border-rose-800/50 shadow-xs space-y-3.5">
+          <div class="flex items-center justify-between pb-2 border-b border-rose-100 dark:border-rose-800/40">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🚫</span>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-rose-800 dark:text-rose-300">Case Dismissal Audit</h4>
+            </div>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200 border border-rose-300">Case Closed</span>
+          </div>
+
+          <div class="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+            <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
+              <span class="text-slate-500 dark:text-slate-400 font-medium">Dismissal Decision:</span>
+              <span class="font-bold text-rose-700 dark:text-rose-400">Dismissed / Closed</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
+              <span class="text-slate-500 dark:text-slate-400 font-medium">Adjudicator:</span>
+              <span class="font-medium text-slate-800 dark:text-slate-200">${escapeHtml(item.dismissedBy || (typeof getCurrentUser === 'function' ? (getCurrentUser() || {}).name : 'Metrology Officer') || 'Metrology Officer')}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
+              <span class="text-slate-500 dark:text-slate-400 font-medium">Timestamp:</span>
+              <span class="font-mono text-slate-700 dark:text-slate-300">${item.updatedAt ? formatDisplayDateTime(item.updatedAt, true) : '-'}</span>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-lg bg-rose-50/50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/40 text-xs">
+            <span class="font-semibold text-rose-800 dark:text-rose-300 block mb-1">Official Decision Notes:</span>
+            <p class="text-slate-600 dark:text-slate-400 italic">${escapeHtml(item.rejectionReason || item.notes || "Specimen examined and verified fully compliant with Legal Metrology (Packaged Commodities) Rules, 2011. No statutory defect found.")}</p>
+          </div>
+
+          <div class="pt-2">
+            <button type="button" onclick="openCurrentReportSheet()"
+              class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium text-xs rounded-lg transition flex items-center justify-center gap-1.5">
+              <span>📄</span> <span>View Official Sheet</span>
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      // Under Review / Submitted / Escalated
+      rightContainer.innerHTML = `
+        <div class="space-y-4">
+          <div class="border-b border-[#E4E7EC] dark:border-slate-800 pb-2 flex items-center justify-between">
+            <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Judicial Decision & Rules</h4>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 border border-amber-300">Action Required</span>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <label class="font-semibold text-[#0F172A] dark:text-white block">Select Verified Rule Violations:</label>
+            <div class="space-y-1.5 bg-[#F7F8FA] dark:bg-slate-800/60 p-3 rounded-xl border border-[#E4E7EC] dark:border-slate-700 max-h-56 overflow-y-auto">
+              <label class="flex items-center gap-2 cursor-pointer hover:text-emerald-700 p-1 rounded transition">
+                <input type="checkbox" class="violation-check rounded text-emerald-600" data-rule="Rule 6(1)(a)">
+                <span>Rule 6(1)(a) - Mfg / Packer Info</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-emerald-700 p-1 rounded transition">
+                <input type="checkbox" class="violation-check rounded text-emerald-600" data-rule="Rule 6(1)(b)">
+                <span>Rule 6(1)(b) - Commodity Generic Name</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-emerald-700 p-1 rounded transition">
+                <input type="checkbox" class="violation-check rounded text-emerald-600" data-rule="Rule 6(1)(c)">
+                <span>Rule 6(1)(c) - Net Quantity & Units</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-emerald-700 p-1 rounded transition">
+                <input type="checkbox" class="violation-check rounded text-emerald-600" data-rule="Rule 6(1)(d)">
+                <span>Rule 6(1)(d) - Mfg Month & Year</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-emerald-700 p-1 rounded transition">
+                <input type="checkbox" class="violation-check rounded text-emerald-600" data-rule="Rule 6(1)(da)">
+                <span>Rule 6(1)(da) - Unit Sale Price (USP)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-emerald-700 p-1 rounded transition">
+                <input type="checkbox" class="violation-check rounded text-emerald-600" data-rule="Rule 6(1)(e)">
+                <span>Rule 6(1)(e) - MRP Declaration</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-emerald-700 p-1 rounded transition">
+                <input type="checkbox" class="violation-check rounded text-emerald-600" data-rule="Rule 6(1)(f)">
+                <span>Rule 6(1)(f) - Consumer Care Contact</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-emerald-700 p-1 rounded transition">
+                <input type="checkbox" class="violation-check rounded text-emerald-600" data-rule="Rule 7">
+                <span>Rule 7 - Height & Front Specs</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <button type="button" onclick="openDecisionModal('notice_issued')"
+              class="btn-primary w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">
+              <span>🟢</span> <span>Approve & Issue Statutory Notice</span>
+            </button>
+            <button type="button" onclick="openDecisionModal('dismissed')"
+              class="btn-secondary w-full py-2 text-xs font-semibold flex items-center justify-center gap-2">
+              <span>🔴</span> <span>Dismiss Inspection</span>
+            </button>
+            <button type="button" onclick="openDecisionModal('escalated')"
+              class="btn-warning w-full py-2 text-xs font-semibold flex items-center justify-center gap-2">
+              <span>⬆️</span> <span>Escalate Case</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Pre-check checkboxes based on violations
+      const viol = item.violations || [];
+      document.querySelectorAll(".violation-check").forEach(c => {
+        const val = c.getAttribute("data-rule");
+        c.checked = viol.some(v => (typeof v === "string" ? v : (v.reason || v.rule || "")).toLowerCase().includes(val.toLowerCase()));
+      });
+    }
+  }
 }
 
 let ocrFocusActive = false;
@@ -1378,34 +1956,45 @@ function openDecisionModal(decision) {
   const comments = document.getElementById("modalCommentsInput");
   if (comments) comments.value = "";
 
-  if (decision === "approved") {
-    if (title) title.textContent = "Approve & Issue Statutory Notice";
-    if (sub) sub.textContent = "Confirm violation findings and generate official statutory show cause notice PDF:";
+  if (decision === "notice_issued" || decision === "approved" || decision === "approve_notice") {
+    if (title) title.textContent = "Approve & Issue Statutory Legal Notice (Form-V)";
+    if (sub) sub.textContent = "Confirm statutory contraventions under Section 36 and generate official show-cause legal notice:";
     if (confirmBtn) {
       confirmBtn.textContent = "Approve & Issue Notice";
       confirmBtn.className = "px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition";
     }
-  } else if (decision === "rejected") {
-    if (title) title.textContent = "Dismiss Flagged Violations (Reject Case)";
-    if (sub) sub.textContent = "Enter judicial rationale for dismissing contraventions (mandatory):";
+  } else if (decision === "dismissed" || decision === "rejected") {
+    if (title) title.textContent = "Dismiss Inspection Case (Close Defect Record)";
+    if (sub) sub.textContent = "Enter mandatory judicial rationale for dismissing contraventions and closing the case record:";
     if (confirmBtn) {
       confirmBtn.textContent = "Confirm Dismissal";
       confirmBtn.className = "px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow transition";
     }
+  } else if (decision === "escalated") {
+    if (title) title.textContent = "Escalate Case to Senior Enforcement Authority";
+    if (sub) sub.textContent = "Enter enforcement justification for escalating case to Zonal / National Controller:";
+    if (confirmBtn) {
+      confirmBtn.textContent = "Confirm Escalation";
+      confirmBtn.className = "px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow transition";
+    }
   } else {
-    if (title) title.textContent = `Confirm Decision: ${decision.toUpperCase()}`;
+    if (title) title.textContent = `Confirm Judicial Action: ${decision.toUpperCase()}`;
     if (confirmBtn) {
       confirmBtn.textContent = "Confirm & Save";
-      confirmBtn.className = "px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow transition";
+      confirmBtn.className = "px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition";
     }
   }
 
-  if (modal) modal.classList.remove("hidden");
+  if (modal) {
+    modal.classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+  }
 }
 
 function closeDecisionModal() {
   const modal = document.getElementById("decisionModal");
   if (modal) modal.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
   const err = document.getElementById("modalCommentsError");
   if (err) { err.textContent = ""; err.classList.add("hidden"); }
   const inp = document.getElementById("modalCommentsInput");
@@ -1417,9 +2006,9 @@ function confirmDecision() {
   const errEl = document.getElementById("modalCommentsError");
   const inpEl = document.getElementById("modalCommentsInput");
 
-  if (currentPendingDecision === "rejected" && !comments) {
+  if ((currentPendingDecision === "rejected" || currentPendingDecision === "dismissed") && !comments) {
     if (errEl) {
-      errEl.textContent = "Statutory rationale is required when dismissing or rejecting an inspection.";
+      errEl.textContent = "Statutory rationale is required when dismissing or rejecting an inspection case.";
       errEl.classList.remove("hidden");
     }
     if (inpEl) inpEl.classList.add("border-red-500");
@@ -1435,24 +2024,23 @@ function confirmDecision() {
 }
 
 /**
- * Step E: Officer opens review modal → reviews original image against extracted text → clicks "Approve & Issue Notice" → downloads formatted PDF statutory notice with zero overlapping text.
+ * Step E: Officer opens review modal → reviews specimen label evidence → issues notice / dismisses / escalates case.
  */
 function submitDecision(id, decision, comments) {
   let targetStatus = decision;
-  if (typeof INSPECTION_STATUS !== "undefined") {
-    if (decision === "approved" || decision === "approve_notice") {
-      targetStatus = INSPECTION_STATUS.OFFICER_APPROVED;
-    } else if (decision === "rejected") {
-      targetStatus = INSPECTION_STATUS.OFFICER_DISMISSED;
-    }
+  if (decision === "approved" || decision === "notice_issued" || decision === "approve_notice") {
+    targetStatus = typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.NOTICE_ISSUED : "NOTICE_ISSUED";
+  } else if (decision === "rejected" || decision === "dismissed") {
+    targetStatus = typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.OFFICER_DISMISSED : "DISMISSED";
+  } else if (decision === "escalated") {
+    targetStatus = typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.ZONAL_ESCALATED : "ESCALATED";
   }
 
-  // Read the checked .violation-check checkboxes and the #officerPrivateNotes textarea
+  // Read checked .violation-check checkboxes and private notes
   const checkedViolations = [];
   document.querySelectorAll(".violation-check:checked").forEach(cb => {
     const rule = cb.getAttribute("data-rule") || "";
-    const parentLabel = cb.closest(".violation-card")?.textContent?.trim() || rule;
-    checkedViolations.push(parentLabel || rule);
+    checkedViolations.push(rule);
   });
   const privateNotes = (document.getElementById("officerPrivateNotes")?.value || "").trim();
 
@@ -1463,28 +2051,28 @@ function submitDecision(id, decision, comments) {
   });
   closeDecisionModal();
 
-  if (decision === "approved" || decision === "approve_notice") {
+  if (decision === "approved" || decision === "notice_issued" || decision === "approve_notice") {
     if (typeof showToast === "function") {
-      showToast(`Case ${id} Approved! Generating official Statutory Notice PDF...`, "success");
+      showToast(`Notice Issued for Case ${id}! Generating Form-V Legal Notice PDF...`, "success");
     }
-
-    // Step E: downloads formatted PDF statutory notice with zero overlapping text
     setTimeout(() => {
       if (typeof generateStatutoryNoticePDF === "function") {
         generateStatutoryNoticePDF(id);
-        if (typeof INSPECTION_STATUS !== "undefined") {
-          updateInspectionStatus(id, INSPECTION_STATUS.NOTICE_ISSUED);
-        }
       }
-    }, 350);
+    }, 300);
+  } else if (decision === "dismissed" || decision === "rejected") {
+    if (typeof showToast === "function") {
+      showToast(`Case ${id} dismissed and defect record closed.`, "info");
+    }
   } else {
     if (typeof showToast === "function") {
-      showToast(`Case ${id} marked as ${decision.toUpperCase()}!`, "success");
+      showToast(`Case ${id} updated to ${String(targetStatus).toUpperCase()}!`, "success");
     }
   }
 
-  filterByStatus(activeDocketFilter || "all");
-  switchOfficerTab("docket");
+  // Refresh both review workspace details and docket master view
+  if (typeof loadCaseDetails === "function") loadCaseDetails(id);
+  if (typeof filterByStatus === "function") filterByStatus(activeDocketFilter || "all");
 }
 
 /* ==========================================================================

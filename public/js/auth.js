@@ -74,15 +74,30 @@ function getAllStates() {
 }
 
 // Make ZONES and helpers available on window object for all scripts
+function normalizeZoneName(zoneStr) {
+  if (!zoneStr) return "";
+  let z = String(zoneStr).trim().toLowerCase();
+  z = z.replace(/\bzone\b/g, "").trim();
+  z = z.replace(/[\s_-]+/g, "");
+  if (z === "northeast" || z === "north-east" || z === "northeastzone") return "north east";
+  if (z === "south" || z === "southern") return "south";
+  if (z === "north" || z === "northern") return "north";
+  if (z === "east" || z === "eastern") return "east";
+  if (z === "west" || z === "western") return "west";
+  if (z === "central") return "central";
+  return z;
+}
+
 if (typeof window !== "undefined") {
   window.ZONES = ZONES;
   window.getZoneOfState = getZoneOfState;
   window.getAllStates = getAllStates;
+  window.normalizeZoneName = normalizeZoneName;
 }
 
 const STORAGE_KEY_USERS = "metro_users";
 
-// Upgraded USERS registry with official 6 Zonal Access Control credentials
+// Upgraded USERS registry with official 6 Zonal Access Control credentials (passwords processed server-side)
 const USERS = {
   admin: {
     username: "admin",
@@ -120,6 +135,30 @@ const USERS = {
     state: "All",
     status: "Active"
   },
+  northeast_admin: {
+    username: "northeast_admin",
+    password: "northeast123",
+    role: "zonal",
+    name: "Zonal Officer Northeast",
+    designation: "Zonal Enforcement Controller",
+    badgeNumber: "ZEC-NEZ-2023-001",
+    officeAddress: "Office of Zonal Enforcement Controller, North Eastern Zone, Guwahati",
+    zone: "North East",
+    state: "All",
+    status: "Active"
+  },
+  ne_admin: {
+    username: "ne_admin",
+    password: "northeast123",
+    role: "zonal",
+    name: "Zonal Officer Northeast",
+    designation: "Zonal Enforcement Controller",
+    badgeNumber: "ZEC-NEZ-2023-001",
+    officeAddress: "Office of Zonal Enforcement Controller, North Eastern Zone, Guwahati",
+    zone: "North East",
+    state: "All",
+    status: "Active"
+  },
   officer: {
     username: "officer",
     password: "officer123",
@@ -130,6 +169,54 @@ const USERS = {
     officeAddress: "Office of ACLM, CGO Complex, Lodhi Road, New Delhi - 110003",
     zone: "North",
     state: "Delhi UT",
+    status: "Active"
+  },
+  officer_south: {
+    username: "officer_south",
+    password: "south123",
+    role: "officer",
+    name: "Dr K Ramanathan",
+    designation: "Assistant Controller of Metrology",
+    badgeNumber: "ACM-TN-2023-019",
+    officeAddress: "Office of ACLM, Shastri Bhawan, Haddows Road, Chennai - 600006",
+    zone: "South",
+    state: "Tamil Nadu",
+    status: "Active"
+  },
+  south_officer: {
+    username: "south_officer",
+    password: "south123",
+    role: "officer",
+    name: "Dr K Ramanathan",
+    designation: "Assistant Controller of Metrology",
+    badgeNumber: "ACM-TN-2023-019",
+    officeAddress: "Office of ACLM, Shastri Bhawan, Haddows Road, Chennai - 600006",
+    zone: "South",
+    state: "Tamil Nadu",
+    status: "Active"
+  },
+  officer_ne: {
+    username: "officer_ne",
+    password: "northeast123",
+    role: "officer",
+    name: "Dr B Gogoi",
+    designation: "Assistant Controller of Metrology",
+    badgeNumber: "ACM-AS-2023-005",
+    officeAddress: "Office of ACLM, Legal Metrology Complex, R.G. Baruah Road, Guwahati - 781024",
+    zone: "North East",
+    state: "Assam",
+    status: "Active"
+  },
+  officer_northeast: {
+    username: "officer_northeast",
+    password: "northeast123",
+    role: "officer",
+    name: "Dr B Gogoi",
+    designation: "Assistant Controller of Metrology",
+    badgeNumber: "ACM-AS-2023-005",
+    officeAddress: "Office of ACLM, Legal Metrology Complex, R.G. Baruah Road, Guwahati - 781024",
+    zone: "North East",
+    state: "Assam",
     status: "Active"
   },
   inspector: {
@@ -167,6 +254,30 @@ const USERS = {
     zone: "South",
     state: "Kerala",
     status: "Active"
+  },
+  inspector_ne: {
+    username: "inspector_ne",
+    password: "northeast123",
+    role: "inspector",
+    name: "T Longkumer",
+    designation: "Legal Metrology Inspector",
+    badgeNumber: "LMI-AS-2024-015",
+    officeAddress: "Office of ACLM, Legal Metrology Complex, R.G. Baruah Road, Guwahati - 781024",
+    zone: "North East",
+    state: "Assam",
+    status: "Active"
+  },
+  inspector_northeast: {
+    username: "inspector_northeast",
+    password: "northeast123",
+    role: "inspector",
+    name: "T Longkumer",
+    designation: "Legal Metrology Inspector",
+    badgeNumber: "LMI-AS-2024-015",
+    officeAddress: "Office of ACLM, Legal Metrology Complex, R.G. Baruah Road, Guwahati - 781024",
+    zone: "North East",
+    state: "Assam",
+    status: "Active"
   }
 };
 
@@ -180,7 +291,7 @@ if (typeof window !== "undefined") {
 
 /**
  * Returns all users from localStorage, initializing with defaults if empty.
- * Ensures the 7 official system users are always present and up-to-date with zone/state.
+ * Ensures official system users are always present and up-to-date.
  */
 function getUsers() {
   const raw = localStorage.getItem(STORAGE_KEY_USERS);
@@ -199,12 +310,11 @@ function getUsers() {
     merged[key] = {
       ...USERS[key],
       ...(stored[key] || {}),
+      password: (stored[key] && stored[key].password) ? stored[key].password : USERS[key].password,
       zone: (stored[key] && stored[key].zone) ? stored[key].zone : USERS[key].zone,
       state: (stored[key] && stored[key].state) ? stored[key].state : USERS[key].state,
       role: (stored[key] && stored[key].role) ? stored[key].role : USERS[key].role,
       name: (stored[key] && stored[key].name) ? stored[key].name : USERS[key].name,
-      password: (stored[key] && stored[key].password) ? stored[key].password : USERS[key].password,
-      // Always carry badgeNumber and officeAddress from defaults if not overridden in stored
       badgeNumber:   (stored[key] && stored[key].badgeNumber)   ? stored[key].badgeNumber   : USERS[key].badgeNumber,
       officeAddress: (stored[key] && stored[key].officeAddress) ? stored[key].officeAddress : USERS[key].officeAddress
     };
@@ -217,20 +327,18 @@ function getUsers() {
 }
 
 /**
- * Saves or updates a user in localStorage.
+ * Saves or updates a user in localStorage and synchronizes with server API.
  */
 function saveUser(user) {
   const users = getUsers();
   const uname = (user.username || "").trim().toLowerCase();
   if (!uname) return null;
 
-  users[uname] = {
+  const newUserPayload = {
     username: uname,
-    password: user.password || "pass123",
     role: user.role || "inspector",
     name: user.name || (uname.charAt(0).toUpperCase() + uname.slice(1)),
     designation: user.designation || (user.role === "officer" ? "Metrology Officer" : "Field Inspector"),
-    // Real employee badge number and office posting — must be assigned by admin
     badgeNumber: user.badgeNumber || "",
     officeAddress: user.officeAddress || "",
     zone: user.zone || "North",
@@ -238,8 +346,26 @@ function saveUser(user) {
     status: user.status || "Active",
     createdAt: user.createdAt || new Date().toISOString()
   };
+  if (user.password) {
+    newUserPayload.password = user.password;
+  }
 
-  localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+  users[uname] = { ...users[uname], ...newUserPayload };
+  delete users[uname].password;
+
+  try {
+    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+  } catch (e) {}
+
+  if (typeof fetch !== "undefined") {
+    fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(newUserPayload)
+    }).catch(err => console.warn("[METRO-CHECK] Sync user API error:", err));
+  }
+
   return users[uname];
 }
 
@@ -257,7 +383,16 @@ function deleteUser(username) {
   const users = getUsers();
   if (users[uname]) {
     delete users[uname];
-    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+    try {
+      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+    } catch (e) {}
+
+    if (typeof fetch !== "undefined") {
+      fetch(`/api/users/${encodeURIComponent(uname)}`, {
+        method: "DELETE",
+        credentials: "include"
+      }).catch(err => console.warn("[METRO-CHECK] User API delete error:", err));
+    }
     return true;
   }
   return false;
@@ -418,15 +553,57 @@ function handleLogin(event) {
 function quickLogin(u, p) {
   const uField = document.getElementById("usernameInput");
   const pField = document.getElementById("passwordInput");
-  if (uField && pField) { uField.value = u; pField.value = p; }
+  if (uField && pField) { 
+    uField.value = u; 
+    pField.value = p; 
+  }
 
   // Auto-fill active CAPTCHA so 1-click test evaluation remains seamless while strictly validated
-  const activeCode = getActiveCaptchaCode("loginCaptchaCanvas");
+  let activeCode = getActiveCaptchaCode("loginCaptchaCanvas");
+  if (!activeCode && typeof generateCaptcha === "function") {
+    activeCode = generateCaptcha("loginCaptchaCanvas");
+  }
   const cField = document.getElementById("loginCaptchaInput");
   if (cField && activeCode) {
     cField.value = activeCode;
+    cField.classList.remove("border-red-500", "focus:border-red-500");
   }
+  
+  const captchaErr = document.getElementById("loginCaptchaError");
+  if (captchaErr) captchaErr.classList.add("hidden");
+
+  if (typeof showToast === "function") {
+    showToast(`Signing in as ${u}...`, "info");
+  }
+
   performLogin(u, p);
+}
+
+let sihModalLastFocused = null;
+
+function openSihEvaluationModal() {
+  sihModalLastFocused = document.activeElement;
+  var modal = document.getElementById('sihEvaluationModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSihEvaluationModal() {
+  var modal = document.getElementById('sihEvaluationModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  if (sihModalLastFocused && typeof sihModalLastFocused.focus === 'function') {
+    try { sihModalLastFocused.focus(); } catch(e) {}
+  }
+}
+
+if (typeof window !== "undefined") {
+  window.openSihEvaluationModal = openSihEvaluationModal;
+  window.closeSihEvaluationModal = closeSihEvaluationModal;
+  window.quickLogin = quickLogin;
 }
 
 function switchRole(targetRole) {
@@ -593,7 +770,7 @@ function showLoading(text = "Analyzing label with AI... Please wait") {
   if (!overlay) {
     overlay = document.createElement("div");
     overlay.id = "globalLoadingOverlay";
-    overlay.className = "fixed inset-0 z-[9998] bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-center p-4";
+    overlay.className = "fixed inset-0 z-[9998] bg-slate-950/75 backdrop-blur-md flex flex-col items-center justify-center p-4";
     overlay.innerHTML = `
       <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl border border-slate-200">
         <div class="spinner-icon mx-auto mb-4" style="border-top-color: #f59e0b; width: 40px; height: 40px; border-width: 4px;"></div>
@@ -858,6 +1035,7 @@ function openContactModal() {
   const modal = document.getElementById("contactSupportModal");
   if (modal) {
     modal.classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
     refreshCaptcha("contactCaptchaCanvas", "contactCaptchaInput", "contactCaptchaError");
   }
 }
@@ -865,6 +1043,7 @@ function openContactModal() {
 function closeContactModal() {
   const modal = document.getElementById("contactSupportModal");
   if (modal) modal.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
 }
 
 function handleContactSubmit(event) {
@@ -1070,6 +1249,7 @@ document.addEventListener("keydown", function (e) {
 function closeUserProfileModal() {
   const modal = document.getElementById("userProfileModal");
   if (modal) modal.classList.add("hidden");
+  document.body.classList.remove("modal-open");
 }
 if (typeof window !== "undefined") {
   window.closeUserProfileModal = closeUserProfileModal;
@@ -1080,12 +1260,15 @@ function openUserProfileModal() {
   if (!modal) {
     modal = document.createElement("div");
     modal.id = "userProfileModal";
-    modal.className = "fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-labelledby", "userProfileTitle");
+    modal.className = "fixed inset-0 z-[9999] bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 transition-all duration-200";
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeUserProfileModal();
+    });
     document.body.appendChild(modal);
-  } else {
-    modal.classList.remove("hidden");
   }
-
   const user = getCurrentUser() || {
     name: "Administrator",
     role: "admin",
@@ -1093,64 +1276,70 @@ function openUserProfileModal() {
     username: "admin"
   };
   const initial = (user.name || "U").trim().charAt(0).toUpperCase();
+  const zoneDisplay = user.zone ? ` ${user.zone} Zone` : "";
+  const portalId = `GOV-IN-${(user.role || "ADM").toUpperCase()}-7049`;
 
   modal.innerHTML = `
-    <div class="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-md w-full p-6 text-slate-800 relative overflow-hidden view-fade-in">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-5 sm:p-6 text-slate-800 dark:text-slate-100 relative overflow-hidden modal-animate-in">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">Official Portal Credentials</h3>
+          <h3 id="userProfileTitle" class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Official Portal Credentials</h3>
         </div>
-        <button onclick="document.getElementById('userProfileModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-800 p-1.5 rounded-xl hover:bg-slate-100 transition" title="Close">✕</button>
+        <button onclick="closeUserProfileModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" title="Close Profile Dialog">✕</button>
       </div>
 
       <div class="py-5 flex items-center gap-4">
-        <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-400 text-white flex items-center justify-center text-xl font-black shadow-lg ring-4 ring-emerald-500/20 flex-shrink-0">
+        <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-xl font-black shadow-lg ring-4 ring-emerald-500/20 flex-shrink-0">
           ${initial}
         </div>
-        <div>
-          <h4 class="text-base font-extrabold text-slate-900 leading-tight">${user.name}</h4>
-          <p class="text-xs text-slate-500 mt-0.5">${user.designation || "Enforcement Officer"}</p>
-          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono font-bold uppercase">
+        <div class="min-w-0 flex-1">
+          <h4 class="text-base font-extrabold text-slate-900 dark:text-white leading-tight truncate">${user.name}</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">${user.designation || "Enforcement Officer"}${zoneDisplay}</p>
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/80 text-[10px] font-mono font-bold uppercase">
             ${user.role} CLEARANCED • GIGW TIER 1
           </span>
         </div>
       </div>
 
-      <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2.5 text-xs font-mono">
-        <div class="flex justify-between">
-          <span class="text-slate-500">Username:</span>
-          <span class="text-slate-900 font-bold">${user.username || user.name.toLowerCase()}</span>
+      <div class="bg-slate-50 dark:bg-slate-950/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 space-y-2.5 text-xs font-mono">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 dark:text-slate-400">Username:</span>
+          <span class="text-slate-900 dark:text-slate-100 font-bold">${user.username || user.name.toLowerCase()}</span>
         </div>
-        <div class="flex justify-between">
-          <span class="text-slate-500">Security Clearance:</span>
-          <span class="text-emerald-700 font-bold">Statutory Enforcement</span>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 dark:text-slate-400">Security Clearance:</span>
+          <span class="text-emerald-700 dark:text-emerald-400 font-bold">Statutory Enforcement</span>
         </div>
-        <div class="flex justify-between">
-          <span class="text-slate-500">Session Status:</span>
-          <span class="text-emerald-700 font-bold">● Active Authenticated</span>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 dark:text-slate-400">Session Status:</span>
+          <span class="text-emerald-700 dark:text-emerald-400 font-bold">● Active Authenticated</span>
         </div>
-        <div class="flex justify-between">
-          <span class="text-slate-500">Portal ID:</span>
-          <span class="text-amber-700 font-bold">GOV-IN-${(user.role || "ADM").toUpperCase()}-7049</span>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 dark:text-slate-400">Portal ID:</span>
+          <div class="flex items-center gap-1.5">
+            <span id="userPortalBadgeId" class="text-amber-700 dark:text-amber-400 font-bold">${portalId}</span>
+            <button onclick="navigator.clipboard&&navigator.clipboard.writeText('${portalId}')" class="text-slate-400 hover:text-emerald-600 text-xs cursor-pointer" title="Copy ID">📋</button>
+          </div>
         </div>
-        <div class="flex justify-between">
-          <span class="text-slate-500">Compliance Standard:</span>
-          <span class="text-slate-700">Legal Metrology Act, 2009</span>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 dark:text-slate-400">Compliance Standard:</span>
+          <span class="text-slate-700 dark:text-slate-300">Legal Metrology Act, 2009</span>
         </div>
       </div>
 
-      <div class="pt-5 mt-4 border-t border-slate-200 flex items-center justify-end gap-2.5">
-        <button onclick="document.getElementById('userProfileModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-bold rounded-xl transition cursor-pointer">
+      <div class="pt-5 mt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+        <button onclick="closeUserProfileModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer">
           Dismiss
         </button>
-        <button onclick="logout()" class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer">
+        <button onclick="logout()" class="px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/60 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/80 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer">
           <span>🚪 Sign Out</span>
         </button>
       </div>
     </div>
   `;
   modal.classList.remove("hidden");
+  document.body.classList.add("modal-open", "overflow-hidden");
 }
 
 /* ==========================================================================
@@ -1414,7 +1603,7 @@ function openPolicyModal(policyType = "terms") {
   if (!modal) {
     modal = document.createElement("div");
     modal.id = "statutoryPolicyModal";
-    modal.className = "fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4";
+    modal.className = "fixed inset-0 z-[9999] bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 transition-all duration-200";
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     modal.setAttribute("aria-labelledby", "policyModalHeading");

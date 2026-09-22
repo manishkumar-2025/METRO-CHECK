@@ -1,5 +1,5 @@
 # ⚖️ METRO-CHECK (e-LMCEP)
-### Sovereign AI-Powered Legal Metrology Compliance Verification & Enforcement System
+### Sovereign Legal Metrology Compliance Verification & Enforcement System (AI Vision Assisted)
 **Department of Consumer Affairs • Ministry of Consumer Affairs, Food & Public Distribution • Government of India**
 
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -143,10 +143,16 @@ For demonstration and testing purposes, pre-configured roles are available:
 | Persona / Portal | Username | Password | Role / Clearance | Jurisdiction |
 | :--- | :--- | :--- | :--- | :--- |
 | **Command Admin** (`/admin.html`) | `admin` | `admin123` | National Director General | Pan-India (All Zones) |
-| **Zonal Officer North** (`/officer.html`) | `north_admin` | `north123` | Zonal Enforcement Controller | North Zone |
-| **Metrology Officer** (`/officer.html`) | `officer` | `officer123` | Assistant Controller | Delhi UT |
-| **Field Inspector** (`/inspector.html`) | `inspector` | `inspect123` | Field Inspector | Delhi UT |
-| **Field Inspector Punjab** (`/inspector.html`) | `inspector_pb` | `punjab123` | Field Inspector | Punjab State |
+| **Zonal Officer North** (`/admin.html`) | `north_admin` | `north123` | Zonal Enforcement Controller | North Zone |
+| **Zonal Officer South** (`/admin.html`) | `south_admin` | `south123` | Zonal Enforcement Controller | South Zone |
+| **Zonal Officer Northeast** (`/admin.html`) | `northeast_admin` | `northeast123` | Zonal Enforcement Controller | Northeast Zone |
+| **Metrology Officer North** (`/officer.html`) | `officer` | `officer123` | Assistant Controller | Delhi UT (North Zone) |
+| **Metrology Officer South** (`/officer.html`) | `officer_south` | `south123` | Assistant Controller | Tamil Nadu (South Zone) |
+| **Metrology Officer Northeast** (`/officer.html`) | `officer_ne` | `northeast123` | Assistant Controller | Assam (Northeast Zone) |
+| **Field Inspector Delhi** (`/inspector.html`) | `inspector` | `inspect123` | Field Inspector | Delhi UT (North Zone) |
+| **Field Inspector Punjab** (`/inspector.html`) | `inspector_pb` | `punjab123` | Field Inspector | Punjab State (North Zone) |
+| **Field Inspector Kerala** (`/inspector.html`) | `inspector_south` | `south123` | Field Inspector | Kerala (South Zone) |
+| **Field Inspector Assam** (`/inspector.html`) | `inspector_ne` | `northeast123` | Field Inspector | Assam (Northeast Zone) |
 
 > 💡 *Tip: On the home page (`index.html`), click **"Quick Evaluation Demo"** in the navigation bar to sign in with 1-click credentials.*
 

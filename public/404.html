@@ -6,9 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>404 Resource Not Found | e-LMCEP (METRO-CHECK)</title>
   <link rel="icon" type="image/png" href="logo/logo.png">
-  <link rel="manifest" href="manifest.json">
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('elmcep_theme') === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+        if (localStorage.getItem('elmcep_high_contrast') === 'true') {
+          document.documentElement.classList.add('gov-high-contrast');
+        }
+      } catch (e) { }
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -47,16 +59,16 @@
   </script>
 </head>
 
-<body class="h-full bg-slate-950 text-slate-100 flex flex-col justify-between font-sans antialiased selection:bg-amber-500 selection:text-white bg-pattern-subtle">
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col justify-between font-sans antialiased selection:bg-amber-500 selection:text-white error-404-matrix-bg">
 
   <!-- =========================================================================
        TOP SOVEREIGN SECURITY HEADER
        ========================================================================= -->
   <header class="w-full bg-slate-900/90 border-b border-amber-900/40 py-3 px-4 sm:px-8 flex items-center justify-between backdrop-blur-md sticky top-0 z-30 shadow-md">
     <div class="flex items-center gap-3">
-      <a href="index.html" class="p-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-slate-500 transition-all hover:scale-105" title="State Emblem of India • Return to Gateway">
+      <div class="p-1.5 rounded-xl bg-slate-800/80 border border-slate-700 cursor-default" title="State Emblem of India">
         <img src="logo/logo.png" alt="Emblem of India" class="h-8 sm:h-9 w-auto object-contain">
-      </a>
+      </div>
       <div>
         <div class="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-2 font-heading">
           <a href="index.html" class="hover:text-emerald-400 transition-colors">e-LMCEP (METRO-CHECK)</a>

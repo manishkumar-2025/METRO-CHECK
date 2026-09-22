@@ -72,12 +72,13 @@
   </script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/officer.css?v=2">
 
   <!-- jsPDF Library for In-Browser Official Legal Notice PDF Generation (Local Offline PWA) -->
   <script src="js/jspdf.umd.min.js"></script>
 </head>
 
-<body class="porcelain-canvas min-h-screen flex flex-col text-[#0F172A] antialiased" onload="loadReviewDocket()">
+<body class="porcelain-canvas officer-cross-matrix-bg min-h-screen flex flex-col text-[#0F172A] antialiased" onload="loadReviewDocket()">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
   <a href="#mainContent"
@@ -98,13 +99,13 @@
       <!-- Left: Sovereign Emblem & Bilingual Hierarchy -->
       <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
         <!-- Official State Emblem of India (Ashoka Lion Capital) -->
-        <a href="index.html" class="flex-shrink-0 flex items-center justify-center focus:outline-none group"
+        <div class="flex-shrink-0 flex items-center justify-center focus:outline-none group cursor-default"
           title="Government of India • State Emblem of India • सत्यमेव जयते">
           <img src="logo/header-logo-emblem.png" alt="State Emblem of India"
             class="h-9 sm:h-11 w-auto object-contain select-none drop-shadow-xs transition-transform group-hover:scale-105" />
           <span class="sr-only">सत्यमेव जयते / State Emblem of India</span>
           <span id="emblemGoldLight" class="hidden"></span>
-        </a>
+        </div>
 
         <div class="w-[1px] h-8 bg-[#E4E7EC] hidden sm:block"></div>
 
@@ -201,14 +202,14 @@
 
     <!-- Mobile Drawer Backdrop -->
     <div id="sidebarBackdrop" onclick="toggleMobileSidebar()"
-      class="fixed inset-0 bg-black/60 z-30 hidden md:hidden transition-opacity"></div>
+      class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-30 hidden md:hidden transition-opacity"></div>
 
     <!-- Left Navigation Sidebar (Linear / Shadcn UI 250px SaaS Style) -->
     <aside id="leftSidebar"
-      class="sidebar-container fixed inset-y-0 left-0 z-40 transform -translate-x-full md:fixed md:top-[56px] md:bottom-0 md:left-0 md:h-[calc(100vh-56px)] md:translate-x-0 w-[250px] text-slate-700 flex flex-col justify-between flex-shrink-0 p-3.5 shadow-2xl md:shadow-none select-none bg-[#FAFAFA] border-r border-gray-200">
+      class="sidebar-container fixed inset-y-0 left-0 z-40 transform -translate-x-full md:fixed md:top-[56px] md:bottom-0 md:left-0 md:h-[calc(100vh-56px)] md:translate-x-0 w-[250px] text-slate-700 dark:text-slate-200 flex flex-col justify-between flex-shrink-0 p-3.5 shadow-2xl md:shadow-none select-none bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-colors">
       <div class="sidebar-content-scrollable flex-1 overflow-y-auto pr-0.5 space-y-3">
         <!-- Brand Logo Header -->
-        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
           <div class="flex items-center gap-2.5 sidebar-brand-wrapper min-w-0">
             <img src="logo/logo.png" alt="METRO-CHECK Logo"
               class="w-8 h-8 rounded-lg object-contain bg-white p-0.5 border border-gray-200 shadow-xs flex-shrink-0" />
@@ -595,18 +596,18 @@
 
           <!-- Filter & Search Bar -->
           <div
-            class="bg-white rounded-xl p-5 border border-[#E4E7EC] shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            class="ds-card p-5 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <div class="flex items-center gap-2.5">
-                <h3 class="text-base font-semibold text-[#0F172A] tracking-tight">Review Docket</h3>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">Review Docket</h3>
                 <span id="officerZoneBadge"
-                  class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#6366F1] text-white shadow-xs"
+                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#6366F1] text-white shadow-xs"
                   title="Regional Zonal Enforcement Scope">
                   <span>📍</span>
                   <span>Viewing Zone: <strong id="officerZoneName">North</strong></span>
                 </span>
               </div>
-              <p id="pendingCasesCount" class="text-xs text-amber-600 font-medium mt-0.5">Calculating pending cases...
+              <p id="pendingCasesCount" class="text-xs text-amber-600 dark:text-amber-400 font-bold mt-0.5">Calculating pending cases...
               </p>
             </div>
 
@@ -618,46 +619,58 @@
                 <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
               </div>
 
-              <!-- Filter Tabs: All | Pending | Approved | Rejected -->
+              <!-- Filter Tabs: All | Submitted | Under Review | Escalated | Notice Issued | Dismissed -->
               <div id="officerDocketFilterTabs"
-                class="inline-flex p-1 bg-[#F1F5F9] rounded-lg gap-1 border border-[#E4E7EC]">
+                class="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl gap-1 border border-slate-200 dark:border-slate-700 flex-wrap">
                 <button type="button" data-tab="all" onclick="filterByStatus('all')"
-                  class="docket-tab px-3.5 py-1.5 font-semibold text-xs rounded-md bg-[#10B981] text-white shadow-xs">
+                  class="docket-tab px-3 py-1.5 font-bold text-xs rounded-lg bg-[#10B981] text-white shadow-xs">
                   All
                 </button>
                 <button type="button" data-tab="pending" onclick="filterByStatus('pending')"
-                  class="docket-tab px-3.5 py-1.5 font-medium text-xs rounded-md text-slate-600 hover:bg-slate-200 transition">
-                  Pending
+                  class="docket-tab px-3 py-1.5 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                  ⚪ Submitted
+                </button>
+                <button type="button" data-tab="under_review" onclick="filterByStatus('under_review')"
+                  class="docket-tab px-3 py-1.5 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                  🔵 Under Review
+                </button>
+                <button type="button" data-tab="escalated" onclick="filterByStatus('escalated')"
+                  class="docket-tab px-3 py-1.5 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                  🟡 Escalated
                 </button>
                 <button type="button" data-tab="approved" onclick="filterByStatus('approved')"
-                  class="docket-tab px-3.5 py-1.5 font-medium text-xs rounded-md text-slate-600 hover:bg-slate-200 transition">
-                  Approved
+                  class="docket-tab px-3 py-1.5 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                  🟢 Notice Issued
                 </button>
                 <button type="button" data-tab="rejected" onclick="filterByStatus('rejected')"
-                  class="docket-tab px-3.5 py-1.5 font-medium text-xs rounded-md text-slate-600 hover:bg-slate-200 transition">
-                  Rejected
+                  class="docket-tab px-3 py-1.5 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                  🔴 Dismissed
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Dense Data Table with Pill Status Badges & Row Hover -->
+          <!-- Dense Data Table with Modern Data Grid Styling -->
           <div
-            class="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+            class="ds-card shadow-md overflow-hidden transition-all duration-200 hover:shadow-xl">
             <div class="overflow-x-auto">
-              <table class="w-full text-left">
-                <thead
-                  class="bg-[#F7F8FA] text-[#64748B] text-[11px] uppercase font-semibold border-b border-[#E4E7EC]">
+              <table class="modern-data-grid docket-master-grid w-full text-left">
+                <thead>
                   <tr>
-                    <th class="px-4 py-3">Case ID</th>
-                    <th class="px-4 py-3">Inspector</th>
-                    <th class="px-4 py-3">State</th>
-                    <th class="px-4 py-3">Product</th>
-                    <th class="px-4 py-3">Date</th>
-                    <th class="px-4 py-3">Violations</th>
-                    <th class="px-4 py-3">Priority</th>
-                    <th class="px-4 py-3">Status</th>
-                    <th class="px-4 py-3 text-right">Action</th>
+                    <!-- Col 1: Case ID & Jurisdiction -->
+                    <th class="px-4 py-3 min-w-[160px]">Case ID &amp; Jurisdiction</th>
+                    <!-- Col 2: Product & Inspector -->
+                    <th class="px-4 py-3 min-w-[200px]">Product &amp; Inspector</th>
+                    <!-- Col 3: Date & SLA (default sort) -->
+                    <th class="px-4 py-3 min-w-[160px] cursor-pointer select-none docket-sort-header" title="Sort by SLA / Date (Default)">
+                      <span class="flex items-center gap-1.5">Date &amp; SLA <span class="text-emerald-500 text-[10px] font-bold">↑ SLA</span></span>
+                    </th>
+                    <!-- Col 4: Violations -->
+                    <th class="px-4 py-3 min-w-[160px]">Violations</th>
+                    <!-- Col 5: Status -->
+                    <th class="px-4 py-3 min-w-[140px]">Status</th>
+                    <!-- Col 6: Action -->
+                    <th class="px-4 py-3 text-right min-w-[150px]">Action</th>
                   </tr>
                 </thead>
                 <tbody id="officerDocketTableBody">
@@ -1038,13 +1051,25 @@
             </div>
             <div class="pt-2">
               <button type="button" onclick="switchOfficerTab('docket')"
-                class="btn-primary active:scale-95 transition-transform duration-100 text-xs inline-flex items-center gap-2">
-                <span>←</span> <span>Return to Enforcement Docket</span>
+                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all">
+                Return to Enforcement Master Docket
               </button>
             </div>
           </div>
 
           <div id="reviewActiveContent" class="space-y-5">
+            <!-- Dynamic Case Status Banner -->
+            <div id="reviewStatusBanner" class="hidden rounded-xl p-4 border flex flex-wrap items-center justify-between gap-4 transition-all">
+              <div class="flex items-center gap-3">
+                <span id="reviewBannerIcon" class="text-xl">🟢</span>
+                <div>
+                  <h4 id="reviewBannerTitle" class="text-sm font-bold leading-tight text-slate-900 dark:text-white">Statutory Legal Notice Issued</h4>
+                  <p id="reviewBannerSubtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Form-V Show Cause Notice Ref: -</p>
+                </div>
+              </div>
+              <div id="reviewBannerActions" class="flex items-center gap-2"></div>
+            </div>
+
             <!-- Top Toolbar with Back button, Prev/Next Traversal and Status -->
             <div
               class="bg-white rounded-xl p-4 border border-[#E4E7EC] shadow-sm flex flex-wrap items-center justify-between gap-3">
@@ -1206,108 +1231,17 @@
                   </div>
                 </section>
 
-                <!-- RIGHT PANEL (3 cols / 25%): Clickable Bordered Violation Cards + 3 Large Buttons -->
+                <!-- RIGHT PANEL (3 cols / 25%): Dynamic Decision vs Issued Notice Summary -->
                 <section id="reviewPane-right"
-                  class="w-full lg:col-span-3 bg-white p-5 rounded-xl border border-[#E4E7EC] shadow-sm space-y-4 flex flex-col justify-between">
-
-                  <div class="space-y-4">
-                    <!-- Violation Checklist as Clickable Bordered Cards -->
-                    <div>
-                      <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2.5">Violation
-                        Checklist
-                      </h4>
-                      <div class="space-y-2 text-xs">
-                        <label class="violation-card">
-                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>⚖️</span>
-                            <span>Underweight / Overweight</span></span>
-                          <input type="checkbox" data-rule="weight"
-                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                        </label>
-                        <label class="violation-card">
-                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>🏷️</span>
-                            <span>Missing / Defective MRP</span></span>
-                          <input type="checkbox" data-rule="mrp"
-                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                        </label>
-                        <label class="violation-card">
-                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>🏭</span>
-                            <span>Missing Manufacturer</span></span>
-                          <input type="checkbox" data-rule="manufacturer"
-                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                        </label>
-                        <label class="violation-card">
-                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>📅</span>
-                            <span>Missing Mfg Date</span></span>
-                          <input type="checkbox" data-rule="date"
-                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                        </label>
-                        <label class="violation-card">
-                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>📞</span>
-                            <span>Missing Consumer Care</span></span>
-                          <input type="checkbox" data-rule="consumer care"
-                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                        </label>
-                        <label class="violation-card">
-                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>📏</span>
-                            <span>Incorrect Font Size</span></span>
-                          <input type="checkbox" data-rule="font"
-                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                        </label>
-                        <label class="violation-card">
-                          <span class="font-medium text-[#0F172A] text-xs flex items-center gap-2"><span>⚠️</span>
-                            <span>Misleading Declaration</span></span>
-                          <input type="checkbox" data-rule="misleading"
-                            class="violation-check rounded text-[#10B981] focus:ring-[#10B981] border-slate-300 h-4 w-4 cursor-pointer">
-                        </label>
-                      </div>
-                    </div>
-
-                    <!-- Collapsible Legal Reference -->
-                    <details
-                      class="bg-[#F7F8FA] rounded-lg border border-[#E4E7EC] p-3 text-xs text-[#64748B] cursor-pointer">
-                      <summary class="font-semibold text-[#0F172A] select-none flex items-center justify-between">
-                        <span>⚖️ Legal References</span>
-                        <span class="text-[10px] text-slate-400">▼</span>
-                      </summary>
-                      <div
-                        class="mt-2 space-y-2 text-[11px] text-[#64748B] border-t border-[#E4E7EC] pt-2 leading-relaxed">
-                        <p><strong>Rule 6:</strong> Every package shall bear name, net qty, mfg month/year, and consumer
-                          care details.</p>
-                        <p><strong>Rule 9:</strong> MRP must be prominently displayed inclusive of all taxes.</p>
-                        <p><strong>Section 39:</strong> Seizure of non-conforming packages in case of severe
-                          contravention.</p>
-                      </div>
-                    </details>
+                  class="w-full lg:col-span-3 bg-white p-5 rounded-xl border border-[#E4E7EC] shadow-sm space-y-4">
+                  <div id="reviewRightPanelContainer" class="space-y-4 w-full">
+                    <!-- Dynamic JS Content loaded by loadCaseDetails(id) -->
                   </div>
-
-                  <!-- 3 Large Decision Buttons at Bottom: Approve (emerald), Reject (red), Escalate (amber) -->
-                  <div class="space-y-2.5 pt-4 border-t border-[#E4E7EC] mt-4">
-                    <h4 class="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2">Official Decision
-                    </h4>
-
-                    <!-- Approve (emerald) -->
-                    <button type="button" onclick="openDecisionModal('approved')"
-                      class="btn-primary active:scale-95 transition-transform duration-100 w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">
-                      <span>⚖️</span> <span>Approve & Issue Notice</span>
-                    </button>
-
-                    <!-- Reject (red) -->
-                    <button type="button" onclick="openDecisionModal('rejected')"
-                      class="btn-danger w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">
-                      <span>✕</span> <span>Dismiss Violation</span>
-                    </button>
-
-                    <!-- Escalate (amber) -->
-                    <button type="button" onclick="openDecisionModal('escalated')"
-                      class="btn-warning w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">
-                      <span>⬆️</span> <span>Escalate Case</span>
-                    </button>
-                  </div>
-
                 </section>
 
               </div>
             </div>
+          </div>
         </section>
 
         <!-- Visually Polished Divider Bar -->
@@ -1323,9 +1257,9 @@
               class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3.5 sm:gap-5 pb-3.5 sm:pb-5 border-b border-slate-300/80 dark:border-slate-800/90">
               <!-- Left: Emblem + Ministry Title -->
               <div class="flex items-center gap-3 sm:gap-4 w-full lg:w-auto">
-                <a href="index.html" class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:scale-105 transition-all duration-200" title="State Emblem of India • e-LMCEP Home">
-                  <img src="logo/logo.png" alt="State Emblem of India" class="h-8 w-auto sm:h-10 lg:h-12 object-contain" />
-                </a>
+                <div class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-default" title="State Emblem of India • e-LMCEP">
+                  <img src="logo/logo.png" alt="State Emblem of India" class="h-8 sm:h-9 w-auto object-contain">
+                </div>
                 <div class="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
                     <a href="index.html"
@@ -1566,48 +1500,123 @@
     </div>
   </div>
 
+  <!-- Image Viewer Lightbox Modal -->
+  <div id="docketImageModal" role="dialog" aria-modal="true" aria-labelledby="docketImageTitle" onclick="if (event.target === this) closeDocketImageModal()" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-[9999] transition-opacity">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📷</span>
+          <h3 id="docketImageTitle" class="text-sm font-bold text-slate-900 dark:text-white truncate">Product Evidence Photo</h3>
+        </div>
+        <button type="button" onclick="closeDocketImageModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
+      </div>
+      <div class="flex-1 overflow-hidden flex items-center justify-center bg-slate-950 rounded-2xl p-2 min-h-[300px]">
+        <img id="docketImagePreview" src="" alt="Evidence Image Preview" class="max-h-[60vh] w-auto object-contain rounded-lg shadow-md">
+      </div>
+      <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
+        <span id="docketImageCaption" class="truncate font-mono">Case ID: -</span>
+        <button type="button" onclick="closeDocketImageModal()" class="px-4 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs transition cursor-pointer">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Official Inspector Profile & Credentials Modal -->
+  <div id="inspectorProfileModal" role="dialog" aria-modal="true" aria-labelledby="modalInspectorTitle" onclick="if (event.target === this) closeInspectorProfileModal()"
+    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] transition-opacity">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 relative modal-animate-in">
+      <button type="button" onclick="closeInspectorProfileModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
+      
+      <!-- Header / Avatar Card -->
+      <div class="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center text-2xl font-bold shadow-md flex-shrink-0">
+          👤
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">🟢 VERIFIED</span>
+            <span class="text-[10px] text-slate-400 font-mono">DoCA ID Verified</span>
+          </div>
+          <h3 id="modalInspectorTitle" class="text-base font-extrabold text-slate-900 dark:text-white truncate mt-0.5">Shri R. Sharma</h3>
+          <p id="modalInspectorDesignation" class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Legal Metrology Inspector</p>
+        </div>
+      </div>
+
+      <!-- Detail Grid -->
+      <div class="space-y-3 text-xs">
+        <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500 dark:text-slate-400 font-semibold">Inspector Badge ID:</span>
+            <div class="flex items-center gap-1.5">
+              <span id="modalInspectorBadge" class="font-mono font-bold text-slate-900 dark:text-emerald-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">LMI-DL-2024-042</span>
+              <button type="button" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('modalInspectorBadge').textContent); if (typeof showToast==='function') showToast('Badge ID copied!', 'info');" class="text-slate-400 hover:text-emerald-600 text-xs cursor-pointer" title="Copy Badge ID">📋</button>
+            </div>
+          </div>
+          <div class="flex justify-between items-center pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+            <span class="text-slate-500 dark:text-slate-400 font-semibold">Jurisdiction / Zone:</span>
+            <span id="modalInspectorZone" class="font-medium text-slate-800 dark:text-slate-200">North Zone (Delhi UT)</span>
+          </div>
+        </div>
+
+        <div class="space-y-1.5 px-1">
+          <div>
+            <span class="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Official Office Address</span>
+            <p id="modalInspectorOffice" class="text-slate-700 dark:text-slate-300 font-medium leading-relaxed mt-0.5">Office of ACLM, CGO Complex, Lodhi Road, New Delhi - 110003</p>
+          </div>
+          <div class="pt-2 flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <span>📧 <span id="modalInspectorEmail">r.sharma.lm@gov.in</span></span>
+            <span>📞 <span id="modalInspectorPhone">+91 11 2436 0000</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+        <button type="button" onclick="closeInspectorProfileModal()" class="px-5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs transition cursor-pointer">Close Profile</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Decision Confirmation Modal -->
-  <div id="decisionModal" role="dialog" aria-modal="true" aria-labelledby="modalDecisionTitle"
-    class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity">
+  <div id="decisionModal" role="dialog" aria-modal="true" aria-labelledby="modalDecisionTitle" onclick="if (event.target === this) closeDecisionModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-[9999] transition-opacity">
     <div
-      class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-[#E4E7EC] dark:border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
-      <h3 id="modalDecisionTitle" class="text-base font-semibold text-[#0F172A] dark:text-white">Approve & Issue
-        Statutory Notice</h3>
-      <p id="modalDecisionSubtitle" class="text-xs text-[#64748B] dark:text-slate-400">Enter judicial findings or notice
-        directives (downloads formatted PDF notice upon confirmation):</p>
+      class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 space-y-4 max-h-[90vh] overflow-y-auto modal-animate-in">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <h3 id="modalDecisionTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Approve &amp; Issue Statutory Notice</h3>
+        <button type="button" onclick="closeDecisionModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
+      </div>
+      <p id="modalDecisionSubtitle" class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Enter judicial findings or notice directives (downloads formatted PDF notice upon confirmation):</p>
       <textarea id="modalCommentsInput" rows="3"
         placeholder="e.g. Statutory show cause notice issued under Section 36 of Legal Metrology Act..."
         class="ds-textarea text-xs w-full"></textarea>
       <p id="modalCommentsError" class="hidden text-xs text-red-600 font-medium pl-1"></p>
-      <div class="flex justify-end gap-2 pt-2">
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
         <button type="button" onclick="closeDecisionModal()" class="btn-secondary text-xs">Cancel</button>
         <button type="button" id="modalConfirmBtn" onclick="confirmDecision()"
-          class="btn-primary active:scale-95 transition-transform duration-100 text-xs">Approve & Issue Notice</button>
+          class="btn-primary active:scale-95 transition-transform duration-100 text-xs">Approve &amp; Issue Notice</button>
       </div>
     </div>
   </div>
 
 
   <!-- CONTACT SUPPORT & GRIEVANCE MODAL (WCAG AA Compliant) -->
-  <div id="contactSupportModal"
-    class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+  <div id="contactSupportModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle" onclick="if (event.target === this) closeContactModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
     <div
-      class="bg-white dark:bg-slate-900 border border-[#E4E7EC] dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[95vh] overflow-y-auto text-[#0F172A] dark:text-slate-100">
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100">
 
-      <div class="flex items-center justify-between border-b border-[#E4E7EC] dark:border-slate-800 pb-3.5">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3.5">
         <div class="flex items-center gap-3">
           <div
-            class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#10B981] dark:text-emerald-400 flex items-center justify-center text-xl border border-emerald-100 dark:border-emerald-800">
+            class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl border border-emerald-200 dark:border-emerald-800/80 shadow-xs flex-shrink-0">
             📞
           </div>
           <div>
-            <h3 class="text-base font-semibold text-[#0F172A] dark:text-slate-100">National Metrology Helpdesk</h3>
-            <p class="text-xs text-[#64748B] dark:text-slate-400">Department of Consumer Affairs • Grievance Redressal
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-slate-100">National Metrology Helpdesk</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Department of Consumer Affairs • Grievance Redressal
             </p>
           </div>
         </div>
         <button type="button" onclick="closeContactModal()"
-          class="text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-100 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
           title="Close Modal">✕</button>
       </div>
 
@@ -1743,12 +1752,12 @@
   </nav>
 
   <!-- Scripts -->
-  <script src="js/storage.js"></script>
-  <script src="js/rules.js"></script>
-  <script src="js/pdfService.js"></script>
-  <script src="js/notifications.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/masthead.js"></script>
+  <script src="js/storage.js?v=2"></script>
+  <script src="js/rules.js?v=2"></script>
+  <script src="js/pdfService.js?v=2"></script>
+  <script src="js/notifications.js?v=2"></script>
+  <script src="js/dashboard.js?v=2"></script>
+  <script src="js/masthead.js?v=2"></script>
 </body>
 
 </html>

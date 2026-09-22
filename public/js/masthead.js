@@ -363,6 +363,9 @@
       modal = document.createElement('div');
       modal.id = 'geminiApiKeyModal';
       modal.className = 'fixed inset-0 z-[9999] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300';
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeApiKeyConfigModal();
+      });
       modal.innerHTML = `
         <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 animate-in fade-in zoom-in duration-200">
           <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -420,6 +423,7 @@
     } else {
       modal.classList.remove('hidden');
     }
+    document.body.classList.add('overflow-hidden');
 
     fetchGeminiKeyStatus();
   };
@@ -427,6 +431,7 @@
   window.closeApiKeyConfigModal = function () {
     const modal = document.getElementById('geminiApiKeyModal');
     if (modal) modal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
   };
 
   window.toggleApiKeyInputVisibility = function () {

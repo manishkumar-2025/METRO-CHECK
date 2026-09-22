@@ -91,6 +91,18 @@ async function runFullVerification() {
   console.log("✅ Step 3b: Geo-Stamp watermark, Network Sync Pill, and Statutory Penalty estimator UI elements verified.");
 
   // Step 4: Verify Full API Workflow Cycle on Live Server with Zonal Slashed Case ID
+  const authRes = await makeHttpRequest({
+    hostname: "localhost",
+    port: 3000,
+    path: "/api/auth/login",
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  }, { username: "officer", password: "officer123" });
+  assert.strictEqual(authRes.status, 200, "Officer authentication must succeed");
+  const authCookie = Array.isArray(authRes.headers["set-cookie"])
+    ? authRes.headers["set-cookie"][0].split(";")[0]
+    : authRes.headers["set-cookie"].split(";")[0];
+
   const dateSegment = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const dynamicSeq = Math.floor(10000 + Math.random() * 89999);
   const testCaseId = `LM/NZ/${dateSegment}/${dynamicSeq}`;
@@ -146,7 +158,10 @@ async function runFullVerification() {
     port: 3000,
     path: "/api/inspections",
     method: "POST",
-    headers: { "Content-Type": "application/json" }
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: authCookie
+    }
   }, initialDocket);
   assert.strictEqual(postRes.status, 200, "Submission must return HTTP 200");
   console.log(`✅ Step 4a: Zonal Inspection submitted successfully: ${testCaseId} (Seq #101)`);
@@ -157,7 +172,10 @@ async function runFullVerification() {
     port: 3000,
     path: `/api/inspections/${encodeURIComponent(testCaseId)}/status`,
     method: "PATCH",
-    headers: { "Content-Type": "application/json" }
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: authCookie
+    }
   }, {
     status: "UNDER_REVIEW",
     reviewComments: "Officer reviewing statutory declarations against PCR Rule 6(1)(c) & (da)."
@@ -172,7 +190,10 @@ async function runFullVerification() {
     port: 3000,
     path: `/api/inspections/${encodeURIComponent(testCaseId)}/status`,
     method: "PATCH",
-    headers: { "Content-Type": "application/json" }
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: authCookie
+    }
   }, {
     status: "NOTICE_ISSUED",
     reviewComments: "Statutory notice issued under Section 36 of Legal Metrology Act, 2009 for font height deficiency."

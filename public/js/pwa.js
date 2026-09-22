@@ -1,6 +1,7 @@
 /* ==========================================================================
-   METRO-CHECK - PWA Registration & Direct Install Engine (js/pwa.js)
-   Provides guaranteed footer Install App button, direct install trigger & PWA Modal
+   METRO-CHECK - PWA Registration & Smart Install Engine (js/pwa.js)
+   Provides first-time prompt, seamless dismissal, subtle footer install option,
+   and permanent removal upon installation.
    ========================================================================== */
 
 (function () {
@@ -51,14 +52,37 @@
     return isStandalone || isInstalledFlag;
   }
 
-  // Helper: Hide Install App button and container
+  // Helper: Check if User has dismissed the FAB prompt
+  function isPromptDismissed() {
+    return localStorage.getItem('metrocheck_pwa_dismissed') === 'true';
+  }
+
+  // Helper: Permanently hide all install UI (FAB + Footer options) when installed
   function hideInstallButton() {
     const fab = document.getElementById('metrocheck-pwa-fab-container');
     if (fab) fab.style.display = 'none';
     const btn = document.getElementById('metrocheck-install-app-btn');
     if (btn) btn.style.display = 'none';
+    const footerBtn = document.getElementById('metrocheck-footer-install-btn');
+    if (footerBtn) footerBtn.style.display = 'none';
+    const legalRowBtn = document.getElementById('metrocheck-legal-row-install-btn');
+    if (legalRowBtn) legalRowBtn.style.display = 'none';
+    const legalRowDot = document.getElementById('metrocheck-legal-row-install-dot');
+    if (legalRowDot) legalRowDot.style.display = 'none';
     const container = document.getElementById('pwa-install-container');
-    if (container) container.style.display = 'none';
+    if (container) {
+      container.style.display = 'none';
+      container.classList.add('hidden');
+    }
+  }
+
+  // Helper: Dismiss floating FAB prompt (user clicked dismiss/close)
+  function dismissFabPrompt() {
+    localStorage.setItem('metrocheck_pwa_dismissed', 'true');
+    const fab = document.getElementById('metrocheck-pwa-fab-container');
+    if (fab) fab.style.display = 'none';
+    renderFooterInstallOption();
+    showPwaToast('💡 Install prompt dismissed. You can install anytime from the footer link!', 'info');
   }
 
   // 3. Capture Native Browser Install Event (beforeinstallprompt)
@@ -67,7 +91,7 @@
     deferredInstallPrompt = e;
     console.log('[METRO-CHECK PWA] Native browser install prompt captured and ready.');
     if (!isAppInstalled()) {
-      renderInstallButton();
+      renderPwaInstallExperience();
       updateInstallButtonBadge(true);
     }
   });
@@ -89,19 +113,32 @@
     });
   } catch (err) {}
 
-  // 4. Render "Install App" Floating Action Button (FAB) Pinned with Collapse Toggle
+  // 4. Initialization
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderInstallButton);
+    document.addEventListener('DOMContentLoaded', renderPwaInstallExperience);
   } else {
-    renderInstallButton();
+    renderPwaInstallExperience();
   }
 
-  function renderInstallButton() {
+  function renderPwaInstallExperience() {
     if (isAppInstalled()) {
       hideInstallButton();
       return;
     }
 
+    // Always ensure subtle footer install option is ready in the footer if not installed
+    renderFooterInstallOption();
+
+    // Show floating FAB ONLY for first-time visitors who haven't dismissed it
+    if (!isPromptDismissed()) {
+      renderFloatingFab();
+    } else {
+      const fab = document.getElementById('metrocheck-pwa-fab-container');
+      if (fab) fab.style.display = 'none';
+    }
+  }
+
+  function renderFloatingFab() {
     let fab = document.getElementById('metrocheck-pwa-fab-container');
     if (!fab) {
       fab = document.createElement('div');
@@ -120,6 +157,9 @@
           </button>
           <button id="metrocheck-pwa-fab-toggle" type="button" class="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-800/80 rounded-xl transition-colors cursor-pointer" title="Minimize to icon" aria-label="Minimize Install App FAB">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <button id="metrocheck-pwa-fab-dismiss" type="button" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 rounded-xl transition-colors cursor-pointer" title="Dismiss install prompt" aria-label="Dismiss Install Prompt">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
 
@@ -148,6 +188,11 @@
         });
       }
 
+      const dismissBtn = document.getElementById('metrocheck-pwa-fab-dismiss');
+      if (dismissBtn) {
+        dismissBtn.addEventListener('click', dismissFabPrompt);
+      }
+
       const expandBtn = document.getElementById('metrocheck-pwa-fab-expand-btn');
       if (expandBtn) {
         expandBtn.addEventListener('click', () => {
@@ -164,6 +209,46 @@
     }
 
     fab.style.display = '';
+  }
+
+  // Render clean, subtle "Install App" option in the footer
+  function renderFooterInstallOption() {
+    if (isAppInstalled()) return;
+
+    // Dedicated #pwa-install-container is kept hidden/empty to avoid rendering a duplicate bottom button
+    const container = document.getElementById('pwa-install-container');
+    if (container) {
+      container.innerHTML = '';
+      container.style.display = 'none';
+      container.classList.add('hidden');
+    }
+
+    // 2. Also render inside the legal policy links row if present
+    const legalLink = document.querySelector('.footer-legal-link');
+    if (legalLink && legalLink.parentElement) {
+      const parentRow = legalLink.parentElement;
+      if (!document.getElementById('metrocheck-legal-row-install-btn')) {
+        const dot = document.createElement('span');
+        dot.id = 'metrocheck-legal-row-install-dot';
+        dot.className = 'text-slate-300 dark:text-slate-700 select-none';
+        dot.textContent = '•';
+
+        const btn = document.createElement('button');
+        btn.id = 'metrocheck-legal-row-install-btn';
+        btn.type = 'button';
+        btn.className = 'footer-legal-link inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold hover:underline cursor-pointer text-xs';
+        btn.innerHTML = `<span>📥</span><span>Install App</span>`;
+        btn.onclick = handleInstallClick;
+
+        parentRow.appendChild(dot);
+        parentRow.appendChild(btn);
+      } else {
+        const btn = document.getElementById('metrocheck-legal-row-install-btn');
+        const dot = document.getElementById('metrocheck-legal-row-install-dot');
+        if (btn) btn.style.display = 'inline-flex';
+        if (dot) dot.style.display = 'inline';
+      }
+    }
   }
 
   function setFabCollapsed(collapsed, isUserAction = false) {
@@ -210,6 +295,7 @@
           showPwaToast('🎉 METRO-CHECK App is installing...', 'success');
         } else {
           console.log('[METRO-CHECK PWA] User dismissed install prompt.');
+          dismissFabPrompt();
         }
         deferredInstallPrompt = null;
       } catch (err) {
@@ -329,6 +415,8 @@
               localStorage.setItem('metrocheck_pwa_installed', 'true');
               hideInstallButton();
               showPwaToast('🎉 METRO-CHECK App is installing...', 'success');
+            } else {
+              dismissFabPrompt();
             }
             deferredInstallPrompt = null;
             modal.remove();
@@ -377,5 +465,6 @@
 
   // Expose global helper for manual triggering if needed
   window.openPwaGuideModal = openPwaGuideModal;
+  window.dismissFabPrompt = dismissFabPrompt;
 
 })();

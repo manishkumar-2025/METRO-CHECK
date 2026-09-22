@@ -1,11 +1,10 @@
-/* ==========================================================================
+* ==========================================================================
    METRO-CHECK - Admin Portal & Master Ledger Styles (css/admin.css)
    Contains master ledger, zebra striping, analytics charts, & report print styles.
    ========================================================================== */
 
-
-  /* Suppress screen-only chrome */
-  .print\:hidden,
+@media print {
+  .print\\:hidden,
   header#nationalGovMasthead,
   .tricolor-strip,
   aside,
@@ -15,7 +14,6 @@
     display: none !important;
   }
 
-  /* Format printable main document sheet */
   main#mainContent {
     max-width: 100% !important;
     width: 100% !important;
@@ -27,7 +25,6 @@
     background: transparent !important;
   }
 
-  /* Retain authentic stamp & seal double border */
   .official-gov-seal {
     animation: none !important;
     transform: none !important;
@@ -46,142 +43,462 @@
     background: rgba(239, 68, 68, 0.06) !important;
   }
 
-  table {
-    page-break-inside: avoid;
-  }
-
-  tr {
-    page-break-inside: avoid;
-    page-break-after: auto;
-  }
+  table { page-break-inside: avoid; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
 }
 
-/* ==========================================================================
-   20. GPU Compositing & DOM Render Optimization
-   ========================================================================== */
+/* GPU Compositing */
 #nationalGovMasthead {
   transform: translateZ(0);
   backface-visibility: hidden;
   will-change: transform;
 }
 
-/* Unified Admin & Portal Sidebar Navigation Items */
 .sidebar-nav-item {
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ============================================================
+   MASTER LEDGER - ZEBRA STRIPING & BASE ROW STYLES
+   ============================================================ */
+#masterLedgerTableBody tr:nth-child(even) { background-color: #F8FAFC !important; }
+#masterLedgerTableBody tr:nth-child(odd)  { background-color: #FFFFFF !important; }
+#masterLedgerTableBody tr:hover           { background-color: #EFF6FF !important; transition: background 0.12s ease; }
 
-/* Master Ledger: Clean Zebra Striping */
-#masterLedgerTableBody tr:nth-child(even) {
-  background-color: #F8FAFC !important;
-}
-
-#masterLedgerTableBody tr:nth-child(odd) {
-  background-color: #FFFFFF !important;
-}
-
-#masterLedgerTableBody tr:hover {
-  background-color: #F1F5F9 !important;
-}
-
-/* Master Ledger: SHA hash in monospace gray text */
-#masterLedgerTableBody {
-  counter-reset: ledger-sha-counter;
-}
-
-#masterLedgerTableBody tr {
-  counter-increment: ledger-sha-counter;
-}
-
+/* NOTE: SHA-256 hash chips are rendered by JS (hash-chip class). */
+/* The legacy CSS ::after pseudo-element was removed to prevent conflict with real hashes. */
 #masterLedgerTableBody td:first-child {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   color: #0F172A !important;
   font-weight: 600 !important;
 }
 
-#masterLedgerTableBody td:first-child::after {
-  content: "SHA: 7f8a" counter(ledger-sha-counter, decimal-leading-zero) "b3...e49c";
-  display: block;
+/* Real SHA-256 chip — rendered by admin.js */
+.hash-chip {
+  display: inline-block;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 10px;
-  color: #94A3B8;
-  font-weight: 400;
-  margin-top: 2px;
-  letter-spacing: -0.01em;
-}
-
-/* Strict Color Palette for Violation Bars: ONLY emerald, amber, red, indigo */
-#analyticsViolationBarsContainer .bg-blue-500 {
-  background-color: #6366F1 !important; /* Indigo */
-}
-#analyticsViolationBarsContainer .text-blue-600 {
-  color: #4F46E5 !important;
-}
-
-#analyticsViolationBarsContainer .bg-purple-500 {
-  background-color: #10B981 !important; /* Emerald */
-}
-#analyticsViolationBarsContainer .text-purple-600 {
-  color: #059669 !important;
-}
-
-#analyticsViolationBarsContainer .bg-amber-500 {
-  background-color: #F59E0B !important; /* Amber */
-}
-#analyticsViolationBarsContainer .text-amber-600 {
-  color: #D97706 !important;
-}
-
-#analyticsViolationBarsContainer .bg-red-500 {
-  background-color: #EF4444 !important; /* Red */
-}
-#analyticsViolationBarsContainer .text-red-600 {
-  color: #DC2626 !important;
-}
-
-/* Analytics Trend Badges */
-.trend-up {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: 9.5px;
   color: #059669;
-  background-color: #ECFDF5;
-  padding: 0.15rem 0.45rem;
-  border-radius: 9999px;
+  font-weight: 600;
+  margin-top: 3px;
+  letter-spacing: -0.01em;
+  background: #F0FDF4;
   border: 1px solid #A7F3D0;
+  border-radius: 4px;
+  padding: 1px 6px;
+  width: fit-content;
+  cursor: help;
+  transition: background 0.12s;
+}
+.hash-chip:hover { background: #DCFCE7; border-color: #6EE7B7; }
+.hash-chip.computing { color: #92400E; background: #FFFBEB; border-color: #FCD34D; }
+
+/* ============================================================
+   MASTER LEDGER - ENTERPRISE COMMAND BAR
+   ============================================================ */
+.ledger-command-bar {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 55%, #0F172A 100%);
+  border-radius: 14px;
+  padding: 20px 24px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
-.trend-neutral {
+.ledger-command-bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #10B981, #3B82F6, #8B5CF6, #10B981);
+  background-size: 200% 100%;
+  animation: ledger-stripe-flow 4s linear infinite;
+}
+
+@keyframes ledger-stripe-flow {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+.ledger-command-bar::after {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   MASTER LEDGER - FILTER RAIL
+   ============================================================ */
+.ledger-filter-rail {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.04);
+}
+
+.ledger-filter-rail select,
+.ledger-filter-rail input[type=text],
+.ledger-filter-rail input[type=date] {
+  height: 34px;
+  font-size: 12px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #F8FAFC;
+  color: #334155;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+
+.ledger-filter-rail select:focus,
+.ledger-filter-rail input[type=text]:focus,
+.ledger-filter-rail input[type=date]:focus {
+  border-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+  background: #FFFFFF;
+}
+
+.ledger-filter-divider {
+  width: 1px;
+  height: 22px;
+  background: #E2E8F0;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   MASTER LEDGER - SUMMARY STAT STRIP
+   ============================================================ */
+.ledger-stat-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.ledger-stat-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.6875rem;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
   font-weight: 600;
-  color: #4F46E5;
-  background-color: #EEF2FF;
-  padding: 0.15rem 0.45rem;
-  border-radius: 9999px;
-  border: 1px solid #C7D2FE;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
+  user-select: none;
 }
 
-.trend-warn {
+.ledger-stat-chip:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+
+.ledger-stat-chip.chip-all       { background:#EFF6FF; color:#1D4ED8; border-color:#BFDBFE; }
+.ledger-stat-chip.chip-compliant { background:#ECFDF5; color:#065F46; border-color:#A7F3D0; }
+.ledger-stat-chip.chip-pending   { background:#FFFBEB; color:#92400E; border-color:#FDE68A; }
+.ledger-stat-chip.chip-notice    { background:#FEF3C7; color:#B45309; border-color:#FCD34D; }
+.ledger-stat-chip.chip-dismissed { background:#F1F5F9; color:#475569; border-color:#CBD5E1; }
+.ledger-stat-chip.chip-escalated { background:#FFF1F2; color:#9F1239; border-color:#FECDD3; }
+.ledger-stat-chip.chip-active    { box-shadow: 0 0 0 2.5px currentColor; font-weight: 700; }
+
+/* ============================================================
+   MASTER LEDGER - ENTERPRISE TABLE
+   ============================================================ */
+.ledger-table-wrapper {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 8px rgba(15,23,42,0.06);
+}
+
+.ledger-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ledger-table {
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+.ledger-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: #F8FAFC;
+}
+
+.ledger-table thead tr { border-bottom: 2px solid #E2E8F0; }
+
+.ledger-table thead th {
+  padding: 11px 14px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+  color: #64748B;
+  white-space: nowrap;
+  transition: color 0.14s, background 0.14s;
+}
+
+.ledger-table thead th.sortable { cursor: pointer; user-select: none; }
+.ledger-table thead th.sortable:hover { color: #0F172A; background: #F1F5F9; }
+.ledger-table thead th.sort-active { color: #10B981; background: #ECFDF5; }
+
+.sort-icon {
+  display: inline-block;
+  margin-left: 4px;
+  opacity: 0.3;
+  font-size: 9px;
+  vertical-align: middle;
+  transition: opacity 0.12s;
+}
+
+.sort-active .sort-icon { opacity: 1; color: #059669; }
+
+.ledger-table tbody tr { border-bottom: 1px solid #F1F5F9; transition: background 0.1s; }
+.ledger-table tbody td { padding: 10px 14px; vertical-align: middle; }
+
+/* ============================================================
+   MASTER LEDGER - 6-STATE STATUS BADGE SYSTEM
+   ============================================================ */
+.ledger-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: #D97706;
-  background-color: #FFFBEB;
-  padding: 0.15rem 0.45rem;
-  border-radius: 9999px;
-  border: 1px solid #FDE68A;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  border: 1px solid transparent;
 }
 
-/* ==========================================================================
-   19. Ultra-Refined Left Navigation Sidebar (GovTech Modern Executive System)
-   ========================================================================== */
+.ledger-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ledger-badge.badge-compliant  { background:#ECFDF5; color:#065F46; border-color:#A7F3D0; }
+.ledger-badge.badge-compliant::before  { background:#10B981; }
+.ledger-badge.badge-pending    { background:#FFFBEB; color:#92400E; border-color:#FCD34D; }
+.ledger-badge.badge-pending::before    { background:#F59E0B; animation:pulse-dot 2s infinite; }
+.ledger-badge.badge-notice     { background:#FEF3C7; color:#B45309; border-color:#FDE68A; }
+.ledger-badge.badge-notice::before     { background:#D97706; }
+.ledger-badge.badge-dismissed  { background:#F1F5F9; color:#475569; border-color:#CBD5E1; }
+.ledger-badge.badge-dismissed::before  { background:#94A3B8; }
+.ledger-badge.badge-escalated  { background:#FFF1F2; color:#9F1239; border-color:#FECDD3; }
+.ledger-badge.badge-escalated::before  { background:#F43F5E; animation:pulse-dot 1.5s infinite; }
+.ledger-badge.badge-processing { background:#EFF6FF; color:#1E40AF; border-color:#BFDBFE; }
+.ledger-badge.badge-processing::before { background:#3B82F6; animation:pulse-dot 1.2s infinite; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity:1; }
+  50%       { opacity:0.35; }
+}
+
+/* ============================================================
+   MASTER LEDGER - ROW ACTION BUTTONS
+   ============================================================ */
+.ledger-row-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 7px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.ledger-row-action.action-sheet   { background:#F1F5F9; color:#475569; border-color:#CBD5E1; }
+.ledger-row-action.action-sheet:hover { background:#E2E8F0; color:#0F172A; }
+.ledger-row-action.action-inspect { background:#EFF6FF; color:#1D4ED8; border-color:#BFDBFE; }
+.ledger-row-action.action-inspect:hover { background:#DBEAFE; color:#1E40AF; box-shadow:0 2px 6px rgba(59,130,246,0.2); }
+
+/* ============================================================
+   MASTER LEDGER - PAGINATION
+   ============================================================ */
+.ledger-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #F8FAFC;
+  border-top: 1px solid #E2E8F0;
+}
+
+.ledger-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px; height: 30px;
+  padding: 0 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.12s;
+  user-select: none;
+}
+
+.ledger-page-btn:hover:not(:disabled) { background:#10B981; border-color:#10B981; color:#FFF; box-shadow:0 2px 6px rgba(16,185,129,0.3); }
+.ledger-page-btn.page-active          { background:#10B981; border-color:#059669; color:#FFF; box-shadow:0 2px 6px rgba(16,185,129,0.25); }
+.ledger-page-btn:disabled             { opacity:0.35; cursor:not-allowed; }
+
+/* ============================================================
+   MASTER LEDGER - INSPECT DRAWER (Slide-In)
+   ============================================================ */
+#ledgerInspectDrawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 520px;
+  max-width: 100vw;
+  background: #FFFFFF;
+  z-index: 9999;
+  transform: translateX(110%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -8px 0 40px rgba(15,23,42,0.18);
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #E2E8F0;
+  overflow: hidden;
+}
+
+#ledgerInspectDrawer.drawer-open { transform: translateX(0); }
+
+.drawer-header {
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid #1E293B;
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  flex-shrink: 0;
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 22px;
+  scroll-behavior: smooth;
+}
+
+.drawer-footer {
+  padding: 14px 22px;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  background: #F8FAFC;
+}
+
+#ledgerDrawerBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.45);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+#ledgerDrawerBackdrop.backdrop-visible { opacity:1; pointer-events:all; }
+
+/* Audit Timeline */
+.audit-trail-timeline { position:relative; padding-left:20px; }
+.audit-trail-timeline::before {
+  content:'';
+  position:absolute;
+  left:6px; top:6px; bottom:0;
+  width:2px;
+  background:linear-gradient(to bottom, #10B981, #E2E8F0);
+  border-radius:2px;
+}
+
+.audit-event { position:relative; margin-bottom:16px; }
+.audit-event::before {
+  content:'';
+  position:absolute;
+  left:-17px; top:5px;
+  width:10px; height:10px;
+  border-radius:50%;
+  border:2px solid #FFF;
+  box-shadow:0 0 0 2px #10B981;
+  background:#10B981;
+  z-index:1;
+}
+
+.audit-event.event-warn::before    { background:#F59E0B; box-shadow:0 0 0 2px #F59E0B; }
+.audit-event.event-danger::before  { background:#EF4444; box-shadow:0 0 0 2px #EF4444; }
+.audit-event.event-info::before    { background:#3B82F6; box-shadow:0 0 0 2px #3B82F6; }
+.audit-event.event-neutral::before { background:#94A3B8; box-shadow:0 0 0 2px #94A3B8; }
+
+/* Violation Items */
+.violation-item {
+  display:flex; align-items:flex-start; gap:8px;
+  padding:9px 12px;
+  background:#FFF7F7; border:1px solid #FECACA;
+  border-radius:8px; border-left:4px solid #EF4444;
+  margin-bottom:6px;
+}
+.violation-item-text { font-size:11.5px; color:#7F1D1D; font-weight:500; line-height:1.4; }
+
+/* Drawer Fields */
+.drawer-field-group { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.drawer-field       { background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:9px 12px; }
+.drawer-field.span-full { grid-column: 1 / -1; }
+.drawer-field-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#94A3B8; margin-bottom:3px; }
+.drawer-field-value { font-size:12.5px; font-weight:600; color:#0F172A; }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.ledger-empty-state { text-align:center; padding:60px 24px; color:#94A3B8; }
+.ledger-empty-icon  { font-size:40px; margin-bottom:12px; opacity:0.6; }
+.ledger-empty-title { font-size:14px; font-weight:700; color:#475569; margin-bottom:5px; }
+.ledger-empty-sub   { font-size:12px; color:#94A3B8; max-width:320px; margin:0 auto; line-height:1.5; }
+
+/* ============================================================
+   ANALYTICS BARS - STRICT 4-COLOR PALETTE
+   ============================================================ */
+#analyticsViolationBarsContainer .bg-blue-500   { background-color:#6366F1 !important; }
+#analyticsViolationBarsContainer .text-blue-600 { color:#4F46E5 !important; }
+#analyticsViolationBarsContainer .bg-purple-500   { background-color:#10B981 !important; }
+#analyticsViolationBarsContainer .text-purple-600 { color:#059669 !important; }
+#analyticsViolationBarsContainer .bg-amber-500   { background-color:#F59E0B !important; }
+#analyticsViolationBarsContainer .text-amber-600 { color:#D97706 !important; }
+#analyticsViolationBarsContainer .bg-red-500   { background-color:#EF4444 !important; }
+#analyticsViolationBarsContainer .text-red-600 { color:#DC2626 !important; }
+
+.trend-up      { display:inline-flex;align-items:center;gap:.25rem;font-size:.6875rem;font-weight:600;color:#059669;background:#ECFDF5;padding:.15rem .45rem;border-radius:9999px;border:1px solid #A7F3D0; }
+.trend-neutral { display:inline-flex;align-items:center;gap:.25rem;font-size:.6875rem;font-weight:600;color:#4F46E5;background:#EEF2FF;padding:.15rem .45rem;border-radius:9999px;border:1px solid #C7D2FE; }
+.trend-warn    { display:inline-flex;align-items:center;gap:.25rem;font-size:.6875rem;font-weight:600;color:#D97706;background:#FFFBEB;padding:.15rem .45rem;border-radius:9999px;border:1px solid #FDE68A; }
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
 .sidebar-container {
   background: #ffffff;
   border-right: 1px solid #e2e8f0;
@@ -194,4 +511,726 @@ body.theme-dark .sidebar-container {
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 4px 0 24px -2px rgba(0, 0, 0, 0.25);
 }
-
+
+/* ============================================================
+   ENTERPRISE ADMIN OVERSIGHT MODULE ENHANCEMENTS
+   ============================================================ */
+.kpi-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 16px 18px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08);
+}
+
+.dark .kpi-card,
+body.theme-dark .kpi-card {
+  background: #0F172A;
+  border-color: #1E293B;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dark .kpi-card p,
+body.theme-dark .kpi-card p {
+  color: #F8FAFC;
+}
+
+/* Zone Summary Cards */
+.zone-summary-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+}
+
+.zone-summary-card:hover:not(.zone-card-locked) {
+  border-color: #10B981;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.12);
+}
+
+.zone-card-active {
+  border-color: #10B981 !important;
+  background: #F0FDF4 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
+}
+
+.zone-card-locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #F8FAFC;
+}
+
+.dark .zone-summary-card,
+body.theme-dark .zone-summary-card {
+  background: #0F172A;
+  border-color: #1E293B;
+}
+
+.dark .zone-card-active,
+body.theme-dark .zone-card-active {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border-color: #10B981 !important;
+}
+
+/* Activity Feed Items */
+.feed-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  transition: background 0.15s ease;
+}
+
+.feed-item:hover {
+  background: #F8FAFC;
+}
+
+.dark .feed-item:hover,
+body.theme-dark .feed-item:hover {
+  background: #1E293B;
+}
+
+.feed-dot-wrap {
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.feed-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.feed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.feed-badge-compliant  { background: #ECFDF5; color: #047857; }
+.feed-badge-pending    { background: #FFFBEB; color: #B45309; }
+.feed-badge-notice     { background: #FEF3C7; color: #92400E; }
+.feed-badge-dismissed  { background: #F1F5F9; color: #475569; }
+.feed-badge-escalated  { background: #FFF1F2; color: #BE123C; }
+
+/* System Health Metrics */
+.health-metric {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  font-size: 11.5px;
+  border: 1px solid #F1F5F9;
+}
+
+.dark .health-metric,
+body.theme-dark .health-metric {
+  background: #1E293B;
+  border-color: #334155;
+  color: #E2E8F0;
+}
+
+.health-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 8px;
+  display: inline-block;
+}
+
+.health-label {
+  font-weight: 600;
+  color: #64748B;
+  flex: 1;
+}
+
+.dark .health-label,
+body.theme-dark .health-label {
+  color: #94A3B8;
+}
+
+.health-value {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.dark .health-value,
+body.theme-dark .health-value {
+  color: #F8FAFC;
+}
+
+/* Zone Analytics Bar Row */
+.zone-analytics-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.zone-analytics-label {
+  width: 80px;
+  font-weight: 700;
+  color: #334155;
+  flex-shrink: 0;
+}
+
+.dark .zone-analytics-label,
+body.theme-dark .zone-analytics-label {
+  color: #CBD5E1;
+}
+
+.zone-analytics-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: #F1F5F9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dark .zone-analytics-bar-wrap,
+body.theme-dark .zone-analytics-bar-wrap {
+  background: #1E293B;
+}
+
+.zone-analytics-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zone-analytics-meta {
+  width: 85px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* Chart Animations */
+.chart-bar-anim {
+  transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================
+   DARK MODE OVERRIDES FOR MASTER LEDGER & ADMIN OVERSIGHT
+   ============================================================ */
+body.theme-dark .ledger-filter-rail,
+html.dark .ledger-filter-rail {
+  background: #0F172A !important;
+  border-color: #1E293B !important;
+  color: #F8FAFC !important;
+}
+
+body.theme-dark .ledger-filter-rail select,
+body.theme-dark .ledger-filter-rail input[type=text],
+body.theme-dark .ledger-filter-rail input[type=date],
+html.dark .ledger-filter-rail select,
+html.dark .ledger-filter-rail input[type=text],
+html.dark .ledger-filter-rail input[type=date] {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+body.theme-dark .ledger-filter-divider,
+html.dark .ledger-filter-divider {
+  background: #334155 !important;
+}
+
+body.theme-dark .ledger-table-wrapper,
+html.dark .ledger-table-wrapper {
+  background: #0F172A !important;
+  border-color: #1E293B !important;
+}
+
+body.theme-dark .ledger-table thead,
+html.dark .ledger-table thead {
+  background: #0B1120 !important;
+}
+
+body.theme-dark .ledger-table thead tr,
+html.dark .ledger-table thead tr {
+  border-bottom-color: #1E293B !important;
+}
+
+body.theme-dark .ledger-table thead th,
+html.dark .ledger-table thead th {
+  color: #94A3B8 !important;
+}
+
+body.theme-dark #masterLedgerTableBody tr:nth-child(even),
+html.dark #masterLedgerTableBody tr:nth-child(even) {
+  background-color: #0F172A !important;
+}
+
+body.theme-dark #masterLedgerTableBody tr:nth-child(odd),
+html.dark #masterLedgerTableBody tr:nth-child(odd) {
+  background-color: #0B1120 !important;
+}
+
+body.theme-dark #masterLedgerTableBody tr:hover,
+html.dark #masterLedgerTableBody tr:hover {
+  background-color: #1E293B !important;
+}
+
+body.theme-dark #masterLedgerTableBody td,
+html.dark #masterLedgerTableBody td {
+  border-bottom-color: #1E293B !important;
+  color: #E2E8F0 !important;
+}
+
+body.theme-dark .ledger-pagination,
+html.dark .ledger-pagination {
+  background: #0B1120 !important;
+  border-top-color: #1E293B !important;
+  color: #94A3B8 !important;
+}
+
+body.theme-dark .ledger-page-btn,
+html.dark .ledger-page-btn {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+body.theme-dark #ledgerInspectDrawer,
+html.dark #ledgerInspectDrawer {
+  background: #0F172A !important;
+  border-left-color: #1E293B !important;
+  color: #F8FAFC !important;
+}
+
+body.theme-dark .drawer-body,
+html.dark .drawer-body {
+  background: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
+body.theme-dark .drawer-footer,
+html.dark .drawer-footer {
+  background: #0B1120 !important;
+  border-top-color: #1E293B !important;
+}
+
+body.theme-dark .drawer-field,
+html.dark .drawer-field {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+body.theme-dark .drawer-field-value,
+html.dark .drawer-field-value {
+  color: #F8FAFC !important;
+}
+
+/* ============================================================
+   NEW: KPI COUNT-UP & TREND ANIMATIONS
+   ============================================================ */
+@keyframes kpi-count-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.kpi-count-animate {
+  animation: kpi-count-up 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.kpi-trend-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.kpi-trend-delta.up   { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+.kpi-trend-delta.down { background: #FFF1F2; color: #BE123C; border: 1px solid #FECDD3; }
+.kpi-trend-delta.flat { background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1; }
+
+/* ============================================================
+   NEW: AUTO-REFRESH COUNTDOWN INDICATOR
+   ============================================================ */
+.auto-refresh-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+.auto-refresh-ring svg.progress-ring { transform: rotate(-90deg); }
+.auto-refresh-ring .ring-track { stroke: #E2E8F0; fill: none; }
+.auto-refresh-ring .ring-fill  { stroke: #10B981; fill: none; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+
+/* ============================================================
+   NEW: BAR CHART TOOLTIPS
+   ============================================================ */
+.chart-bar-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0F172A;
+  color: #F8FAFC;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.chart-bar-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #0F172A;
+}
+.chart-bar-group:hover .chart-bar-tooltip { opacity: 1; }
+.chart-bar-group { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1.5px; }
+
+/* ============================================================
+   NEW: ACTIVITY FEED FILTER CHIPS
+   ============================================================ */
+.feed-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid #E2E8F0;
+  background: #F8FAFC;
+  color: #64748B;
+  transition: all 0.14s;
+  user-select: none;
+}
+.feed-filter-chip:hover { border-color: #94A3B8; color: #0F172A; }
+.feed-filter-chip.active {
+  background: #0F172A;
+  color: #F8FAFC;
+  border-color: #0F172A;
+  box-shadow: 0 2px 6px rgba(15,23,42,0.15);
+}
+.dark .feed-filter-chip, body.theme-dark .feed-filter-chip {
+  background: #1E293B; border-color: #334155; color: #94A3B8;
+}
+.dark .feed-filter-chip.active, body.theme-dark .feed-filter-chip.active {
+  background: #10B981; border-color: #059669; color: #FFF;
+}
+
+/* ============================================================
+   NEW: SYSTEM HEALTH PROGRESS BARS
+   ============================================================ */
+.health-metric-enhanced {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  transition: background 0.15s;
+}
+.health-metric-enhanced:hover { background: #F1F5F9; }
+.dark .health-metric-enhanced, body.theme-dark .health-metric-enhanced {
+  background: #1E293B; border-color: #334155;
+}
+.health-progress-wrap {
+  height: 5px;
+  background: #E2E8F0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.dark .health-progress-wrap, body.theme-dark .health-progress-wrap { background: #334155; }
+.health-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.health-status-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.health-status-ok    { background: #10B981; }
+.health-status-warn  { background: #F59E0B; box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
+.health-status-error { background: #EF4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.2); animation: pulse-dot 1.2s infinite; }
+
+/* ============================================================
+   NEW: ANALYTICS PERIOD FILTER PILLS
+   ============================================================ */
+.analytics-period-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid #E2E8F0;
+  background: #F8FAFC;
+  color: #64748B;
+  transition: all 0.14s;
+  user-select: none;
+}
+.analytics-period-pill:hover { border-color: #10B981; color: #059669; background: #F0FDF4; }
+.analytics-period-pill.active {
+  background: #10B981;
+  color: #FFFFFF;
+  border-color: #059669;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.25);
+}
+.dark .analytics-period-pill, body.theme-dark .analytics-period-pill {
+  background: #1E293B; border-color: #334155; color: #94A3B8;
+}
+.dark .analytics-period-pill.active, body.theme-dark .analytics-period-pill.active {
+  background: #10B981; color: #FFF; border-color: #059669;
+}
+
+/* ============================================================
+   NEW: COMPLIANCE DELTA BADGE (Analytics Summary Card)
+   ============================================================ */
+.compliance-delta-card {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #0D2818 100%);
+  border-radius: 14px;
+  padding: 20px 24px;
+  border: 1px solid rgba(16,185,129,0.2);
+  position: relative;
+  overflow: hidden;
+}
+.compliance-delta-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #10B981, #3B82F6, #10B981);
+  background-size: 200% 100%;
+  animation: ledger-stripe-flow 4s linear infinite;
+}
+.compliance-delta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.compliance-delta-badge.up   { background: rgba(16,185,129,0.15); color: #34D399; border: 1px solid rgba(16,185,129,0.3); }
+.compliance-delta-badge.down { background: rgba(239,68,68,0.15);  color: #F87171; border: 1px solid rgba(239,68,68,0.3); }
+.compliance-delta-badge.flat { background: rgba(100,116,139,0.15); color: #94A3B8; border: 1px solid rgba(100,116,139,0.3); }
+
+/* ============================================================
+   NEW: ALERTS BANNER (Bottom-compliance zones)
+   ============================================================ */
+.analytics-alert-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  border-left: 4px solid #F97316;
+  font-size: 12px;
+}
+.analytics-alert-item.critical {
+  background: #FFF1F2;
+  border-color: #FECDD3;
+  border-left-color: #EF4444;
+}
+.analytics-alert-item.ok {
+  background: #F0FDF4;
+  border-color: #BBF7D0;
+  border-left-color: #10B981;
+}
+.dark .analytics-alert-item, body.theme-dark .analytics-alert-item {
+  background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.2);
+}
+
+/* ============================================================
+   NEW: INSPECTOR LEADERBOARD SEARCH & TOP BADGE
+   ============================================================ */
+.inspector-search-wrap {
+  position: relative;
+  max-width: 240px;
+}
+.inspector-search-wrap svg {
+  position: absolute;
+  left: 9px; top: 50%;
+  transform: translateY(-50%);
+  width: 13px; height: 13px;
+  color: #94A3B8;
+  pointer-events: none;
+}
+.inspector-search-wrap input {
+  width: 100%;
+  padding: 6px 10px 6px 30px;
+  font-size: 11.5px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  background: #F8FAFC;
+  color: #334155;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.14s, box-shadow 0.14s;
+}
+.inspector-search-wrap input:focus {
+  border-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+  background: #FFFFFF;
+}
+.dark .inspector-search-wrap input, body.theme-dark .inspector-search-wrap input {
+  background: #1E293B; border-color: #334155; color: #E2E8F0;
+}
+.inspector-top-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  color: #FFFFFF;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   NEW: VIOLATION BAR HOVER (clickable drill-down)
+   ============================================================ */
+.violation-bar-row {
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background 0.14s;
+}
+.violation-bar-row:hover {
+  background: #F8FAFC;
+}
+.dark .violation-bar-row:hover, body.theme-dark .violation-bar-row:hover {
+  background: #1E293B;
+}
+.violation-bar-row:hover .violation-drill-hint {
+  opacity: 1;
+}
+.violation-drill-hint {
+  font-size: 9.5px;
+  color: #10B981;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.14s;
+}
+
+/* ============================================================
+   NEW: LEDGER COPY CASE ID HOVER MICRO-ACTION
+   ============================================================ */
+.ledger-row:hover .copy-id-btn { opacity: 1; }
+.copy-id-btn {
+  opacity: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  color: #64748B;
+  font-size: 9px;
+  cursor: pointer;
+  transition: all 0.12s;
+  margin-left: 4px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.copy-id-btn:hover { background: #10B981; border-color: #059669; color: #FFF; }
+.dark .copy-id-btn, body.theme-dark .copy-id-btn {
+  background: #1E293B; border-color: #334155; color: #94A3B8;
+}
+
+/* ============================================================
+   NEW: SESSION UPTIME & LAST SYNCED BADGE
+   ============================================================ */
+.session-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #F0FDF4;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+  font-family: ui-monospace, monospace;
+}
+.dark .session-meta-pill, body.theme-dark .session-meta-pill {
+  background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #34D399;
+}
+.last-synced-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #94A3B8;
+  font-family: ui-monospace, monospace;
+}
+
+/* ============================================================
+   NEW: LEDGER BULK SELECT
+   ============================================================ */
+.ledger-bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1D4ED8;
+  transition: all 0.2s;
+}
+.dark .ledger-bulk-bar, body.theme-dark .ledger-bulk-bar {
+  background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.25); color: #93C5FD;
+}
+
+/* ============================================================
+   NEW: ZONE ANALYTICS ENHANCED (clickable cards with drill-down)
+   ============================================================ */
+.zone-analytics-row { cursor: pointer; border-radius: 8px; padding: 6px 8px; transition: background 0.13s; }
+.zone-analytics-row:hover { background: #F0FDF4; }
+.dark .zone-analytics-row:hover, body.theme-dark .zone-analytics-row:hover { background: rgba(16,185,129,0.07); }

@@ -424,8 +424,7 @@ details.faq-accordion[open] {
 
 /* Porcelain Gradient Canvas */
 .porcelain-canvas {
-  background-color: #F7F8FA;
-  background-image: radial-gradient(1200px circle at 50% 0%, #FFFFFF 0%, #F7F8FA 60%, #EEF2F6 100%);
+  background-color: transparent;
 }
 
 /* Clean Form Focus Ring */
@@ -677,4 +676,134 @@ details.faq-accordion[open] {
 #reportConfidenceProgressBar {
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
+
+
+
+
+/* ==========================================================================
+   5. UNIFIED SENIOR-LEVEL MODAL, DRAWER & OVERLAY DESIGN SYSTEM
+   ========================================================================== */
+
+/* Keyframe Animations for Modern Spring Entry & Sheet Slide */
+@keyframes modalZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes sheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawerSlideRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.modal-animate-in {
+  animation: modalZoomIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.sheet-animate-in {
+  animation: sheetSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.drawer-animate-in {
+  animation: drawerSlideRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Unified Translucent Backdrop: Subtle frosted glass, page stays visible */
+/* Unified Translucent Backdrop: Heavy glass blur, full background depth focus */
+.app-overlay-backdrop,
+[role="dialog"].fixed.inset-0,
+div[id*="Modal"].fixed.inset-0,
+div[id*="Drawer"].fixed.inset-0,
+div[id*="Overlay"].fixed.inset-0 {
+  backdrop-filter: blur(16px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+  transition: backdrop-filter 0.25s ease, -webkit-backdrop-filter 0.25s ease, opacity 0.25s ease;
+}
+
+body.theme-dark .app-overlay-backdrop,
+html.dark .app-overlay-backdrop {
+  background-color: rgba(2, 6, 23, 0.75) !important;
+  backdrop-filter: blur(20px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+}
+
+/* Lightbox Specific Translucent Backdrop */
+.lightbox-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: rgba(2, 6, 23, 0.88) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+}
+
+/* Prevent Background Page Scroll & Blur Background Elements When Overlay Active */
+body.modal-open,
+body.overflow-hidden {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+/* Universal Background Blur: Blurs the entire underlying interface layout (header, nav, page main body, tables, cards) when any popup is open */
+body.modal-open > *:not([role="dialog"]):not(#globalToastContainer):not([id*="Modal"]):not([id*="Overlay"]):not([id*="Drawer"]):not(.modal-exempt),
+body.overflow-hidden > *:not([role="dialog"]):not(#globalToastContainer):not([id*="Modal"]):not([id*="Overlay"]):not([id*="Drawer"]):not(.modal-exempt) {
+  filter: blur(8px) brightness(0.92) !important;
+  -webkit-filter: blur(8px) brightness(0.92) !important;
+  transition: filter 0.25s cubic-bezier(0.16, 1, 0.3, 1), -webkit-filter 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+/* Focus Ring & Styling for Close Buttons */
+.modal-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.625rem;
+  color: #94A3B8;
+  background: transparent;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.modal-close-btn:hover {
+  color: #0F172A;
+  background-color: #F1F5F9;
+  transform: scale(1.05);
+}
+
+body.theme-dark .modal-close-btn:hover,
+html.dark .modal-close-btn:hover {
+  color: #F8FAFC;
+  background-color: #1E293B;
+}
+
+.modal-close-btn:focus-visible {
+  outline: 2px solid #10B981;
+  outline-offset: 2px;
+}

@@ -1,34 +1,430 @@
 /* ==========================================================================
    METRO-CHECK - Inspector Portal Styles (css/inspector.css)
-   Contains camera scanner, AI extracted fields grid, & OCR overlays.
+   Premium senior-level UI — camera scanner, AI extracted fields, OCR overlays.
    ========================================================================== */
 
-/* Center Image Card: Indigo "OCR Overlay" Toggle */
+/* ─── Details/Summary Chevron Animation ──────────────────────────── */
+details[open] summary .group-open\:rotate-180,
+details[open] > summary .transition-transform {
+  transform: rotate(180deg);
+}
+
+/* ─── OCR Focus Toggle Button ─────────────────────────────────────── */
 #btnToggleOcrFocus {
   background-color: #EEF2FF !important;
   color: #4F46E5 !important;
   border: 1px solid #C7D2FE !important;
   transition: all 0.15s ease !important;
 }
-
 #btnToggleOcrFocus:hover {
   background-color: #E0E7FF !important;
   border-color: #A5B4FC !important;
   color: #4338CA !important;
 }
-
 #reviewExtractedCard.ring-amber-400 {
   --tw-ring-color: #6366F1 !important;
   background-color: rgba(238, 242, 255, 0.4) !important;
 }
-
 #ocrFocusIndicator {
   background-color: #EEF2FF !important;
   color: #4F46E5 !important;
   border-color: #C7D2FE !important;
 }
-
 .ocr-field-row.bg-amber-100\/70 {
   background-color: #EEF2FF !important;
   border-color: #C7D2FE !important;
+}
+
+
+/* ─── Camera Viewfinder – Idle Placeholder ────────────────────────── */
+.viewfinder-idle-state {
+  background: radial-gradient(ellipse at 40% 30%, rgba(16,185,129,0.06) 0%, transparent 65%),
+              radial-gradient(ellipse at 70% 70%, rgba(20,184,166,0.05) 0%, transparent 60%),
+              linear-gradient(145deg, #0B1120 0%, #0F172A 50%, #080D1A 100%);
+  position: relative;
+}
+.viewfinder-idle-state::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(16,185,129,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+/* ─── Camera Icon SVG Container ───────────────────────────────────── */
+.camera-icon-orb {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(20,184,166,0.08) 100%);
+  border: 1px solid rgba(16,185,129,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 0 0 8px rgba(16,185,129,0.05), 0 8px 32px rgba(0,0,0,0.4);
+  animation: orb-breathe 3s ease-in-out infinite;
+}
+@keyframes orb-breathe {
+  0%, 100% { box-shadow: 0 0 0 8px rgba(16,185,129,0.05), 0 8px 32px rgba(0,0,0,0.4); }
+  50%       { box-shadow: 0 0 0 14px rgba(16,185,129,0.08), 0 8px 40px rgba(16,185,129,0.12); }
+}
+
+/* ─── Start Camera CTA Button ─────────────────────────────────────── */
+.btn-start-camera {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 24px;
+  background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #059669 100%);
+  background-size: 200% 100%;
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  border-radius: 14px;
+  border: 1px solid rgba(16,185,129,0.5);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 0 0 rgba(16,185,129,0), 0 4px 16px rgba(0,0,0,0.35);
+  overflow: hidden;
+}
+.btn-start-camera::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer-slide 2.5s infinite;
+}
+@keyframes shimmer-slide {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.btn-start-camera:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 4px rgba(16,185,129,0.2), 0 8px 24px rgba(16,185,129,0.25);
+  background-position: 100% 0;
+}
+.btn-start-camera:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 0 0 2px rgba(16,185,129,0.15), 0 2px 8px rgba(0,0,0,0.3);
+}
+.btn-start-camera .pulse-ring {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-center: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.btn-start-camera .pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(16,185,129,0.6);
+  animation: ring-pulse 1.8s ease-out infinite;
+}
+@keyframes ring-pulse {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* ─── Segmented Mode Tab Control ──────────────────────────────────── */
+.mode-tab-group {
+  display: flex;
+  padding: 3px;
+  background: rgba(15,23,42,0.06);
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.07);
+  gap: 2px;
+  position: relative;
+}
+.dark .mode-tab-group {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.07);
+}
+.mode-tab-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #64748B;
+  border: none;
+  background: transparent;
+}
+.mode-tab-btn.active {
+  background: #fff;
+  color: #0F172A;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
+  font-weight: 700;
+}
+.dark .mode-tab-btn.active {
+  background: #1e293b;
+  color: #f1f5f9;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.3);
+}
+.mode-tab-btn:not(.active):hover { color: #0F172A; }
+.dark .mode-tab-btn:not(.active):hover { color: #e2e8f0; }
+
+/* ─── Camera Shutter Button ───────────────────────────────────────── */
+.btn-shutter {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #0d9488);
+  border: 3px solid rgba(255,255,255,0.25);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.3), 0 4px 16px rgba(16,185,129,0.4);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  flex-shrink: 0;
+}
+.btn-shutter:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 6px rgba(16,185,129,0.2), 0 8px 24px rgba(16,185,129,0.5);
+}
+.btn-shutter:active {
+  transform: scale(0.93);
+  box-shadow: 0 0 0 2px rgba(16,185,129,0.2);
+}
+
+/* ─── Icon-Only Camera Action Buttons ─────────────────────────────── */
+.cam-icon-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+  border: 1px solid;
+}
+.cam-icon-btn.flip {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  color: #94a3b8;
+}
+.cam-icon-btn.flip:hover {
+  background: rgba(255,255,255,0.12);
+  color: #e2e8f0;
+  transform: rotate(15deg);
+}
+.cam-icon-btn.stop {
+  background: rgba(239,68,68,0.1);
+  border-color: rgba(239,68,68,0.25);
+  color: #f87171;
+}
+.cam-icon-btn.stop:hover {
+  background: rgba(239,68,68,0.2);
+  color: #fca5a5;
+  transform: scale(1.08);
+}
+
+/* ─── Panel Thumbnail Cards ───────────────────────────────────────── */
+.panel-thumb-card {
+  border-radius: 14px;
+  border: 1.5px solid;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+  position: relative;
+}
+.panel-thumb-card:hover {
+  border-color: #10b981 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(16,185,129,0.15);
+}
+.panel-thumb-card.active-panel {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.18), 0 4px 16px rgba(16,185,129,0.2);
+}
+
+/* ─── Upload Drop Zone Cards ──────────────────────────────────────── */
+.upload-slot-card {
+  border-radius: 16px;
+  border: 1.5px dashed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 14px 8px;
+  text-align: center;
+  gap: 6px;
+}
+.upload-slot-card:hover {
+  border-color: #10b981 !important;
+  background: rgba(16,185,129,0.04);
+  transform: translateY(-1px);
+}
+
+/* ─── AI Scan CTA Button ──────────────────────────────────────────── */
+.btn-ai-scan-premium {
+  position: relative;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 22px;
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.25;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  overflow: hidden;
+  letter-spacing: 0.015em;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Enabled state - Deep Emerald Gradient with 7.5:1 WCAG contrast */
+.btn-ai-scan-premium:not(:disabled) {
+  background: linear-gradient(135deg, #047857 0%, #0f766e 50%, #047857 100%) !important;
+  background-size: 200% 100%;
+  color: #ffffff !important;
+  border: 1px solid rgba(52, 211, 153, 0.4) !important;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35), 0 0 0 0 rgba(16, 185, 129, 0);
+  opacity: 1 !important;
+}
+
+.btn-ai-scan-premium:not(:disabled):hover {
+  background-position: 100% 0 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(16, 185, 129, 0.45), 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.btn-ai-scan-premium:not(:disabled):active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Disabled state - Solid High-Contrast Neutral Slate (WCAG Compliant) */
+.btn-ai-scan-premium:disabled {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.dark .btn-ai-scan-premium:disabled {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+  border: 1px solid #334155 !important;
+}
+
+.btn-ai-scan-premium::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  background-size: 200% 100%;
+  pointer-events: none;
+}
+
+.btn-ai-scan-premium:not(:disabled)::before {
+  animation: shimmer-slide 2.5s infinite;
+}
+
+/* ─── Status Chip ─────────────────────────────────────────────────── */
+.ocr-status-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px; font-weight: 700;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  letter-spacing: 0.04em;
+  border: 1px solid;
+}
+.ocr-status-chip.ready {
+  background: rgba(16,185,129,0.08);
+  border-color: rgba(16,185,129,0.3);
+  color: #059669;
+}
+.dark .ocr-status-chip.ready {
+  background: rgba(16,185,129,0.12);
+  border-color: rgba(16,185,129,0.3);
+  color: #34d399;
+}
+.ocr-status-chip.active {
+  background: rgba(245,158,11,0.1);
+  border-color: rgba(245,158,11,0.35);
+  color: #d97706;
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+@keyframes pulse-badge {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+/* ─── Reticle Corner Refinements ────────────────────────────── */
+.reticle-corner {
+  position: absolute;
+  width: 20px; height: 20px;
+  border-color: #10b981;
+  border-style: solid;
+  opacity: 0.9;
+}
+.reticle-corner-tl { top: 12px; left: 12px; border-width: 2.5px 0 0 2.5px; border-radius: 4px 0 0 0; }
+.reticle-corner-tr { top: 12px; right: 12px; border-width: 2.5px 2.5px 0 0; border-radius: 0 4px 0 0; }
+.reticle-corner-bl { bottom: 12px; left: 12px; border-width: 0 0 2.5px 2.5px; border-radius: 0 0 0 4px; }
+.reticle-corner-br { bottom: 12px; right: 12px; border-width: 0 2.5px 2.5px 0; border-radius: 0 0 4px 0; }
+
+/* ─── Scanner Laser Line ─────────────────────────────────── */
+.scanner-laser-line {
+  position: absolute;
+  left: 20px; right: 20px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, #10b981, #34d399, #10b981, transparent);
+  border-radius: 999px;
+  animation: laser-scan 2.5s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(16,185,129,0.6);
+  pointer-events: none;
+}
+@keyframes laser-scan {
+  0%   { top: 20%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 80%; opacity: 0; }
+}
+
+/* ─── AI Detection Box (Viewfinder overlay labels) ───────────────── */
+.ai-detection-box {
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+  letter-spacing: 0.04em;
+  animation: detection-blink 3s ease-in-out infinite;
+}
+@keyframes detection-blink {
+  0%, 90%, 100% { opacity: 0.85; border-color: rgba(16,185,129,0.3); }
+  45%            { opacity: 1;    border-color: rgba(16,185,129,0.6); }
+}
+
+/* ─── Misc ────────────────────────────────────────────────────────── */
+.panel-badge-chip {
+  display: inline-flex; align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 9px; font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.05em;
 }

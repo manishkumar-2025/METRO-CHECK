@@ -7,6 +7,8 @@ process.env.NODE_ENV = "test";
 const assert = require("assert");
 const http = require("http");
 
+const TEST_PORT = parseInt(process.env.TEST_PORT || "3000", 10);
+
 console.log("==========================================================================");
 console.log("🧪 RUNNING AUTOMATED METRO-CHECK INTEGRATION & SECURITY TEST SUITE");
 console.log("==========================================================================");
@@ -72,11 +74,26 @@ function makeHttpRequest(options, postData) {
 }
 
 async function runApiTests() {
+  let serverInstance = null;
+  try {
+    const app = require("../server/server.js");
+    serverInstance = await new Promise((resolve) => {
+      const s = app.listen(TEST_PORT, () => resolve(s));
+      s.on("error", (err) => {
+        if (err.code === "EADDRINUSE") {
+          resolve(null);
+        }
+      });
+    });
+  } catch (e) {
+    // Proceed if server is already running externally
+  }
+
   try {
     // 2. HTTP Health API Endpoint Integration Test
     const health = await makeHttpRequest({
       hostname: "localhost",
-      port: 3000,
+      port: TEST_PORT,
       path: "/api/health",
       method: "GET"
     });
@@ -87,7 +104,7 @@ async function runApiTests() {
     // 2b. Operational Portals RBAC & Unauthenticated Redirect Tests
     const unauthPortalRes = await makeHttpRequest({
       hostname: "localhost",
-      port: 3000,
+      port: TEST_PORT,
       path: "/inspector.html",
       method: "GET"
     });
@@ -98,7 +115,7 @@ async function runApiTests() {
     // 2c. Authenticate Officer Session for Authorized Adjudication Workflow
     const officerAuthRes = await makeHttpRequest({
       hostname: "localhost",
-      port: 3000,
+      port: TEST_PORT,
       path: "/api/auth/login",
       method: "POST",
       headers: { "Content-Type": "application/json" }
@@ -113,7 +130,7 @@ async function runApiTests() {
     // 2d. Role-Based Access Control: Officer Denied Access to Admin Command Center
     const officerAdminDeny = await makeHttpRequest({
       hostname: "localhost",
-      port: 3000,
+      port: TEST_PORT,
       path: "/admin.html",
       method: "GET",
       headers: { Cookie: officerCookie }
@@ -154,7 +171,7 @@ async function runApiTests() {
 
     const postRes = await makeHttpRequest({
       hostname: "localhost",
-      port: 3000,
+      port: TEST_PORT,
       path: "/api/inspections",
       method: "POST",
       headers: {
@@ -170,7 +187,7 @@ async function runApiTests() {
     // 4. Inspection Status Lifecycle: Transition to UNDER_REVIEW
     const underReviewRes = await makeHttpRequest({
       hostname: "localhost",
-      port: 3000,
+      port: TEST_PORT,
       path: `/api/inspections/${encodeURIComponent(dynamicCaseId)}/status`,
       method: "PATCH",
       headers: {
@@ -189,7 +206,7 @@ async function runApiTests() {
     // 4b. Inspection Status Lifecycle: Adjudication to NOTICE_ISSUED
     const adjudicationRes = await makeHttpRequest({
       hostname: "localhost",
-      port: 3000,
+      port: TEST_PORT,
       path: `/api/inspections/${encodeURIComponent(dynamicCaseId)}/status`,
       method: "PATCH",
       headers: {
@@ -208,7 +225,7 @@ async function runApiTests() {
     // 5. API Key Protection & Secret Masking Test
     const apiKeyConfigRes = await makeHttpRequest({
       hostname: "localhost",
-      port: 3000,
+      port: TEST_PORT,
       path: "/api/config/apikey",
       method: "GET"
     });
@@ -224,10 +241,14 @@ async function runApiTests() {
     // 6. Gemini Key Validation Test Endpoint (AQ... format support)
     const testKeyRes = await makeHttpRequest({
       hostname: "localhost",
-      port: 3000,
+      port: TEST_PORT,
       path: "/api/config/apikey/test",
       method: "POST",
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+        "x-test-internal": "METRO_CHECK_TEST_RUNNER",
+        Cookie: officerCookie
+      }
     }, {});
 
     assert.strictEqual(testKeyRes.status, 200, `Key test endpoint must return HTTP 200 for active key: ${JSON.stringify(testKeyRes.data || testKeyRes.body)}`);
@@ -238,12 +259,48 @@ async function runApiTests() {
     assert.ok(health.headers["x-content-type-options"] || health.headers["x-frame-options"], "Security headers must be present");
     console.log("✅ Security Test 7 Passed: Helmet Production Security Headers Active");
 
+    // 8. New South Zone & Northeast Zone Role Authentication Verification
+    const newRolesToTest = [
+      { u: "officer_south", p: "south123", expectedRole: "officer", expectedZone: "South" },
+      { u: "northeast_admin", p: "northeast123", expectedRole: "zonal", expectedZone: "North East" },
+      { u: "officer_ne", p: "northeast123", expectedRole: "officer", expectedZone: "North East" },
+      { u: "inspector_ne", p: "northeast123", expectedRole: "inspector", expectedZone: "North East" }
+    ];
+
+    for (const r of newRolesToTest) {
+      const loginRes = await makeHttpRequest({
+        hostname: "localhost",
+        port: TEST_PORT,
+        path: "/api/auth/login",
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      }, { username: r.u, password: r.p });
+
+      assert.strictEqual(loginRes.status, 200, `Login for ${r.u} must succeed`);
+      assert.strictEqual(loginRes.data.user.role, r.expectedRole, `Role for ${r.u} must be ${r.expectedRole}`);
+      assert.strictEqual(loginRes.data.user.zone, r.expectedZone, `Zone for ${r.u} must be ${r.expectedZone}`);
+    }
+    console.log("✅ Integration Test 8 Passed: South Zone & Northeast Zone Roles Authenticated & Zone Scopes Validated");
+
     console.log("==========================================================================");
     console.log("🎉 ALL AUTOMATED INTEGRATION & SECURITY TESTS PASSED SUCCESSFULLY!");
     console.log("==========================================================================");
+    if (serverInstance) {
+      serverInstance.close(() => {
+        process.exit(0);
+      });
+    } else {
+      process.exit(0);
+    }
   } catch (err) {
     console.error("❌ Integration Test Failed:", err.message);
-    process.exit(1);
+    if (serverInstance) {
+      serverInstance.close(() => {
+        process.exit(1);
+      });
+    } else {
+      process.exit(1);
+    }
   }
 }
 

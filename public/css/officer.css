@@ -210,6 +210,392 @@ body.theme-dark .user-menu-popover {
   font-weight: 600 !important;
 }
 
+/* Docket View Photo Option Button */
+.docket-view-photo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: #EEF2FF;
+  color: #4F46E5;
+  border: 1px solid #C7D2FE;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.dark .docket-view-photo-btn {
+  background-color: rgba(79, 70, 229, 0.25);
+  color: #818CF8;
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.docket-view-photo-btn:hover {
+  background-color: #4F46E5;
+  color: #FFFFFF !important;
+  border-color: #4F46E5;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+}
+
+/* Docket Inspector Clickable Link Button */
+.docket-inspector-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748B;
+  transition: color 0.15s ease;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dark .docket-inspector-btn {
+  color: #94A3B8;
+}
+
+.docket-inspector-btn:hover {
+  color: #059669 !important;
+}
+
+/* ==========================================================================
+   SENIOR-LEVEL DOCKET MASTER TABLE & COMPONENT DESIGN SYSTEM
+   ========================================================================== */
+
+/* Modern Grid Table Container */
+.docket-master-grid {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.75rem;
+}
+
+/* Header Styling */
+.docket-master-grid thead th {
+  background-color: #F8FAFC;
+  color: #475569;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #E2E8F0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dark .docket-master-grid thead th {
+  background-color: #0F172A;
+  color: #94A3B8;
+  border-bottom-color: #334155;
+}
+
+/* Master Row Base */
+.docket-master-row {
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #F1F5F9;
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  vertical-align: middle;
+}
+
+.dark .docket-master-row {
+  background-color: #0F172A;
+  border-bottom-color: #1E293B;
+}
+
+.docket-master-row:hover {
+  background-color: #F8FAFC !important;
+  box-shadow: inset 3px 0 0 0 #10B981;
+}
+
+.dark .docket-master-row:hover {
+  background-color: #1E293B !important;
+}
+
+/* Col 1: Case ID & Copy Button */
+.docket-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 11px;
+  background-color: transparent;
+  color: #94A3B8;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.docket-copy-btn:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+  border-color: #CBD5E1;
+}
+
+.dark .docket-copy-btn:hover {
+  background-color: #334155;
+  color: #F8FAFC;
+  border-color: #475569;
+}
+
+/* Col 4: Statutory Rule Chips (Fixed Formatting) */
+.docket-rule-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  background-color: #FFF1F2;
+  color: #BE123C;
+  border: 1px solid #FECDD3;
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.15s ease;
+  cursor: help;
+}
+
+.dark .docket-rule-chip {
+  background-color: rgba(190, 18, 60, 0.2);
+  color: #FDA4AF;
+  border-color: rgba(244, 63, 94, 0.4);
+}
+
+.docket-rule-chip:hover {
+  background-color: #BE123C;
+  color: #FFFFFF !important;
+  border-color: #BE123C;
+  transform: translateY(-1px);
+}
+
+.docket-rule-chip-none {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+.dark .docket-rule-chip-none {
+  background-color: rgba(4, 120, 87, 0.2);
+  color: #34D399;
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.docket-rule-more {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  background-color: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+}
+
+.dark .docket-rule-more {
+  background-color: #1E293B;
+  color: #94A3B8;
+  border-color: #334155;
+}
+
+/* Col 5: 5-State Status Pills */
+.docket-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.docket-pill-submitted {
+  background-color: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+}
+
+.dark .docket-pill-submitted {
+  background-color: rgba(51, 65, 85, 0.5);
+  color: #CBD5E1;
+  border-color: #475569;
+}
+
+.docket-pill-review {
+  background-color: #EEF2FF;
+  color: #4338CA;
+  border: 1px solid #C7D2FE;
+}
+
+.dark .docket-pill-review {
+  background-color: rgba(67, 56, 202, 0.25);
+  color: #A5B4FC;
+  border-color: rgba(165, 180, 252, 0.4);
+}
+
+.docket-pill-escalated {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.dark .docket-pill-escalated {
+  background-color: rgba(180, 83, 9, 0.25);
+  color: #FCD34D;
+  border-color: rgba(252, 211, 77, 0.4);
+}
+
+.docket-pill-notice {
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+.dark .docket-pill-notice {
+  background-color: rgba(4, 120, 87, 0.25);
+  color: #6EE7B7;
+  border-color: rgba(110, 231, 183, 0.4);
+}
+
+.docket-pill-dismissed {
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+
+.dark .docket-pill-dismissed {
+  background-color: rgba(185, 28, 28, 0.25);
+  color: #FCA5A5;
+  border-color: rgba(252, 165, 165, 0.4);
+}
+
+/* Col 6: Context-Driven Action Buttons */
+.docket-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.docket-btn-start {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  border: 1px solid #047857;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.3);
+}
+
+.docket-btn-start:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.4);
+}
+
+.docket-btn-decide {
+  background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+  color: #FFFFFF;
+  border: 1px solid #3730A3;
+  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
+}
+
+.docket-btn-decide:hover {
+  background: linear-gradient(135deg, #4338CA 0%, #3730A3 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.4);
+}
+
+.docket-btn-escalated {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #FFFFFF;
+  border: 1px solid #B45309;
+}
+
+.docket-btn-escalated:hover {
+  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+  transform: translateY(-1px);
+}
+
+.docket-btn-pdf {
+  background-color: #FFFFFF;
+  color: #0F172A;
+  border: 1px solid #CBD5E1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .docket-btn-pdf {
+  background-color: #1E293B;
+  color: #F8FAFC;
+  border-color: #475569;
+}
+
+.docket-btn-pdf:hover {
+  background-color: #F8FAFC;
+  border-color: #10B981;
+  color: #059669;
+  transform: translateY(-1px);
+}
+
+.docket-btn-archive {
+  background-color: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+}
+
+.dark .docket-btn-archive {
+  background-color: #1E293B;
+  color: #94A3B8;
+  border-color: #334155;
+}
+
+.docket-btn-archive:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+}
+
+.docket-btn-locked {
+  background-color: #F8FAFC;
+  color: #94A3B8;
+  border: 1px solid #E2E8F0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.dark .docket-btn-locked {
+  background-color: #0F172A;
+  color: #64748B;
+  border-color: #1E293B;
+}
+}
+
+}
+
 /* ==========================================================================
    National Command Center & Admin Oversight Styles
    ========================================================================== */

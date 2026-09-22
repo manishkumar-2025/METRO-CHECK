@@ -194,10 +194,13 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     // 2. REFERENCE BAR & FORM IDENTIFIER
     // =========================================================================
     let curY = 44;
+    const isInspectorReport = Boolean(options.isInspectorReport || options.reportType === "FIELD_AUDIT" || item.status === "SUBMITTED" || item.status === "UNDER_REVIEW" || item.status === "DRAFT");
+
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(51, 65, 85);
-    doc.text(`NOTICE REF NO: WM-10(24)/2026-${caseId}`, 13, curY);
+    const refPrefix = (isInspectorReport && !isCompliant) ? "FIELD AUDIT REF NO" : "NOTICE REF NO";
+    doc.text(`${refPrefix}: WM-10(24)/2026-${caseId}`, 13, curY);
 
     doc.setFont("helvetica", "normal");
     doc.text(`DATE OF ISSUANCE: ${dateStr} ${timeStr}`, 197, curY, { align: "right" });
@@ -212,8 +215,13 @@ function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9.5);
     doc.setTextColor(15, 23, 42);
+
+    const formBadgeTitle = isInspectorReport
+      ? (isCompliant ? "FORM LM-I: STATUTORY COMPLIANCE INSPECTION RECORD" : "FORM LM-I: FIELD INSPECTION AUDIT & EVIDENCE RECORD")
+      : (isCompliant ? "FORM LM-I: STATUTORY COMPLIANCE INSPECTION RECORD" : "FORM LM-III: STATUTORY NOTICE OF NON-COMPLIANCE & SHOW CAUSE");
+
     doc.text(
-      isCompliant ? "FORM LM-I: STATUTORY COMPLIANCE INSPECTION RECORD" : "FORM LM-III: STATUTORY NOTICE OF NON-COMPLIANCE & SHOW CAUSE",
+      formBadgeTitle,
       105,
       curY + 5.5,
       { align: "center" }

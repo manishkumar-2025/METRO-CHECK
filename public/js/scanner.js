@@ -69,11 +69,11 @@ function switchCaptureMode(mode) {
     if (cameraBox) cameraBox.classList.remove("hidden");
     if (uploadBox) uploadBox.classList.add("hidden");
     if (btnCamera) {
-      btnCamera.className = "px-3 py-1.5 rounded-md font-semibold bg-white text-[#0F172A] shadow-xs transition flex items-center gap-1.5 cursor-pointer";
+      btnCamera.className = "px-3.5 py-1.5 rounded-xl font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-xs border border-slate-200/80 dark:border-slate-700 transition flex items-center gap-1.5 cursor-pointer";
       btnCamera.setAttribute("aria-selected", "true");
     }
     if (btnUpload) {
-      btnUpload.className = "px-3 py-1.5 rounded-md font-medium text-[#64748B] hover:text-[#0F172A] transition flex items-center gap-1.5 cursor-pointer";
+      btnUpload.className = "px-3.5 py-1.5 rounded-xl font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition flex items-center gap-1.5 cursor-pointer";
       btnUpload.setAttribute("aria-selected", "false");
     }
     if (typeof startLiveCamera === "function") startLiveCamera();
@@ -81,11 +81,11 @@ function switchCaptureMode(mode) {
     if (cameraBox) cameraBox.classList.add("hidden");
     if (uploadBox) uploadBox.classList.remove("hidden");
     if (btnUpload) {
-      btnUpload.className = "px-3 py-1.5 rounded-md font-semibold bg-white text-[#0F172A] shadow-xs transition flex items-center gap-1.5 cursor-pointer";
+      btnUpload.className = "px-3.5 py-1.5 rounded-xl font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-xs border border-slate-200/80 dark:border-slate-700 transition flex items-center gap-1.5 cursor-pointer";
       btnUpload.setAttribute("aria-selected", "true");
     }
     if (btnCamera) {
-      btnCamera.className = "px-3 py-1.5 rounded-md font-medium text-[#64748B] hover:text-[#0F172A] transition flex items-center gap-1.5 cursor-pointer";
+      btnCamera.className = "px-3.5 py-1.5 rounded-xl font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition flex items-center gap-1.5 cursor-pointer";
       btnCamera.setAttribute("aria-selected", "false");
     }
     if (typeof stopLiveCamera === "function") stopLiveCamera();
@@ -177,8 +177,8 @@ const PANEL_DEFINITIONS = {
     name: "Front Facing Panel",
     shortName: "Front",
     icon: "1️⃣",
-    badgeLabel: "Panel 1: Front Facing",
-    targetLabel: "[TARGET: PANEL 1 - FRONT FACING]",
+    badgeLabel: "Panel 1 · Front",
+    targetLabel: "P1 · FRONT PANEL",
     inputKey: "imageFront"
   },
   back: {
@@ -186,8 +186,8 @@ const PANEL_DEFINITIONS = {
     name: "Back Declaration Panel",
     shortName: "Back",
     icon: "2️⃣",
-    badgeLabel: "Panel 2: Back Declaration",
-    targetLabel: "[TARGET: PANEL 2 - BACK DECLARATIONS]",
+    badgeLabel: "Panel 2 · Back",
+    targetLabel: "P2 · BACK DECLARATIONS",
     inputKey: "imageBack"
   },
   left: {
@@ -195,8 +195,8 @@ const PANEL_DEFINITIONS = {
     name: "Left Side Panel",
     shortName: "Left Side",
     icon: "3️⃣",
-    badgeLabel: "Panel 3: Left Side",
-    targetLabel: "[TARGET: PANEL 3 - LEFT SIDE]",
+    badgeLabel: "Panel 3 · Left Side",
+    targetLabel: "P3 · LEFT SIDE PANEL",
     inputKey: "imageLeft"
   },
   right: {
@@ -204,8 +204,8 @@ const PANEL_DEFINITIONS = {
     name: "Right Side Panel",
     shortName: "Right Side",
     icon: "4️⃣",
-    badgeLabel: "Panel 4: Right Side",
-    targetLabel: "[TARGET: PANEL 4 - RIGHT SIDE]",
+    badgeLabel: "Panel 4 · Right Side",
+    targetLabel: "P4 · RIGHT SIDE PANEL",
     inputKey: "imageRight"
   },
   top: {
@@ -213,8 +213,8 @@ const PANEL_DEFINITIONS = {
     name: "Top Panel",
     shortName: "Top",
     icon: "5️⃣",
-    badgeLabel: "Panel 5: Top Panel",
-    targetLabel: "[TARGET: PANEL 5 - TOP PANEL]",
+    badgeLabel: "Panel 5 · Top Cap",
+    targetLabel: "P5 · TOP CAP PANEL",
     inputKey: "imageTop"
   },
   bottom: {
@@ -222,8 +222,8 @@ const PANEL_DEFINITIONS = {
     name: "Bottom Panel",
     shortName: "Bottom",
     icon: "6️⃣",
-    badgeLabel: "Panel 6: Bottom Panel",
-    targetLabel: "[TARGET: PANEL 6 - BOTTOM PANEL]",
+    badgeLabel: "Panel 6 · Base Seal",
+    targetLabel: "P6 · BASE SEAL PANEL",
     inputKey: "imageBottom"
   }
 };
@@ -288,8 +288,15 @@ function setActiveCaptureSlot(slot) {
 
     if (pill) {
       const iconEl = pill.querySelector(".slot-state-icon");
-      const stateIcon = (s === slot) ? "🔵" : (hasImg ? "🟢" : "⚪");
-      if (iconEl) iconEl.textContent = stateIcon;
+      if (iconEl) {
+        if (s === slot) {
+          iconEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block shadow-2xs"></span>`;
+        } else if (hasImg) {
+          iconEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-teal-500 inline-block shadow-2xs"></span>`;
+        } else {
+          iconEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 inline-block"></span>`;
+        }
+      }
 
       if (s === slot) {
         pill.className = "py-2 px-3 rounded-xl font-bold text-xs transition-all duration-200 flex items-center justify-between gap-1.5 border border-emerald-400 bg-emerald-50/60 text-emerald-900 shadow-2xs cursor-pointer slot-pill-active ring-2 ring-emerald-400/20";
@@ -412,7 +419,8 @@ function drawForensicEvidenceWatermark(canvas, ctx) {
       "West": "19.0760° N, 72.8777° E",
       "East": "22.5726° N, 88.3639° E",
       "Central": "23.2599° N, 77.4126° E",
-      "North East": "26.1445° N, 91.7362° E"
+      "North East": "26.1445° N, 91.7362° E",
+      "Northeast": "26.1445° N, 91.7362° E"
     };
     const userZone = activeUser.zone || "North";
     const userState = activeUser.state || (userZone === "North" ? "Delhi UT" : "National");
@@ -443,15 +451,13 @@ function optimizeImageForAiScan(dataUrl, maxDimension = 1200, quality = 0.80) {
     img.onload = function () {
       let width = img.naturalWidth || img.width;
       let height = img.naturalHeight || img.height;
-      if (!width || !height || (width <= maxDimension && height <= maxDimension && dataUrl.length < 400000)) {
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
-        drawForensicEvidenceWatermark(canvas, ctx);
-        return resolve(canvas.toDataURL("image/jpeg", quality));
+      if (!width || !height) return resolve(dataUrl);
+
+      // If dimensions are within bounds and data size is already optimized (< 500KB), return directly to save CPU & time
+      if (width <= maxDimension && height <= maxDimension && dataUrl.length < 500000) {
+        return resolve(dataUrl);
       }
+
       if (width > maxDimension || height > maxDimension) {
         if (width > height) {
           height = Math.round((height * maxDimension) / width);
@@ -537,14 +543,16 @@ function setSlotImage(slot, dataUrl) {
   if (container) container.classList.remove("hidden");
   if (emptyBox) emptyBox.classList.add("hidden");
 
-  // Update camera live stream gallery thumbnail
+  // Update camera live stream gallery thumbnail & zoom overlay
   const camImg = document.getElementById(`camThumbImg${cap}`);
   const camTxt = document.getElementById(`camThumbText${cap}`);
+  const camZoom = document.getElementById(`camThumbZoom${cap}`);
   if (camImg && camTxt) {
     camImg.src = dataUrl;
     camImg.classList.remove("hidden");
     camTxt.classList.add("hidden");
   }
+  if (camZoom) camZoom.classList.remove("hidden");
 
   // Update selector pill checkmark
   const badge = document.getElementById(`slotStatusBadge${cap}`);
@@ -574,11 +582,13 @@ function clearSlotImage(slot) {
 
   const camImg = document.getElementById(`camThumbImg${cap}`);
   const camTxt = document.getElementById(`camThumbText${cap}`);
+  const camZoom = document.getElementById(`camThumbZoom${cap}`);
   if (camImg && camTxt) {
     camImg.src = "";
     camImg.classList.add("hidden");
     camTxt.classList.remove("hidden");
   }
+  if (camZoom) camZoom.classList.add("hidden");
 
   const badge = document.getElementById(`slotStatusBadge${cap}`);
   if (badge) badge.classList.add("hidden");
@@ -600,6 +610,8 @@ function updateMultiPanelState() {
 
   currentUploadedImageDataUrl = panelImages.front || panelImages.back || panelImages.left || panelImages.right || panelImages.top || panelImages.bottom || null;
 
+  updateSpecimenGallery();
+
   const counter = document.getElementById("capturedPanelsCounter");
   if (counter) {
     counter.textContent = `${capturedCount} of 6`;
@@ -608,14 +620,14 @@ function updateMultiPanelState() {
   const minBadge = document.getElementById("ctaMinBadge");
   if (minBadge) {
     if (capturedCount >= 2) {
-      minBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5 shadow-2xs";
-      minBadge.innerHTML = `<span>🟢</span> <span>${capturedCount} Panels Loaded • Ready for Audit</span>`;
+      minBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-2xs";
+      minBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span>${capturedCount} Panels Loaded · Ready for Audit</span>`;
     } else if (capturedCount === 1) {
-      minBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1.5 shadow-2xs";
-      minBadge.innerHTML = `<span>🟡</span> <span>1 Panel Loaded (Front & Back Recommended)</span>`;
+      minBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1.5 shadow-2xs";
+      minBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> <span>1 Panel Loaded (Front & Back Recommended)</span>`;
     } else {
-      minBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5 shadow-2xs";
-      minBadge.innerHTML = `<span>⚪</span> <span>0 of 2 Minimum Panels Loaded</span>`;
+      minBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 shadow-2xs";
+      minBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-500"></span> <span>0 of 2 Minimum Panels Loaded</span>`;
     }
   }
 
@@ -639,8 +651,15 @@ function updateMultiPanelState() {
     const hasImg = !!panelImages[s];
     if (pill) {
       const iconEl = pill.querySelector(".slot-state-icon");
-      const stateIcon = (s === activeCaptureSlot) ? "🔵" : (hasImg ? "🟢" : "⚪");
-      if (iconEl) iconEl.textContent = stateIcon;
+      if (iconEl) {
+        if (s === activeCaptureSlot) {
+          iconEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block shadow-2xs"></span>`;
+        } else if (hasImg) {
+          iconEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-teal-500 inline-block shadow-2xs"></span>`;
+        } else {
+          iconEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 inline-block"></span>`;
+        }
+      }
     }
   });
 }
@@ -1168,28 +1187,40 @@ async function executeGeminiVisionInspection(imageDataUrl) {
   const payload = {};
 
   const activePanelsList = [];
-  for (const slotKey of PANEL_SLOTS) {
-    const rawUrl = panelImages[slotKey];
-    if (rawUrl) {
-      const imgUrl = await optimizeImageForAiScan(rawUrl);
-      const def = PANEL_DEFINITIONS[slotKey];
-      let cleanBase64 = imgUrl;
-      let mimeType = "image/jpeg";
-      if (imgUrl.includes("base64,")) {
-        const parts = imgUrl.split("base64,");
-        cleanBase64 = parts[1];
-        const matchMime = parts[0].match(/data:(.*?);/);
-        if (matchMime) mimeType = matchMime[1];
-      }
-      activePanelsList.push({
-        slot: slotKey,
-        panelName: def.name,
-        imageBase64: cleanBase64,
-        mimeType: mimeType
-      });
+  const panelSlotsToProcess = PANEL_SLOTS.filter(slotKey => Boolean(panelImages[slotKey]));
 
-      payload[def.inputKey] = imgUrl;
-    }
+  if (panelSlotsToProcess.length > 0) {
+    const processedPanels = await Promise.all(
+      panelSlotsToProcess.map(async (slotKey) => {
+        const rawUrl = panelImages[slotKey];
+        const imgUrl = await optimizeImageForAiScan(rawUrl);
+        const def = PANEL_DEFINITIONS[slotKey];
+        let cleanBase64 = imgUrl;
+        let mimeType = "image/jpeg";
+        if (imgUrl && imgUrl.includes("base64,")) {
+          const parts = imgUrl.split("base64,");
+          cleanBase64 = parts[1];
+          const matchMime = parts[0].match(/data:(.*?);/);
+          if (matchMime) mimeType = matchMime[1];
+        }
+        return {
+          slotKey,
+          inputKey: def.inputKey,
+          imgUrl,
+          panelObj: {
+            slot: slotKey,
+            panelName: def.name,
+            imageBase64: cleanBase64,
+            mimeType: mimeType
+          }
+        };
+      })
+    );
+
+    processedPanels.forEach(p => {
+      activePanelsList.push(p.panelObj);
+      payload[p.inputKey] = p.imgUrl;
+    });
   }
 
   payload.panels = activePanelsList;
@@ -1237,6 +1268,7 @@ async function executeGeminiVisionInspection(imageDataUrl) {
       const res = await fetch(`${SERVER_BASE_URL}/api/scan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(payload)
       });
 
@@ -1334,10 +1366,17 @@ async function startAiOcrInspection() {
     if (captureDeck) captureDeck.classList.add("hidden");
     if (manualAccordion) manualAccordion.classList.add("hidden");
     if (headerBar) headerBar.classList.add("hidden");
-    if (resultsSection) resultsSection.classList.remove("hidden");
+    if (resultsSection) {
+      resultsSection.classList.remove("hidden");
+      resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
     // Step B: Live result renders with color-coded Rule 6 checklist
-    renderAutoFilledComplianceReport(analysis);
+    try {
+      renderAutoFilledComplianceReport(analysis);
+    } catch (renderErr) {
+      console.error("[METRO-CHECK] Error inside renderAutoFilledComplianceReport:", renderErr);
+    }
 
     // Evaluate compliance status
     const verdict = analysis.overall_status || analysis.overall_verdict;
@@ -1536,6 +1575,12 @@ async function startAiOcrInspection() {
       }
     }
     if (loadingSection) loadingSection.classList.add("hidden");
+    const captureDeck = document.getElementById("ocrMainCaptureDeck");
+    const manualAccordion = document.getElementById("manualEntryAccordion");
+    const headerBar = document.getElementById("ocrHeaderStatutoryBar");
+    if (captureDeck) captureDeck.classList.remove("hidden");
+    if (manualAccordion) manualAccordion.classList.remove("hidden");
+    if (headerBar) headerBar.classList.remove("hidden");
   } finally {
     isScanInProgress = false;
     if (analyzeBtn) {
@@ -1992,7 +2037,7 @@ function renderAutoFilledComplianceReport(data) {
   const idEl = document.getElementById("reportCaseIdText");
   const dateEl = document.getElementById("reportCaseDateText");
   const prodEl = document.getElementById("reportCaseProductText");
-  const user = getCurrentUser() || { name: "Field Inspector" };
+  const user = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { name: "Field Inspector" };
 
   if (idEl) idEl.textContent = currentCaseId;
   if (dateEl) dateEl.textContent = new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
@@ -2384,6 +2429,7 @@ function openSpecimenLightbox(index) {
   if (modal) {
     modal.classList.remove("hidden");
     modal.classList.add("flex");
+    document.body.classList.add("overflow-hidden");
     updateLightboxView();
   }
 }
@@ -2396,6 +2442,7 @@ function closeSpecimenLightbox() {
   if (modal) {
     modal.classList.add("hidden");
     modal.classList.remove("flex");
+    document.body.classList.remove("overflow-hidden");
   }
 }
 
@@ -2464,12 +2511,32 @@ function updateLightboxView() {
   }
 }
 
+/**
+ * Opens the specimen lightbox directly targeted to a specific panel slot (e.g. 'front', 'back', 'left', etc.)
+ */
+function openPanelZoomLightbox(slot) {
+  updateSpecimenGallery();
+  if (!activeSpecimenImageList || activeSpecimenImageList.length === 0) {
+    if (typeof showToast === "function") {
+      showToast("No panel images uploaded yet. Capture or upload a panel first.", "info");
+    }
+    return;
+  }
+  let targetIndex = 0;
+  if (slot) {
+    const idx = activeSpecimenImageList.findIndex(item => item.slot === slot);
+    if (idx !== -1) targetIndex = idx;
+  }
+  openSpecimenLightbox(targetIndex);
+}
+
 window.updateSpecimenGallery = updateSpecimenGallery;
 window.renderSpecimenImageViewport = renderSpecimenImageViewport;
 window.navigateSpecimenImage = navigateSpecimenImage;
 window.goToSpecimenImage = goToSpecimenImage;
 window.navigateActiveCaptureSlot = navigateActiveCaptureSlot;
 window.openSpecimenLightbox = openSpecimenLightbox;
+window.openPanelZoomLightbox = openPanelZoomLightbox;
 window.closeSpecimenLightbox = closeSpecimenLightbox;
 window.updateLightboxView = updateLightboxView;
 
@@ -2690,7 +2757,7 @@ function handleSaveOcrInspection(statusType) {
   }
 
   try {
-    const user = getCurrentUser() || { name: "Field Inspector", username: "inspector" };
+    const user = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { name: "Field Inspector", username: "inspector" };
     const fields = currentInspectionResult.categorized_fields || currentInspectionResult.fields || {};
 
     // Gather any unsaved declaration edits directly from input elements
@@ -2762,7 +2829,7 @@ function handleSaveOcrInspection(statusType) {
       inspectorBadgeNumber: user.badgeNumber || ("INSP-" + (user.username || "01").toUpperCase()),
       inspectorOffice: user.officeAddress || null,
       gpsCoordinates: (function() {
-        const m = { "North": "28.5244° N, 77.2066° E", "South": "13.0827° N, 80.2707° E", "West": "19.0760° N, 72.8777° E", "East": "22.5726° N, 88.3639° E", "Central": "23.2599° N, 77.4126° E", "North East": "26.1445° N, 91.7362° E" };
+        const m = { "North": "28.5244° N, 77.2066° E", "South": "13.0827° N, 80.2707° E", "West": "19.0760° N, 72.8777° E", "East": "22.5726° N, 88.3639° E", "Central": "23.2599° N, 77.4126° E", "North East": "26.1445° N, 91.7362° E", "Northeast": "26.1445° N, 91.7362° E" };
         return m[user.zone] || "28.5244° N, 77.2066° E";
       })(),
       // AI/OCR provenance — model name is returned by /api/scan and must be stored
@@ -3037,7 +3104,7 @@ function downloadOcrReportPdf() {
   }
 
   if (typeof generateStatutoryNoticePDF === "function") {
-    generateStatutoryNoticePDF(currentInspectionResult);
+    generateStatutoryNoticePDF(currentInspectionResult, { isInspectorReport: true });
   } else {
     if (typeof showToast === "function") showToast("PDF generation engine not available.", "error");
   }
@@ -3052,12 +3119,16 @@ document.addEventListener("visibilitychange", () => {
 
 function openInspectorWalkthroughModal() {
   const m = document.getElementById("inspectorOnboardingModal");
-  if (m) m.classList.remove("hidden");
+  if (m) {
+    m.classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+  }
 }
 
 function closeInspectorWalkthroughModal() {
   const m = document.getElementById("inspectorOnboardingModal");
   if (m) m.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
   const chk = document.getElementById("dontShowOnboardingAgain");
   if (chk && chk.checked) {
     try { localStorage.setItem("elmcep_hide_onboarding", "true"); } catch (e) { }
@@ -3131,4 +3202,6 @@ window.handleSaveOcrInspection = handleSaveOcrInspection;
 window.revalidateUserCorrectedDeclarations = revalidateUserCorrectedDeclarations;
 window.copyRawOcrText = copyRawOcrText;
 window.renderAutoFilledComplianceReport = renderAutoFilledComplianceReport;
+
+
 

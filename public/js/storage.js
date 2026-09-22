@@ -402,6 +402,11 @@ function filterByZoneAccess(inspections) {
   const userZone = (currentUser.zone || "").trim().toLowerCase();
   const username = (currentUser.username || "").trim().toLowerCase();
 
+  // Helper for normalizing zone names locally if global function not present
+  const normZone = (typeof normalizeZoneName === "function") 
+    ? normalizeZoneName 
+    : (z) => String(z || "").trim().toLowerCase().replace(/\bzone\b/g, "").replace(/[\s_-]+/g, "");
+
   // 1. National Admin / Director DoCA: sees all 6 zones
   if (role === "national" || role === "admin" || userZone === "all") {
     return inspections;
@@ -411,7 +416,7 @@ function filterByZoneAccess(inspections) {
   if (role === "zonal") {
     return inspections.filter(function(item) {
       const itemZone = (item.zone || "").trim().toLowerCase();
-      return itemZone === userZone;
+      return itemZone === userZone || normZone(itemZone) === normZone(userZone);
     });
   }
 
@@ -419,7 +424,7 @@ function filterByZoneAccess(inspections) {
   if (role === "officer") {
     return inspections.filter(function(item) {
       const itemZone = (item.zone || "").trim().toLowerCase();
-      return itemZone === userZone;
+      return itemZone === userZone || normZone(itemZone) === normZone(userZone);
     });
   }
 
@@ -509,7 +514,23 @@ function saveInspection(inspectionData) {
   }
 
   if (!inspectionData.id) {
-    const zoneCode = inspectionData.zone ? (inspectionData.zone.includes("North") ? "NZ" : inspectionData.zone.includes("South") ? "SZ" : inspectionData.zone.includes("East") ? "EZ" : inspectionData.zone.includes("West") ? "WZ" : "NZ") : "NZ";
+    let zoneCode = "NZ";
+    if (inspectionData.zone) {
+      const zUpper = inspectionData.zone.toUpperCase();
+      if (zUpper.includes("NORTHEAST") || zUpper.includes("NORTH EAST") || zUpper.includes("NE")) {
+        zoneCode = "NEZ";
+      } else if (zUpper.includes("NORTH")) {
+        zoneCode = "NZ";
+      } else if (zUpper.includes("SOUTH")) {
+        zoneCode = "SZ";
+      } else if (zUpper.includes("EAST")) {
+        zoneCode = "EZ";
+      } else if (zUpper.includes("WEST")) {
+        zoneCode = "WZ";
+      } else if (zUpper.includes("CENTRAL")) {
+        zoneCode = "CZ";
+      }
+    }
     inspectionData.id = generateId(zoneCode);
   }
   const nowIso = new Date().toISOString();
@@ -643,6 +664,7 @@ function saveInspection(inspectionData) {
       fetch(`${STORAGE_API_BASE}/api/inspections`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(inspectionData)
       }).then(res => {
         if (res.ok) {
@@ -717,6 +739,7 @@ async function flushPendingSyncQueue() {
       const res = await fetch(`${STORAGE_API_BASE}/api/inspections`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(item)
       });
       if (res.ok) {
@@ -753,7 +776,9 @@ async function flushPendingSyncQueue() {
 async function syncInspectionsWithServer(onSyncComplete) {
   if (typeof fetch === "undefined" || (typeof navigator !== "undefined" && !navigator.onLine)) return;
   try {
-    const res = await fetch(`${STORAGE_API_BASE}/api/inspections`);
+    const res = await fetch(`${STORAGE_API_BASE}/api/inspections`, {
+      credentials: "include"
+    });
     if (res.ok) {
       const json = await res.json();
       if (json && Array.isArray(json.data) && json.data.length > 0) {
@@ -835,13 +860,14 @@ const INSPECTION_STATUS = {
   PROCESSING: "PROCESSING",
   SUBMITTED: "SUBMITTED",
   UNDER_REVIEW: "UNDER_REVIEW",
+  ESCALATED: "ESCALATED",
   COMPLIANT: "COMPLIANT",
   NON_COMPLIANT: "NON_COMPLIANT",
 
   // Canonical Statuses & Legacy Aliases
   NON_COMPLIANT_PENDING: "SUBMITTED",
   COMPLIANT_LOGGED: "COMPLIANT",
-  OFFICER_APPROVED: "OFFICER_APPROVED",
+  OFFICER_APPROVED: "NOTICE_ISSUED",
   OFFICER_DISMISSED: "OFFICER_DISMISSED",
   NOTICE_ISSUED: "NOTICE_ISSUED"
 };
@@ -850,14 +876,14 @@ function formatStatusLabel(status) {
   const s = String(status || "").toUpperCase();
   if (s === "DRAFT") return "Draft";
   if (s === "PROCESSING") return "Processing (AI Scanning)";
-  if (s === "SUBMITTED" || s === "PENDING" || s === "NON_COMPLIANT_PENDING") return "Submitted (Pending Review)";
+  if (s === "COMPLIANT" || s === "COMPLIANT_LOGGED" || s === "APPROVED") return "Submitted (Compliant)";
+  if (s === "SUBMITTED" || s === "PENDING" || s === "NON_COMPLIANT_PENDING") return "Pending Review";
   if (s === "UNDER_REVIEW") return "Under Review";
-  if (s === "COMPLIANT" || s === "COMPLIANT_LOGGED" || s === "APPROVED") return "Compliant";
-  if (s === "OFFICER_APPROVED") return "Violation Confirmed";
-  if (s === "NOTICE_ISSUED") return "Notice Issued";
-  if (s === "OFFICER_DISMISSED" || s === "REJECTED") return "Dismissed";
+  if (s === "ESCALATED" || s === "FLAGGED") return "Escalated";
+  if (s === "NOTICE_ISSUED" || s === "OFFICER_APPROVED") return "Legal Notice Issued";
+  if (s === "OFFICER_DISMISSED" || s === "REJECTED" || s === "DISMISSED") return "Dismissed";
   if (s === "NON_COMPLIANT") return "Non-Compliant";
-  return status || "Pending";
+  return status || "Pending Review";
 }
 
 /**
@@ -907,6 +933,7 @@ function updateInspectionStatus(inspectionId, newStatus, comments, reviewFields 
       fetch(`${STORAGE_API_BASE}/api/inspections/${inspectionId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           status: newStatus,
           reviewComments: comments,
