@@ -1186,17 +1186,45 @@
                     </button>
                   </div>
 
-                  <!-- Specimen Visual & Placeholder -->
-                  <div
-                    class="relative bg-slate-50 rounded-xl overflow-hidden text-center min-h-[280px] flex items-center justify-center p-3 border border-slate-200">
+                  <!-- Specimen Visual, Carousel Controls & Zoom Panel -->
+                  <div class="relative bg-slate-950 rounded-xl overflow-hidden text-center min-h-[300px] flex items-center justify-center p-3 border border-slate-700 shadow-inner group">
                     <img id="reviewSpecimenImage" src="" alt="Specimen Label"
-                      class="max-h-72 mx-auto object-contain rounded-lg shadow-sm">
+                      class="max-h-72 mx-auto object-contain rounded-lg shadow-lg cursor-zoom-in transition-all duration-300 hover:scale-105"
+                      onclick="openReviewImageZoomModal()">
+
+                    <!-- Image Counter Badge -->
+                    <div id="reviewImageCounterBadge" class="hidden absolute top-3 left-3 bg-slate-950/85 text-white font-mono text-[10px] font-bold px-2.5 py-1 rounded-full border border-slate-700 backdrop-blur-sm z-10">
+                      1 / 1
+                    </div>
+
+                    <!-- Top Right Zoom Panel Button -->
+                    <button type="button" id="reviewZoomPanelBtn" onclick="openReviewImageZoomModal()"
+                      class="absolute top-3 right-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer z-10 active:scale-95" title="Open Full Screen Zoom Panel">
+                      <span>🔍</span> <span>Zoom Panel</span>
+                    </button>
+
+                    <!-- Slide Left (<) Button -->
+                    <button type="button" id="reviewImgPrevBtn" onclick="navigateReviewImage(-1)"
+                      class="hidden absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/85 hover:bg-emerald-600 text-white font-black text-lg flex items-center justify-center border border-slate-700 shadow-xl transition-all cursor-pointer z-10 active:scale-95" title="Previous Image (<)">
+                      ‹
+                    </button>
+
+                    <!-- Slide Right (>) Button -->
+                    <button type="button" id="reviewImgNextBtn" onclick="navigateReviewImage(1)"
+                      class="hidden absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/85 hover:bg-emerald-600 text-white font-black text-lg flex items-center justify-center border border-slate-700 shadow-xl transition-all cursor-pointer z-10 active:scale-95" title="Next Image (>)">
+                      ›
+                    </button>
+
+                    <!-- Placeholder -->
                     <div id="reviewNoImagePlaceholder"
-                      class="hidden flex flex-col items-center justify-center text-slate-500 p-8">
+                      class="hidden flex flex-col items-center justify-center text-slate-400 p-8">
                       <span class="text-4xl mb-2">📋</span>
                       <span class="text-xs font-semibold">Manual Log Entry — No Specimen Photo</span>
                     </div>
                   </div>
+
+                  <!-- Thumbnails Carousel Strip -->
+                  <div id="reviewThumbnailsStrip" class="hidden flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin"></div>
 
                   <!-- AI Confidence Progress Bar (Indigo Gradient) -->
                   <div class="bg-[#F7F8FA] p-3.5 rounded-xl border border-[#E4E7EC]">

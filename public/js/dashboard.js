@@ -1945,6 +1945,8 @@ function loadCaseDetails(id) {
   if (emptyEl) emptyEl.classList.add("hidden");
   if (activeContentEl) activeContentEl.classList.remove("hidden");
 
+  window._currentLoadedCaseItem = item;
+
   // State Machine transition: Move SUBMITTED to UNDER_REVIEW upon officer inspection
   const normStatus = (item.status || "").toUpperCase();
   if (normStatus === "SUBMITTED" || normStatus === "PENDING" || normStatus === "NON_COMPLIANT_PENDING") {
@@ -2061,49 +2063,18 @@ function loadCaseDetails(id) {
     }
   }
 
-  // Center Panel: Visual Evidence & AI Extracted Declarations
-  const imgEl = document.getElementById("reviewSpecimenImage");
-  const placeholderEl = document.getElementById("reviewNoImagePlaceholder");
-  if (imgEl) {
-    if (item.image && item.image.trim() !== "") {
-      imgEl.src = item.image;
-      imgEl.classList.remove("hidden");
-      if (placeholderEl) placeholderEl.classList.add("hidden");
-    } else {
-      imgEl.classList.add("hidden");
-      if (placeholderEl) placeholderEl.classList.remove("hidden");
-    }
-  }
+  // Center Panel: Visual Evidence Carousel & AI Extracted Declarations
+  _setupReviewCaseImages(item);
 
-  const extracted = item.extractedData || {};
-  const listEl = document.getElementById("reviewExtractedFields");
-  if (listEl) {
-    const rows = [
-      ["Commodity Name", extracted.commodity_name || extracted.generic_name],
-      ["Net Quantity", extracted.net_quantity],
-      ["MRP", extracted.mrp],
-      ["Unit Sale Price (USP)", extracted.unit_sale_price || extracted.usp],
-      ["Manufacturer / Packer", extracted.manufacturer || [extracted.manufacturer_name, extracted.manufacturer_address].filter(Boolean).join(", ")],
-      ["Month/Year", extracted.mfg_date || extracted.mfg_month_year],
-      ["Country of Origin", extracted.country_of_origin],
-      ["Consumer Care", extracted.consumer_care]
-    ];
-    listEl.innerHTML = rows.map(([lbl, val]) => `
-      <div class="ocr-field-row flex items-center justify-between py-1.5 px-2 rounded-lg border-b border-slate-100 text-xs transition-colors duration-200">
-        <span class="text-slate-500 font-medium flex items-center gap-1.5">
-          <span class="${val ? 'text-emerald-600 font-bold' : 'text-rose-500 font-bold'}">${val ? '✓' : '✕'}</span>
-          <span>${escapeHtml(lbl)}:</span>
-        </span>
-        <span class="${val ? 'font-semibold text-slate-800 dark:text-slate-200' : 'text-rose-600 font-bold bg-rose-50 dark:bg-rose-950/40 px-1.5 rounded'}">${escapeHtml(val || "MISSING")}</span>
-      </div>`).join("");
-  }
+  // Render extracted declarations
+  renderReviewExtractedFields(item, false);
 
   // Reset focus on new case load
   ocrFocusActive = false;
   const card = document.getElementById("reviewExtractedCard");
   const badge = document.getElementById("ocrFocusIndicator");
   const btnText = document.getElementById("ocrFocusBtnText");
-  if (card) card.classList.remove("ring-2", "ring-amber-400", "bg-amber-50/40");
+  if (card) card.className = "border border-[#E4E7EC] bg-white dark:bg-slate-900 rounded-xl p-4 transition-all duration-300";
   if (badge) badge.classList.add("hidden");
   if (btnText) btnText.textContent = "Highlight OCR Declarations";
 
@@ -2280,38 +2251,216 @@ function loadCaseDetails(id) {
   }
 }
 
+// ── Multi-Image Carousel & Pure AI OCR Extraction Helpers ─────────────────
+let _reviewCaseImages = [];
+let _reviewCaseImgIndex = 0;
+
+function _setupReviewCaseImages(item) {
+  _reviewCaseImages = [];
+  _reviewCaseImgIndex = 0;
+  if (!item) return;
+
+  const candidateImages = [];
+
+  // Primary specimen image
+  if (item.image && typeof item.image === "string" && item.image.trim() !== "") {
+    candidateImages.push({ src: item.image, label: "Primary Specimen" });
+  }
+
+  // Panel images
+  const panelLabels = {
+    front: "Front Panel",
+    back: "Back Panel",
+    left: "Left Side",
+    right: "Right Side",
+    top: "Top Panel",
+    bottom: "Bottom Panel"
+  };
+
+  ["imageFront", "imageBack", "imageLeft", "imageRight", "imageTop", "imageBottom"].forEach(k => {
+    const val = item[k];
+    if (val && typeof val === "string" && val.trim() !== "") {
+      const keyShort = k.replace("image", "").toLowerCase();
+      candidateImages.push({ src: val, label: panelLabels[keyShort] || `${keyShort} Panel` });
+    }
+  });
+
+  if (item.panelImages && typeof item.panelImages === "object") {
+    Object.entries(item.panelImages).forEach(([pk, pv]) => {
+      if (pv && typeof pv === "string" && pv.trim() !== "") {
+        candidateImages.push({ src: pv, label: panelLabels[pk] || `${pk} Panel` });
+      }
+    });
+  }
+
+  // Deduplicate by image src
+  const seen = new Set();
+  candidateImages.forEach(img => {
+    if (!seen.has(img.src)) {
+      seen.add(img.src);
+      _reviewCaseImages.push(img);
+    }
+  });
+
+  _updateReviewImageDisplay();
+}
+
+function _updateReviewImageDisplay() {
+  const imgEl = document.getElementById("reviewSpecimenImage");
+  const placeholderEl = document.getElementById("reviewNoImagePlaceholder");
+  const prevBtn = document.getElementById("reviewImgPrevBtn");
+  const nextBtn = document.getElementById("reviewImgNextBtn");
+  const counterEl = document.getElementById("reviewImageCounterBadge");
+  const stripEl = document.getElementById("reviewThumbnailsStrip");
+  const zoomBtn = document.getElementById("reviewZoomPanelBtn");
+
+  if (!_reviewCaseImages.length) {
+    if (imgEl) imgEl.classList.add("hidden");
+    if (placeholderEl) placeholderEl.classList.remove("hidden");
+    if (prevBtn) prevBtn.classList.add("hidden");
+    if (nextBtn) nextBtn.classList.add("hidden");
+    if (counterEl) counterEl.classList.add("hidden");
+    if (stripEl) stripEl.classList.add("hidden");
+    if (zoomBtn) zoomBtn.classList.add("hidden");
+    return;
+  }
+
+  if (placeholderEl) placeholderEl.classList.add("hidden");
+  if (imgEl) {
+    imgEl.classList.remove("hidden");
+    imgEl.src = _reviewCaseImages[_reviewCaseImgIndex].src;
+    imgEl.alt = _reviewCaseImages[_reviewCaseImgIndex].label || "Specimen Photo";
+  }
+
+  if (zoomBtn) zoomBtn.classList.remove("hidden");
+
+  const count = _reviewCaseImages.length;
+  if (count > 1) {
+    if (prevBtn) prevBtn.classList.remove("hidden");
+    if (nextBtn) nextBtn.classList.remove("hidden");
+    if (counterEl) {
+      counterEl.classList.remove("hidden");
+      counterEl.textContent = `${_reviewCaseImgIndex + 1} / ${count} • ${_reviewCaseImages[_reviewCaseImgIndex].label}`;
+    }
+    if (stripEl) {
+      stripEl.classList.remove("hidden");
+      stripEl.innerHTML = _reviewCaseImages.map((img, idx) => `
+        <button type="button" onclick="setReviewImageIndex(${idx})"
+          class="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${idx === _reviewCaseImgIndex ? 'border-emerald-500 ring-2 ring-emerald-500/30 scale-105' : 'border-slate-300 dark:border-slate-700 opacity-70 hover:opacity-100'}">
+          <img src="${img.src}" alt="${escapeHtml(img.label)}" class="w-full h-full object-cover">
+        </button>
+      `).join('');
+    }
+  } else {
+    if (prevBtn) prevBtn.classList.add("hidden");
+    if (nextBtn) nextBtn.classList.add("hidden");
+    if (counterEl) {
+      counterEl.classList.remove("hidden");
+      counterEl.textContent = `1 / 1 • ${_reviewCaseImages[0].label}`;
+    }
+    if (stripEl) stripEl.classList.add("hidden");
+  }
+}
+
+function navigateReviewImage(direction) {
+  if (!_reviewCaseImages.length) return;
+  const len = _reviewCaseImages.length;
+  _reviewCaseImgIndex = (_reviewCaseImgIndex + direction + len) % len;
+  _updateReviewImageDisplay();
+}
+
+function setReviewImageIndex(idx) {
+  if (idx >= 0 && idx < _reviewCaseImages.length) {
+    _reviewCaseImgIndex = idx;
+    _updateReviewImageDisplay();
+  }
+}
+
+function openReviewImageZoomModal() {
+  if (!_reviewCaseImages.length) return;
+  const currentImg = _reviewCaseImages[_reviewCaseImgIndex];
+  if (typeof openDocketImageModal === "function") {
+    openDocketImageModal(currentImg.src, currentImg.label, window._currentLoadedCaseItem ? window._currentLoadedCaseItem.id : "");
+  }
+}
+
+window.navigateReviewImage = navigateReviewImage;
+window.setReviewImageIndex = setReviewImageIndex;
+window.openReviewImageZoomModal = openReviewImageZoomModal;
+
+function renderReviewExtractedFields(item, pureOcrOnly = false) {
+  const listEl = document.getElementById("reviewExtractedFields");
+  if (!listEl || !item) return;
+
+  // Pure AI OCR data (unmodified by inspector) vs current extractedData
+  const rawOcr = item.originalExtractedData || item.rawOcrData || item.ocrRawFields || item.extractedData || {};
+  const currentData = item.extractedData || {};
+
+  // If pureOcrOnly is active, show EXCLUSIVELY the original raw AI OCR extractions (suppressing manual edits)
+  const source = pureOcrOnly ? rawOcr : currentData;
+
+  const rows = [
+    ["Commodity Name", source.commodity_name || source.generic_name],
+    ["Net Quantity", source.net_quantity],
+    ["MRP", source.mrp],
+    ["Unit Sale Price (USP)", source.unit_sale_price || source.usp],
+    ["Manufacturer / Packer", source.manufacturer || [source.manufacturer_name, source.manufacturer_address].filter(Boolean).join(", ")],
+    ["Month/Year", source.mfg_date || source.mfg_month_year],
+    ["Country of Origin", source.country_of_origin],
+    ["Consumer Care", source.consumer_care]
+  ];
+
+  listEl.innerHTML = rows.map(([lbl, val]) => {
+    const hasVal = val && String(val).trim().length > 0 && String(val).trim() !== "-";
+    const displayVal = hasVal ? escapeHtml(String(val)) : "MISSING";
+
+    return `
+      <div class="ocr-field-row flex items-center justify-between py-1.5 px-2.5 rounded-lg border-b border-slate-100 dark:border-slate-800 text-xs transition-all duration-200 ${pureOcrOnly ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60' : ''}">
+        <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-1.5">
+          <span class="${hasVal ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-rose-500 font-bold'}">${hasVal ? '✓' : '✕'}</span>
+          <span>${escapeHtml(lbl)}:</span>
+        </span>
+        <div class="flex items-center gap-1.5">
+          <span class="${hasVal ? 'font-semibold text-slate-800 dark:text-slate-200' : 'text-rose-600 font-bold bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded'}">${displayVal}</span>
+          ${pureOcrOnly ? '<span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300">PURE AI OCR</span>' : ''}
+        </div>
+      </div>`;
+  }).join("");
+}
+
 let ocrFocusActive = false;
 function toggleOcrOverlay() {
   ocrFocusActive = !ocrFocusActive;
   const card = document.getElementById("reviewExtractedCard");
   const badge = document.getElementById("ocrFocusIndicator");
   const btnText = document.getElementById("ocrFocusBtnText");
-  const fields = document.querySelectorAll("#reviewExtractedFields .ocr-field-row");
 
   if (card) {
     if (ocrFocusActive) {
-      card.classList.add("ring-2", "ring-amber-400", "bg-amber-50/40");
+      card.className = "border-2 border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/30 rounded-xl p-4 transition-all duration-300 shadow-md";
     } else {
-      card.classList.remove("ring-2", "ring-amber-400", "bg-amber-50/40");
+      card.className = "border border-[#E4E7EC] bg-white dark:bg-slate-900 rounded-xl p-4 transition-all duration-300";
     }
   }
 
   if (badge) {
-    if (ocrFocusActive) badge.classList.remove("hidden");
-    else badge.classList.add("hidden");
+    if (ocrFocusActive) {
+      badge.textContent = "🤖 PURE AI OCR (NO INSPECTOR EDITS)";
+      badge.className = "text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-indigo-600 text-white shadow-xs animate-pulse";
+      badge.classList.remove("hidden");
+    } else {
+      badge.classList.add("hidden");
+    }
   }
 
   if (btnText) {
-    btnText.textContent = ocrFocusActive ? "Clear OCR Focus" : "Highlight OCR Declarations";
+    btnText.textContent = ocrFocusActive ? "Show Edited Fields" : "Highlight OCR Declarations";
   }
 
-  fields.forEach(row => {
-    if (ocrFocusActive) {
-      row.classList.add("bg-amber-100/70", "border-amber-300");
-    } else {
-      row.classList.remove("bg-amber-100/70", "border-amber-300");
-    }
-  });
+  // Re-render extracted fields showing ONLY pure AI OCR when active!
+  if (window._currentLoadedCaseItem) {
+    renderReviewExtractedFields(window._currentLoadedCaseItem, ocrFocusActive);
+  }
 }
 
 function openDecisionModal(decision) {
