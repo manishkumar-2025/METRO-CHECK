@@ -1,6 +1,6 @@
 {
   "name": "metro-check",
-  "version": "1.0.0",
+  "version": "7.0.0",
   "description": "METRO-CHECK - Real-Time Legal Metrology Compliance Verification System",
   "scripts": {
     "start": "node server/server.js",

@@ -10,7 +10,7 @@ const STORAGE_API_BASE = (() => {
   if (typeof window === "undefined" || !window.location || !window.location.protocol || !window.location.protocol.startsWith("http")) {
     return "http://localhost:3000";
   }
-  const isLocalDevServer = (window.location.hostname === "localhost" || window.location.hostname === "122.4.1.1") && window.location.port !== "3000";
+  const isLocalDevServer = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && window.location.port !== "3000";
   if (isLocalDevServer) {
     return "http://localhost:3000";
   }
