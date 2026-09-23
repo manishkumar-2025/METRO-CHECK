@@ -91,7 +91,8 @@
   <script src="js/jspdf.umd.min.js"></script>
 </head>
 
-<body class="bg-[#F7F8FA] inspector-viewfinder-matrix-bg min-h-screen flex flex-col text-[#64748B] font-sans antialiased text-sm porcelain-canvas"
+<body
+  class="bg-[#F7F8FA] inspector-viewfinder-matrix-bg min-h-screen flex flex-col text-[#64748B] font-sans antialiased text-sm porcelain-canvas"
   onload="initInspectorApp()">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
@@ -150,12 +151,7 @@
           <span class="masthead-ist-clock tracking-tight">-- --- ---- | --:--:-- IST</span>
         </div>
 
-        <!-- Live Network / Cloud Sync Health Pill -->
-        <div id="networkSyncPill"
-          class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] font-bold shadow-xs">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
-          <span>Cloud Sync Active</span>
-        </div>
+
 
         <!-- Accessibility & Theme Pill Dock -->
         <div
@@ -218,7 +214,8 @@
 
     <!-- Mobile Drawer Backdrop -->
     <div id="sidebarBackdrop" onclick="toggleMobileSidebar()"
-      class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-30 hidden md:hidden transition-opacity"></div>
+      class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-30 hidden md:hidden transition-opacity">
+    </div>
 
     <!-- Left Navigation Sidebar (Linear / Shadcn UI 250px SaaS Style) -->
     <aside id="leftSidebar"
@@ -364,8 +361,10 @@
         <div id="sidebarUserDropdownMenu"
           class="sidebar-user-dropdown hidden absolute bottom-full mb-2 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-xl p-1.5 z-50 transition-all text-slate-800 divide-y divide-slate-100">
           <div class="px-2.5 py-2">
-            <p id="sidebarDropdownUserName" class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">Shri R. Sharma</p>
-            <p id="sidebarDropdownUserEmail" class="text-[10px] text-slate-500 dark:text-slate-400 truncate font-mono">r.sharma@metrology.gov.in</p>
+            <p id="sidebarDropdownUserName" class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">Shri
+              R. Sharma</p>
+            <p id="sidebarDropdownUserEmail" class="text-[10px] text-slate-500 dark:text-slate-400 truncate font-mono">
+              r.sharma@metrology.gov.in</p>
           </div>
           <div class="py-1 space-y-0.5">
             <button type="button" onclick="openUserProfileModal(); toggleSidebarUserMenu(false);"
@@ -562,10 +561,13 @@
               <span class="w-2 h-2 rounded-full bg-[#10B981] flex-shrink-0"></span>
               <span id="aiEngineStatusText">Gemini Vision Engine Online</span>
               <span id="aiEngineTelemetryDivider" class="text-slate-300 dark:text-slate-700 hidden lg:inline">|</span>
-              <span id="aiEngineTelemetryText" class="hidden lg:inline text-emerald-700 dark:text-emerald-400 font-mono font-medium text-[10.5px]">Ready for Specimen</span>
+              <span id="aiEngineTelemetryText"
+                class="hidden lg:inline text-emerald-700 dark:text-emerald-400 font-mono font-medium text-[10.5px]">Ready
+                for Specimen</span>
             </div>
             <!-- Field Unit Active Telemetry -->
-            <div class="hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400 flex-shrink-0">
+            <div
+              class="hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400 flex-shrink-0">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               <span id="headerFieldUnitBadge">Field Unit Active</span>
             </div>
@@ -763,31 +765,41 @@
                =================================================================== -->
           <div id="ocrHeaderStatutoryBar"
             class="command-center-stage p-4 sm:p-5 shadow-xl relative overflow-hidden space-y-3.5 border-slate-200/90 dark:border-slate-800">
-            
+
             <!-- Top Ambient Glow Line -->
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500"></div>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500">
+            </div>
 
             <!-- Header Row: Title & Active Engine Status + Case Reference -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800/80">
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800/80">
               <div class="space-y-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-bold text-[10.5px] font-mono shadow-2xs">
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-bold text-[10.5px] font-mono shadow-2xs">
                     <span class="status-pip status-pip-active animate-pulse"></span>
                     <span>Gemini Vision Engine Active</span>
                   </span>
-                  <span class="text-[11px] text-slate-400 font-mono hidden md:inline">• Real-Time Statutory Optics</span>
+                  <span class="text-[11px] text-slate-400 font-mono hidden md:inline">• Real-Time Statutory
+                    Optics</span>
                 </div>
-                <h2 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <h2
+                  class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <span>⚡</span> <span>AI Vision Inspection Workstation</span>
                 </h2>
               </div>
 
               <!-- Case Reference Badge & Guide Action -->
               <div class="flex items-center gap-2 shrink-0">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700 text-xs font-mono shadow-2xs">
-                  <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Docket Ref:</span>
-                  <strong id="ocrCaseIdDisplay" class="font-bold text-emerald-600 dark:text-emerald-400 select-all">INS-0000</strong>
-                  <button type="button" onclick="navigator.clipboard?.writeText(document.getElementById('ocrCaseIdDisplay')?.textContent?.trim()); if(typeof showToast==='function') showToast('Case Ref copied', 'info');" title="Copy Case Ref" class="text-slate-400 hover:text-emerald-500 transition cursor-pointer p-0.5">
+                <div
+                  class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700 text-xs font-mono shadow-2xs">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Docket
+                    Ref:</span>
+                  <strong id="ocrCaseIdDisplay"
+                    class="font-bold text-emerald-600 dark:text-emerald-400 select-all">INS-0000</strong>
+                  <button type="button"
+                    onclick="navigator.clipboard?.writeText(document.getElementById('ocrCaseIdDisplay')?.textContent?.trim()); if(typeof showToast==='function') showToast('Case Ref copied', 'info');"
+                    title="Copy Case Ref" class="text-slate-400 hover:text-emerald-500 transition cursor-pointer p-0.5">
                     📋
                   </button>
                 </div>
@@ -801,7 +813,8 @@
             <!-- Commodity Category & Statutory Standards Selector Bar -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
               <div class="col-span-12 lg:col-span-5 space-y-1">
-                <label for="ocrCommodityCategorySelect" class="text-[10.5px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5 font-mono">
+                <label for="ocrCommodityCategorySelect"
+                  class="text-[10.5px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5 font-mono">
                   <span>🏷️</span> <span>Commodity Category Standard:</span>
                 </label>
                 <select id="ocrCommodityCategorySelect" onchange="handleOcrCommodityChange()"
@@ -811,14 +824,23 @@
               </div>
 
               <!-- Schedule 2 MAV & Pack Size Standards Pills -->
-              <div id="ocrCommodityStandardBadge" class="hidden col-span-12 lg:col-span-7 grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div class="bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl p-2 text-xs">
-                  <span class="text-[9.5px] font-bold text-emerald-800 dark:text-emerald-300 uppercase font-mono block mb-0.5">⚖️ MAV Tolerance</span>
-                  <span id="ocrCommodityToleranceText" class="font-bold text-emerald-950 dark:text-emerald-100 font-mono text-[11px]">MAV: -</span>
+              <div id="ocrCommodityStandardBadge"
+                class="hidden col-span-12 lg:col-span-7 grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div
+                  class="bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl p-2 text-xs">
+                  <span
+                    class="text-[9.5px] font-bold text-emerald-800 dark:text-emerald-300 uppercase font-mono block mb-0.5">⚖️
+                    MAV Tolerance</span>
+                  <span id="ocrCommodityToleranceText"
+                    class="font-bold text-emerald-950 dark:text-emerald-100 font-mono text-[11px]">MAV: -</span>
                 </div>
-                <div class="bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-2 text-xs">
-                  <span class="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono block mb-0.5">📏 Standard Pack Sizes</span>
-                  <span id="ocrCommoditySizesText" class="font-bold text-slate-800 dark:text-slate-200 font-mono text-[11px]">Sizes: -</span>
+                <div
+                  class="bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-2 text-xs">
+                  <span
+                    class="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono block mb-0.5">📏
+                    Standard Pack Sizes</span>
+                  <span id="ocrCommoditySizesText"
+                    class="font-bold text-slate-800 dark:text-slate-200 font-mono text-[11px]">Sizes: -</span>
                 </div>
               </div>
             </div>
@@ -830,31 +852,41 @@
           <!-- ===================================================================
                PRIMARY OPTICAL INSPECTION VIEWPORT & GALLERY STAGE
                =================================================================== -->
-          <div id="ocrMainCaptureDeck" class="command-center-stage p-4 sm:p-5 shadow-xl relative overflow-hidden transition-all space-y-5">
-            
+          <div id="ocrMainCaptureDeck"
+            class="command-center-stage p-4 sm:p-5 shadow-xl relative overflow-hidden transition-all space-y-5">
+
             <!-- Ambient Top Border Glow -->
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500"></div>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500">
+            </div>
 
             <!-- DUAL PANE STUDIO LAYOUT (Desktop 12 Columns Grid) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
               <!-- LEFT PANE (7 Cols): Viewfinder & Primary Controls Stage -->
               <div class="lg:col-span-7 space-y-3.5">
-                
+
                 <!-- Action Toolbar: Mode Switcher & Active Target Slot Navigation -->
-                <div id="ocrActionToolbar" class="px-3.5 py-2.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div id="ocrActionToolbar"
+                  class="px-3.5 py-2.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <!-- Segmented Controller: Camera vs Upload -->
                   <div class="flex items-center gap-3">
-                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-widest uppercase font-mono hidden sm:block">INPUT</span>
+                    <span
+                      class="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-widest uppercase font-mono hidden sm:block">INPUT</span>
                     <div class="mode-tab-group" role="tablist">
-                      <button type="button" id="modeBtnCamera" onclick="switchCaptureMode('camera')" role="tab" aria-selected="true"
-                        class="mode-tab-btn active cursor-pointer">
-                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.89L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+                      <button type="button" id="modeBtnCamera" onclick="switchCaptureMode('camera')" role="tab"
+                        aria-selected="true" class="mode-tab-btn active cursor-pointer">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.89L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
+                        </svg>
                         <span>Live Camera</span>
                       </button>
-                      <button type="button" id="modeBtnUpload" onclick="switchCaptureMode('upload')" role="tab" aria-selected="false"
-                        class="mode-tab-btn cursor-pointer">
-                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                      <button type="button" id="modeBtnUpload" onclick="switchCaptureMode('upload')" role="tab"
+                        aria-selected="false" class="mode-tab-btn cursor-pointer">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
                         <span>Upload Files</span>
                       </button>
                     </div>
@@ -865,32 +897,45 @@
                     <div class="flex items-center gap-1.5">
                       <button type="button" onclick="navigateActiveCaptureSlot(-1)" title="Previous Slot"
                         class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center border border-slate-200 dark:border-slate-700 transition cursor-pointer">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                        </svg>
                       </button>
-                      <span id="activeSlotBadgeDisplay" class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs whitespace-nowrap flex items-center gap-1.5">
+                      <span id="activeSlotBadgeDisplay"
+                        class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs whitespace-nowrap flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
                         Panel 1: Front
                       </span>
                       <button type="button" onclick="navigateActiveCaptureSlot(1)" title="Next Slot"
                         class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center border border-slate-200 dark:border-slate-700 transition cursor-pointer">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                        </svg>
                       </button>
                     </div>
                     <div class="w-px h-5 bg-slate-200 dark:bg-slate-700"></div>
-                    <button type="button" onclick="clearAllPanelImages()" title="Reset all panels" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-500 dark:text-rose-400 flex items-center justify-center border border-rose-200 dark:border-rose-900/60 transition cursor-pointer">
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    <button type="button" onclick="clearAllPanelImages()" title="Reset all panels"
+                      class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-500 dark:text-rose-400 flex items-center justify-center border border-rose-200 dark:border-rose-900/60 transition cursor-pointer">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
                     </button>
                   </div>
                 </div>
 
                 <!-- MODE A: Live Camera Viewfinder Command Center -->
                 <div id="cameraModeBox" class="space-y-3">
-                  <div class="relative bg-slate-950 rounded-2xl overflow-hidden min-h-[300px] sm:min-h-[340px] max-h-[430px] flex items-center justify-center border border-slate-800/80 shadow-2xl viewport-hud-grid">
+                  <div
+                    class="relative bg-slate-950 rounded-2xl overflow-hidden min-h-[300px] sm:min-h-[340px] max-h-[430px] flex items-center justify-center border border-slate-800/80 shadow-2xl viewport-hud-grid">
                     <!-- Video Stream -->
-                    <video id="cameraVideoFeed" playsinline autoplay muted class="hidden w-full h-full object-cover max-h-[430px]"></video>
+                    <video id="cameraVideoFeed" playsinline autoplay muted
+                      class="hidden w-full h-full object-cover max-h-[430px]"></video>
 
                     <!-- Viewfinder HUD Scanning Overlay -->
-                    <div id="cameraScanOverlay" class="absolute inset-0 rounded-2xl pointer-events-none flex flex-col justify-between" style="padding:12px;">
+                    <div id="cameraScanOverlay"
+                      class="absolute inset-0 rounded-2xl pointer-events-none flex flex-col justify-between"
+                      style="padding:12px;">
                       <!-- Corner reticles -->
                       <div class="reticle-corner reticle-corner-tl"></div>
                       <div class="reticle-corner reticle-corner-tr"></div>
@@ -900,12 +945,16 @@
                       <!-- TOP BAR: Single clean status strip -->
                       <div class="flex items-center justify-between">
                         <!-- Target label (left) -->
-                        <div class="flex items-center gap-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg border border-emerald-500/25">
+                        <div
+                          class="flex items-center gap-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg border border-emerald-500/25">
                           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
-                          <span id="cameraTargetLabel" class="text-[10px] font-mono font-bold text-emerald-300 tracking-wider">P1 · FRONT PANEL</span>
+                          <span id="cameraTargetLabel"
+                            class="text-[10px] font-mono font-bold text-emerald-300 tracking-wider">P1 · FRONT
+                            PANEL</span>
                         </div>
                         <!-- Live indicator (right) -->
-                        <div class="flex items-center gap-1.5 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg border border-red-500/40">
+                        <div
+                          class="flex items-center gap-1.5 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg border border-red-500/40">
                           <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse flex-shrink-0"></span>
                           <span class="text-[10px] font-mono font-bold text-red-300 tracking-wider">LIVE</span>
                         </div>
@@ -918,35 +967,45 @@
                       <div class="flex items-end justify-between">
                         <!-- Instruction hint (left) -->
                         <div class="bg-black/70 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/10">
-                          <span class="text-[9.5px] font-mono text-slate-400 tracking-wider">TAP CAPTURE WHEN READY</span>
+                          <span class="text-[9.5px] font-mono text-slate-400 tracking-wider">TAP CAPTURE WHEN
+                            READY</span>
                         </div>
                         <!-- Legal badge (right) -->
                         <div class="bg-black/70 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
-                          <span class="text-[9.5px] font-mono text-emerald-500/80 tracking-wider">LEGAL METROLOGY · PCR 2011</span>
+                          <span class="text-[9.5px] font-mono text-emerald-500/80 tracking-wider">LEGAL METROLOGY · PCR
+                            2011</span>
                         </div>
                       </div>
                     </div>
 
-                     <!-- Camera Offline Placeholder – Premium Dark Viewfinder -->
-                    <div id="cameraPlaceholder" class="w-full h-full flex flex-col items-center justify-center rounded-2xl space-y-5 px-6 py-10 absolute inset-0 z-10" style="background: linear-gradient(145deg,#0B1120 0%,#0F172A 55%,#080D1A 100%);">
+                    <!-- Camera Offline Placeholder – Premium Dark Viewfinder -->
+                    <div id="cameraPlaceholder"
+                      class="w-full h-full flex flex-col items-center justify-center rounded-2xl space-y-5 px-6 py-10 absolute inset-0 z-10"
+                      style="background: linear-gradient(145deg,#0B1120 0%,#0F172A 55%,#080D1A 100%);">
 
                       <!-- Camera Icon Orb -->
                       <div class="camera-icon-orb" style="z-index:11;">
-                        <svg class="w-9 h-9 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.89L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+                        <svg class="w-9 h-9 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                          stroke-width="1.5">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.89L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
                         </svg>
                       </div>
 
                       <!-- Text Block -->
                       <div class="text-center space-y-1.5" style="z-index:11;">
                         <p class="text-[15px] font-bold text-slate-100 tracking-tight">Optical Inspection Viewfinder</p>
-                        <p class="text-[12px] text-slate-400 max-w-[260px] mx-auto leading-relaxed">Activate camera to capture package labels for AI statutory analysis</p>
+                        <p class="text-[12px] text-slate-400 max-w-[260px] mx-auto leading-relaxed">Activate camera to
+                          capture package labels for AI statutory analysis</p>
                       </div>
 
                       <!-- Premium Start Camera CTA -->
-                      <button type="button" id="btnStartCamera" onclick="startLiveCamera()" class="btn-start-camera" style="z-index:11;position:relative;">
+                      <button type="button" id="btnStartCamera" onclick="startLiveCamera()" class="btn-start-camera"
+                        style="z-index:11;position:relative;">
                         <span class="pulse-ring">
-                          <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="5"/></svg>
+                          <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <circle cx="10" cy="10" r="5" />
+                          </svg>
                         </span>
                         <span>Activate Live Camera</span>
                         <span class="ocr-status-chip ready" style="margin-left:4px;">
@@ -963,8 +1022,13 @@
                       </div>
 
                       <!-- Switch to Upload hint -->
-                      <button type="button" onclick="switchCaptureMode('upload')" class="text-[11px] font-semibold text-slate-500 hover:text-emerald-400 transition-colors cursor-pointer flex items-center gap-1.5" style="z-index:11;position:relative;">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                      <button type="button" onclick="switchCaptureMode('upload')"
+                        class="text-[11px] font-semibold text-slate-500 hover:text-emerald-400 transition-colors cursor-pointer flex items-center gap-1.5"
+                        style="z-index:11;position:relative;">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
                         Upload label images instead
                       </button>
                     </div>
@@ -972,26 +1036,37 @@
 
                   <!-- Active Camera Controls Dock – Premium Redesign -->
                   <div id="cameraActiveControls" class="hidden">
-                    <div class="bg-slate-950 rounded-2xl border border-slate-800 px-4 py-3 flex items-center justify-center gap-4">
+                    <div
+                      class="bg-slate-950 rounded-2xl border border-slate-800 px-4 py-3 flex items-center justify-center gap-4">
                       <!-- Flip -->
-                      <button type="button" onclick="switchLiveCamera()" title="Flip Camera" class="cam-icon-btn flip cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                      <button type="button" onclick="switchLiveCamera()" title="Flip Camera"
+                        class="cam-icon-btn flip cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
                       </button>
 
                       <!-- Shutter / Capture -->
                       <div class="flex flex-col items-center gap-1.5">
-                        <button type="button" onclick="captureCameraSnapshot()" title="Capture Active Slot" class="btn-shutter cursor-pointer">
-                          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        <button type="button" onclick="captureCameraSnapshot()" title="Capture Active Slot"
+                          class="btn-shutter cursor-pointer">
+                          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                           </svg>
                         </button>
                         <span class="text-[9.5px] font-bold text-slate-400 font-mono tracking-wider">CAPTURE</span>
                       </div>
 
                       <!-- Stop -->
-                      <button type="button" onclick="stopLiveCamera()" title="Stop Camera" class="cam-icon-btn stop cursor-pointer">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" rx="1"/></svg>
+                      <button type="button" onclick="stopLiveCamera()" title="Stop Camera"
+                        class="cam-icon-btn stop cursor-pointer">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <rect x="5" y="5" width="10" height="10" rx="1" />
+                        </svg>
                       </button>
                     </div>
                   </div>
@@ -1001,153 +1076,256 @@
                 <div id="uploadModeBox" class="hidden space-y-3">
                   <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <!-- SLOT 1: Front -->
-                    <div id="slotCardFront" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all slot-card-active">
+                    <div id="slotCardFront"
+                      class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all slot-card-active">
                       <div class="flex items-center justify-between">
-                        <span class="panel-badge-chip bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">P1</span>
-                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Front Panel</span>
+                        <span
+                          class="panel-badge-chip bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">P1</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Front
+                          Panel</span>
                       </div>
-                      <div id="slotEmptyFront" onclick="document.getElementById('packageImageFrontInput').click()" class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                      <div id="slotEmptyFront" onclick="document.getElementById('packageImageFrontInput').click()"
+                        class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
                         <p class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">Upload Front</p>
                       </div>
-                      <div id="slotPreviewFront" class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
+                      <div id="slotPreviewFront"
+                        class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
                         <div class="flex items-center justify-between text-[10px]">
-                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg> Ready</span>
-                          <button type="button" onclick="clearSlotImage('front')" class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
+                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg
+                              class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7" />
+                            </svg> Ready</span>
+                          <button type="button" onclick="clearSlotImage('front')"
+                            class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
                         </div>
-                        <img id="slotPreviewImgFront" src="" alt="Front Preview" class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        <img id="slotPreviewImgFront" src="" alt="Front Preview"
+                          class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                       </div>
-                      <input type="file" id="packageImageFrontInput" accept="image/jpeg,image/png,image/webp" onchange="handleSlotFileChange('front', event)" class="hidden">
+                      <input type="file" id="packageImageFrontInput" accept="image/jpeg,image/png,image/webp"
+                        onchange="handleSlotFileChange('front', event)" class="hidden">
                     </div>
 
                     <!-- SLOT 2: Back -->
-                    <div id="slotCardBack" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all">
+                    <div id="slotCardBack"
+                      class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all">
                       <div class="flex items-center justify-between">
-                        <span class="panel-badge-chip bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">P2</span>
-                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Back Panel</span>
+                        <span
+                          class="panel-badge-chip bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">P2</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Back
+                          Panel</span>
                       </div>
-                      <div id="slotEmptyBack" onclick="document.getElementById('packageImageBackInput').click()" class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                      <div id="slotEmptyBack" onclick="document.getElementById('packageImageBackInput').click()"
+                        class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
                         <p class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">Upload Back</p>
                       </div>
-                      <div id="slotPreviewBack" class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
+                      <div id="slotPreviewBack"
+                        class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
                         <div class="flex items-center justify-between text-[10px]">
-                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg> Ready</span>
-                          <button type="button" onclick="clearSlotImage('back')" class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
+                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg
+                              class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7" />
+                            </svg> Ready</span>
+                          <button type="button" onclick="clearSlotImage('back')"
+                            class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
                         </div>
-                        <img id="slotPreviewImgBack" src="" alt="Back Preview" class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        <img id="slotPreviewImgBack" src="" alt="Back Preview"
+                          class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                       </div>
-                      <input type="file" id="packageImageBackInput" accept="image/jpeg,image/png,image/webp" onchange="handleSlotFileChange('back', event)" class="hidden">
+                      <input type="file" id="packageImageBackInput" accept="image/jpeg,image/png,image/webp"
+                        onchange="handleSlotFileChange('back', event)" class="hidden">
                     </div>
 
                     <!-- SLOT 3: Left -->
-                    <div id="slotCardLeft" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all">
+                    <div id="slotCardLeft"
+                      class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all">
                       <div class="flex items-center justify-between">
-                        <span class="panel-badge-chip bg-violet-100 text-violet-800 dark:bg-violet-950/60 dark:text-violet-300">P3</span>
-                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Left Side</span>
+                        <span
+                          class="panel-badge-chip bg-violet-100 text-violet-800 dark:bg-violet-950/60 dark:text-violet-300">P3</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Left
+                          Side</span>
                       </div>
-                      <div id="slotEmptyLeft" onclick="document.getElementById('packageImageLeftInput').click()" class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                      <div id="slotEmptyLeft" onclick="document.getElementById('packageImageLeftInput').click()"
+                        class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
                         <p class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">Upload Left</p>
                       </div>
-                      <div id="slotPreviewLeft" class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
+                      <div id="slotPreviewLeft"
+                        class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
                         <div class="flex items-center justify-between text-[10px]">
-                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg> Ready</span>
-                          <button type="button" onclick="clearSlotImage('left')" class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
+                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg
+                              class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7" />
+                            </svg> Ready</span>
+                          <button type="button" onclick="clearSlotImage('left')"
+                            class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
                         </div>
-                        <img id="slotPreviewImgLeft" src="" alt="Left Preview" class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        <img id="slotPreviewImgLeft" src="" alt="Left Preview"
+                          class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                       </div>
-                      <input type="file" id="packageImageLeftInput" accept="image/jpeg,image/png,image/webp" onchange="handleSlotFileChange('left', event)" class="hidden">
+                      <input type="file" id="packageImageLeftInput" accept="image/jpeg,image/png,image/webp"
+                        onchange="handleSlotFileChange('left', event)" class="hidden">
                     </div>
 
                     <!-- SLOT 4: Right -->
-                    <div id="slotCardRight" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all">
+                    <div id="slotCardRight"
+                      class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all">
                       <div class="flex items-center justify-between">
-                        <span class="panel-badge-chip bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300">P4</span>
-                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Right Side</span>
+                        <span
+                          class="panel-badge-chip bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300">P4</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Right
+                          Side</span>
                       </div>
-                      <div id="slotEmptyRight" onclick="document.getElementById('packageImageRightInput').click()" class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                      <div id="slotEmptyRight" onclick="document.getElementById('packageImageRightInput').click()"
+                        class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
                         <p class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">Upload Right</p>
                       </div>
-                      <div id="slotPreviewRight" class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
+                      <div id="slotPreviewRight"
+                        class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
                         <div class="flex items-center justify-between text-[10px]">
-                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg> Ready</span>
-                          <button type="button" onclick="clearSlotImage('right')" class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
+                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg
+                              class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7" />
+                            </svg> Ready</span>
+                          <button type="button" onclick="clearSlotImage('right')"
+                            class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
                         </div>
-                        <img id="slotPreviewImgRight" src="" alt="Right Preview" class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        <img id="slotPreviewImgRight" src="" alt="Right Preview"
+                          class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                       </div>
-                      <input type="file" id="packageImageRightInput" accept="image/jpeg,image/png,image/webp" onchange="handleSlotFileChange('right', event)" class="hidden">
+                      <input type="file" id="packageImageRightInput" accept="image/jpeg,image/png,image/webp"
+                        onchange="handleSlotFileChange('right', event)" class="hidden">
                     </div>
 
                     <!-- SLOT 5: Top -->
-                    <div id="slotCardTop" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all">
+                    <div id="slotCardTop"
+                      class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all">
                       <div class="flex items-center justify-between">
-                        <span class="panel-badge-chip bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">P5</span>
-                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Top Cap</span>
+                        <span
+                          class="panel-badge-chip bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">P5</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Top
+                          Cap</span>
                       </div>
-                      <div id="slotEmptyTop" onclick="document.getElementById('packageImageTopInput').click()" class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                      <div id="slotEmptyTop" onclick="document.getElementById('packageImageTopInput').click()"
+                        class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
                         <p class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">Upload Top</p>
                       </div>
-                      <div id="slotPreviewTop" class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
+                      <div id="slotPreviewTop"
+                        class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
                         <div class="flex items-center justify-between text-[10px]">
-                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg> Ready</span>
-                          <button type="button" onclick="clearSlotImage('top')" class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
+                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg
+                              class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7" />
+                            </svg> Ready</span>
+                          <button type="button" onclick="clearSlotImage('top')"
+                            class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
                         </div>
-                        <img id="slotPreviewImgTop" src="" alt="Top Preview" class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        <img id="slotPreviewImgTop" src="" alt="Top Preview"
+                          class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                       </div>
-                      <input type="file" id="packageImageTopInput" accept="image/jpeg,image/png,image/webp" onchange="handleSlotFileChange('top', event)" class="hidden">
+                      <input type="file" id="packageImageTopInput" accept="image/jpeg,image/png,image/webp"
+                        onchange="handleSlotFileChange('top', event)" class="hidden">
                     </div>
 
                     <!-- SLOT 6: Bottom -->
-                    <div id="slotCardBottom" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all">
+                    <div id="slotCardBottom"
+                      class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-2 p-3 group hover:border-emerald-400 hover:shadow-md transition-all">
                       <div class="flex items-center justify-between">
-                        <span class="panel-badge-chip bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">P6</span>
-                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Base Seal</span>
+                        <span
+                          class="panel-badge-chip bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">P6</span>
+                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] tracking-tight">Base
+                          Seal</span>
                       </div>
-                      <div id="slotEmptyBottom" onclick="document.getElementById('packageImageBottomInput').click()" class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                      <div id="slotEmptyBottom" onclick="document.getElementById('packageImageBottomInput').click()"
+                        class="upload-slot-card border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 cursor-pointer min-h-[80px]">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
                         <p class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">Upload Base</p>
                       </div>
-                      <div id="slotPreviewBottom" class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
+                      <div id="slotPreviewBottom"
+                        class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-1.5 flex flex-col gap-1">
                         <div class="flex items-center justify-between text-[10px]">
-                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg> Ready</span>
-                          <button type="button" onclick="clearSlotImage('bottom')" class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
+                          <span class="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1"><svg
+                              class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7" />
+                            </svg> Ready</span>
+                          <button type="button" onclick="clearSlotImage('bottom')"
+                            class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded transition cursor-pointer">✕</button>
                         </div>
-                        <img id="slotPreviewImgBottom" src="" alt="Bottom Preview" class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        <img id="slotPreviewImgBottom" src="" alt="Bottom Preview"
+                          class="h-14 mx-auto rounded-lg object-contain bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                       </div>
-                      <input type="file" id="packageImageBottomInput" accept="image/jpeg,image/png,image/webp" onchange="handleSlotFileChange('bottom', event)" class="hidden">
+                      <input type="file" id="packageImageBottomInput" accept="image/jpeg,image/png,image/webp"
+                        onchange="handleSlotFileChange('bottom', event)" class="hidden">
                     </div>
                   </div>
 
-                  <input type="file" id="packageImageFileInput" accept="image/jpeg,image/png,image/webp" onchange="handleFileInputChange(event)" class="hidden">
+                  <input type="file" id="packageImageFileInput" accept="image/jpeg,image/png,image/webp"
+                    onchange="handleFileInputChange(event)" class="hidden">
                 </div>
 
                 <!-- Hidden Fallback Container -->
-                <div id="specimenPreviewContainer" class="hidden bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-center space-y-2">
+                <div id="specimenPreviewContainer"
+                  class="hidden bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-center space-y-2">
                   <div class="flex items-center justify-between text-xs text-slate-700 dark:text-slate-200">
-                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">✓ Specimen Ready for AI Analysis</span>
-                    <button type="button" onclick="clearSpecimenImage()" class="text-rose-500 font-medium cursor-pointer">✕ Remove</button>
+                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">✓ Specimen Ready for AI
+                      Analysis</span>
+                    <button type="button" onclick="clearSpecimenImage()"
+                      class="text-rose-500 font-medium cursor-pointer">✕ Remove</button>
                   </div>
-                  <img id="specimenPreviewImg" src="" alt="Specimen Preview" class="max-h-52 mx-auto rounded shadow-sm object-contain">
+                  <img id="specimenPreviewImg" src="" alt="Specimen Preview"
+                    class="max-h-52 mx-auto rounded shadow-sm object-contain">
                 </div>
 
                 <!-- PRIMARY CTA DOCK (Scan & Execution Control Center) -->
-                <div id="ocrPrimaryCtaDock" class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-md space-y-3.5">
-                  
+                <div id="ocrPrimaryCtaDock"
+                  class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-md space-y-3.5">
+
                   <!-- Dock Micro-Header -->
-                  <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+                  <div
+                    class="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/80">
                     <div class="flex items-center gap-2">
-                      <div class="w-6 h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                      <div
+                        class="w-6 h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
                       </div>
                       <div>
-                        <h4 class="text-[11px] font-black text-slate-900 dark:text-slate-100 tracking-wider uppercase font-mono">Statutory Audit Engine</h4>
+                        <h4
+                          class="text-[11px] font-black text-slate-900 dark:text-slate-100 tracking-wider uppercase font-mono">
+                          Statutory Audit Engine</h4>
                         <p class="text-[10px] text-slate-400">Legal Metrology Act, 2009 Compliance</p>
                       </div>
                     </div>
-                    
+
                     <span class="ocr-status-chip ready flex-shrink-0">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                       Rules 6 · 7 · 9
@@ -1155,27 +1333,40 @@
                   </div>
 
                   <!-- Audit Readiness Status & Progress Bar -->
-                  <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 space-y-2">
+                  <div
+                    class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 space-y-2">
                     <div class="flex items-center justify-between">
-                      <div id="ctaMinBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 shadow-2xs">
+                      <div id="ctaMinBadge"
+                        class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 shadow-2xs">
                         <span class="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-500"></span>
                         <span id="ctaMinBadgeText">0 of 2 Minimum Panels Loaded</span>
                       </div>
-                      <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Audit Readiness</span>
+                      <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Audit
+                        Readiness</span>
                     </div>
 
                     <!-- Enhanced Progress Bar -->
                     <div class="w-full h-2 bg-slate-200/80 dark:bg-slate-700/80 rounded-full overflow-hidden p-0.5">
-                      <div id="ctaReadinessBar" class="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 rounded-full transition-all duration-500 shadow-sm" style="width:0%"></div>
+                      <div id="ctaReadinessBar"
+                        class="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 rounded-full transition-all duration-500 shadow-sm"
+                        style="width:0%"></div>
                     </div>
                   </div>
 
                   <!-- Executive Execution Button -->
                   <button type="button" id="btnRunAiAnalysis" disabled onclick="startAiOcrInspection()"
                     class="btn-ai-scan-premium">
-                    <svg class="w-5 h-5 flex-shrink-0 text-amber-400 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    <span id="btnRunAiText" class="text-sm font-extrabold tracking-wide">Run Multi-Panel AI Statutory Audit</span>
-                    <svg class="w-4 h-4 flex-shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    <svg class="w-5 h-5 flex-shrink-0 text-amber-400 dark:text-amber-300" fill="none"
+                      stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span id="btnRunAiText" class="text-sm font-extrabold tracking-wide">Run Multi-Panel AI Statutory
+                      Audit</span>
+                    <svg class="w-4 h-4 flex-shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
                   </button>
                 </div>
 
@@ -1183,12 +1374,15 @@
 
               <!-- RIGHT PANE (5 Cols): 360° Package Panels Gallery Deck -->
               <div class="lg:col-span-5 space-y-3.5">
-                <div id="cameraPanelThumbnailsStrip" class="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-3 shadow-sm">
+                <div id="cameraPanelThumbnailsStrip"
+                  class="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-3 shadow-sm">
 
                   <!-- Header -->
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-[11px] font-black text-slate-900 dark:text-slate-100 tracking-widest uppercase font-mono">360° Panel Deck</p>
+                      <p
+                        class="text-[11px] font-black text-slate-900 dark:text-slate-100 tracking-widest uppercase font-mono">
+                        360° Panel Deck</p>
                       <p class="text-[10px] text-slate-400 mt-0.5">Select a panel to target the viewfinder</p>
                     </div>
                     <div class="ocr-status-chip active">
@@ -1203,114 +1397,175 @@
                   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
 
                     <!-- 1. Front -->
-                    <div onclick="setActiveCaptureSlot('front')" class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 slot-card-active group">
+                    <div onclick="setActiveCaptureSlot('front')"
+                      class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 slot-card-active group">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
-                          <span class="panel-badge-chip bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300">P1</span>
+                          <span
+                            class="panel-badge-chip bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300">P1</span>
                           <span class="text-[11px] font-bold text-slate-800 dark:text-slate-100">Front</span>
                         </div>
-                        <span class="text-[8.5px] font-mono text-emerald-600 dark:text-emerald-400 font-black">PDP</span>
+                        <span
+                          class="text-[8.5px] font-mono text-emerald-600 dark:text-emerald-400 font-black">PDP</span>
                       </div>
-                      <div id="camThumbBoxFront" onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.front){ event.stopPropagation(); openPanelZoomLightbox('front'); }" class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
-                        <span id="camThumbTextFront" class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
-                        <img id="camThumbImgFront" src="" alt="Front Panel Preview" class="hidden w-full h-full object-cover">
-                        <div id="camThumbZoomFront" class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
-                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                      <div id="camThumbBoxFront"
+                        onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.front){ event.stopPropagation(); openPanelZoomLightbox('front'); }"
+                        class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
+                        <span id="camThumbTextFront"
+                          class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
+                        <img id="camThumbImgFront" src="" alt="Front Panel Preview"
+                          class="hidden w-full h-full object-cover">
+                        <div id="camThumbZoomFront"
+                          class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                          </svg>
                           <span class="tracking-wider uppercase font-mono text-[8px] text-slate-200">Zoom</span>
                         </div>
                       </div>
                     </div>
 
                     <!-- 2. Back -->
-                    <div onclick="setActiveCaptureSlot('back')" class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 group">
+                    <div onclick="setActiveCaptureSlot('back')"
+                      class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 group">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
-                          <span class="panel-badge-chip bg-indigo-100 text-indigo-800 dark:bg-indigo-950/70 dark:text-indigo-300">P2</span>
+                          <span
+                            class="panel-badge-chip bg-indigo-100 text-indigo-800 dark:bg-indigo-950/70 dark:text-indigo-300">P2</span>
                           <span class="text-[11px] font-bold text-slate-800 dark:text-slate-100">Back</span>
                         </div>
                         <span class="text-[8.5px] font-mono text-slate-400 uppercase font-semibold">Decl.</span>
                       </div>
-                      <div id="camThumbBoxBack" onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.back){ event.stopPropagation(); openPanelZoomLightbox('back'); }" class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
-                        <span id="camThumbTextBack" class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
-                        <img id="camThumbImgBack" src="" alt="Back Panel Preview" class="hidden w-full h-full object-cover">
-                        <div id="camThumbZoomBack" class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
-                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                      <div id="camThumbBoxBack"
+                        onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.back){ event.stopPropagation(); openPanelZoomLightbox('back'); }"
+                        class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
+                        <span id="camThumbTextBack"
+                          class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
+                        <img id="camThumbImgBack" src="" alt="Back Panel Preview"
+                          class="hidden w-full h-full object-cover">
+                        <div id="camThumbZoomBack"
+                          class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                          </svg>
                           <span class="tracking-wider uppercase font-mono text-[8px] text-slate-200">Zoom</span>
                         </div>
                       </div>
                     </div>
 
                     <!-- 3. Left -->
-                    <div onclick="setActiveCaptureSlot('left')" class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 group">
+                    <div onclick="setActiveCaptureSlot('left')"
+                      class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 group">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
-                          <span class="panel-badge-chip bg-violet-100 text-violet-800 dark:bg-violet-950/70 dark:text-violet-300">P3</span>
+                          <span
+                            class="panel-badge-chip bg-violet-100 text-violet-800 dark:bg-violet-950/70 dark:text-violet-300">P3</span>
                           <span class="text-[11px] font-bold text-slate-800 dark:text-slate-100">Left</span>
                         </div>
                         <span class="text-[8.5px] font-mono text-slate-400 uppercase font-semibold">Batch</span>
                       </div>
-                      <div id="camThumbBoxLeft" onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.left){ event.stopPropagation(); openPanelZoomLightbox('left'); }" class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
-                        <span id="camThumbTextLeft" class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
-                        <img id="camThumbImgLeft" src="" alt="Left Panel Preview" class="hidden w-full h-full object-cover">
-                        <div id="camThumbZoomLeft" class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
-                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                      <div id="camThumbBoxLeft"
+                        onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.left){ event.stopPropagation(); openPanelZoomLightbox('left'); }"
+                        class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
+                        <span id="camThumbTextLeft"
+                          class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
+                        <img id="camThumbImgLeft" src="" alt="Left Panel Preview"
+                          class="hidden w-full h-full object-cover">
+                        <div id="camThumbZoomLeft"
+                          class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                          </svg>
                           <span class="tracking-wider uppercase font-mono text-[8px] text-slate-200">Zoom</span>
                         </div>
                       </div>
                     </div>
 
                     <!-- 4. Right -->
-                    <div onclick="setActiveCaptureSlot('right')" class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 group">
+                    <div onclick="setActiveCaptureSlot('right')"
+                      class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 group">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
-                          <span class="panel-badge-chip bg-cyan-100 text-cyan-800 dark:bg-cyan-950/70 dark:text-cyan-300">P4</span>
+                          <span
+                            class="panel-badge-chip bg-cyan-100 text-cyan-800 dark:bg-cyan-950/70 dark:text-cyan-300">P4</span>
                           <span class="text-[11px] font-bold text-slate-800 dark:text-slate-100">Right</span>
                         </div>
                         <span class="text-[8.5px] font-mono text-slate-400 uppercase font-semibold">Info</span>
                       </div>
-                      <div id="camThumbBoxRight" onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.right){ event.stopPropagation(); openPanelZoomLightbox('right'); }" class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
-                        <span id="camThumbTextRight" class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
-                        <img id="camThumbImgRight" src="" alt="Right Panel Preview" class="hidden w-full h-full object-cover">
-                        <div id="camThumbZoomRight" class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
-                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                      <div id="camThumbBoxRight"
+                        onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.right){ event.stopPropagation(); openPanelZoomLightbox('right'); }"
+                        class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
+                        <span id="camThumbTextRight"
+                          class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
+                        <img id="camThumbImgRight" src="" alt="Right Panel Preview"
+                          class="hidden w-full h-full object-cover">
+                        <div id="camThumbZoomRight"
+                          class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                          </svg>
                           <span class="tracking-wider uppercase font-mono text-[8px] text-slate-200">Zoom</span>
                         </div>
                       </div>
                     </div>
 
                     <!-- 5. Top -->
-                    <div onclick="setActiveCaptureSlot('top')" class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 group">
+                    <div onclick="setActiveCaptureSlot('top')"
+                      class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 group">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
-                          <span class="panel-badge-chip bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300">P5</span>
+                          <span
+                            class="panel-badge-chip bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300">P5</span>
                           <span class="text-[11px] font-bold text-slate-800 dark:text-slate-100">Top</span>
                         </div>
                         <span class="text-[8.5px] font-mono text-slate-400 uppercase font-semibold">Cap</span>
                       </div>
-                      <div id="camThumbBoxTop" onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.top){ event.stopPropagation(); openPanelZoomLightbox('top'); }" class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
-                        <span id="camThumbTextTop" class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
-                        <img id="camThumbImgTop" src="" alt="Top Panel Preview" class="hidden w-full h-full object-cover">
-                        <div id="camThumbZoomTop" class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
-                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                      <div id="camThumbBoxTop"
+                        onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.top){ event.stopPropagation(); openPanelZoomLightbox('top'); }"
+                        class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
+                        <span id="camThumbTextTop"
+                          class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
+                        <img id="camThumbImgTop" src="" alt="Top Panel Preview"
+                          class="hidden w-full h-full object-cover">
+                        <div id="camThumbZoomTop"
+                          class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                          </svg>
                           <span class="tracking-wider uppercase font-mono text-[8px] text-slate-200">Zoom</span>
                         </div>
                       </div>
                     </div>
 
                     <!-- 6. Bottom -->
-                    <div onclick="setActiveCaptureSlot('bottom')" class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 group">
+                    <div onclick="setActiveCaptureSlot('bottom')"
+                      class="panel-thumb-card border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 space-y-1.5 group">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
-                          <span class="panel-badge-chip bg-rose-100 text-rose-800 dark:bg-rose-950/70 dark:text-rose-300">P6</span>
+                          <span
+                            class="panel-badge-chip bg-rose-100 text-rose-800 dark:bg-rose-950/70 dark:text-rose-300">P6</span>
                           <span class="text-[11px] font-bold text-slate-800 dark:text-slate-100">Base</span>
                         </div>
                         <span class="text-[8.5px] font-mono text-slate-400 uppercase font-semibold">Seal</span>
                       </div>
-                      <div id="camThumbBoxBottom" onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.bottom){ event.stopPropagation(); openPanelZoomLightbox('bottom'); }" class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
-                        <span id="camThumbTextBottom" class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
-                        <img id="camThumbImgBottom" src="" alt="Bottom Panel Preview" class="hidden w-full h-full object-cover">
-                        <div id="camThumbZoomBottom" class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
-                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                      <div id="camThumbBoxBottom"
+                        onclick="if(typeof panelImages !== 'undefined' && panelImages && panelImages.bottom){ event.stopPropagation(); openPanelZoomLightbox('bottom'); }"
+                        class="w-full h-[72px] bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden border border-dashed border-slate-200 dark:border-slate-700 group-hover:border-emerald-400 transition-all relative cursor-pointer">
+                        <span id="camThumbTextBottom"
+                          class="text-[9px] text-slate-400 font-mono tracking-wider">EMPTY</span>
+                        <img id="camThumbImgBottom" src="" alt="Bottom Panel Preview"
+                          class="hidden w-full h-full object-cover">
+                        <div id="camThumbZoomBottom"
+                          class="hidden absolute inset-0 bg-slate-950/70 flex flex-col items-center justify-center gap-0.5 text-white text-[10px] font-bold opacity-0 hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                          </svg>
                           <span class="tracking-wider uppercase font-mono text-[8px] text-slate-200">Zoom</span>
                         </div>
                       </div>
@@ -1327,76 +1582,107 @@
           <!-- =================================================================
                FALLBACK: MANUAL DECLARATION ENTRY FORM
                ================================================================= -->
-          <details id="manualEntryAccordion" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
-            <summary class="p-4 sm:p-5 flex items-center justify-between cursor-pointer bg-white dark:bg-slate-900 hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors select-none list-none group">
+          <details id="manualEntryAccordion"
+            class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+            <summary
+              class="p-4 sm:p-5 flex items-center justify-between cursor-pointer bg-white dark:bg-slate-900 hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors select-none list-none group">
               <div class="flex items-center gap-3">
                 <!-- SVG Icon badge -->
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                <div
+                  class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </div>
                 <div>
                   <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm">Manual Declaration Entry</h4>
-                  <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Rule 6 statutory validation form for direct inspection entry</p>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Rule 6 statutory validation form for
+                    direct inspection entry</p>
                 </div>
               </div>
               <!-- Chevron Toggle -->
               <div class="flex items-center gap-2 flex-shrink-0">
-                <span class="text-[10px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-1 rounded-lg border border-amber-200/80 dark:border-amber-800/60 font-mono tracking-wider hidden sm:inline-flex items-center gap-1.5">
+                <span
+                  class="text-[10px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-1 rounded-lg border border-amber-200/80 dark:border-amber-800/60 font-mono tracking-wider hidden sm:inline-flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                   MANUAL ENTRY
                 </span>
-                <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 transition-transform duration-200 group-open:rotate-180">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                <div
+                  class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 transition-transform duration-200 group-open:rotate-180">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                  </svg>
                 </div>
               </div>
             </summary>
 
 
-            <form id="manualInspectionForm" onsubmit="handleManualInspectionSubmit(event)" novalidate class="p-4 sm:p-5 space-y-3.5 border-t border-slate-100 dark:border-slate-800">
-              <div class="bg-amber-50/80 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200 dark:border-amber-800/80 text-xs text-amber-900 dark:text-amber-300 leading-relaxed">
-                <strong>Statutory Constraints:</strong> MRP must be positive (> ₹0.01), Mfg date cannot be in future, and Net Qty must have metric units (g, kg, ml, l, m, n).
+            <form id="manualInspectionForm" onsubmit="handleManualInspectionSubmit(event)" novalidate
+              class="p-4 sm:p-5 space-y-3.5 border-t border-slate-100 dark:border-slate-800">
+              <div
+                class="bg-amber-50/80 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200 dark:border-amber-800/80 text-xs text-amber-900 dark:text-amber-300 leading-relaxed">
+                <strong>Statutory Constraints:</strong> MRP must be positive (> ₹0.01), Mfg date cannot be in future,
+                and Net Qty must have metric units (g, kg, ml, l, m, n).
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 text-xs">
                 <div>
-                  <label for="manualCommodity" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Commodity / Generic Name <span class="text-red-500">*</span></label>
-                  <input type="text" id="manualCommodity" required placeholder="e.g. Masala Tea / Biscuits / Edible Oil" class="ds-input text-xs w-full">
+                  <label for="manualCommodity"
+                    class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Commodity / Generic Name <span
+                      class="text-red-500">*</span></label>
+                  <input type="text" id="manualCommodity" required placeholder="e.g. Masala Tea / Biscuits / Edible Oil"
+                    class="ds-input text-xs w-full">
                 </div>
                 <div>
-                  <label for="manualBrand" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Brand / Trade Name</label>
-                  <input type="text" id="manualBrand" placeholder="e.g. MetroGold / NatureFresh" class="ds-input text-xs w-full">
+                  <label for="manualBrand" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Brand /
+                    Trade Name</label>
+                  <input type="text" id="manualBrand" placeholder="e.g. MetroGold / NatureFresh"
+                    class="ds-input text-xs w-full">
                 </div>
                 <div>
-                  <label for="manualNetQty" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Net Quantity (with unit) <span class="text-red-500">*</span></label>
-                  <input type="text" id="manualNetQty" required pattern="^([0-9]+(\.[0-9]+)?)\s*(g|kg|ml|l|m|n)$" placeholder="e.g. 500 g, 1 kg, 750 ml" class="ds-input text-xs w-full">
+                  <label for="manualNetQty" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Net
+                    Quantity (with unit) <span class="text-red-500">*</span></label>
+                  <input type="text" id="manualNetQty" required pattern="^([0-9]+(\.[0-9]+)?)\s*(g|kg|ml|l|m|n)$"
+                    placeholder="e.g. 500 g, 1 kg, 750 ml" class="ds-input text-xs w-full">
                 </div>
                 <div>
-                  <label for="manualMrp" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Retail Sale Price - MRP (₹) <span class="text-red-500">*</span></label>
-                  <input type="number" id="manualMrp" required min="0.01" step="0.01" placeholder="e.g. 150.00" class="ds-input text-xs w-full">
+                  <label for="manualMrp" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Retail Sale
+                    Price - MRP (₹) <span class="text-red-500">*</span></label>
+                  <input type="number" id="manualMrp" required min="0.01" step="0.01" placeholder="e.g. 150.00"
+                    class="ds-input text-xs w-full">
                 </div>
                 <div>
-                  <label for="manualMfgDate" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Mfg / Packaging Date <span class="text-red-500">*</span></label>
+                  <label for="manualMfgDate" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Mfg /
+                    Packaging Date <span class="text-red-500">*</span></label>
                   <input type="date" id="manualMfgDate" required class="ds-input text-xs w-full">
                 </div>
                 <div>
-                  <label for="manualBatch" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Batch / Lot Number</label>
+                  <label for="manualBatch" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Batch /
+                    Lot Number</label>
                   <input type="text" id="manualBatch" placeholder="e.g. B-84920" class="ds-input text-xs w-full">
                 </div>
                 <div class="sm:col-span-2">
-                  <label for="manualManufacturer" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Manufacturer / Packer Name & Address <span class="text-red-500">*</span></label>
-                  <input type="text" id="manualManufacturer" required placeholder="Complete registered company name and factory address" class="ds-input text-xs w-full">
+                  <label for="manualManufacturer"
+                    class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Manufacturer / Packer Name &
+                    Address <span class="text-red-500">*</span></label>
+                  <input type="text" id="manualManufacturer" required
+                    placeholder="Complete registered company name and factory address" class="ds-input text-xs w-full">
                 </div>
                 <div>
-                  <label for="manualConsumerCare" class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Consumer Care Helpline / Email <span class="text-red-500">*</span></label>
-                  <input type="text" id="manualConsumerCare" required placeholder="Helpline phone, email or address" class="ds-input text-xs w-full">
+                  <label for="manualConsumerCare"
+                    class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Consumer Care Helpline / Email
+                    <span class="text-red-500">*</span></label>
+                  <input type="text" id="manualConsumerCare" required placeholder="Helpline phone, email or address"
+                    class="ds-input text-xs w-full">
                 </div>
               </div>
 
               <div class="flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-slate-800">
                 <button type="reset" class="btn-secondary text-xs">Clear Fields</button>
-                <button type="submit" class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center gap-2 shadow-sm">
+                <button type="submit"
+                  class="btn-primary active:scale-95 transition-transform duration-100 text-xs flex items-center gap-2 shadow-sm">
                   <span>✓</span> <span>Validate & Record Inspection</span>
                 </button>
               </div>
@@ -1404,12 +1690,17 @@
           </details>
 
           <!-- PROGRESS / LOADING STATE -->
-          <div id="ocrLoadingSection" class="hidden relative bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl text-center space-y-3 overflow-hidden">
+          <div id="ocrLoadingSection"
+            class="hidden relative bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl text-center space-y-3 overflow-hidden">
             <div class="animate-scan-sweep"></div>
-            <div class="spinner-icon mx-auto" style="border-top-color: #10B981; width: 42px; height: 42px; border-width: 4px;"></div>
-            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-base sm:text-lg tracking-tight">Analyzing Specimen with Gemini Vision AI...</h4>
-            <p id="ocrProgressStepText" class="text-xs text-emerald-600 dark:text-emerald-400 font-bold font-mono">Extracting visible declarations with Automated Optics Engine...</p>
-            <p class="text-[11px] text-slate-400 dark:text-slate-500 font-mono">PCR 2011 Rule Audit • MAV Schedule 2 Tolerance Verification</p>
+            <div class="spinner-icon mx-auto"
+              style="border-top-color: #10B981; width: 42px; height: 42px; border-width: 4px;"></div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-base sm:text-lg tracking-tight">Analyzing
+              Specimen with Gemini Vision AI...</h4>
+            <p id="ocrProgressStepText" class="text-xs text-emerald-600 dark:text-emerald-400 font-bold font-mono">
+              Extracting visible declarations with Automated Optics Engine...</p>
+            <p class="text-[11px] text-slate-400 dark:text-slate-500 font-mono">PCR 2011 Rule Audit • MAV Schedule 2
+              Tolerance Verification</p>
           </div>
 
           <!-- =================================================================
@@ -1418,11 +1709,14 @@
           <div id="ocrReportResultsSection" class="hidden space-y-4 sm:space-y-5">
 
             <!-- DIAGNOSTIC TELEMETRY PILL DOCK -->
-            <div id="scannerTelemetryDock" class="hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 sm:p-3.5 shadow-sm transition-all">
+            <div id="scannerTelemetryDock"
+              class="hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 sm:p-3.5 shadow-sm transition-all">
               <div class="flex items-center gap-2 mb-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 font-mono">Live Inspection Telemetry</span>
-                <span class="text-[10px] font-mono text-slate-400 dark:text-slate-500 ml-auto hidden sm:inline">Gemini Vision • PCR 2011 Rule Engine • SHA-256 Chain</span>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 font-mono">Live Inspection
+                  Telemetry</span>
+                <span class="text-[10px] font-mono text-slate-400 dark:text-slate-500 ml-auto hidden sm:inline">Gemini
+                  Vision • PCR 2011 Rule Engine • SHA-256 Chain</span>
               </div>
             </div>
 
@@ -1433,30 +1727,42 @@
               <div id="ocrResultPanel-particulars" class="lg:col-span-4 space-y-4 lg:sticky lg:top-4">
 
                 <!-- UNIFIED COMMAND CARD -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-800/80">
+                <div
+                  class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-800/80">
 
                   <!-- Part 1: Specimen Evidence & Identification -->
                   <div class="p-4 space-y-3">
                     <div class="flex items-center justify-between">
                       <div class="flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold">📸</span>
-                        <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs uppercase tracking-wider font-mono">Specimen Evidence</h4>
+                        <span
+                          class="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold">📸</span>
+                        <h4
+                          class="font-bold text-slate-900 dark:text-slate-100 text-xs uppercase tracking-wider font-mono">
+                          Specimen Evidence</h4>
                       </div>
-                      <span class="text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60">Section 63 BSA</span>
+                      <span
+                        class="text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60">Section
+                        63 BSA</span>
                     </div>
 
-                    <div class="specimen-stage rounded-2xl p-2.5 text-center relative group overflow-hidden border border-slate-800 flex items-center justify-center min-h-[185px] select-none shadow-inner bg-slate-950">
+                    <div
+                      class="specimen-stage rounded-2xl p-2.5 text-center relative group overflow-hidden border border-slate-800 flex items-center justify-center min-h-[185px] select-none shadow-inner bg-slate-950">
                       <div class="absolute top-2 left-2 z-10">
-                        <span id="specimenPanelIndicatorBadge" class="px-2 py-0.5 rounded-md bg-black/80 text-emerald-400 text-[10px] font-mono font-bold backdrop-blur-xs border border-emerald-500/30 shadow-xs">
+                        <span id="specimenPanelIndicatorBadge"
+                          class="px-2 py-0.5 rounded-md bg-black/80 text-emerald-400 text-[10px] font-mono font-bold backdrop-blur-xs border border-emerald-500/30 shadow-xs">
                           Panel 1/1: Front
                         </span>
                       </div>
 
-                      <div onclick="openSpecimenLightbox()" class="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                        <span class="px-2 py-0.5 rounded-md bg-black/80 hover:bg-emerald-600 text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-white/10 transition-colors">🔍 Zoom Panel</span>
+                      <div onclick="openSpecimenLightbox()"
+                        class="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <span
+                          class="px-2 py-0.5 rounded-md bg-black/80 hover:bg-emerald-600 text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-white/10 transition-colors">🔍
+                          Zoom Panel</span>
                       </div>
 
-                      <button type="button" id="btnPrevSpecimenImage" onclick="navigateSpecimenImage(-1)" aria-label="Previous Captured Panel" title="Previous Image (<)"
+                      <button type="button" id="btnPrevSpecimenImage" onclick="navigateSpecimenImage(-1)"
+                        aria-label="Previous Captured Panel" title="Previous Image (<)"
                         class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-slate-950/85 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center transition border border-white/25 shadow-xl backdrop-blur-md cursor-pointer hover:scale-110 active:scale-95 disabled:opacity-20 disabled:pointer-events-none">
                         <span>&lt;</span>
                       </button>
@@ -1464,33 +1770,45 @@
                       <img id="reportSpecimenThumb" src="" alt="Specimen Thumbnail" onclick="openSpecimenLightbox()"
                         class="max-h-48 max-w-full rounded-lg object-contain shadow-sm transition-transform duration-300 group-hover:scale-105 cursor-pointer">
 
-                      <button type="button" id="btnNextSpecimenImage" onclick="navigateSpecimenImage(1)" aria-label="Next Captured Panel" title="Next Image (>)"
+                      <button type="button" id="btnNextSpecimenImage" onclick="navigateSpecimenImage(1)"
+                        aria-label="Next Captured Panel" title="Next Image (>)"
                         class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-slate-950/85 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center transition border border-white/25 shadow-xl backdrop-blur-md cursor-pointer hover:scale-110 active:scale-95 disabled:opacity-20 disabled:pointer-events-none">
                         <span>&gt;</span>
                       </button>
 
-                      <div id="specimenPanelDots" class="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/65 backdrop-blur-xs border border-white/10 hidden"></div>
+                      <div id="specimenPanelDots"
+                        class="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/65 backdrop-blur-xs border border-white/10 hidden">
+                      </div>
                     </div>
 
-                    <div id="specimenPanelThumbsStrip" class="hidden flex items-center justify-center gap-1.5 pt-1 pb-0.5 overflow-x-auto custom-scroll-x"></div>
+                    <div id="specimenPanelThumbsStrip"
+                      class="hidden flex items-center justify-center gap-1.5 pt-1 pb-0.5 overflow-x-auto custom-scroll-x">
+                    </div>
 
                     <!-- Docket Particulars -->
                     <div class="space-y-1.5 text-xs">
-                      <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/80">
+                      <div
+                        class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/80">
                         <span class="text-slate-500 dark:text-slate-400 text-[11px]">Docket ID</span>
-                        <strong id="reportCaseIdText" class="font-mono text-emerald-700 dark:text-emerald-400 text-xs select-all">INS-0000</strong>
+                        <strong id="reportCaseIdText"
+                          class="font-mono text-emerald-700 dark:text-emerald-400 text-xs select-all">INS-0000</strong>
                       </div>
-                      <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/80">
+                      <div
+                        class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/80">
                         <span class="text-slate-500 dark:text-slate-400 text-[11px]">Commodity</span>
-                        <strong id="reportCaseProductText" class="text-slate-800 dark:text-slate-200 text-xs font-semibold text-right max-w-[60%] truncate">-</strong>
+                        <strong id="reportCaseProductText"
+                          class="text-slate-800 dark:text-slate-200 text-xs font-semibold text-right max-w-[60%] truncate">-</strong>
                       </div>
-                      <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/80">
+                      <div
+                        class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/80">
                         <span class="text-slate-500 dark:text-slate-400 text-[11px]">Timestamp</span>
-                        <span id="reportCaseDateText" class="text-slate-700 dark:text-slate-300 text-[11px] font-mono">-</span>
+                        <span id="reportCaseDateText"
+                          class="text-slate-700 dark:text-slate-300 text-[11px] font-mono">-</span>
                       </div>
                       <div class="flex justify-between items-center py-1">
                         <span class="text-slate-500 dark:text-slate-400 text-[11px]">Inspector</span>
-                        <span id="reportCaseInspectorText" class="text-slate-700 dark:text-slate-300 text-[11px] font-medium">-</span>
+                        <span id="reportCaseInspectorText"
+                          class="text-slate-700 dark:text-slate-300 text-[11px] font-medium">-</span>
                       </div>
                     </div>
 
@@ -1498,13 +1816,16 @@
                     <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-1.5">
                       <div class="flex items-center justify-between text-[11px]">
                         <span class="text-slate-500 dark:text-slate-400 font-medium">AI Confidence:</span>
-                        <div id="reportConfidenceBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 font-mono">
+                        <div id="reportConfidenceBadge"
+                          class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 font-mono">
                           <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                           <span id="reportConfidenceScoreText">95%</span>
                         </div>
                       </div>
                       <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div id="reportConfidenceProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full transition-all duration-500" style="width: 95%;"></div>
+                        <div id="reportConfidenceProgressBar"
+                          class="h-full bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full transition-all duration-500"
+                          style="width: 95%;"></div>
                       </div>
                     </div>
                   </div>
@@ -1513,30 +1834,41 @@
                   <div id="reportVerdictBanner" class="p-4 bg-slate-900 text-white space-y-2.5 transition-all">
                     <div>
                       <div class="flex items-center justify-between gap-2 mb-1">
-                        <span class="text-[9.5px] font-bold tracking-widest text-slate-400 uppercase font-mono">Statutory Verdict</span>
+                        <span
+                          class="text-[9.5px] font-bold tracking-widest text-slate-400 uppercase font-mono">Statutory
+                          Verdict</span>
                         <div class="flex items-center gap-1.5">
-                          <span id="testsPassedBadge" class="px-2 py-0.5 text-[9.5px] font-bold rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">0 Passed</span>
-                          <span id="testsFailedBadge" class="px-2 py-0.5 text-[9.5px] font-bold rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/30">0 Failed</span>
+                          <span id="testsPassedBadge"
+                            class="px-2 py-0.5 text-[9.5px] font-bold rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">0
+                            Passed</span>
+                          <span id="testsFailedBadge"
+                            class="px-2 py-0.5 text-[9.5px] font-bold rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/30">0
+                            Failed</span>
                         </div>
                       </div>
                       <h3 id="reportVerdictTitle" class="text-sm sm:text-base font-black tracking-tight leading-tight">
                         VERIFYING COMPLIANCE...
                       </h3>
-                      <p id="reportVerdictSubtitle" class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">Automated inspection result.</p>
+                      <p id="reportVerdictSubtitle" class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">Automated
+                        inspection result.</p>
                     </div>
 
                     <div class="bg-black/30 rounded-xl p-2.5 border border-white/10 text-xs space-y-1">
-                      <div class="text-[9.5px] font-bold text-slate-300 uppercase tracking-wider">Statutory Recommendation:</div>
+                      <div class="text-[9.5px] font-bold text-slate-300 uppercase tracking-wider">Statutory
+                        Recommendation:</div>
                       <div id="reportRecommendedAction" class="font-bold text-white text-[11.5px] leading-snug">-</div>
-                      <div id="reportExecutiveSummary" class="text-[10.5px] text-slate-300 pt-1 border-t border-white/10 leading-relaxed">-</div>
+                      <div id="reportExecutiveSummary"
+                        class="text-[10.5px] text-slate-300 pt-1 border-t border-white/10 leading-relaxed">-</div>
                     </div>
                   </div>
 
                   <!-- Part 3: Executive Enforcement Actions -->
                   <div class="p-4 space-y-2.5 bg-slate-50/50 dark:bg-slate-900/50">
                     <div class="flex items-center justify-between mb-0.5">
-                      <h5 class="text-[9.5px] font-bold uppercase tracking-wider text-slate-400 font-mono">Official Actions</h5>
-                      <span class="text-[9.5px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">Live Case</span>
+                      <h5 class="text-[9.5px] font-bold uppercase tracking-wider text-slate-400 font-mono">Official
+                        Actions</h5>
+                      <span class="text-[9.5px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">Live
+                        Case</span>
                     </div>
 
                     <button type="button" id="btnSubmitInspectionDocket" onclick="handleSaveOcrInspection('submitted')"
@@ -1551,7 +1883,7 @@
                       </button>
 
                       <button type="button" id="btnDownloadReportPdf" onclick="downloadOcrReportPdf()"
-                        class="py-2 px-3 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-800 dark:border-slate-700 shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        class="py-2 px-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl border border-slate-300/80 dark:border-slate-700 shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
                         <span>📥</span> <span>Inspection Audit Report</span>
                       </button>
                     </div>
@@ -1576,7 +1908,8 @@
               <div class="lg:col-span-8 space-y-4">
 
                 <!-- Interactive Sub-Navigation Tabs Bar -->
-                <div class="bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-2">
+                <div
+                  class="bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-2">
                   <div class="flex flex-wrap items-center gap-1 text-xs" role="tablist">
                     <button type="button" id="ocrTabBtn-declarations" onclick="switchOcrResultTab('declarations')"
                       class="ocr-tab-btn px-3.5 py-2 rounded-xl bg-emerald-600 text-white shadow-xs transition flex items-center gap-1.5 cursor-pointer font-bold">
@@ -1602,26 +1935,33 @@
                 <div id="ocrResultPanel-declarations" class="space-y-4">
                   <div id="reportExtractedFieldsGrid" class="space-y-3 text-xs"></div>
 
-                  <div id="reportObservationsContainer" class="hidden bg-amber-50/80 dark:bg-amber-950/30 p-4 rounded-2xl border border-amber-200/90 dark:border-amber-800/80 text-xs shadow-2xs">
+                  <div id="reportObservationsContainer"
+                    class="hidden bg-amber-50/80 dark:bg-amber-950/30 p-4 rounded-2xl border border-amber-200/90 dark:border-amber-800/80 text-xs shadow-2xs">
                     <span class="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5 mb-1.5">
                       <span>🔍</span> <span>AI Optical Observations & Defect Notes:</span>
                     </span>
-                    <ul id="reportObservationsList" class="list-disc list-inside text-amber-800 dark:text-amber-200/90 space-y-1 pl-1"></ul>
+                    <ul id="reportObservationsList"
+                      class="list-disc list-inside text-amber-800 dark:text-amber-200/90 space-y-1 pl-1"></ul>
                   </div>
                 </div>
 
                 <!-- TAB 2: STATUTORY COMPLIANCE CHECKLIST MATRIX (#ocrResultPanel-checklist) -->
-                <div id="ocrResultPanel-checklist" class="hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
-                  <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div id="ocrResultPanel-checklist"
+                  class="hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+                  <div
+                    class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-mono">Rule 6 Statutory Checklist Matrix</h4>
-                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Comprehensive audit matrix for Legal Metrology enforcement officers</p>
+                      <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-mono">Rule 6 Statutory
+                        Checklist Matrix</h4>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Comprehensive audit matrix for Legal
+                        Metrology enforcement officers</p>
                     </div>
                   </div>
 
                   <div class="overflow-x-auto custom-scroll-x">
                     <table class="w-full text-left min-w-[650px]">
-                      <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 text-[11px] uppercase font-bold border-b border-slate-200 dark:border-slate-800">
+                      <thead
+                        class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 text-[11px] uppercase font-bold border-b border-slate-200 dark:border-slate-800">
                         <tr>
                           <th class="px-4 py-3 whitespace-nowrap">Statutory Parameter</th>
                           <th class="px-4 py-3 whitespace-nowrap">Extracted Value</th>
@@ -1636,13 +1976,16 @@
                 </div>
 
                 <!-- TAB 3: COMPLETE RAW OCR TRANSCRIPT (#ocrResultPanel-transcript) -->
-                <div id="ocrResultPanel-transcript" class="hidden bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-3">
+                <div id="ocrResultPanel-transcript"
+                  class="hidden bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-3">
                   <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                     <div class="flex items-center gap-2">
                       <span class="text-base">📄</span>
                       <div>
-                        <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-mono">Complete Raw OCR Text Transcript</h4>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Verbatim optical character recognition output from package panels</p>
+                        <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-mono">Complete
+                          Raw OCR Text Transcript</h4>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Verbatim optical character recognition
+                          output from package panels</p>
                       </div>
                     </div>
                     <button type="button" onclick="copyRawOcrText()"
@@ -1651,34 +1994,56 @@
                     </button>
                   </div>
                   <div>
-                    <pre id="reportRawOcrText" class="p-4 bg-slate-950 text-emerald-400 font-mono text-xs rounded-xl overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-72 border border-slate-800"></pre>
+                    <pre id="reportRawOcrText"
+                      class="p-4 bg-slate-950 text-emerald-400 font-mono text-xs rounded-xl overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-72 border border-slate-800"></pre>
                   </div>
                 </div>
 
                 <!-- INSPECTOR REMARKS & SEIZURE MEMO (#ocrResultPanel-inspectorNotes) -->
-                <div id="ocrResultPanel-inspectorNotes" class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-3">
-                  <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 gap-2">
+                <div id="ocrResultPanel-inspectorNotes"
+                  class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-3">
+                  <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 gap-2">
                     <div class="flex items-center gap-2.5">
-                      <span class="w-7 h-7 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-bold text-sm flex items-center justify-center border border-emerald-200 dark:border-emerald-800 shadow-xs flex-shrink-0">✍️</span>
+                      <span
+                        class="w-7 h-7 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-bold text-sm flex items-center justify-center border border-emerald-200 dark:border-emerald-800 shadow-xs flex-shrink-0">✍️</span>
                       <div>
-                        <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-mono">Field Inspector Remarks & Review Docket Notes</h4>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Recorded in statutory audit docket and passed to Zonal Reviewing Officer</p>
+                        <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-mono">Field
+                          Inspector Remarks & Review Docket Notes</h4>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Recorded in statutory audit docket and
+                          passed to Zonal Reviewing Officer</p>
                       </div>
                     </div>
-                    <span class="inline-flex self-start sm:self-auto text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex-shrink-0">OFFICIAL NOTE</span>
+                    <span
+                      class="inline-flex self-start sm:self-auto text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex-shrink-0">OFFICIAL
+                      NOTE</span>
                   </div>
 
                   <div class="space-y-2">
                     <div class="flex flex-wrap items-center justify-between gap-1.5">
-                      <label for="inspectorNotesInput" class="block text-xs font-semibold text-slate-800 dark:text-slate-200">
-                        Inspector Comments / Seizure Memorandum <span class="text-slate-400 font-normal">(Saved with case docket)</span>
+                      <label for="inspectorNotesInput"
+                        class="block text-xs font-semibold text-slate-800 dark:text-slate-200">
+                        Inspector Comments / Seizure Memorandum <span class="text-slate-400 font-normal">(Saved with
+                          case docket)</span>
                       </label>
                       <div class="flex flex-wrap items-center gap-1.5">
-                        <span class="text-[10px] text-slate-400 font-medium self-center hidden sm:inline">Quick Insert:</span>
-                        <button type="button" onclick="insertInspectorNoteSnippet('Sample seized under Rule 24. No MRP printed on retail pack. Forwarded for compounding under Section 36.', this)" class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-300 dark:hover:border-emerald-800 border border-slate-200 dark:border-slate-700 text-[10.5px] font-mono font-medium transition duration-150 cursor-pointer shadow-2xs active:scale-95">+ Sec 36 Notice</button>
-                        <button type="button" onclick="insertInspectorNoteSnippet('Rule 6(11) contravention: Missing mandatory Unit Sale Price (USP) declaration.', this)" class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-300 dark:hover:border-emerald-800 border border-slate-200 dark:border-slate-700 text-[10.5px] font-mono font-medium transition duration-150 cursor-pointer shadow-2xs active:scale-95">+ Missing USP</button>
-                        <button type="button" onclick="insertInspectorNoteSnippet('Rule 6(1)(d) contravention: Blank date/batch placeholder un-stamped at retail sale.', this)" class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-300 dark:hover:border-emerald-800 border border-slate-200 dark:border-slate-700 text-[10.5px] font-mono font-medium transition duration-150 cursor-pointer shadow-2xs active:scale-95">+ Blank Date</button>
-                        <button type="button" onclick="clearInspectorNotes()" class="px-2 py-1 text-[10.5px] font-mono text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition cursor-pointer" title="Clear Notes">✕ Clear</button>
+                        <span class="text-[10px] text-slate-400 font-medium self-center hidden sm:inline">Quick
+                          Insert:</span>
+                        <button type="button"
+                          onclick="insertInspectorNoteSnippet('Sample seized under Rule 24. No MRP printed on retail pack. Forwarded for compounding under Section 36.', this)"
+                          class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-300 dark:hover:border-emerald-800 border border-slate-200 dark:border-slate-700 text-[10.5px] font-mono font-medium transition duration-150 cursor-pointer shadow-2xs active:scale-95">+
+                          Sec 36 Notice</button>
+                        <button type="button"
+                          onclick="insertInspectorNoteSnippet('Rule 6(11) contravention: Missing mandatory Unit Sale Price (USP) declaration.', this)"
+                          class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-300 dark:hover:border-emerald-800 border border-slate-200 dark:border-slate-700 text-[10.5px] font-mono font-medium transition duration-150 cursor-pointer shadow-2xs active:scale-95">+
+                          Missing USP</button>
+                        <button type="button"
+                          onclick="insertInspectorNoteSnippet('Rule 6(1)(d) contravention: Blank date/batch placeholder un-stamped at retail sale.', this)"
+                          class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-300 dark:hover:border-emerald-800 border border-slate-200 dark:border-slate-700 text-[10.5px] font-mono font-medium transition duration-150 cursor-pointer shadow-2xs active:scale-95">+
+                          Blank Date</button>
+                        <button type="button" onclick="clearInspectorNotes()"
+                          class="px-2 py-1 text-[10.5px] font-mono text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition cursor-pointer"
+                          title="Clear Notes">✕ Clear</button>
                       </div>
                     </div>
                     <textarea id="inspectorNotesInput" rows="3"
@@ -2182,7 +2547,8 @@
             <div>
               <div class="flex items-center gap-2">
                 <h3 class="font-extrabold text-slate-900 text-base">Generated Compliance Reports</h3>
-                <span id="inspectorReportsTotalBadge" class="hidden text-[11px] font-mono font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <span id="inspectorReportsTotalBadge"
+                  class="hidden text-[11px] font-mono font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
                   0 Records
                 </span>
               </div>
@@ -2192,15 +2558,19 @@
 
             <!-- Top Pagination Controls (Previous / Next) -->
             <div id="inspectorReportsTopNav" class="hidden items-center gap-2 flex-shrink-0">
-              <div class="inline-flex items-center rounded-xl bg-slate-50 p-1 border border-slate-200 text-xs shadow-xs">
-                <button type="button" id="inspectorReportsPrevBtn" onclick="navigateReportsPage('prev')" title="Previous Reports Page"
+              <div
+                class="inline-flex items-center rounded-xl bg-slate-50 p-1 border border-slate-200 text-xs shadow-xs">
+                <button type="button" id="inspectorReportsPrevBtn" onclick="navigateReportsPage('prev')"
+                  title="Previous Reports Page"
                   class="px-2.5 py-1 hover:bg-white text-slate-800 font-semibold rounded-lg transition flex items-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
                   <span>◀</span> <span>Previous</span>
                 </button>
-                <span id="inspectorReportsPageCounter" class="px-2.5 font-mono text-[11px] text-slate-600 font-semibold border-x border-slate-200 select-none">
+                <span id="inspectorReportsPageCounter"
+                  class="px-2.5 font-mono text-[11px] text-slate-600 font-semibold border-x border-slate-200 select-none">
                   Page 1 of 1
                 </span>
-                <button type="button" id="inspectorReportsNextBtn" onclick="navigateReportsPage('next')" title="Next Reports Page"
+                <button type="button" id="inspectorReportsNextBtn" onclick="navigateReportsPage('next')"
+                  title="Next Reports Page"
                   class="px-2.5 py-1 hover:bg-white text-slate-800 font-semibold rounded-lg transition flex items-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
                   <span>Next</span> <span>▶</span>
                 </button>
@@ -2509,8 +2879,11 @@
               class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3.5 sm:gap-5 pb-3.5 sm:pb-5 border-b border-slate-300/80 dark:border-slate-800/90">
               <!-- Left: Emblem + Ministry Title -->
               <div class="flex items-center gap-3 sm:gap-4 w-full lg:w-auto">
-                <div class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-default" title="State Emblem of India • e-LMCEP">
-                  <img src="logo/logo.png" alt="State Emblem of India" class="h-8 w-auto sm:h-10 lg:h-12 object-contain" />
+                <div
+                  class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-default"
+                  title="State Emblem of India • e-LMCEP">
+                  <img src="logo/logo.png" alt="State Emblem of India"
+                    class="h-8 w-auto sm:h-10 lg:h-12 object-contain" />
                 </div>
                 <div class="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -2523,12 +2896,15 @@
                       Official Sovereign Portal
                     </span>
                   </div>
-                  <div class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
+                  <div
+                    class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
                     Legal Metrology Compliance & Enforcement Platform
                   </div>
-                  <div class="text-[10px] sm:text-xs lg:text-[12.5px] text-slate-600 dark:text-slate-400 font-medium leading-tight">
+                  <div
+                    class="text-[10px] sm:text-xs lg:text-[12.5px] text-slate-600 dark:text-slate-400 font-medium leading-tight">
                     <span class="sm:hidden">Dept. of Consumer Affairs • Govt. of India</span>
-                    <span class="hidden sm:inline">Department of Consumer Affairs • Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India</span>
+                    <span class="hidden sm:inline">Department of Consumer Affairs • Ministry of Consumer Affairs, Food &
+                      Public Distribution • Govt. of India</span>
                   </div>
                 </div>
               </div>
@@ -2544,38 +2920,45 @@
             </div>
 
             <!-- Row 2: Navigation & Statutory Information (Compact Mobile Stack / 2-Col Tablet / 4-Col Desktop) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 text-slate-700 dark:text-slate-300">
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 text-slate-700 dark:text-slate-300">
 
               <!-- Column 1: Operational Portals -->
-              <details open class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
+              <details open
+                class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
                 <summary
                   class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1.5 sm:pb-2 cursor-pointer sm:cursor-default select-none">
                   <span class="flex items-center gap-2">
                     <span>🏛️</span> <span>OPERATIONAL PORTALS</span>
                   </span>
-                  <span class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
+                  <span
+                    class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
                 </summary>
                 <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
                   <li>
-                    <a href="inspector.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="inspector.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Field Inspector Optical Capture</span>
                     </a>
                   </li>
                   <li>
-                    <a href="officer.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="officer.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Zonal Officer Adjudication Console</span>
                     </a>
                   </li>
                   <li>
-                    <a href="admin.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="admin.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Pan-India Master Audit Ledger</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>System Capabilities & Mandates</span>
                     </a>
@@ -2584,35 +2967,41 @@
               </details>
 
               <!-- Column 2: Statutory Framework -->
-              <details open class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
+              <details open
+                class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
                 <summary
                   class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1.5 sm:pb-2 cursor-pointer sm:cursor-default select-none">
                   <span class="flex items-center gap-2">
                     <span>⚖️</span> <span>STATUTORY FRAMEWORK</span>
                   </span>
-                  <span class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
+                  <span
+                    class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
                 </summary>
                 <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
                   <li>
-                    <a href="features.html#rule6-matrix" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#rule6-matrix"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Rule 6 Mandatory Declarations</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html#penalties" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#penalties"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Section 18 / 36 Penalty Schedule</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html#core-modules" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#core-modules"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Schedule II MAV Tolerance Limits</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html#pipeline" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#pipeline"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Form-V PDF Seizure Notices</span>
                     </a>
@@ -2621,13 +3010,15 @@
               </details>
 
               <!-- Column 3: Government Links -->
-              <details open class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
+              <details open
+                class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
                 <summary
                   class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1.5 sm:pb-2 cursor-pointer sm:cursor-default select-none">
                   <span class="flex items-center gap-2">
                     <span>🔗</span> <span>GOVERNMENT LINKS</span>
                   </span>
-                  <span class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
+                  <span
+                    class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
                 </summary>
                 <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
                   <li>
@@ -2635,7 +3026,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Dept. of Consumer Affairs</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                   <li>
@@ -2643,7 +3035,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>National Consumer Helpline (NCH)</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                   <li>
@@ -2651,7 +3044,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>CPGRAMS Public Grievance</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                   <li>
@@ -2659,7 +3053,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>National Portal of India (india.gov.in)</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                 </ul>
@@ -2679,11 +3074,15 @@
                     <span>National Consumer Helpline</span>
                   </div>
                   <div class="flex flex-row sm:flex-col items-baseline sm:items-start gap-2 sm:gap-0.5">
-                    <a href="tel:1915" class="block text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-slate-100 font-mono tracking-tight hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" title="Call Toll-Free Helpline 1915">
+                    <a href="tel:1915"
+                      class="block text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-slate-100 font-mono tracking-tight hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      title="Call Toll-Free Helpline 1915">
                       1915
                     </a>
                     <span class="sm:hidden text-slate-300 dark:text-slate-700 select-none">|</span>
-                    <a href="tel:1800114000" class="block text-xs sm:text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 font-mono hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" title="Call Toll-Free 1800-11-4000">
+                    <a href="tel:1800114000"
+                      class="block text-xs sm:text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 font-mono hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      title="Call Toll-Free 1800-11-4000">
                       1800-11-4000
                     </a>
                   </div>
@@ -2699,27 +3098,33 @@
             <!-- Row 3: Statutory Policy & Compliance Links Strip (WCAG AAA High-Contrast & Wrapped Chips) -->
             <div
               class="pt-3 sm:pt-4 lg:pt-5 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-wrap items-center justify-center gap-y-1 sm:gap-y-2 gap-x-2.5 sm:gap-x-4 lg:gap-x-6 text-xs lg:text-[13.5px] leading-relaxed text-slate-700 dark:text-slate-300 text-center">
-              <button type="button" onclick="openPolicyModal('terms')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('terms')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Terms of Service
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('privacy')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('privacy')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Privacy Policy
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('copyright')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('copyright')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Copyright Policy
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('hyperlinking')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('hyperlinking')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Hyperlinking Policy
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('accessibility')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('accessibility')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Accessibility Statement
               </button>
               <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('gigw')" class="footer-legal-link w-full sm:w-auto mt-1 sm:mt-0 inline-flex items-center justify-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:underline cursor-pointer">
+              <button type="button" onclick="openPolicyModal('gigw')"
+                class="footer-legal-link w-full sm:w-auto mt-1 sm:mt-0 inline-flex items-center justify-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:underline cursor-pointer">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>GIGW 3.0 & WCAG 2.1 AAA Certified</span>
               </button>
@@ -2730,13 +3135,17 @@
               class="pt-2.5 sm:pt-3.5 lg:pt-4 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col md:flex-row items-center justify-between gap-2 sm:gap-3 lg:gap-3.5 text-xs lg:text-[13px] leading-tight sm:leading-relaxed text-slate-700 dark:text-slate-300 text-center md:text-left">
               <div class="flex items-center justify-center md:justify-start gap-1.5 text-center md:text-left">
                 <span>Website Content & Infrastructure Managed by <strong
-                    class="font-bold text-slate-900 dark:text-slate-100">Department of Consumer Affairs, Govt. of India</strong></span>
+                    class="font-bold text-slate-900 dark:text-slate-100">Department of Consumer Affairs, Govt. of
+                    India</strong></span>
               </div>
 
-              <div class="flex flex-wrap items-center justify-center md:justify-end gap-1.5 sm:gap-2 lg:gap-2.5 font-mono text-[10.5px] sm:text-xs lg:text-[12.5px]">
+              <div
+                class="flex flex-wrap items-center justify-center md:justify-end gap-1.5 sm:gap-2 lg:gap-2.5 font-mono text-[10.5px] sm:text-xs lg:text-[12.5px]">
                 <span>Designed & Developed by <strong class="text-slate-900 dark:text-slate-100">NIC</strong></span>
                 <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-                <span class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-[9.5px] sm:text-[11px]">Build v2.4.0</span>
+                <span
+                  class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-[9.5px] sm:text-[11px]">Build
+                  v2.4.0</span>
                 <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
                 <span class="font-semibold">© 2026 Government of India</span>
               </div>
@@ -2753,13 +3162,15 @@
   </div>
 
   <!-- High-Resolution Specimen Evidence Lightbox Modal with Interactive < and > Controls -->
-  <div id="specimenLightboxModal" role="dialog" aria-modal="true" aria-labelledby="lightboxPanelTitle" onclick="if (event.target === this) closeSpecimenLightbox()"
+  <div id="specimenLightboxModal" role="dialog" aria-modal="true" aria-labelledby="lightboxPanelTitle"
+    onclick="if (event.target === this) closeSpecimenLightbox()"
     class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[9999] flex flex-col items-center justify-between p-4 sm:p-6 transition-opacity select-none">
-    
+
     <!-- Lightbox Header -->
     <div class="w-full max-w-5xl flex items-center justify-between text-white pb-3 border-b border-white/10">
       <div class="flex items-center gap-2.5 min-w-0">
-        <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold border border-emerald-500/30">
+        <span
+          class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold border border-emerald-500/30">
           Section 63 BSA Evidence
         </span>
         <h3 id="lightboxPanelTitle" class="text-sm sm:text-base font-bold text-slate-100 truncate">
@@ -2778,7 +3189,8 @@
     <!-- Lightbox Center Viewport with Previous (<) and Next (>) Floating Controls -->
     <div class="relative flex-1 w-full max-w-5xl flex items-center justify-center overflow-hidden my-4">
       <!-- Previous Button (<) -->
-      <button type="button" id="lightboxPrevBtn" onclick="navigateSpecimenImage(-1)" aria-label="Previous Image" title="Previous Image (<)"
+      <button type="button" id="lightboxPrevBtn" onclick="navigateSpecimenImage(-1)" aria-label="Previous Image"
+        title="Previous Image (<)"
         class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/70 hover:bg-emerald-600 text-white font-bold text-lg flex items-center justify-center transition border border-white/20 shadow-2xl backdrop-blur-md cursor-pointer hover:scale-110 active:scale-95 disabled:opacity-20 disabled:pointer-events-none">
         &lt;
       </button>
@@ -2788,20 +3200,24 @@
         class="max-h-[75vh] max-w-full object-contain rounded-xl shadow-2xl transition-all duration-200">
 
       <!-- Next Button (>) -->
-      <button type="button" id="lightboxNextBtn" onclick="navigateSpecimenImage(1)" aria-label="Next Image" title="Next Image (>)"
+      <button type="button" id="lightboxNextBtn" onclick="navigateSpecimenImage(1)" aria-label="Next Image"
+        title="Next Image (>)"
         class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/70 hover:bg-emerald-600 text-white font-bold text-lg flex items-center justify-center transition border border-white/20 shadow-2xl backdrop-blur-md cursor-pointer hover:scale-110 active:scale-95 disabled:opacity-20 disabled:pointer-events-none">
         &gt;
       </button>
     </div>
 
     <!-- Lightbox Footer Controls & Thumbnails Strip -->
-    <div class="w-full max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 pt-2 border-t border-white/10">
+    <div
+      class="w-full max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 pt-2 border-t border-white/10">
       <div id="lightboxPanelThumbnails" class="flex items-center gap-2 overflow-x-auto py-1">
         <!-- Thumbnails injected by scanner.js -->
       </div>
       <div class="flex items-center gap-3 text-[11px] font-mono text-slate-400">
-        <span>Use <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-white font-sans text-[10px]">←</kbd> <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-white font-sans text-[10px]">→</kbd> to navigate</span>
-        <button type="button" onclick="closeSpecimenLightbox()" class="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold cursor-pointer">
+        <span>Use <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-white font-sans text-[10px]">←</kbd> <kbd
+            class="px-1.5 py-0.5 rounded bg-white/10 text-white font-sans text-[10px]">→</kbd> to navigate</span>
+        <button type="button" onclick="closeSpecimenLightbox()"
+          class="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold cursor-pointer">
           Done
         </button>
       </div>
@@ -2816,28 +3232,37 @@
     <div id="idm-backdrop" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md cursor-pointer"></div>
 
     <!-- Modal Panel -->
-    <div class="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-2xl shadow-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col max-h-[92vh] overflow-hidden modal-animate-in idm-panel z-10">
+    <div
+      class="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-2xl shadow-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col max-h-[92vh] overflow-hidden modal-animate-in idm-panel z-10">
 
       <!-- ── Header ── -->
-      <div class="idm-header flex-shrink-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-5 pt-5 pb-4 rounded-t-3xl relative overflow-hidden">
+      <div
+        class="idm-header flex-shrink-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-5 pt-5 pb-4 rounded-t-3xl relative overflow-hidden">
         <!-- decorative glow -->
-        <div class="absolute -top-6 -right-6 w-40 h-40 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none"></div>
-        <div class="absolute -bottom-4 left-10 w-32 h-20 rounded-full bg-amber-500/8 blur-2xl pointer-events-none"></div>
+        <div class="absolute -top-6 -right-6 w-40 h-40 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none">
+        </div>
+        <div class="absolute -bottom-4 left-10 w-32 h-20 rounded-full bg-amber-500/8 blur-2xl pointer-events-none">
+        </div>
 
         <div class="flex items-start justify-between gap-3 relative">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-xl flex-shrink-0 shadow-lg">🔍</div>
+            <div
+              class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-xl flex-shrink-0 shadow-lg">
+              🔍</div>
             <div>
               <div class="flex items-center gap-2 flex-wrap">
                 <h2 id="idm-title" class="font-mono font-black text-amber-400 text-sm tracking-wide">—</h2>
-                <span id="idm-seq" class="hidden px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-700 text-slate-300 border border-slate-600">#000</span>
-                <span id="idm-status-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-amber-100 text-amber-800">PENDING</span>
+                <span id="idm-seq"
+                  class="hidden px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-700 text-slate-300 border border-slate-600">#000</span>
+                <span id="idm-status-badge"
+                  class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-amber-100 text-amber-800">PENDING</span>
               </div>
               <p id="idm-datetime" class="text-[11px] text-slate-400 mt-0.5 font-mono">—</p>
             </div>
           </div>
           <button type="button" onclick="closeInspectorDetailModal()"
-            class="w-9 h-9 rounded-full bg-slate-700/80 hover:bg-red-600 text-slate-300 hover:text-white flex items-center justify-center text-base font-bold transition-all shadow-md flex-shrink-0 cursor-pointer border border-slate-600/50 hover:border-red-500" title="Close (Esc)">✕</button>
+            class="w-9 h-9 rounded-full bg-slate-700/80 hover:bg-red-600 text-slate-300 hover:text-white flex items-center justify-center text-base font-bold transition-all shadow-md flex-shrink-0 cursor-pointer border border-slate-600/50 hover:border-red-500"
+            title="Close (Esc)">✕</button>
         </div>
 
         <!-- Quick meta row -->
@@ -2858,9 +3283,13 @@
       </div>
 
       <!-- ── Section Tab Pills (Sticky) ── -->
-      <div class="sticky top-0 z-20 flex-shrink-0 flex gap-1.5 overflow-x-auto px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm scrollbar-thin" id="idm-tab-bar">
-        <button class="idm-tab-pill active" data-idm-tab="declarations" onclick="switchIdmTab('declarations')">📋 Declarations</button>
-        <button class="idm-tab-pill" data-idm-tab="compliance" onclick="switchIdmTab('compliance')">⚖️ Compliance</button>
+      <div
+        class="sticky top-0 z-20 flex-shrink-0 flex gap-1.5 overflow-x-auto px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm scrollbar-thin"
+        id="idm-tab-bar">
+        <button class="idm-tab-pill active" data-idm-tab="declarations" onclick="switchIdmTab('declarations')">📋
+          Declarations</button>
+        <button class="idm-tab-pill" data-idm-tab="compliance" onclick="switchIdmTab('compliance')">⚖️
+          Compliance</button>
         <button class="idm-tab-pill" data-idm-tab="photos" onclick="switchIdmTab('photos')">📸 Photos</button>
         <button class="idm-tab-pill" data-idm-tab="audit" onclick="switchIdmTab('audit')">🔗 Audit Trail</button>
         <button class="idm-tab-pill" data-idm-tab="docket" onclick="switchIdmTab('docket')">📁 Docket Info</button>
@@ -2889,19 +3318,22 @@
           </div>
 
           <!-- Violations -->
-          <div id="idm-violations-section" class="idm-section-card border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 hidden">
+          <div id="idm-violations-section"
+            class="idm-section-card border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 hidden">
             <h4 class="idm-section-title text-red-800 dark:text-red-400">⚠️ Flagged Violations</h4>
             <ul id="idm-violations-list" class="mt-2 space-y-1.5"></ul>
           </div>
 
           <!-- Inspector Notes -->
-          <div id="idm-notes-section" class="idm-section-card border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/20 hidden">
+          <div id="idm-notes-section"
+            class="idm-section-card border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/20 hidden">
             <h4 class="idm-section-title text-emerald-800 dark:text-emerald-400">📝 Inspector Remarks</h4>
             <p id="idm-notes-text" class="mt-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed"></p>
           </div>
 
           <!-- Officer Review -->
-          <div id="idm-review-section" class="idm-section-card border-blue-200 dark:border-blue-900 bg-blue-50/60 dark:bg-blue-950/20 hidden">
+          <div id="idm-review-section"
+            class="idm-section-card border-blue-200 dark:border-blue-900 bg-blue-50/60 dark:bg-blue-950/20 hidden">
             <h4 class="idm-section-title text-blue-800 dark:text-blue-400">👮 Officer Review Finding</h4>
             <p id="idm-review-text" class="mt-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed"></p>
           </div>
@@ -2911,7 +3343,8 @@
         <div id="idm-tab-photos" class="idm-tab-pane hidden space-y-3">
           <div class="idm-section-card">
             <h4 class="idm-section-title">📸 Inspection Evidence Photos</h4>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Tap any image to enlarge for full-screen review.</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Tap any image to enlarge for full-screen
+              review.</p>
             <div id="idm-photos-grid" class="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
             <div id="idm-no-photos" class="hidden mt-3 flex flex-col items-center justify-center py-8 text-center">
               <div class="text-4xl mb-2">📷</div>
@@ -2925,9 +3358,11 @@
         <div id="idm-tab-audit" class="idm-tab-pane hidden space-y-3">
           <div class="idm-section-card">
             <h4 class="idm-section-title">🔗 Tamper-Evident Audit Trail</h4>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Cryptographic chain of custody — every status change is permanently recorded.</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Cryptographic chain of custody — every status
+              change is permanently recorded.</p>
             <div id="idm-audit-timeline" class="mt-3 space-y-2"></div>
-            <div id="idm-no-audit" class="hidden mt-3 text-center py-6 text-xs text-slate-400">No audit events recorded.</div>
+            <div id="idm-no-audit" class="hidden mt-3 text-center py-6 text-xs text-slate-400">No audit events recorded.
+            </div>
           </div>
         </div>
 
@@ -2946,7 +3381,8 @@
       </div><!-- /#idm-content-area -->
 
       <!-- ── Footer Actions ── -->
-      <div class="flex-shrink-0 flex items-center justify-between gap-2 px-5 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 rounded-b-3xl">
+      <div
+        class="flex-shrink-0 flex items-center justify-between gap-2 px-5 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 rounded-b-3xl">
         <button type="button" onclick="switchIdmTab('photos'); document.querySelector('[data-idm-tab=photos]').click();"
           id="idm-view-photos-btn"
           class="idm-btn-photos inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition">
@@ -2965,36 +3401,48 @@
   </div>
 
   <!-- Photo Lightbox Modal -->
-  <div id="idm-photo-lightbox" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+  <div id="idm-photo-lightbox"
+    class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
     onclick="if(event.target===this) closePhotoLightbox()">
-    <button onclick="navLightbox(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition cursor-pointer z-10">‹</button>
-    <button onclick="navLightbox(1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition cursor-pointer z-10">›</button>
-    <button onclick="closePhotoLightbox()" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm font-bold transition cursor-pointer z-10">✕</button>
+    <button onclick="navLightbox(-1)"
+      class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition cursor-pointer z-10">‹</button>
+    <button onclick="navLightbox(1)"
+      class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition cursor-pointer z-10">›</button>
+    <button onclick="closePhotoLightbox()"
+      class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm font-bold transition cursor-pointer z-10">✕</button>
     <div class="relative flex flex-col items-center gap-3 max-w-3xl w-full">
-      <img id="idm-lightbox-img" src="" alt="Inspection photo" class="max-h-[75vh] max-w-full rounded-2xl object-contain shadow-2xl">
+      <img id="idm-lightbox-img" src="" alt="Inspection photo"
+        class="max-h-[75vh] max-w-full rounded-2xl object-contain shadow-2xl">
       <div class="flex items-center gap-3">
-        <span id="idm-lightbox-label" class="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm"></span>
+        <span id="idm-lightbox-label"
+          class="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm"></span>
         <span id="idm-lightbox-counter" class="text-slate-400 text-xs font-mono"></span>
       </div>
     </div>
   </div>
 
   <!-- First-Time Inspector Step-by-Step Onboarding Modal (Resolves Point 2) -->
-  <div id="inspectorOnboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle" onclick="if (event.target === this) closeInspectorWalkthroughModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
+  <div id="inspectorOnboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle"
+    onclick="if (event.target === this) closeInspectorWalkthroughModal()"
+    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
     <div
       class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 space-y-4 max-h-[90vh] overflow-y-auto modal-animate-in">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold border border-emerald-200 dark:border-emerald-800/80 shadow-xs flex-shrink-0">
+          <div
+            class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold border border-emerald-200 dark:border-emerald-800/80 shadow-xs flex-shrink-0">
             👮
           </div>
           <div>
-            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Field Inspector Quick Onboarding Guide</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">How to perform statutory verification in 3 simple steps</p>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Field Inspector Quick Onboarding Guide
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">How to perform statutory verification in 3 simple
+              steps</p>
           </div>
         </div>
         <button type="button" onclick="closeInspectorWalkthroughModal()"
-          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
+          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+          title="Close">✕</button>
       </div>
 
       <div class="space-y-3 text-xs">
@@ -3003,8 +3451,11 @@
           <span
             class="w-6 h-6 rounded-full bg-amber-500 text-white font-black flex-shrink-0 flex items-center justify-center text-xs shadow-xs">1</span>
           <div>
-            <strong class="text-slate-900 dark:text-white block font-bold mb-0.5">Capture Specimen Label (Camera or Upload)</strong>
-            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Point your camera at the packaged commodity or upload a clear photo. If your single photo captures all statutory declarations, upload only to <strong>Panel 1</strong>.</p>
+            <strong class="text-slate-900 dark:text-white block font-bold mb-0.5">Capture Specimen Label (Camera or
+              Upload)</strong>
+            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Point your camera at the packaged commodity or
+              upload a clear photo. If your single photo captures all statutory declarations, upload only to
+              <strong>Panel 1</strong>.</p>
           </div>
         </div>
 
@@ -3013,8 +3464,11 @@
           <span
             class="w-6 h-6 rounded-full bg-blue-600 text-white font-black flex-shrink-0 flex items-center justify-center text-xs shadow-xs">2</span>
           <div>
-            <strong class="text-slate-900 dark:text-white block font-bold mb-0.5">AI Rule 6 &amp; MAV Tolerance Verification</strong>
-            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">The Gemini Vision OCR engine automatically identifies mandatory declarations (Commodity Name, MRP, Net Qty, Mfg Date, Packer Address, Helpline) and computes legal weight tolerances.</p>
+            <strong class="text-slate-900 dark:text-white block font-bold mb-0.5">AI Rule 6 &amp; MAV Tolerance
+              Verification</strong>
+            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">The Gemini Vision OCR engine automatically
+              identifies mandatory declarations (Commodity Name, MRP, Net Qty, Mfg Date, Packer Address, Helpline) and
+              computes legal weight tolerances.</p>
           </div>
         </div>
 
@@ -3023,25 +3477,32 @@
           <span
             class="w-6 h-6 rounded-full bg-emerald-600 text-white font-black flex-shrink-0 flex items-center justify-center text-xs shadow-xs">3</span>
           <div>
-            <strong class="text-slate-900 dark:text-white block font-bold mb-0.5">Audit &amp; Forward to Officer Review Docket</strong>
-            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Inspect the extracted fields, enter gross weight if physical verification was performed, and click <strong>Submit to Officer Review</strong> or log compliant packages directly.</p>
+            <strong class="text-slate-900 dark:text-white block font-bold mb-0.5">Audit &amp; Forward to Officer Review
+              Docket</strong>
+            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Inspect the extracted fields, enter gross
+              weight if physical verification was performed, and click <strong>Submit to Officer Review</strong> or log
+              compliant packages directly.</p>
           </div>
         </div>
       </div>
 
       <div class="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-800">
         <label class="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-xs cursor-pointer select-none">
-          <input type="checkbox" id="dontShowOnboardingAgain" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+          <input type="checkbox" id="dontShowOnboardingAgain"
+            class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
           <span class="font-medium">Don't show automatically</span>
         </label>
         <button type="button" onclick="closeInspectorWalkthroughModal()"
-          class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-500/20 transition-all cursor-pointer">Got it!</button>
+          class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-500/20 transition-all cursor-pointer">Got
+          it!</button>
       </div>
     </div>
   </div>
 
   <!-- CONTACT SUPPORT & GRIEVANCE MODAL (WCAG AA Compliant) -->
-  <div id="contactSupportModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle" onclick="if (event.target === this) closeContactModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
+  <div id="contactSupportModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle"
+    onclick="if (event.target === this) closeContactModal()"
+    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
     <div
       class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100">
 

@@ -756,6 +756,11 @@ div[id*="Modal"] .sticky.top-0,
   z-index: 20;
 }
 
+/* Hide Network Sync / Cloud Sync Pill from Top Navigation */
+#networkSyncPill {
+  display: none !important;
+}
+
 body.theme-dark .app-overlay-backdrop,
 html.dark .app-overlay-backdrop {
   background-color: rgba(2, 6, 23, 0.75) !important;
