@@ -77,7 +77,8 @@
   <link rel="stylesheet" href="css/admin.css">
 </head>
 
-<body class="porcelain-canvas admin-hex-matrix-bg min-h-screen flex flex-col text-[#0F172A] antialiased" onload="initAdminApp()">
+<body class="porcelain-canvas admin-hex-matrix-bg min-h-screen flex flex-col text-[#0F172A] antialiased"
+  onload="initAdminApp()">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
   <a href="#mainContent"
@@ -194,7 +195,8 @@
 
     <!-- Mobile Drawer Backdrop -->
     <div id="sidebarBackdrop" onclick="toggleMobileSidebar()"
-      class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-30 hidden md:hidden transition-opacity"></div>
+      class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-30 hidden md:hidden transition-opacity">
+    </div>
 
     <!-- Left Navigation Sidebar (Linear / Shadcn UI 250px SaaS Style) -->
     <aside id="leftSidebar"
@@ -510,7 +512,8 @@
               </div>
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-sm font-bold text-[#0F172A] dark:text-slate-100">Official Zonal Council Enforcement Scope</h3>
+                  <h3 class="text-sm font-bold text-[#0F172A] dark:text-slate-100">Official Zonal Council Enforcement
+                    Scope</h3>
                   <span id="adminZoneRoleBadge"
                     class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 uppercase tracking-wider font-mono">
                     National Oversight
@@ -528,16 +531,23 @@
 
             <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap">
               <!-- Live Auto-Refresh Indicator -->
-              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300">
+              <div
+                class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                <span class="text-[11px] font-semibold">Live (<span id="autoRefreshCountdown" class="font-mono font-bold text-emerald-600 dark:text-emerald-400">30</span>s)</span>
-                <button type="button" onclick="initCommandCenter()" class="p-0.5 hover:text-emerald-600 transition" title="Refresh Now">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <span class="text-[11px] font-semibold">Live (<span id="autoRefreshCountdown"
+                    class="font-mono font-bold text-emerald-600 dark:text-emerald-400">30</span>s)</span>
+                <button type="button" onclick="initCommandCenter()" class="p-0.5 hover:text-emerald-600 transition"
+                  title="Refresh Now">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
                 </button>
               </div>
 
               <div class="flex items-center gap-2">
-                <label for="adminZoneFilterSelect" class="text-xs font-semibold text-[#64748B] dark:text-slate-400 whitespace-nowrap">Zone Scope:</label>
+                <label for="adminZoneFilterSelect"
+                  class="text-xs font-semibold text-[#64748B] dark:text-slate-400 whitespace-nowrap">Zone Scope:</label>
                 <select id="adminZoneFilterSelect" onchange="onAdminZoneFilterChange(this.value)"
                   class="bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 text-xs font-bold text-[#0F172A] dark:text-slate-100 border border-[#E4E7EC] dark:border-slate-700 focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] rounded-lg pl-3 pr-8 py-2 outline-none transition cursor-pointer disabled:opacity-80 disabled:cursor-not-allowed disabled:bg-slate-100 dark:disabled:bg-slate-800">
                   <option value="All">All India</option>
@@ -620,14 +630,20 @@
             </div>
 
             <!-- Card 4: Compliant Count -->
-            <div class="kpi-card border-t-2 border-emerald-400 border-l-4 border-l-[#10B981] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" style="--kpi-accent:#10B981;">
+            <div
+              class="kpi-card border-t-2 border-emerald-400 border-l-4 border-l-[#10B981] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              style="--kpi-accent:#10B981;">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Compliant</span>
-                <div class="w-7 h-7 rounded-lg bg-emerald-50 text-[#10B981] flex items-center justify-center flex-shrink-0">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <div
+                  class="w-7 h-7 rounded-lg bg-emerald-50 text-[#10B981] flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
               </div>
-              <p id="adminCompliantCount" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 tabular-nums mt-2">0</p>
+              <p id="adminCompliantCount"
+                class="text-2xl sm:text-3xl font-extrabold text-emerald-600 tabular-nums mt-2">0</p>
               <div class="flex items-center justify-between mt-2">
                 <span class="text-[11px] text-[#64748B]">Rule 6 Passed</span>
                 <span class="trend-up">✓ Cleared</span>
@@ -635,14 +651,21 @@
             </div>
 
             <!-- Card 5: Non-Compliant Count -->
-            <div class="kpi-card border-l-4 border-l-[#EF4444] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" style="--kpi-accent:#EF4444;">
+            <div
+              class="kpi-card border-l-4 border-l-[#EF4444] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              style="--kpi-accent:#EF4444;">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Violations</span>
-                <div class="w-7 h-7 rounded-lg bg-rose-50 text-[#EF4444] flex items-center justify-center flex-shrink-0">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <div
+                  class="w-7 h-7 rounded-lg bg-rose-50 text-[#EF4444] flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
                 </div>
               </div>
-              <p id="adminNonCompliantCount" class="text-2xl sm:text-3xl font-extrabold text-rose-600 tabular-nums mt-2">0</p>
+              <p id="adminNonCompliantCount"
+                class="text-2xl sm:text-3xl font-extrabold text-rose-600 tabular-nums mt-2">0</p>
               <div class="flex items-center justify-between mt-2">
                 <span class="text-[11px] text-[#64748B]">Rule 6 Failed</span>
                 <span class="trend-warn">⚡ Live</span>
@@ -650,14 +673,21 @@
             </div>
 
             <!-- Card 6: Escalated/Notice -->
-            <div class="kpi-card border-l-4 border-l-[#F59E0B] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" style="--kpi-accent:#F59E0B;">
+            <div
+              class="kpi-card border-l-4 border-l-[#F59E0B] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              style="--kpi-accent:#F59E0B;">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Escalated</span>
-                <div class="w-7 h-7 rounded-lg bg-amber-50 text-[#F59E0B] flex items-center justify-center flex-shrink-0">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <div
+                  class="w-7 h-7 rounded-lg bg-amber-50 text-[#F59E0B] flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
                 </div>
               </div>
-              <p id="adminEscalatedCount" class="text-2xl sm:text-3xl font-extrabold text-amber-600 tabular-nums mt-2">0</p>
+              <p id="adminEscalatedCount" class="text-2xl sm:text-3xl font-extrabold text-amber-600 tabular-nums mt-2">0
+              </p>
               <div class="flex items-center justify-between mt-2">
                 <span class="text-[11px] text-[#64748B]">Notice &amp; Escalated</span>
                 <span id="adminScanTrend" class="trend-neutral">—</span>
@@ -696,16 +726,21 @@
                   class="text-[11px] font-semibold text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">Weekly
                   Throughput</span>
               </div>
-              <p class="text-xs text-[#64748B] dark:text-slate-400 mb-5">Daily scan throughput across enforcement jurisdictions (Mon - Sun)
+              <p class="text-xs text-[#64748B] dark:text-slate-400 mb-5">Daily scan throughput across enforcement
+                jurisdictions (Mon - Sun)
               </p>
 
               <!-- Live bar chart — populated by renderWeeklyBarChart() -->
-              <div id="weeklyBarChart" class="h-44 flex items-end justify-between gap-2 pt-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+              <div id="weeklyBarChart"
+                class="h-44 flex items-end justify-between gap-2 pt-4 pb-2 border-b border-slate-200 dark:border-slate-800">
                 <!-- JS renders here -->
               </div>
-              <div class="flex flex-wrap items-center justify-center gap-4 mt-3.5 text-[11px] font-medium text-[#64748B] dark:text-slate-400">
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Today</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span> Previous Days</span>
+              <div
+                class="flex flex-wrap items-center justify-center gap-4 mt-3.5 text-[11px] font-medium text-[#64748B] dark:text-slate-400">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  Today</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
+                  Previous Days</span>
               </div>
             </div>
 
@@ -718,15 +753,19 @@
                   class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Live
                   Ratio</span>
               </div>
-              <p class="text-xs text-[#64748B] dark:text-slate-400 mb-5 w-full">Percentage of inspected packages conforming to Legal
+              <p class="text-xs text-[#64748B] dark:text-slate-400 mb-5 w-full">Percentage of inspected packages
+                conforming to Legal
                 Metrology Rule 6</p>
 
               <div id="complianceCircleProgress"
                 class="w-36 h-36 rounded-full flex items-center justify-center shadow-inner transition-all duration-500"
                 style="background: conic-gradient(#10B981 0% 75%, #EF4444 75% 100%);">
-                <div class="w-28 h-28 bg-white dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-sm">
-                  <span id="complianceRatePercent" class="text-2xl font-bold text-[#0F172A] dark:text-white tabular-nums">75%</span>
-                  <span class="text-[10px] font-semibold text-[#10B981] dark:text-emerald-400 uppercase tracking-wide">Compliant</span>
+                <div
+                  class="w-28 h-28 bg-white dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-sm">
+                  <span id="complianceRatePercent"
+                    class="text-2xl font-bold text-[#0F172A] dark:text-white tabular-nums">75%</span>
+                  <span
+                    class="text-[10px] font-semibold text-[#10B981] dark:text-emerald-400 uppercase tracking-wide">Compliant</span>
                 </div>
               </div>
 
@@ -743,27 +782,39 @@
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
             <!-- Activity Feed (2/3 width) -->
-            <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-[#E4E7EC] dark:border-slate-800 shadow-sm overflow-hidden">
-              <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div
+              class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-[#E4E7EC] dark:border-slate-800 shadow-sm overflow-hidden">
+              <div
+                class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <h3 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm">Live Inspection Feed</h3>
-                  <p class="text-xs text-[#64748B] dark:text-slate-400">Real-time inspection stream across enforcement jurisdictions</p>
+                  <p class="text-xs text-[#64748B] dark:text-slate-400">Real-time inspection stream across enforcement
+                    jurisdictions</p>
                 </div>
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg text-[10.5px] font-semibold">
-                    <button type="button" onclick="setActivityFeedFilter('all')" id="feedFilter-all" class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-xs">All</button>
-                    <button type="button" onclick="setActivityFeedFilter('compliant')" id="feedFilter-compliant" class="px-2 py-0.5 rounded-md text-slate-500 hover:text-emerald-600">✓ Compliant</button>
-                    <button type="button" onclick="setActivityFeedFilter('violation')" id="feedFilter-violation" class="px-2 py-0.5 rounded-md text-slate-500 hover:text-rose-600">⚡ Violations</button>
-                    <button type="button" onclick="setActivityFeedFilter('pending')" id="feedFilter-pending" class="px-2 py-0.5 rounded-md text-slate-500 hover:text-amber-600">⏳ Pending</button>
+                  <div
+                    class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg text-[10.5px] font-semibold">
+                    <button type="button" onclick="setActivityFeedFilter('all')" id="feedFilter-all"
+                      class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-xs">All</button>
+                    <button type="button" onclick="setActivityFeedFilter('compliant')" id="feedFilter-compliant"
+                      class="px-2 py-0.5 rounded-md text-slate-500 hover:text-emerald-600">✓ Compliant</button>
+                    <button type="button" onclick="setActivityFeedFilter('violation')" id="feedFilter-violation"
+                      class="px-2 py-0.5 rounded-md text-slate-500 hover:text-rose-600">⚡ Violations</button>
+                    <button type="button" onclick="setActivityFeedFilter('pending')" id="feedFilter-pending"
+                      class="px-2 py-0.5 rounded-md text-slate-500 hover:text-amber-600">⏳ Pending</button>
                   </div>
-                  <button onclick="switchAdminTab('ledger')" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:underline pl-2">View All →</button>
+                  <button onclick="switchAdminTab('ledger')"
+                    class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:underline pl-2">View
+                    All →</button>
                 </div>
               </div>
-              <div id="adminActivityFeed" class="divide-y divide-slate-100 dark:divide-slate-800 max-h-[420px] overflow-y-auto"></div>
+              <div id="adminActivityFeed"
+                class="divide-y divide-slate-100 dark:divide-slate-800 max-h-[420px] overflow-y-auto"></div>
             </div>
 
             <!-- System Health (1/3 width) -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl border border-[#E4E7EC] dark:border-slate-800 shadow-sm overflow-hidden">
+            <div
+              class="bg-white dark:bg-slate-900 rounded-xl border border-[#E4E7EC] dark:border-slate-800 shadow-sm overflow-hidden">
               <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800">
                 <h3 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm">System Health</h3>
                 <p class="text-xs text-[#64748B] dark:text-slate-400">Platform &amp; storage diagnostics</p>
@@ -800,34 +851,46 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
               <!-- Left: Title Block -->
               <div class="flex items-center gap-3 min-w-0">
-                <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+                <div
+                  class="flex-shrink-0 w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
                   <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
                 <div class="min-w-0">
                   <div class="flex items-center gap-2 flex-wrap">
                     <h3 class="text-white font-bold text-base tracking-tight">Master Inspection Ledger</h3>
-                    <span class="ledger-verified-chip text-emerald-400 bg-emerald-500/10 border-emerald-500/25" style="color:#34d399;background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.3);">
+                    <span class="ledger-verified-chip text-emerald-400 bg-emerald-500/10 border-emerald-500/25"
+                      style="color:#34d399;background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.3);">
                       ✓ IMMUTABLE
                     </span>
                   </div>
-                  <p class="text-slate-400 text-xs mt-0.5">Cryptographically verified, tamper-resistant audit trail of all legal metrology inspections</p>
+                  <p class="text-slate-400 text-xs mt-0.5">Cryptographically verified, tamper-resistant audit trail of
+                    all legal metrology inspections</p>
                 </div>
               </div>
               <!-- Right: Action Cluster -->
               <div class="flex items-center gap-2.5 flex-shrink-0">
-                <span id="ledgerRecordCountBadge" class="px-2.5 py-1 rounded-lg bg-white/10 text-white text-xs font-mono font-semibold border border-white/10">0 records</span>
+                <span id="ledgerRecordCountBadge"
+                  class="px-2.5 py-1 rounded-lg bg-white/10 text-white text-xs font-mono font-semibold border border-white/10">0
+                  records</span>
                 <button type="button" onclick="printMasterLedger()"
                   class="ledger-print-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 border border-white/15 hover:border-white/30 hover:text-white bg-white/5 hover:bg-white/10 transition cursor-pointer"
                   title="Print Ledger">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  </svg>
                   Print
                 </button>
                 <button type="button" onclick="exportInspectionsToCSV()"
                   class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-white transition active:scale-95 cursor-pointer shadow-lg shadow-emerald-500/20"
                   title="Export Official MIS Dossier (CSV)">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
                   Export CSV
                 </button>
               </div>
@@ -838,19 +901,26 @@
           <div class="ledger-filter-rail">
             <!-- Search -->
             <div class="relative flex-1 min-w-[180px]">
-              <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
               <input type="text" id="masterLedgerSearchInput" oninput="debouncedRenderMasterLedgerTable()"
-                placeholder="Search case ID, product, inspector..."
-                class="w-full pl-8 pr-8" style="height:34px;font-size:12px;border:1px solid #CBD5E1;border-radius:8px;background:#F8FAFC;color:#334155;outline:none;font-family:inherit;transition:border-color .15s,box-shadow .15s;">
-              <button onclick="document.getElementById('masterLedgerSearchInput').value='';debouncedRenderMasterLedgerTable();"
-                class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer" title="Clear search">✕</button>
+                placeholder="Search case ID, product, inspector..." class="w-full pl-8 pr-8"
+                style="height:34px;font-size:12px;border:1px solid #CBD5E1;border-radius:8px;background:#F8FAFC;color:#334155;outline:none;font-family:inherit;transition:border-color .15s,box-shadow .15s;">
+              <button
+                onclick="document.getElementById('masterLedgerSearchInput').value='';debouncedRenderMasterLedgerTable();"
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                title="Clear search">✕</button>
             </div>
 
             <div class="ledger-filter-divider"></div>
 
             <!-- Status Filter -->
             <div class="flex items-center gap-1.5">
-              <label class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Status</label>
+              <label
+                class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Status</label>
               <select id="ledgerStatusFilter" onchange="onLedgerFilterChange()" style="width:150px;">
                 <option value="all">All Statuses</option>
                 <option value="compliant">✓ Compliant</option>
@@ -865,7 +935,8 @@
 
             <!-- Zone Filter -->
             <div class="flex items-center gap-1.5">
-              <label class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Zone</label>
+              <label
+                class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Zone</label>
               <select id="ledgerZoneFilter" onchange="onLedgerFilterChange()" style="width:130px;">
                 <option value="all">All Zones</option>
                 <option value="North">North</option>
@@ -881,7 +952,8 @@
 
             <!-- Inspector Filter -->
             <div class="flex items-center gap-1.5">
-              <label class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Inspector</label>
+              <label
+                class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Inspector</label>
               <select id="ledgerInspectorFilter" onchange="onLedgerFilterChange()" style="width:140px;">
                 <option value="all">All Inspectors</option>
               </select>
@@ -891,9 +963,11 @@
 
             <!-- Date Range -->
             <div class="flex items-center gap-1.5 flex-wrap">
-              <label class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">From</label>
+              <label
+                class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">From</label>
               <input type="date" id="ledgerDateFrom" onchange="onLedgerFilterChange()" style="width:130px;">
-              <label class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">To</label>
+              <label
+                class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">To</label>
               <input type="date" id="ledgerDateTo" onchange="onLedgerFilterChange()" style="width:130px;">
             </div>
 
@@ -903,7 +977,10 @@
             <button type="button" onclick="resetLedgerFilters()"
               class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-700 bg-white hover:bg-slate-50 transition cursor-pointer whitespace-nowrap"
               title="Clear all filters">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
               Reset
             </button>
           </div>
@@ -911,29 +988,36 @@
           <!-- LIVE SUMMARY STAT STRIP -->
           <div class="flex items-center justify-between flex-wrap gap-3 px-1">
             <div class="ledger-stat-strip" id="ledgerStatStrip">
-              <button class="ledger-stat-chip chip-all chip-active" onclick="applyLedgerStatFilter('all')" id="ledgerChip-all">
+              <button class="ledger-stat-chip chip-all chip-active" onclick="applyLedgerStatFilter('all')"
+                id="ledgerChip-all">
                 <span>📋</span><span>All: <strong id="ledgerCount-all">0</strong></span>
               </button>
-              <button class="ledger-stat-chip chip-compliant" onclick="applyLedgerStatFilter('compliant')" id="ledgerChip-compliant">
+              <button class="ledger-stat-chip chip-compliant" onclick="applyLedgerStatFilter('compliant')"
+                id="ledgerChip-compliant">
                 <span>✓</span><span>Compliant: <strong id="ledgerCount-compliant">0</strong></span>
               </button>
-              <button class="ledger-stat-chip chip-pending" onclick="applyLedgerStatFilter('pending')" id="ledgerChip-pending">
+              <button class="ledger-stat-chip chip-pending" onclick="applyLedgerStatFilter('pending')"
+                id="ledgerChip-pending">
                 <span>⏳</span><span>Pending: <strong id="ledgerCount-pending">0</strong></span>
               </button>
-              <button class="ledger-stat-chip chip-notice" onclick="applyLedgerStatFilter('notice')" id="ledgerChip-notice">
+              <button class="ledger-stat-chip chip-notice" onclick="applyLedgerStatFilter('notice')"
+                id="ledgerChip-notice">
                 <span>⚖</span><span>Notice: <strong id="ledgerCount-notice">0</strong></span>
               </button>
-              <button class="ledger-stat-chip chip-dismissed" onclick="applyLedgerStatFilter('dismissed')" id="ledgerChip-dismissed">
+              <button class="ledger-stat-chip chip-dismissed" onclick="applyLedgerStatFilter('dismissed')"
+                id="ledgerChip-dismissed">
                 <span>—</span><span>Dismissed: <strong id="ledgerCount-dismissed">0</strong></span>
               </button>
-              <button class="ledger-stat-chip chip-escalated" onclick="applyLedgerStatFilter('escalated')" id="ledgerChip-escalated">
+              <button class="ledger-stat-chip chip-escalated" onclick="applyLedgerStatFilter('escalated')"
+                id="ledgerChip-escalated">
                 <span>🚨</span><span>Escalated: <strong id="ledgerCount-escalated">0</strong></span>
               </button>
             </div>
             <!-- Page size selector -->
             <div class="flex items-center gap-2">
               <label class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Rows</label>
-              <select id="ledgerPageSize" onchange="onLedgerPageSizeChange()" style="height:28px;font-size:11px;border:1px solid #CBD5E1;border-radius:6px;padding:0 8px;background:#F8FAFC;color:#334155;outline:none;font-family:inherit;">
+              <select id="ledgerPageSize" onchange="onLedgerPageSizeChange()"
+                style="height:28px;font-size:11px;border:1px solid #CBD5E1;border-radius:6px;padding:0 8px;background:#F8FAFC;color:#334155;outline:none;font-family:inherit;">
                 <option value="10">10</option>
                 <option value="25" selected>25</option>
                 <option value="50">50</option>
@@ -997,28 +1081,41 @@
            =================================================================== -->
         <section id="adminView-analytics" class="hidden space-y-6">
 
-          <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-[#E4E7EC] dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div
+            class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-[#E4E7EC] dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="font-semibold text-[#0F172A] dark:text-slate-100 text-base tracking-tight">System Compliance Trends &amp; Analytics</h3>
+                <h3 class="font-semibold text-[#0F172A] dark:text-slate-100 text-base tracking-tight">System Compliance
+                  Trends &amp; Analytics</h3>
                 <span id="analyticsComplianceDelta" class="hidden"></span>
               </div>
-              <p class="text-xs text-[#64748B] dark:text-slate-400 mt-0.5">High-level statutory compliance metrics calculated dynamically using real inspection data.</p>
+              <p class="text-xs text-[#64748B] dark:text-slate-400 mt-0.5">High-level statutory compliance metrics
+                calculated dynamically using real inspection data.</p>
             </div>
 
             <!-- Date Range Period Pills & Export Button -->
             <div class="flex items-center gap-3 flex-wrap">
-              <div id="analyticsPeriodPills" class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
-                <button type="button" onclick="setAnalyticsPeriod(0)" id="analyticsPeriod-0" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs">All Time</button>
-                <button type="button" onclick="setAnalyticsPeriod(7)" id="analyticsPeriod-7" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900">7 Days</button>
-                <button type="button" onclick="setAnalyticsPeriod(30)" id="analyticsPeriod-30" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900">30 Days</button>
-                <button type="button" onclick="setAnalyticsPeriod(90)" id="analyticsPeriod-90" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900">90 Days</button>
-                <button type="button" onclick="setAnalyticsPeriod(180)" id="analyticsPeriod-180" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900">6 Months</button>
+              <div id="analyticsPeriodPills"
+                class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+                <button type="button" onclick="setAnalyticsPeriod(0)" id="analyticsPeriod-0"
+                  class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs">All
+                  Time</button>
+                <button type="button" onclick="setAnalyticsPeriod(7)" id="analyticsPeriod-7"
+                  class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900">7 Days</button>
+                <button type="button" onclick="setAnalyticsPeriod(30)" id="analyticsPeriod-30"
+                  class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900">30 Days</button>
+                <button type="button" onclick="setAnalyticsPeriod(90)" id="analyticsPeriod-90"
+                  class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900">90 Days</button>
+                <button type="button" onclick="setAnalyticsPeriod(180)" id="analyticsPeriod-180"
+                  class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900">6 Months</button>
               </div>
 
               <button type="button" onclick="exportAnalyticsReportCSV()"
                 class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-white transition cursor-pointer shadow-sm">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
                 Export Analytics CSV
               </button>
             </div>
@@ -1031,16 +1128,21 @@
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
             <!-- Chart 1: Compliance Distribution Pie -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-[#E4E7EC] dark:border-slate-800 shadow-sm flex flex-col items-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              <h4 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm w-full text-left mb-1">Compliance Distribution</h4>
-              <p class="text-xs text-[#64748B] dark:text-slate-400 w-full text-left mb-6">Aggregate compliance proportions across all recorded packages</p>
+            <div
+              class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-[#E4E7EC] dark:border-slate-800 shadow-sm flex flex-col items-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+              <h4 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm w-full text-left mb-1">Compliance
+                Distribution</h4>
+              <p class="text-xs text-[#64748B] dark:text-slate-400 w-full text-left mb-6">Aggregate compliance
+                proportions across all recorded packages</p>
 
               <div id="analyticsPieChart"
                 class="w-44 h-44 rounded-full shadow-md flex items-center justify-center relative transition-all duration-500"
                 style="background: conic-gradient(#10B981 0% 50%, #EF4444 50% 100%);">
-                <div class="w-24 h-24 bg-white dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-inner">
+                <div
+                  class="w-24 h-24 bg-white dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-inner">
                   <span class="text-sm font-semibold text-[#64748B] dark:text-slate-400">Total</span>
-                  <span id="analyticsTotalBadge" class="text-base font-bold text-[#0F172A] dark:text-white font-mono">0 cases</span>
+                  <span id="analyticsTotalBadge" class="text-base font-bold text-[#0F172A] dark:text-white font-mono">0
+                    cases</span>
                 </div>
               </div>
 
@@ -1056,29 +1158,44 @@
               </div>
 
               <div class="w-full mt-5 grid grid-cols-2 gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <div class="bg-emerald-50 dark:bg-emerald-950/60 rounded-lg p-2.5 text-center border border-emerald-100 dark:border-emerald-800">
-                  <div id="analyticsCompliantCount" class="text-lg font-extrabold text-emerald-700 dark:text-emerald-400 tabular-nums">0</div>
-                  <div class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Compliant</div>
+                <div
+                  class="bg-emerald-50 dark:bg-emerald-950/60 rounded-lg p-2.5 text-center border border-emerald-100 dark:border-emerald-800">
+                  <div id="analyticsCompliantCount"
+                    class="text-lg font-extrabold text-emerald-700 dark:text-emerald-400 tabular-nums">0</div>
+                  <div class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+                    Compliant</div>
                 </div>
-                <div class="bg-rose-50 dark:bg-rose-950/60 rounded-lg p-2.5 text-center border border-rose-100 dark:border-rose-800">
-                  <div id="analyticsViolationCount" class="text-lg font-extrabold text-rose-700 dark:text-rose-400 tabular-nums">0</div>
-                  <div class="text-[10px] font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wide">Violations</div>
+                <div
+                  class="bg-rose-50 dark:bg-rose-950/60 rounded-lg p-2.5 text-center border border-rose-100 dark:border-rose-800">
+                  <div id="analyticsViolationCount"
+                    class="text-lg font-extrabold text-rose-700 dark:text-rose-400 tabular-nums">0</div>
+                  <div class="text-[10px] font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wide">
+                    Violations</div>
                 </div>
-                <div class="bg-indigo-50 dark:bg-indigo-950/60 rounded-lg p-2.5 text-center border border-indigo-100 dark:border-indigo-800">
-                  <div id="analyticsComplianceRate" class="text-lg font-extrabold text-indigo-700 dark:text-indigo-400 tabular-nums">0%</div>
-                  <div class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Compliance Rate</div>
+                <div
+                  class="bg-indigo-50 dark:bg-indigo-950/60 rounded-lg p-2.5 text-center border border-indigo-100 dark:border-indigo-800">
+                  <div id="analyticsComplianceRate"
+                    class="text-lg font-extrabold text-indigo-700 dark:text-indigo-400 tabular-nums">0%</div>
+                  <div class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">
+                    Compliance Rate</div>
                 </div>
-                <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-2.5 text-center border border-slate-200 dark:border-slate-700">
-                  <div id="analyticsInspectorCount" class="text-lg font-extrabold text-slate-700 dark:text-slate-200 tabular-nums">0</div>
-                  <div class="text-[10px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Inspectors</div>
+                <div
+                  class="bg-slate-50 dark:bg-slate-800 rounded-lg p-2.5 text-center border border-slate-200 dark:border-slate-700">
+                  <div id="analyticsInspectorCount"
+                    class="text-lg font-extrabold text-slate-700 dark:text-slate-200 tabular-nums">0</div>
+                  <div class="text-[10px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+                    Inspectors</div>
                 </div>
               </div>
             </div>
 
             <!-- Chart 2: Top Violation Types -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-[#E4E7EC] dark:border-slate-800 shadow-sm space-y-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              <h4 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm">Top Statutory Violation Frequency</h4>
-              <p class="text-xs text-[#64748B] dark:text-slate-400">Distribution of rule contraventions flagged by AI vision scanner and officer reviews</p>
+            <div
+              class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-[#E4E7EC] dark:border-slate-800 shadow-sm space-y-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+              <h4 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm">Top Statutory Violation Frequency
+              </h4>
+              <p class="text-xs text-[#64748B] dark:text-slate-400">Distribution of rule contraventions flagged by AI
+                vision scanner and officer reviews</p>
               <div id="analyticsViolationBarsContainer" class="space-y-3 pt-2">
                 <!-- Dynamically populated from admin.js -->
               </div>
@@ -1087,39 +1204,54 @@
 
           <!-- Zone Comparison + Monthly Trend -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-[#E4E7EC] dark:border-slate-800 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              <h4 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm mb-1">Zone-wise Compliance Comparison</h4>
-              <p class="text-xs text-[#64748B] dark:text-slate-400 mb-5">Ranked compliance rate per Official Zonal Council</p>
+            <div
+              class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-[#E4E7EC] dark:border-slate-800 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+              <h4 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm mb-1">Zone-wise Compliance Comparison
+              </h4>
+              <p class="text-xs text-[#64748B] dark:text-slate-400 mb-5">Ranked compliance rate per Official Zonal
+                Council</p>
               <div id="analyticsZoneBarsContainer" class="space-y-3"></div>
             </div>
-            <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-[#E4E7EC] dark:border-slate-800 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+            <div
+              class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-[#E4E7EC] dark:border-slate-800 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
               <h4 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm mb-1">6-Month Inspection Trend</h4>
-              <p class="text-xs text-[#64748B] dark:text-slate-400 mb-4">Total scans vs compliant outcomes — last 6 calendar months</p>
+              <p class="text-xs text-[#64748B] dark:text-slate-400 mb-4">Total scans vs compliant outcomes — last 6
+                calendar months</p>
               <div id="analyticsMonthlyChart" class="h-40 flex items-end gap-2"></div>
               <div class="flex items-center gap-4 mt-3 text-[11px] font-semibold text-[#64748B] dark:text-slate-400">
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-200 dark:bg-slate-700"></span> Total Scans</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Compliant</span>
+                <span class="flex items-center gap-1.5"><span
+                    class="w-2.5 h-2.5 rounded-full bg-slate-200 dark:bg-slate-700"></span> Total Scans</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  Compliant</span>
               </div>
             </div>
           </div>
 
           <!-- Inspector Leaderboard -->
-          <div class="bg-white dark:bg-slate-900 rounded-xl border border-[#E4E7EC] dark:border-slate-800 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div
+            class="bg-white dark:bg-slate-900 rounded-xl border border-[#E4E7EC] dark:border-slate-800 shadow-sm overflow-hidden">
+            <div
+              class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h4 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm">Inspector Performance Leaderboard</h4>
-                <p class="text-xs text-[#64748B] dark:text-slate-400">Top inspectors ranked by scan volume and compliance rate</p>
+                <h4 class="font-semibold text-[#0F172A] dark:text-slate-100 text-sm">Inspector Performance Leaderboard
+                </h4>
+                <p class="text-xs text-[#64748B] dark:text-slate-400">Top inspectors ranked by scan volume and
+                  compliance rate</p>
               </div>
               <div class="flex items-center gap-3">
                 <div class="inspector-search-wrap">
-                  <input type="text" id="analyticsInspectorSearch" oninput="onInspectorSearchInput(this.value)" placeholder="Search inspector or zone...">
+                  <input type="text" id="analyticsInspectorSearch" oninput="onInspectorSearchInput(this.value)"
+                    placeholder="Search inspector or zone...">
                 </div>
-                <button onclick="switchAdminTab('ledger')" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:underline flex-shrink-0">Full Ledger →</button>
+                <button onclick="switchAdminTab('ledger')"
+                  class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:underline flex-shrink-0">Full
+                  Ledger →</button>
               </div>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
-                <thead class="bg-[#F8FAFC] dark:bg-slate-950 text-[#64748B] dark:text-slate-400 uppercase font-semibold border-b border-slate-200 dark:border-slate-800 text-[11px]">
+                <thead
+                  class="bg-[#F8FAFC] dark:bg-slate-950 text-[#64748B] dark:text-slate-400 uppercase font-semibold border-b border-slate-200 dark:border-slate-800 text-[11px]">
                   <tr>
                     <th class="px-3 py-2.5 w-8">#</th>
                     <th class="px-3 py-2.5">Inspector</th>
@@ -1129,7 +1261,8 @@
                     <th class="px-3 py-2.5 text-center">Violations</th>
                   </tr>
                 </thead>
-                <tbody id="analyticsInspectorTable" class="divide-y divide-slate-100 dark:divide-slate-800"><!-- Populated by JS --></tbody>
+                <tbody id="analyticsInspectorTable" class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <!-- Populated by JS --></tbody>
               </table>
             </div>
           </div>
@@ -1188,17 +1321,21 @@
         <section id="adminView-settings" class="hidden space-y-6">
 
           <!-- Zonal Scope Header & Summary Bar -->
-          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div
+            class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <div class="flex items-center gap-2.5 flex-wrap">
-                  <h3 class="font-bold text-[#0F172A] dark:text-slate-100 text-base tracking-tight">Platform Settings — User &amp; Role Configuration</h3>
-                  <span id="adminUserScopeBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs">
+                  <h3 class="font-bold text-[#0F172A] dark:text-slate-100 text-base tracking-tight">Platform Settings —
+                    User &amp; Role Configuration</h3>
+                  <span id="adminUserScopeBadge"
+                    class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs">
                     🇮🇳 National Scope
                   </span>
                 </div>
                 <p id="adminUserScopeSubtitle" class="text-xs text-[#64748B] dark:text-slate-400 mt-1">
-                  Cross-zone user provisioning, role assignments, state jurisdiction mapping, and security status controls.
+                  Cross-zone user provisioning, role assignments, state jurisdiction mapping, and security status
+                  controls.
                 </p>
               </div>
 
@@ -1211,41 +1348,59 @@
             </div>
 
             <!-- Stats Bar -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-              <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700">
+            <div
+              class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <div
+                class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700">
                 <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Users</div>
-                <div id="adminTotalUsers" class="text-lg font-extrabold text-slate-900 dark:text-slate-100 font-mono mt-0.5">0</div>
+                <div id="adminTotalUsers"
+                  class="text-lg font-extrabold text-slate-900 dark:text-slate-100 font-mono mt-0.5">0</div>
               </div>
-              <div class="bg-emerald-50/70 dark:bg-emerald-950/40 p-3 rounded-xl border border-emerald-200/60 dark:border-emerald-800/60">
-                <div class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Active Users</div>
-                <div id="adminActiveUsers" class="text-lg font-extrabold text-emerald-700 dark:text-emerald-400 font-mono mt-0.5">0</div>
+              <div
+                class="bg-emerald-50/70 dark:bg-emerald-950/40 p-3 rounded-xl border border-emerald-200/60 dark:border-emerald-800/60">
+                <div class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                  Active Users</div>
+                <div id="adminActiveUsers"
+                  class="text-lg font-extrabold text-emerald-700 dark:text-emerald-400 font-mono mt-0.5">0</div>
               </div>
-              <div class="bg-amber-50/70 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200/60 dark:border-amber-800/60">
-                <div class="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Inactive / Suspended</div>
-                <div id="adminInactiveUsers" class="text-lg font-extrabold text-amber-700 dark:text-amber-400 font-mono mt-0.5">0</div>
+              <div
+                class="bg-amber-50/70 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200/60 dark:border-amber-800/60">
+                <div class="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Inactive
+                  / Suspended</div>
+                <div id="adminInactiveUsers"
+                  class="text-lg font-extrabold text-amber-700 dark:text-amber-400 font-mono mt-0.5">0</div>
               </div>
-              <div class="bg-indigo-50/70 dark:bg-indigo-950/40 p-3 rounded-xl border border-indigo-200/60 dark:border-indigo-800/60">
-                <div class="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">In Your Zone</div>
-                <div id="adminZonalUsers" class="text-lg font-extrabold text-indigo-700 dark:text-indigo-400 font-mono mt-0.5">0</div>
+              <div
+                class="bg-indigo-50/70 dark:bg-indigo-950/40 p-3 rounded-xl border border-indigo-200/60 dark:border-indigo-800/60">
+                <div class="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">In Your
+                  Zone</div>
+                <div id="adminZonalUsers"
+                  class="text-lg font-extrabold text-indigo-700 dark:text-indigo-400 font-mono mt-0.5">0</div>
               </div>
             </div>
           </div>
 
           <!-- Users Table Container -->
-          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-[#E4E7EC] dark:border-slate-800 shadow-sm overflow-hidden transition-all duration-200">
-            <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div
+            class="bg-white dark:bg-slate-900 rounded-2xl border border-[#E4E7EC] dark:border-slate-800 shadow-sm overflow-hidden transition-all duration-200">
+            <div
+              class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm">System Users &amp; Officers Registry</h4>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Strict zone-based permissions matrix applied per active administrator role</p>
+                <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm">System Users &amp; Officers Registry
+                </h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Strict zone-based permissions matrix applied per
+                  active administrator role</p>
               </div>
               <div class="flex items-center gap-2">
-                <input type="text" id="adminUserSearchInput" oninput="onUserSearchInput(this.value)" placeholder="Search username, name, or zone..." class="ds-input px-3 py-1.5 text-xs w-48 sm:w-64">
+                <input type="text" id="adminUserSearchInput" oninput="onUserSearchInput(this.value)"
+                  placeholder="Search username, name, or zone..." class="ds-input px-3 py-1.5 text-xs w-48 sm:w-64">
               </div>
             </div>
 
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
-                <thead class="bg-[#F8FAFC] dark:bg-slate-950 text-[#64748B] dark:text-slate-400 uppercase font-semibold border-b border-slate-200 dark:border-slate-800 text-[11px]">
+                <thead
+                  class="bg-[#F8FAFC] dark:bg-slate-950 text-[#64748B] dark:text-slate-400 uppercase font-semibold border-b border-slate-200 dark:border-slate-800 text-[11px]">
                   <tr>
                     <th class="px-4 py-3">Username &amp; Handle</th>
                     <th class="px-4 py-3">Full Name &amp; Designation</th>
@@ -1263,21 +1418,25 @@
           </div>
 
           <!-- User Configuration Audit Trail Section -->
-          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div
+            class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
             <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div>
                 <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
                   <span>🛡️</span> <span>User &amp; Role Security Audit Trail</span>
                 </h4>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Audited log of user registrations, role changes, status updates, and blocked unauthorized attempts</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Audited log of user registrations, role changes,
+                  status updates, and blocked unauthorized attempts</p>
               </div>
-              <button type="button" onclick="renderUserAuditLogs()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 cursor-pointer">
+              <button type="button" onclick="renderUserAuditLogs()"
+                class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 cursor-pointer">
                 <span>🔄</span> <span>Refresh Trail</span>
               </button>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
-                <thead class="bg-[#F8FAFC] dark:bg-slate-950 text-[#64748B] dark:text-slate-400 uppercase font-semibold border-b border-slate-200 dark:border-slate-800 text-[10.5px]">
+                <thead
+                  class="bg-[#F8FAFC] dark:bg-slate-950 text-[#64748B] dark:text-slate-400 uppercase font-semibold border-b border-slate-200 dark:border-slate-800 text-[10.5px]">
                   <tr>
                     <th class="px-3 py-2">Timestamp</th>
                     <th class="px-3 py-2">Action</th>
@@ -1288,7 +1447,8 @@
                     <th class="px-3 py-2">Details</th>
                   </tr>
                 </thead>
-                <tbody id="adminUserAuditTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
+                <tbody id="adminUserAuditTableBody"
+                  class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
                   <!-- Populated from admin.js -->
                 </tbody>
               </table>
@@ -1340,8 +1500,11 @@
               class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3.5 sm:gap-5 pb-3.5 sm:pb-5 border-b border-slate-300/80 dark:border-slate-800/90">
               <!-- Left: Emblem + Ministry Title -->
               <div class="flex items-center gap-3 sm:gap-4 w-full lg:w-auto">
-                <div class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-default" title="State Emblem of India • e-LMCEP">
-                  <img src="logo/logo.png" alt="State Emblem of India" class="h-8 w-auto sm:h-10 lg:h-12 object-contain" />
+                <div
+                  class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-default"
+                  title="State Emblem of India • e-LMCEP">
+                  <img src="logo/logo.png" alt="State Emblem of India"
+                    class="h-8 w-auto sm:h-10 lg:h-12 object-contain" />
                 </div>
                 <div class="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -1354,12 +1517,15 @@
                       Official Sovereign Portal
                     </span>
                   </div>
-                  <div class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
+                  <div
+                    class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
                     Legal Metrology Compliance & Enforcement Platform
                   </div>
-                  <div class="text-[10px] sm:text-xs lg:text-[12.5px] text-slate-600 dark:text-slate-400 font-medium leading-tight">
+                  <div
+                    class="text-[10px] sm:text-xs lg:text-[12.5px] text-slate-600 dark:text-slate-400 font-medium leading-tight">
                     <span class="sm:hidden">Dept. of Consumer Affairs • Govt. of India</span>
-                    <span class="hidden sm:inline">Department of Consumer Affairs • Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India</span>
+                    <span class="hidden sm:inline">Department of Consumer Affairs • Ministry of Consumer Affairs, Food &
+                      Public Distribution • Govt. of India</span>
                   </div>
                 </div>
               </div>
@@ -1375,38 +1541,45 @@
             </div>
 
             <!-- Row 2: Navigation & Statutory Information (Compact Mobile Stack / 2-Col Tablet / 4-Col Desktop) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 text-slate-700 dark:text-slate-300">
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 text-slate-700 dark:text-slate-300">
 
               <!-- Column 1: Operational Portals -->
-              <details open class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
+              <details open
+                class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
                 <summary
                   class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1.5 sm:pb-2 cursor-pointer sm:cursor-default select-none">
                   <span class="flex items-center gap-2">
                     <span>🏛️</span> <span>OPERATIONAL PORTALS</span>
                   </span>
-                  <span class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
+                  <span
+                    class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
                 </summary>
                 <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
                   <li>
-                    <a href="inspector.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="inspector.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Field Inspector Optical Capture</span>
                     </a>
                   </li>
                   <li>
-                    <a href="officer.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="officer.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Zonal Officer Adjudication Console</span>
                     </a>
                   </li>
                   <li>
-                    <a href="admin.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="admin.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Pan-India Master Audit Ledger</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>System Capabilities & Mandates</span>
                     </a>
@@ -1415,35 +1588,41 @@
               </details>
 
               <!-- Column 2: Statutory Framework -->
-              <details open class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
+              <details open
+                class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
                 <summary
                   class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1.5 sm:pb-2 cursor-pointer sm:cursor-default select-none">
                   <span class="flex items-center gap-2">
                     <span>⚖️</span> <span>STATUTORY FRAMEWORK</span>
                   </span>
-                  <span class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
+                  <span
+                    class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
                 </summary>
                 <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
                   <li>
-                    <a href="features.html#rule6-matrix" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#rule6-matrix"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Rule 6 Mandatory Declarations</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html#penalties" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#penalties"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Section 18 / 36 Penalty Schedule</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html#core-modules" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#core-modules"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Schedule II MAV Tolerance Limits</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html#pipeline" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#pipeline"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Form-V PDF Seizure Notices</span>
                     </a>
@@ -1452,13 +1631,15 @@
               </details>
 
               <!-- Column 3: Government Links -->
-              <details open class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
+              <details open
+                class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
                 <summary
                   class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1.5 sm:pb-2 cursor-pointer sm:cursor-default select-none">
                   <span class="flex items-center gap-2">
                     <span>🔗</span> <span>GOVERNMENT LINKS</span>
                   </span>
-                  <span class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
+                  <span
+                    class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
                 </summary>
                 <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
                   <li>
@@ -1466,7 +1647,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Dept. of Consumer Affairs</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                   <li>
@@ -1474,7 +1656,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>National Consumer Helpline (NCH)</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                   <li>
@@ -1482,7 +1665,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>CPGRAMS Public Grievance</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                   <li>
@@ -1490,7 +1674,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>National Portal of India (india.gov.in)</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                 </ul>
@@ -1510,11 +1695,15 @@
                     <span>National Consumer Helpline</span>
                   </div>
                   <div class="flex flex-row sm:flex-col items-baseline sm:items-start gap-2 sm:gap-0.5">
-                    <a href="tel:1915" class="block text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-slate-100 font-mono tracking-tight hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" title="Call Toll-Free Helpline 1915">
+                    <a href="tel:1915"
+                      class="block text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-slate-100 font-mono tracking-tight hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      title="Call Toll-Free Helpline 1915">
                       1915
                     </a>
                     <span class="sm:hidden text-slate-300 dark:text-slate-700 select-none">|</span>
-                    <a href="tel:1800114000" class="block text-xs sm:text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 font-mono hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" title="Call Toll-Free 1800-11-4000">
+                    <a href="tel:1800114000"
+                      class="block text-xs sm:text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 font-mono hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      title="Call Toll-Free 1800-11-4000">
                       1800-11-4000
                     </a>
                   </div>
@@ -1530,27 +1719,33 @@
             <!-- Row 3: Statutory Policy & Compliance Links Strip (WCAG AAA High-Contrast & Wrapped Chips) -->
             <div
               class="pt-3 sm:pt-4 lg:pt-5 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-wrap items-center justify-center gap-y-1 sm:gap-y-2 gap-x-2.5 sm:gap-x-4 lg:gap-x-6 text-xs lg:text-[13.5px] leading-relaxed text-slate-700 dark:text-slate-300 text-center">
-              <button type="button" onclick="openPolicyModal('terms')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('terms')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Terms of Service
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('privacy')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('privacy')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Privacy Policy
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('copyright')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('copyright')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Copyright Policy
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('hyperlinking')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('hyperlinking')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Hyperlinking Policy
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('accessibility')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('accessibility')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Accessibility Statement
               </button>
               <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('gigw')" class="footer-legal-link w-full sm:w-auto mt-1 sm:mt-0 inline-flex items-center justify-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:underline cursor-pointer">
+              <button type="button" onclick="openPolicyModal('gigw')"
+                class="footer-legal-link w-full sm:w-auto mt-1 sm:mt-0 inline-flex items-center justify-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:underline cursor-pointer">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>GIGW 3.0 & WCAG 2.1 AAA Certified</span>
               </button>
@@ -1561,13 +1756,17 @@
               class="pt-2.5 sm:pt-3.5 lg:pt-4 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col md:flex-row items-center justify-between gap-2 sm:gap-3 lg:gap-3.5 text-xs lg:text-[13px] leading-tight sm:leading-relaxed text-slate-700 dark:text-slate-300 text-center md:text-left">
               <div class="flex items-center justify-center md:justify-start gap-1.5 text-center md:text-left">
                 <span>Website Content & Infrastructure Managed by <strong
-                    class="font-bold text-slate-900 dark:text-slate-100">Department of Consumer Affairs, Govt. of India</strong></span>
+                    class="font-bold text-slate-900 dark:text-slate-100">Department of Consumer Affairs, Govt. of
+                    India</strong></span>
               </div>
 
-              <div class="flex flex-wrap items-center justify-center md:justify-end gap-1.5 sm:gap-2 lg:gap-2.5 font-mono text-[10.5px] sm:text-xs lg:text-[12.5px]">
+              <div
+                class="flex flex-wrap items-center justify-center md:justify-end gap-1.5 sm:gap-2 lg:gap-2.5 font-mono text-[10.5px] sm:text-xs lg:text-[12.5px]">
                 <span>Designed & Developed by <strong class="text-slate-900 dark:text-slate-100">NIC</strong></span>
                 <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-                <span class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-[9.5px] sm:text-[11px]">Build v2.4.0</span>
+                <span
+                  class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-[9.5px] sm:text-[11px]">Build
+                  v7.0.0</span>
                 <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
                 <span class="font-semibold">© 2026 Government of India</span>
               </div>
@@ -1584,13 +1783,17 @@
   </div>
 
   <!-- Modal: Add / Edit Commodity -->
-  <div id="commodityModal" role="dialog" aria-modal="true" aria-labelledby="commodityModalTitle" onclick="if (event.target === this) closeCommodityModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
+  <div id="commodityModal" role="dialog" aria-modal="true" aria-labelledby="commodityModalTitle"
+    onclick="if (event.target === this) closeCommodityModal()"
+    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
     <div
       class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 modal-animate-in">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-        <h3 id="commodityModalTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Add New Commodity Standard</h3>
+        <h3 id="commodityModalTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Add New Commodity
+          Standard</h3>
         <button type="button" onclick="closeCommodityModal()"
-          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
+          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+          title="Close">✕</button>
       </div>
 
       <form id="commodityForm" onsubmit="handleSaveCommodityForm(event)" class="space-y-3 text-xs">
@@ -1626,7 +1829,8 @@
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Permissible Standard Package Sizes</label>
+          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Permissible Standard Package
+            Sizes</label>
           <input type="text" id="commodityFormSizes" placeholder="e.g. 100g, 250g, 500g, 1kg"
             class="ds-input w-full p-2.5">
         </div>
@@ -1640,23 +1844,29 @@
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
           <button type="button" onclick="closeCommodityModal()" class="btn-secondary px-4 py-2 text-xs">Cancel</button>
           <button type="submit"
-            class="btn-primary active:scale-95 transition-transform duration-100 px-5 py-2 text-xs">Save Standard</button>
+            class="btn-primary active:scale-95 transition-transform duration-100 px-5 py-2 text-xs">Save
+            Standard</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- Modal: Add New User -->
-  <div id="userModal" role="dialog" aria-modal="true" aria-labelledby="userModalTitle" onclick="if (event.target === this) closeUserModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
+  <div id="userModal" role="dialog" aria-modal="true" aria-labelledby="userModalTitle"
+    onclick="if (event.target === this) closeUserModal()"
+    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
     <div
       class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 modal-animate-in">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
-          <h3 id="userModalTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Register System User</h3>
-          <p id="userModalNotice" class="text-[11px] text-slate-500 dark:text-slate-400">Configuring user authority and jurisdiction mapping</p>
+          <h3 id="userModalTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Register System User
+          </h3>
+          <p id="userModalNotice" class="text-[11px] text-slate-500 dark:text-slate-400">Configuring user authority and
+            jurisdiction mapping</p>
         </div>
         <button type="button" onclick="closeUserModal()"
-          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
+          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+          title="Close">✕</button>
       </div>
 
       <form id="userForm" onsubmit="handleSaveUserForm(event)" class="space-y-3.5 text-xs">
@@ -1664,25 +1874,30 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Username (Login Handle) <span class="text-rose-500">*</span></label>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Username (Login Handle) <span
+                class="text-rose-500">*</span></label>
             <input type="text" id="userFormUsername" required placeholder="e.g. north_officer2"
               class="ds-input w-full p-2.5 font-mono">
           </div>
           <div>
-            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Password <span class="text-rose-500">*</span></label>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Password <span
+                class="text-rose-500">*</span></label>
             <input type="password" id="userFormPassword" placeholder="Leave blank to keep existing"
               class="ds-input w-full p-2.5 font-mono">
           </div>
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Full Officer / Inspector Name <span class="text-rose-500">*</span></label>
-          <input type="text" id="userFormName" required placeholder="e.g. Dr. Rajesh Kumar" class="ds-input w-full p-2.5">
+          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Full Officer / Inspector Name <span
+              class="text-rose-500">*</span></label>
+          <input type="text" id="userFormName" required placeholder="e.g. Dr. Rajesh Kumar"
+            class="ds-input w-full p-2.5">
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">System Role <span class="text-rose-500">*</span></label>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">System Role <span
+                class="text-rose-500">*</span></label>
             <select id="userFormRole" class="ds-select w-full p-2.5">
               <option value="inspector">Field Inspector</option>
               <option value="officer">Metrology Officer</option>
@@ -1691,7 +1906,8 @@
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Jurisdiction Zone <span class="text-rose-500">*</span></label>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Jurisdiction Zone <span
+                class="text-rose-500">*</span></label>
             <select id="userFormZone" onchange="onUserFormZoneChange(this.value)" class="ds-select w-full p-2.5">
               <option value="North">North Zone</option>
               <option value="Central">Central Zone</option>
@@ -1700,7 +1916,8 @@
               <option value="South">South Zone</option>
               <option value="North East">North East Zone</option>
             </select>
-            <p id="userFormZoneHelp" class="text-[10px] text-amber-600 dark:text-amber-400 mt-1 hidden">🔒 Jurisdiction locked to your assigned zone.</p>
+            <p id="userFormZoneHelp" class="text-[10px] text-amber-600 dark:text-amber-400 mt-1 hidden">🔒 Jurisdiction
+              locked to your assigned zone.</p>
           </div>
         </div>
 
@@ -1730,11 +1947,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Badge / Order Number</label>
-            <input type="text" id="userFormBadge" placeholder="e.g. ACM-DL-2026-042" class="ds-input w-full p-2.5 font-mono">
+            <input type="text" id="userFormBadge" placeholder="e.g. ACM-DL-2026-042"
+              class="ds-input w-full p-2.5 font-mono">
           </div>
           <div>
             <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Office Address</label>
-            <input type="text" id="userFormOffice" placeholder="e.g. CGO Complex, Lodhi Road, New Delhi" class="ds-input w-full p-2.5">
+            <input type="text" id="userFormOffice" placeholder="e.g. CGO Complex, Lodhi Road, New Delhi"
+              class="ds-input w-full p-2.5">
           </div>
         </div>
 
@@ -1750,7 +1969,9 @@
 
 
   <!-- CONTACT SUPPORT & GRIEVANCE MODAL (WCAG AA Compliant) -->
-  <div id="contactSupportModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle" onclick="if (event.target === this) closeContactModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
+  <div id="contactSupportModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle"
+    onclick="if (event.target === this) closeContactModal()"
+    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
     <div
       class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100">
 
@@ -1863,7 +2084,8 @@
           <p id="contactCaptchaError" class="hidden text-xs text-red-600 font-medium pl-1"></p>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 dark:border-slate-800">
+        <div
+          class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 dark:border-slate-800">
           <button type="button" onclick="closeContactModal()"
             class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0F172A] dark:text-slate-200 font-medium rounded-lg transition">
             Cancel
@@ -1905,31 +2127,45 @@
   <!-- =====================================================================
        LEDGER INSPECT DRAWER — Slide-In Record Detail Panel
        ===================================================================== -->
-  <div id="ledgerDrawerBackdrop" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9998] transition-opacity" onclick="closeInspectDrawer()"></div>
+  <div id="ledgerDrawerBackdrop"
+    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9998] transition-opacity"
+    onclick="closeInspectDrawer()"></div>
 
-  <div id="ledgerInspectDrawer" class="hidden fixed top-0 right-0 bottom-0 z-[9999] w-full sm:w-[520px] max-w-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden transition-transform duration-300" role="dialog" aria-modal="true" aria-label="Inspection Record Detail">
+  <div id="ledgerInspectDrawer"
+    class="hidden fixed top-0 right-0 bottom-0 z-[9999] w-full sm:w-[520px] max-w-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden transition-transform duration-300"
+    role="dialog" aria-modal="true" aria-label="Inspection Record Detail">
 
     <!-- Drawer Header -->
     <div class="drawer-header">
       <div class="flex items-start justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-          <div class="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4.5 h-4.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <div
+            class="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4.5 h-4.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              style="width:18px;height:18px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
           </div>
           <div class="min-w-0">
             <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Inspection Record</p>
             <h4 class="text-white font-bold text-sm truncate" id="drawerCaseId">Case #—</h4>
           </div>
         </div>
-        <button onclick="closeInspectDrawer()" class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/8 hover:bg-white/15 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer" style="background:rgba(255,255,255,0.06);" title="Close">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <button onclick="closeInspectDrawer()"
+          class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/8 hover:bg-white/15 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer"
+          style="background:rgba(255,255,255,0.06);" title="Close">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
       <!-- Status Badge Row -->
       <div class="flex items-center gap-2 mt-3 flex-wrap">
         <span id="drawerStatusBadge" class="ledger-badge badge-pending">—</span>
         <span id="drawerVerifiedChip" class="ledger-verified-chip">✓ IMMUTABLE RECORD</span>
-        <span id="drawerZoneChip" class="text-[10px] font-semibold text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-md font-mono"></span>
+        <span id="drawerZoneChip"
+          class="text-[10px] font-semibold text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-md font-mono"></span>
       </div>
     </div>
 
@@ -1944,11 +2180,16 @@
 
     <!-- Drawer Footer -->
     <div class="drawer-footer">
-      <button id="drawerSheetBtn" onclick="" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 hover:border-slate-300 transition cursor-pointer">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <button id="drawerSheetBtn" onclick=""
+        class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 hover:border-slate-300 transition cursor-pointer">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
         View Official Sheet
       </button>
-      <button onclick="closeInspectDrawer()" class="py-2.5 px-4 rounded-lg text-xs font-semibold text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-700 transition cursor-pointer">
+      <button onclick="closeInspectDrawer()"
+        class="py-2.5 px-4 rounded-lg text-xs font-semibold text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-700 transition cursor-pointer">
         Close
       </button>
     </div>

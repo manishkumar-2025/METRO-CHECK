@@ -45,8 +45,8 @@
 
   // Helper: Check if App is already installed or launched as Standalone PWA
   function isAppInstalled() {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-      || window.navigator.standalone === true 
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true
       || document.referrer.startsWith('android-app://');
     const isInstalledFlag = localStorage.getItem('metrocheck_pwa_installed') === 'true';
     return isStandalone || isInstalledFlag;
@@ -111,7 +111,7 @@
         hideInstallButton();
       }
     });
-  } catch (err) {}
+  } catch (err) { }
 
   // 4. Initialization
   if (document.readyState === 'loading') {
@@ -146,7 +146,7 @@
       fab.className = 'fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 select-none print:hidden transition-all duration-300';
       fab.setAttribute('role', 'region');
       fab.setAttribute('aria-label', 'METRO-CHECK App Installation');
-      
+
       fab.innerHTML = `
         <!-- Expanded PWA FAB Button -->
         <div id="metrocheck-pwa-fab-expanded" class="flex items-center gap-1.5 p-1.5 bg-slate-950/95 dark:bg-[#020B09]/95 backdrop-blur-md border border-emerald-500/50 rounded-2xl shadow-2xl shadow-emerald-950/40 transition-all duration-300">
@@ -276,7 +276,7 @@
     const badge = document.getElementById('pwa-ready-badge');
     if (badge) {
       badge.textContent = isReady ? 'READY' : 'PWA';
-      badge.className = isReady 
+      badge.className = isReady
         ? 'px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-mono font-black border border-amber-300 animate-pulse shadow-xs'
         : 'px-1.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 text-[10px] font-mono font-bold border border-emerald-500/50';
     }
@@ -347,7 +347,7 @@
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               One-Click App Installation
             </span>
-            <span class="text-[10px] text-slate-400 font-mono">Build v2.4.0</span>
+            <span class="text-[10px] text-slate-400 font-mono">Build v7.0.0</span>
           </div>
 
           <button type="button" id="pwa-direct-install-action-btn" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm shadow-lg hover:shadow-emerald-500/20 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-95">

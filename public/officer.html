@@ -78,7 +78,8 @@
   <script src="js/jspdf.umd.min.js"></script>
 </head>
 
-<body class="porcelain-canvas officer-cross-matrix-bg min-h-screen flex flex-col text-[#0F172A] antialiased" onload="loadReviewDocket()">
+<body class="porcelain-canvas officer-cross-matrix-bg min-h-screen flex flex-col text-[#0F172A] antialiased"
+  onload="loadReviewDocket()">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
   <a href="#mainContent"
@@ -197,7 +198,8 @@
 
     <!-- Mobile Drawer Backdrop -->
     <div id="sidebarBackdrop" onclick="toggleMobileSidebar()"
-      class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-30 hidden md:hidden transition-opacity"></div>
+      class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-30 hidden md:hidden transition-opacity">
+    </div>
 
     <!-- Left Navigation Sidebar (Linear / Shadcn UI 250px SaaS Style) -->
     <aside id="leftSidebar"
@@ -590,8 +592,7 @@
           </div>
 
           <!-- Filter & Search Bar -->
-          <div
-            class="ds-card p-5 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div class="ds-card p-5 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <div class="flex items-center gap-2.5">
                 <h3 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">Review Docket</h3>
@@ -602,15 +603,17 @@
                   <span>Viewing Zone: <strong id="officerZoneName">North</strong></span>
                 </span>
               </div>
-              <p id="pendingCasesCount" class="text-xs text-amber-600 dark:text-amber-400 font-bold mt-0.5">Calculating pending cases...
+              <p id="pendingCasesCount" class="text-xs text-amber-600 dark:text-amber-400 font-bold mt-0.5">Calculating
+                pending cases...
               </p>
             </div>
 
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <!-- Search Bar -->
               <div class="relative">
-                <input type="text" id="docketSearchInput" aria-label="Search Legal Metrology Enforcement Docket Cases" oninput="debouncedFilterByStatus(activeDocketFilter)"
-                  placeholder="Search docket cases..." class="ds-input pl-8 pr-3 py-2 text-xs w-full sm:w-56">
+                <input type="text" id="docketSearchInput" aria-label="Search Legal Metrology Enforcement Docket Cases"
+                  oninput="debouncedFilterByStatus(activeDocketFilter)" placeholder="Search docket cases..."
+                  class="ds-input pl-8 pr-3 py-2 text-xs w-full sm:w-56">
                 <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
               </div>
 
@@ -646,8 +649,7 @@
           </div>
 
           <!-- Dense Data Table with Modern Data Grid Styling -->
-          <div
-            class="ds-card shadow-md overflow-hidden transition-all duration-200 hover:shadow-xl">
+          <div class="ds-card shadow-md overflow-hidden transition-all duration-200 hover:shadow-xl">
             <div class="overflow-x-auto">
               <table class="modern-data-grid docket-master-grid w-full text-left">
                 <thead>
@@ -657,8 +659,10 @@
                     <!-- Col 2: Product & Inspector -->
                     <th class="px-4 py-3 min-w-[200px]">Product &amp; Inspector</th>
                     <!-- Col 3: Date & SLA (default sort) -->
-                    <th class="px-4 py-3 min-w-[160px] cursor-pointer select-none docket-sort-header" title="Sort by SLA / Date (Default)">
-                      <span class="flex items-center gap-1.5">Date &amp; SLA <span class="text-emerald-500 text-[10px] font-bold">↑ SLA</span></span>
+                    <th class="px-4 py-3 min-w-[160px] cursor-pointer select-none docket-sort-header"
+                      title="Sort by SLA / Date (Default)">
+                      <span class="flex items-center gap-1.5">Date &amp; SLA <span
+                          class="text-emerald-500 text-[10px] font-bold">↑ SLA</span></span>
                     </th>
                     <!-- Col 4: Violations -->
                     <th class="px-4 py-3 min-w-[160px]">Violations</th>
@@ -705,21 +709,26 @@
         <section id="officerView-reports" class="hidden space-y-6">
 
           <div class="bg-white rounded-xl p-6 border border-[#E4E7EC] shadow-sm space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#E4E7EC] pb-3.5">
+            <div
+              class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#E4E7EC] pb-3.5">
               <div>
                 <h3 class="text-base font-semibold text-[#0F172A]">Official Violation Notice Generator</h3>
-                <p class="text-xs text-[#64748B]">Draft legally binding compounding show-cause notices under Section 36 of
+                <p class="text-xs text-[#64748B]">Draft legally binding compounding show-cause notices under Section 36
+                  of
                   Legal Metrology Act, 2009</p>
               </div>
 
               <!-- Notice Case Traversal Options (Previous / Next) -->
               <div class="flex items-center gap-2 flex-shrink-0">
-                <div class="inline-flex items-center rounded-lg bg-[#F7F8FA] p-0.5 border border-[#E4E7EC] text-xs shadow-xs">
-                  <button type="button" id="noticePrevBtn" onclick="navigateNoticeCase('prev')" title="Previous Case Notice"
+                <div
+                  class="inline-flex items-center rounded-lg bg-[#F7F8FA] p-0.5 border border-[#E4E7EC] text-xs shadow-xs">
+                  <button type="button" id="noticePrevBtn" onclick="navigateNoticeCase('prev')"
+                    title="Previous Case Notice"
                     class="px-2.5 py-1 hover:bg-white text-[#0F172A] font-semibold rounded-md transition flex items-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
                     <span>◀</span> <span>Previous</span>
                   </button>
-                  <span id="officialNoticeCounter" class="px-2.5 font-mono text-[11px] text-slate-600 font-semibold border-x border-[#E4E7EC] select-none">
+                  <span id="officialNoticeCounter"
+                    class="px-2.5 font-mono text-[11px] text-slate-600 font-semibold border-x border-[#E4E7EC] select-none">
                     Case 1 of 1
                   </span>
                   <button type="button" id="noticeNextBtn" onclick="navigateNoticeCase('next')" title="Next Case Notice"
@@ -737,7 +746,8 @@
                 <label for="officialReportCaseSelect"
                   class="block font-semibold text-[#0F172A] uppercase tracking-wider mb-1.5">Select Case from
                   Docket</label>
-                <select id="officialReportCaseSelect" onchange="updateOfficialReportPreview(); updateNoticeNavigationControls();"
+                <select id="officialReportCaseSelect"
+                  onchange="updateOfficialReportPreview(); updateNoticeNavigationControls();"
                   class="ds-select text-xs w-full">
                   <!-- Populated dynamically -->
                 </select>
@@ -843,15 +853,19 @@
             <!-- Action & Traversal Bar -->
             <div class="pt-5 border-t border-[#E4E7EC] flex flex-col sm:flex-row items-center justify-between gap-4">
               <!-- Bottom Case Traversal -->
-              <div class="inline-flex items-center rounded-lg bg-[#F7F8FA] p-0.5 border border-[#E4E7EC] text-xs shadow-xs">
-                <button type="button" id="noticeBottomPrevBtn" onclick="navigateNoticeCase('prev')" title="Previous Case Notice"
+              <div
+                class="inline-flex items-center rounded-lg bg-[#F7F8FA] p-0.5 border border-[#E4E7EC] text-xs shadow-xs">
+                <button type="button" id="noticeBottomPrevBtn" onclick="navigateNoticeCase('prev')"
+                  title="Previous Case Notice"
                   class="px-3 py-1.5 hover:bg-white text-[#0F172A] font-semibold rounded-md transition flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
                   <span>◀</span> <span>Previous Notice</span>
                 </button>
-                <span id="officialNoticeBottomCounter" class="px-3 font-mono text-[11px] text-slate-600 font-semibold border-x border-[#E4E7EC] select-none">
+                <span id="officialNoticeBottomCounter"
+                  class="px-3 font-mono text-[11px] text-slate-600 font-semibold border-x border-[#E4E7EC] select-none">
                   Case 1 of 1
                 </span>
-                <button type="button" id="noticeBottomNextBtn" onclick="navigateNoticeCase('next')" title="Next Case Notice"
+                <button type="button" id="noticeBottomNextBtn" onclick="navigateNoticeCase('next')"
+                  title="Next Case Notice"
                   class="px-3 py-1.5 hover:bg-white text-[#0F172A] font-semibold rounded-md transition flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
                   <span>Next Notice</span> <span>▶</span>
                 </button>
@@ -887,7 +901,9 @@
 
             <!-- Real-Time Search Bar -->
             <div class="relative">
-              <input type="text" id="legalSearchInput" aria-label="Search Legal Metrology Statutory Provisions & Sections" oninput="debouncedSearchLegalReference()"
+              <input type="text" id="legalSearchInput"
+                aria-label="Search Legal Metrology Statutory Provisions & Sections"
+                oninput="debouncedSearchLegalReference()"
                 placeholder="Search legal sections (e.g., 'Section 36', 'MRP', 'font size', 'tolerance', 'compounding', 'Rule 6')..."
                 class="ds-input pl-10 pr-4 py-3 text-xs sm:text-sm font-medium w-full">
               <span class="absolute left-3.5 top-3.5 text-slate-400 text-sm">🔍</span>
@@ -1054,12 +1070,15 @@
 
           <div id="reviewActiveContent" class="space-y-5">
             <!-- Dynamic Case Status Banner -->
-            <div id="reviewStatusBanner" class="hidden rounded-xl p-4 border flex flex-wrap items-center justify-between gap-4 transition-all">
+            <div id="reviewStatusBanner"
+              class="hidden rounded-xl p-4 border flex flex-wrap items-center justify-between gap-4 transition-all">
               <div class="flex items-center gap-3">
                 <span id="reviewBannerIcon" class="text-xl">🟢</span>
                 <div>
-                  <h4 id="reviewBannerTitle" class="text-sm font-bold leading-tight text-slate-900 dark:text-white">Statutory Legal Notice Issued</h4>
-                  <p id="reviewBannerSubtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Form-V Show Cause Notice Ref: -</p>
+                  <h4 id="reviewBannerTitle" class="text-sm font-bold leading-tight text-slate-900 dark:text-white">
+                    Statutory Legal Notice Issued</h4>
+                  <p id="reviewBannerSubtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Form-V Show
+                    Cause Notice Ref: -</p>
                 </div>
               </div>
               <div id="reviewBannerActions" class="flex items-center gap-2"></div>
@@ -1187,31 +1206,36 @@
                   </div>
 
                   <!-- Specimen Visual, Carousel Controls & Zoom Panel -->
-                  <div class="relative bg-slate-950 rounded-xl overflow-hidden text-center min-h-[300px] flex items-center justify-center p-3 border border-slate-700 shadow-inner group">
+                  <div
+                    class="relative bg-slate-950 rounded-xl overflow-hidden text-center min-h-[300px] flex items-center justify-center p-3 border border-slate-700 shadow-inner group">
                     <img id="reviewSpecimenImage" src="" alt="Specimen Label"
                       class="max-h-72 mx-auto object-contain rounded-lg shadow-lg cursor-zoom-in transition-all duration-300 hover:scale-105"
                       onclick="openReviewImageZoomModal()">
 
                     <!-- Image Counter Badge -->
-                    <div id="reviewImageCounterBadge" class="hidden absolute top-3 left-3 bg-slate-950/85 text-white font-mono text-[10px] font-bold px-2.5 py-1 rounded-full border border-slate-700 backdrop-blur-sm z-10">
+                    <div id="reviewImageCounterBadge"
+                      class="hidden absolute top-3 left-3 bg-slate-950/85 text-white font-mono text-[10px] font-bold px-2.5 py-1 rounded-full border border-slate-700 backdrop-blur-sm z-10">
                       1 / 1
                     </div>
 
                     <!-- Top Right Zoom Panel Button -->
                     <button type="button" id="reviewZoomPanelBtn" onclick="openReviewImageZoomModal()"
-                      class="absolute top-3 right-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer z-10 active:scale-95" title="Open Full Screen Zoom Panel">
+                      class="absolute top-3 right-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer z-10 active:scale-95"
+                      title="Open Full Screen Zoom Panel">
                       <span>🔍</span> <span>Zoom Panel</span>
                     </button>
 
                     <!-- Slide Left (<) Button -->
                     <button type="button" id="reviewImgPrevBtn" onclick="navigateReviewImage(-1)"
-                      class="hidden absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/85 hover:bg-emerald-600 text-white font-black text-lg flex items-center justify-center border border-slate-700 shadow-xl transition-all cursor-pointer z-10 active:scale-95" title="Previous Image (<)">
+                      class="hidden absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/85 hover:bg-emerald-600 text-white font-black text-lg flex items-center justify-center border border-slate-700 shadow-xl transition-all cursor-pointer z-10 active:scale-95"
+                      title="Previous Image (<)">
                       ‹
                     </button>
 
                     <!-- Slide Right (>) Button -->
                     <button type="button" id="reviewImgNextBtn" onclick="navigateReviewImage(1)"
-                      class="hidden absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/85 hover:bg-emerald-600 text-white font-black text-lg flex items-center justify-center border border-slate-700 shadow-xl transition-all cursor-pointer z-10 active:scale-95" title="Next Image (>)">
+                      class="hidden absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/85 hover:bg-emerald-600 text-white font-black text-lg flex items-center justify-center border border-slate-700 shadow-xl transition-all cursor-pointer z-10 active:scale-95"
+                      title="Next Image (>)">
                       ›
                     </button>
 
@@ -1224,7 +1248,8 @@
                   </div>
 
                   <!-- Thumbnails Carousel Strip -->
-                  <div id="reviewThumbnailsStrip" class="hidden flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin"></div>
+                  <div id="reviewThumbnailsStrip"
+                    class="hidden flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin"></div>
 
                   <!-- AI Confidence Progress Bar (Indigo Gradient) -->
                   <div class="bg-[#F7F8FA] p-3.5 rounded-xl border border-[#E4E7EC]">
@@ -1280,7 +1305,9 @@
               class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3.5 sm:gap-5 pb-3.5 sm:pb-5 border-b border-slate-300/80 dark:border-slate-800/90">
               <!-- Left: Emblem + Ministry Title -->
               <div class="flex items-center gap-3 sm:gap-4 w-full lg:w-auto">
-                <div class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-default" title="State Emblem of India • e-LMCEP">
+                <div
+                  class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-default"
+                  title="State Emblem of India • e-LMCEP">
                   <img src="logo/logo.png" alt="State Emblem of India" class="h-8 sm:h-9 w-auto object-contain">
                 </div>
                 <div class="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
@@ -1294,12 +1321,15 @@
                       Official Sovereign Portal
                     </span>
                   </div>
-                  <div class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
+                  <div
+                    class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
                     Legal Metrology Compliance & Enforcement Platform
                   </div>
-                  <div class="text-[10px] sm:text-xs lg:text-[12.5px] text-slate-600 dark:text-slate-400 font-medium leading-tight">
+                  <div
+                    class="text-[10px] sm:text-xs lg:text-[12.5px] text-slate-600 dark:text-slate-400 font-medium leading-tight">
                     <span class="sm:hidden">Dept. of Consumer Affairs • Govt. of India</span>
-                    <span class="hidden sm:inline">Department of Consumer Affairs • Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India</span>
+                    <span class="hidden sm:inline">Department of Consumer Affairs • Ministry of Consumer Affairs, Food &
+                      Public Distribution • Govt. of India</span>
                   </div>
                 </div>
               </div>
@@ -1315,38 +1345,45 @@
             </div>
 
             <!-- Row 2: Navigation & Statutory Information (Compact Mobile Stack / 2-Col Tablet / 4-Col Desktop) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 text-slate-700 dark:text-slate-300">
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 text-slate-700 dark:text-slate-300">
 
               <!-- Column 1: Operational Portals -->
-              <details open class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
+              <details open
+                class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
                 <summary
                   class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1.5 sm:pb-2 cursor-pointer sm:cursor-default select-none">
                   <span class="flex items-center gap-2">
                     <span>🏛️</span> <span>OPERATIONAL PORTALS</span>
                   </span>
-                  <span class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
+                  <span
+                    class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
                 </summary>
                 <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
                   <li>
-                    <a href="inspector.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="inspector.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Field Inspector Optical Capture</span>
                     </a>
                   </li>
                   <li>
-                    <a href="officer.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="officer.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Zonal Officer Adjudication Console</span>
                     </a>
                   </li>
                   <li>
-                    <a href="admin.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="admin.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Pan-India Master Audit Ledger</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>System Capabilities & Mandates</span>
                     </a>
@@ -1355,35 +1392,41 @@
               </details>
 
               <!-- Column 2: Statutory Framework -->
-              <details open class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
+              <details open
+                class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
                 <summary
                   class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1.5 sm:pb-2 cursor-pointer sm:cursor-default select-none">
                   <span class="flex items-center gap-2">
                     <span>⚖️</span> <span>STATUTORY FRAMEWORK</span>
                   </span>
-                  <span class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
+                  <span
+                    class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
                 </summary>
                 <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
                   <li>
-                    <a href="features.html#rule6-matrix" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#rule6-matrix"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Rule 6 Mandatory Declarations</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html#penalties" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#penalties"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Section 18 / 36 Penalty Schedule</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html#core-modules" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#core-modules"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Schedule II MAV Tolerance Limits</span>
                     </a>
                   </li>
                   <li>
-                    <a href="features.html#pipeline" class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                    <a href="features.html#pipeline"
+                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Form-V PDF Seizure Notices</span>
                     </a>
@@ -1392,13 +1435,15 @@
               </details>
 
               <!-- Column 3: Government Links -->
-              <details open class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
+              <details open
+                class="footer-mobile-accordion group rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5">
                 <summary
                   class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1.5 sm:pb-2 cursor-pointer sm:cursor-default select-none">
                   <span class="flex items-center gap-2">
                     <span>🔗</span> <span>GOVERNMENT LINKS</span>
                   </span>
-                  <span class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
+                  <span
+                    class="sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 text-[10px] px-1">▼</span>
                 </summary>
                 <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
                   <li>
@@ -1406,7 +1451,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>Dept. of Consumer Affairs</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                   <li>
@@ -1414,7 +1460,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>National Consumer Helpline (NCH)</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                   <li>
@@ -1422,7 +1469,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>CPGRAMS Public Grievance</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                   <li>
@@ -1430,7 +1478,8 @@
                       class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
                       <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
                       <span>National Portal of India (india.gov.in)</span>
-                      <span class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                      <span
+                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
                     </a>
                   </li>
                 </ul>
@@ -1450,11 +1499,15 @@
                     <span>National Consumer Helpline</span>
                   </div>
                   <div class="flex flex-row sm:flex-col items-baseline sm:items-start gap-2 sm:gap-0.5">
-                    <a href="tel:1915" class="block text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-slate-100 font-mono tracking-tight hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" title="Call Toll-Free Helpline 1915">
+                    <a href="tel:1915"
+                      class="block text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-slate-100 font-mono tracking-tight hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      title="Call Toll-Free Helpline 1915">
                       1915
                     </a>
                     <span class="sm:hidden text-slate-300 dark:text-slate-700 select-none">|</span>
-                    <a href="tel:1800114000" class="block text-xs sm:text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 font-mono hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" title="Call Toll-Free 1800-11-4000">
+                    <a href="tel:1800114000"
+                      class="block text-xs sm:text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 font-mono hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      title="Call Toll-Free 1800-11-4000">
                       1800-11-4000
                     </a>
                   </div>
@@ -1470,27 +1523,33 @@
             <!-- Row 3: Statutory Policy & Compliance Links Strip (WCAG AAA High-Contrast & Wrapped Chips) -->
             <div
               class="pt-3 sm:pt-4 lg:pt-5 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-wrap items-center justify-center gap-y-1 sm:gap-y-2 gap-x-2.5 sm:gap-x-4 lg:gap-x-6 text-xs lg:text-[13.5px] leading-relaxed text-slate-700 dark:text-slate-300 text-center">
-              <button type="button" onclick="openPolicyModal('terms')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('terms')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Terms of Service
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('privacy')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('privacy')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Privacy Policy
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('copyright')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('copyright')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Copyright Policy
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('hyperlinking')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('hyperlinking')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Hyperlinking Policy
               </button>
               <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('accessibility')" class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              <button type="button" onclick="openPolicyModal('accessibility')"
+                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
                 Accessibility Statement
               </button>
               <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('gigw')" class="footer-legal-link w-full sm:w-auto mt-1 sm:mt-0 inline-flex items-center justify-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:underline cursor-pointer">
+              <button type="button" onclick="openPolicyModal('gigw')"
+                class="footer-legal-link w-full sm:w-auto mt-1 sm:mt-0 inline-flex items-center justify-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:underline cursor-pointer">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>GIGW 3.0 & WCAG 2.1 AAA Certified</span>
               </button>
@@ -1501,13 +1560,17 @@
               class="pt-2.5 sm:pt-3.5 lg:pt-4 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col md:flex-row items-center justify-between gap-2 sm:gap-3 lg:gap-3.5 text-xs lg:text-[13px] leading-tight sm:leading-relaxed text-slate-700 dark:text-slate-300 text-center md:text-left">
               <div class="flex items-center justify-center md:justify-start gap-1.5 text-center md:text-left">
                 <span>Website Content & Infrastructure Managed by <strong
-                    class="font-bold text-slate-900 dark:text-slate-100">Department of Consumer Affairs, Govt. of India</strong></span>
+                    class="font-bold text-slate-900 dark:text-slate-100">Department of Consumer Affairs, Govt. of
+                    India</strong></span>
               </div>
 
-              <div class="flex flex-wrap items-center justify-center md:justify-end gap-1.5 sm:gap-2 lg:gap-2.5 font-mono text-[10.5px] sm:text-xs lg:text-[12.5px]">
+              <div
+                class="flex flex-wrap items-center justify-center md:justify-end gap-1.5 sm:gap-2 lg:gap-2.5 font-mono text-[10.5px] sm:text-xs lg:text-[12.5px]">
                 <span>Designed & Developed by <strong class="text-slate-900 dark:text-slate-100">NIC</strong></span>
                 <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-                <span class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-[9.5px] sm:text-[11px]">Build v2.4.0</span>
+                <span
+                  class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-[9.5px] sm:text-[11px]">Build
+                  v7.0.0</span>
                 <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
                 <span class="font-semibold">© 2026 Government of India</span>
               </div>
@@ -1524,66 +1587,90 @@
   </div>
 
   <!-- Image Viewer Lightbox Modal -->
-  <div id="docketImageModal" role="dialog" aria-modal="true" aria-labelledby="docketImageTitle" onclick="if (event.target === this) closeDocketImageModal()" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-[9999] transition-opacity">
-    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] flex flex-col">
+  <div id="docketImageModal" role="dialog" aria-modal="true" aria-labelledby="docketImageTitle"
+    onclick="if (event.target === this) closeDocketImageModal()"
+    class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-[9999] transition-opacity">
+    <div
+      class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div class="flex items-center gap-2">
           <span class="text-lg">📷</span>
-          <h3 id="docketImageTitle" class="text-sm font-bold text-slate-900 dark:text-white truncate">Product Evidence Photo</h3>
+          <h3 id="docketImageTitle" class="text-sm font-bold text-slate-900 dark:text-white truncate">Product Evidence
+            Photo</h3>
         </div>
-        <button type="button" onclick="closeDocketImageModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
+        <button type="button" onclick="closeDocketImageModal()"
+          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+          title="Close">✕</button>
       </div>
       <div class="flex-1 overflow-hidden flex items-center justify-center bg-slate-950 rounded-2xl p-2 min-h-[300px]">
-        <img id="docketImagePreview" src="" alt="Evidence Image Preview" class="max-h-[60vh] w-auto object-contain rounded-lg shadow-md">
+        <img id="docketImagePreview" src="" alt="Evidence Image Preview"
+          class="max-h-[60vh] w-auto object-contain rounded-lg shadow-md">
       </div>
       <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
         <span id="docketImageCaption" class="truncate font-mono">Case ID: -</span>
-        <button type="button" onclick="closeDocketImageModal()" class="px-4 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs transition cursor-pointer">Close</button>
+        <button type="button" onclick="closeDocketImageModal()"
+          class="px-4 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs transition cursor-pointer">Close</button>
       </div>
     </div>
   </div>
 
   <!-- Official Inspector Profile & Credentials Modal -->
-  <div id="inspectorProfileModal" role="dialog" aria-modal="true" aria-labelledby="modalInspectorTitle" onclick="if (event.target === this) closeInspectorProfileModal()"
+  <div id="inspectorProfileModal" role="dialog" aria-modal="true" aria-labelledby="modalInspectorTitle"
+    onclick="if (event.target === this) closeInspectorProfileModal()"
     class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] transition-opacity">
-    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 relative modal-animate-in">
-      <button type="button" onclick="closeInspectorProfileModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
-      
+    <div
+      class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 relative modal-animate-in">
+      <button type="button" onclick="closeInspectorProfileModal()"
+        class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+        title="Close">✕</button>
+
       <!-- Header / Avatar Card -->
       <div class="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center text-2xl font-bold shadow-md flex-shrink-0">
+        <div
+          class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center text-2xl font-bold shadow-md flex-shrink-0">
           👤
         </div>
         <div class="min-w-0">
           <div class="flex items-center gap-1.5">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">🟢 VERIFIED</span>
+            <span
+              class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">🟢
+              VERIFIED</span>
             <span class="text-[10px] text-slate-400 font-mono">DoCA ID Verified</span>
           </div>
-          <h3 id="modalInspectorTitle" class="text-base font-extrabold text-slate-900 dark:text-white truncate mt-0.5">Shri R. Sharma</h3>
-          <p id="modalInspectorDesignation" class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Legal Metrology Inspector</p>
+          <h3 id="modalInspectorTitle" class="text-base font-extrabold text-slate-900 dark:text-white truncate mt-0.5">
+            Shri R. Sharma</h3>
+          <p id="modalInspectorDesignation" class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+            Legal Metrology Inspector</p>
         </div>
       </div>
 
       <!-- Detail Grid -->
       <div class="space-y-3 text-xs">
-        <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+        <div
+          class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
           <div class="flex justify-between items-center">
             <span class="text-slate-500 dark:text-slate-400 font-semibold">Inspector Badge ID:</span>
             <div class="flex items-center gap-1.5">
-              <span id="modalInspectorBadge" class="font-mono font-bold text-slate-900 dark:text-emerald-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">LMI-DL-2024-042</span>
-              <button type="button" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('modalInspectorBadge').textContent); if (typeof showToast==='function') showToast('Badge ID copied!', 'info');" class="text-slate-400 hover:text-emerald-600 text-xs cursor-pointer" title="Copy Badge ID">📋</button>
+              <span id="modalInspectorBadge"
+                class="font-mono font-bold text-slate-900 dark:text-emerald-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">LMI-DL-2024-042</span>
+              <button type="button"
+                onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('modalInspectorBadge').textContent); if (typeof showToast==='function') showToast('Badge ID copied!', 'info');"
+                class="text-slate-400 hover:text-emerald-600 text-xs cursor-pointer" title="Copy Badge ID">📋</button>
             </div>
           </div>
           <div class="flex justify-between items-center pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
             <span class="text-slate-500 dark:text-slate-400 font-semibold">Jurisdiction / Zone:</span>
-            <span id="modalInspectorZone" class="font-medium text-slate-800 dark:text-slate-200">North Zone (Delhi UT)</span>
+            <span id="modalInspectorZone" class="font-medium text-slate-800 dark:text-slate-200">North Zone (Delhi
+              UT)</span>
           </div>
         </div>
 
         <div class="space-y-1.5 px-1">
           <div>
-            <span class="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Official Office Address</span>
-            <p id="modalInspectorOffice" class="text-slate-700 dark:text-slate-300 font-medium leading-relaxed mt-0.5">Office of ACLM, CGO Complex, Lodhi Road, New Delhi - 110003</p>
+            <span class="text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Official Office
+              Address</span>
+            <p id="modalInspectorOffice" class="text-slate-700 dark:text-slate-300 font-medium leading-relaxed mt-0.5">
+              Office of ACLM, CGO Complex, Lodhi Road, New Delhi - 110003</p>
           </div>
           <div class="pt-2 flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span>📧 <span id="modalInspectorEmail">r.sharma.lm@gov.in</span></span>
@@ -1594,20 +1681,28 @@
 
       <!-- Action Footer -->
       <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-        <button type="button" onclick="closeInspectorProfileModal()" class="px-5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs transition cursor-pointer">Close Profile</button>
+        <button type="button" onclick="closeInspectorProfileModal()"
+          class="px-5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs transition cursor-pointer">Close
+          Profile</button>
       </div>
     </div>
   </div>
 
   <!-- Decision Confirmation Modal -->
-  <div id="decisionModal" role="dialog" aria-modal="true" aria-labelledby="modalDecisionTitle" onclick="if (event.target === this) closeDecisionModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-[9999] transition-opacity">
+  <div id="decisionModal" role="dialog" aria-modal="true" aria-labelledby="modalDecisionTitle"
+    onclick="if (event.target === this) closeDecisionModal()"
+    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-[9999] transition-opacity">
     <div
       class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 space-y-4 max-h-[90vh] overflow-y-auto modal-animate-in">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-        <h3 id="modalDecisionTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Approve &amp; Issue Statutory Notice</h3>
-        <button type="button" onclick="closeDecisionModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
+        <h3 id="modalDecisionTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Approve &amp; Issue
+          Statutory Notice</h3>
+        <button type="button" onclick="closeDecisionModal()"
+          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+          title="Close">✕</button>
       </div>
-      <p id="modalDecisionSubtitle" class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Enter judicial findings or notice directives (downloads formatted PDF notice upon confirmation):</p>
+      <p id="modalDecisionSubtitle" class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Enter judicial
+        findings or notice directives (downloads formatted PDF notice upon confirmation):</p>
       <textarea id="modalCommentsInput" rows="3"
         placeholder="e.g. Statutory show cause notice issued under Section 36 of Legal Metrology Act..."
         class="ds-textarea text-xs w-full"></textarea>
@@ -1615,14 +1710,17 @@
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
         <button type="button" onclick="closeDecisionModal()" class="btn-secondary text-xs">Cancel</button>
         <button type="button" id="modalConfirmBtn" onclick="confirmDecision()"
-          class="btn-primary active:scale-95 transition-transform duration-100 text-xs">Approve &amp; Issue Notice</button>
+          class="btn-primary active:scale-95 transition-transform duration-100 text-xs">Approve &amp; Issue
+          Notice</button>
       </div>
     </div>
   </div>
 
 
   <!-- CONTACT SUPPORT & GRIEVANCE MODAL (WCAG AA Compliant) -->
-  <div id="contactSupportModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle" onclick="if (event.target === this) closeContactModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
+  <div id="contactSupportModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle"
+    onclick="if (event.target === this) closeContactModal()"
+    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
     <div
       class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100">
 
@@ -1727,8 +1825,8 @@
             </div>
 
             <div class="flex-1 min-w-0">
-              <input type="text" id="contactCaptchaInput" aria-label="Enter Grievance Verification Captcha Code" maxlength="6" autocomplete="off" placeholder="Enter Code"
-                required
+              <input type="text" id="contactCaptchaInput" aria-label="Enter Grievance Verification Captcha Code"
+                maxlength="6" autocomplete="off" placeholder="Enter Code" required
                 class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm font-mono tracking-widest uppercase text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] text-center font-bold">
             </div>
           </div>
