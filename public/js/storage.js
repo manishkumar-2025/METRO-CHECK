@@ -10,7 +10,7 @@ const STORAGE_API_BASE = (() => {
   if (typeof window === "undefined" || !window.location || !window.location.protocol || !window.location.protocol.startsWith("http")) {
     return "http://localhost:3000";
   }
-  const isLocalDevServer = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && window.location.port !== "3000";
+  const isLocalDevServer = (window.location.hostname === "localhost" || window.location.hostname === "122.4.1.1") && window.location.port !== "3000";
   if (isLocalDevServer) {
     return "http://localhost:3000";
   }
@@ -42,8 +42,8 @@ function formatDisplayDateTime(isoOrDateStr, includeSeconds = false) {
     hours = hours ? hours : 12;
     const hoursStr = String(hours).padStart(2, "0");
 
-    const timeStr = includeSeconds 
-      ? `${hoursStr}:${minutes}:${seconds} ${ampm}` 
+    const timeStr = includeSeconds
+      ? `${hoursStr}:${minutes}:${seconds} ${ampm}`
       : `${hoursStr}:${minutes} ${ampm}`;
 
     return `${day} ${month} ${year}, ${timeStr}`;
@@ -67,12 +67,12 @@ function getNextSequenceNumber() {
   let currentStored = 0;
   try {
     currentStored = parseInt(localStorage.getItem(STORAGE_KEY_SEQUENCE) || "0", 10);
-  } catch (e) {}
+  } catch (e) { }
 
   const nextSeq = Math.max(maxSeq, currentStored) + 1;
   try {
     localStorage.setItem(STORAGE_KEY_SEQUENCE, String(nextSeq));
-  } catch (e) {}
+  } catch (e) { }
   return nextSeq;
 }
 
@@ -89,11 +89,11 @@ function getNextZonalCounter() {
       const parsed = parseInt(raw, 10);
       if (!isNaN(parsed) && parsed > 0) counter = parsed;
     }
-  } catch (e) {}
+  } catch (e) { }
   const current = counter;
   try {
     localStorage.setItem(STORAGE_KEY_ZONAL_COUNTER, String(counter + 1));
-  } catch (e) {}
+  } catch (e) { }
   return current;
 }
 
@@ -276,7 +276,7 @@ function appendAuditLog(record, action, actor, notes = "", statusFrom = null, st
   const actorName = typeof actor === "object" && actor ? (actor.name || actor.username || "System") : (actor || "System");
   const actorRole = typeof actor === "object" && actor ? (actor.role || actor.designation || "Enforcement Officer") : "System";
   // Store the authoritative username so the entry is traceable even if display names are ambiguous
-  const actorId   = typeof actor === "object" && actor ? (actor.username || actor.id || null) : null;
+  const actorId = typeof actor === "object" && actor ? (actor.username || actor.id || null) : null;
 
   const entry = {
     id: `AUD-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
@@ -403,8 +403,8 @@ function filterByZoneAccess(inspections) {
   const username = (currentUser.username || "").trim().toLowerCase();
 
   // Helper for normalizing zone names locally if global function not present
-  const normZone = (typeof normalizeZoneName === "function") 
-    ? normalizeZoneName 
+  const normZone = (typeof normalizeZoneName === "function")
+    ? normalizeZoneName
     : (z) => String(z || "").trim().toLowerCase().replace(/\bzone\b/g, "").replace(/[\s_-]+/g, "");
 
   // 1. National Admin / Director DoCA: sees all 6 zones
@@ -414,7 +414,7 @@ function filterByZoneAccess(inspections) {
 
   // 2. Zonal Admin: sees only inspections where zone matches user zone
   if (role === "zonal") {
-    return inspections.filter(function(item) {
+    return inspections.filter(function (item) {
       const itemZone = (item.zone || "").trim().toLowerCase();
       return itemZone === userZone || normZone(itemZone) === normZone(userZone);
     });
@@ -422,7 +422,7 @@ function filterByZoneAccess(inspections) {
 
   // 3. Officer: sees all inspections where zone matches user zone, regardless of state
   if (role === "officer") {
-    return inspections.filter(function(item) {
+    return inspections.filter(function (item) {
       const itemZone = (item.zone || "").trim().toLowerCase();
       return itemZone === userZone || normZone(itemZone) === normZone(userZone);
     });
@@ -430,7 +430,7 @@ function filterByZoneAccess(inspections) {
 
   // 4. Inspector: sees only inspections where inspectorId matches their username
   if (role === "inspector") {
-    return inspections.filter(function(item) {
+    return inspections.filter(function (item) {
       const inspId = (item.inspectorId || item.inspector || item.username || "").trim().toLowerCase();
       return inspId === username;
     });
@@ -451,7 +451,7 @@ function getInspectionById(inspectionId) {
   const rawId = String(inspectionId).trim();
   const decodedId = decodeURIComponent(rawId);
   const allInspections = getInspections();
-  return allInspections.find(function(item) {
+  return allInspections.find(function (item) {
     if (!item || !item.id) return false;
     const itemId = String(item.id).trim();
     return itemId === rawId || itemId === decodedId || decodeURIComponent(itemId) === decodedId;
@@ -568,19 +568,19 @@ function saveInspection(inspectionData) {
   if (!inspectionData.docketHash || inspectionData.docketHash === "COMPUTING...") {
     inspectionData.docketHash = "COMPUTING...";
     // Kick off async hash sealing without blocking the synchronous save path
-    computeAndSealHash(inspectionData).then(function(hash) {
+    computeAndSealHash(inspectionData).then(function (hash) {
       // Update the record in localStorage with the real cryptographic hash
       const currentAll = getInspections();
-      const idx = currentAll.findIndex(function(i) { return i.id === inspectionData.id; });
+      const idx = currentAll.findIndex(function (i) { return i.id === inspectionData.id; });
       if (idx >= 0) {
         currentAll[idx].docketHash = hash;
         currentAll[idx].previousHash = inspectionData.previousHash;
         currentAll[idx].hashAlgorithm = "SHA-256";
         currentAll[idx].hashSealedAt = new Date().toISOString();
         _inspectionsCache = currentAll.slice();
-        try { localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(currentAll)); } catch (e) {}
+        try { localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(currentAll)); } catch (e) { }
       }
-    }).catch(function(e) {
+    }).catch(function (e) {
       console.warn("[METRO-CHECK] Async hash sealing error:", e);
     });
   }
@@ -594,7 +594,7 @@ function saveInspection(inspectionData) {
 
   const allInspections = getInspections();
 
-  const existingIndex = allInspections.findIndex(function(item) {
+  const existingIndex = allInspections.findIndex(function (item) {
     return item.id === inspectionData.id;
   });
 
@@ -686,7 +686,7 @@ function saveInspection(inspectionData) {
     if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
       window.dispatchEvent(new CustomEvent("metro:notificationsUpdated"));
     }
-  } catch (e) {}
+  } catch (e) { }
 
   return inspectionData;
 }
@@ -709,7 +709,7 @@ function addToPendingSyncQueue(id) {
     queue.push(id);
     try {
       localStorage.setItem(STORAGE_KEY_PENDING_SYNC, JSON.stringify(queue));
-    } catch (e) {}
+    } catch (e) { }
   }
 }
 
@@ -719,7 +719,7 @@ function removeFromPendingSyncQueue(id) {
   const filtered = queue.filter(item => item !== id);
   try {
     localStorage.setItem(STORAGE_KEY_PENDING_SYNC, JSON.stringify(filtered));
-  } catch (e) {}
+  } catch (e) { }
 }
 
 /**
@@ -730,7 +730,7 @@ async function flushPendingSyncQueue() {
   const allInspections = getInspections();
   const queue = getPendingSyncQueue();
   const pendingItems = allInspections.filter(item => item.pendingSync === true || queue.includes(item.id));
-  
+
   if (pendingItems.length === 0) return;
 
   let syncedCount = 0;
@@ -759,7 +759,7 @@ async function flushPendingSyncQueue() {
     _inspectionsCache = allInspections.slice();
     try {
       localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(allInspections));
-    } catch (e) {}
+    } catch (e) { }
 
     if (typeof showToast === "function") {
       showToast(`📶 Connection Restored: Auto-synced ${syncedCount} queued inspection(s) with central server!`, "success");
@@ -801,7 +801,7 @@ async function syncInspectionsWithServer(onSyncComplete) {
           _inspectionsCache = local.slice();
           try {
             localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(local));
-          } catch (e) {}
+          } catch (e) { }
 
           // Automatically re-render active portal views with fresh synced records
           if (typeof renderDocketTable === "function") renderDocketTable();
@@ -812,7 +812,7 @@ async function syncInspectionsWithServer(onSyncComplete) {
           if (typeof initCommandCenter === "function") initCommandCenter();
           try {
             window.dispatchEvent(new CustomEvent("metro:inspectionsSynced", { detail: local }));
-          } catch (e) {}
+          } catch (e) { }
         }
         if (onSyncComplete) onSyncComplete(local);
       }
@@ -891,7 +891,7 @@ function formatStatusLabel(status) {
  */
 function updateInspectionStatus(inspectionId, newStatus, comments, reviewFields = {}) {
   const allInspections = getInspections();
-  const target = allInspections.find(function(item) { return item.id === inspectionId; });
+  const target = allInspections.find(function (item) { return item.id === inspectionId; });
   if (target) {
     const prevStatus = target.status;
     target.status = newStatus;
@@ -906,11 +906,11 @@ function updateInspectionStatus(inspectionId, newStatus, comments, reviewFields 
     // notice PDF can display the correct signatory independently of the audit trail array.
     const actor = reviewFields.reviewer || (typeof getCurrentUser === "function" ? getCurrentUser() : null) || {};
     if (actor && typeof actor === "object" && actor.name) {
-      target.reviewedBy          = actor.username || target.reviewedBy || null;
-      target.officerName         = actor.name || target.officerName || null;
-      target.officerDesignation  = actor.designation || target.officerDesignation || null;
-      target.officerBadgeNumber  = actor.badgeNumber || target.officerBadgeNumber || null;
-      target.officerOffice       = actor.officeAddress || target.officerOffice || null;
+      target.reviewedBy = actor.username || target.reviewedBy || null;
+      target.officerName = actor.name || target.officerName || null;
+      target.officerDesignation = actor.designation || target.officerDesignation || null;
+      target.officerBadgeNumber = actor.badgeNumber || target.officerBadgeNumber || null;
+      target.officerOffice = actor.officeAddress || target.officerOffice || null;
     }
 
     appendAuditLog(
@@ -925,7 +925,7 @@ function updateInspectionStatus(inspectionId, newStatus, comments, reviewFields 
     _inspectionsCache = allInspections.slice();
     try {
       localStorage.setItem(STORAGE_KEY_INSPECTIONS, JSON.stringify(allInspections));
-    } catch (e) {}
+    } catch (e) { }
 
     // Background server status sync — include officer identity fields so the server
     // record is kept in sync for multi-device access.
@@ -947,7 +947,7 @@ function updateInspectionStatus(inspectionId, newStatus, comments, reviewFields 
           officerOffice: target.officerOffice,
           auditTrail: target.auditTrail
         })
-      }).catch(e => {});
+      }).catch(e => { });
     }
 
     return target;
@@ -963,7 +963,7 @@ function getStats() {
   const allInspections = filterByZoneAccess(getInspections());
   let compliantCount = 0, violationsCount = 0, pendingReviewCount = 0;
 
-  allInspections.forEach(function(item) {
+  allInspections.forEach(function (item) {
     const s = String(item.status || "").toUpperCase();
     const isComp = item.isCompliant === true || s === "COMPLIANT_LOGGED" || s === "APPROVED";
     if (isComp) {
@@ -1192,7 +1192,7 @@ function getCommodities() {
     _commoditiesCache = DEFAULT_COMMODITIES;
     try {
       localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(DEFAULT_COMMODITIES));
-    } catch (e) {}
+    } catch (e) { }
     return _commoditiesCache.slice();
   }
   try {
@@ -1224,7 +1224,7 @@ function saveCommodity(commodityData) {
   _commoditiesCache = list.slice();
   try {
     localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(list));
-  } catch (e) {}
+  } catch (e) { }
   return commodityData;
 }
 
@@ -1237,7 +1237,7 @@ function deleteCommodity(id) {
   _commoditiesCache = list.slice();
   try {
     localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(list));
-  } catch (e) {}
+  } catch (e) { }
   return list;
 }
 
@@ -1248,7 +1248,7 @@ function resetCommodities() {
   _commoditiesCache = DEFAULT_COMMODITIES.slice();
   try {
     localStorage.setItem(STORAGE_KEY_COMMODITIES, JSON.stringify(DEFAULT_COMMODITIES));
-  } catch (e) {}
+  } catch (e) { }
   return DEFAULT_COMMODITIES;
 }
 
@@ -1305,7 +1305,7 @@ function navigateToReport(caseId, returnUrl) {
   const origin = returnUrl || (currentPath + (window.location.search || "") + (window.location.hash || ""));
   try {
     sessionStorage.setItem("report_origin_url", origin);
-  } catch (e) {}
+  } catch (e) { }
   window.location.href = `report.html?id=${encodeURIComponent(caseId)}&from=${encodeURIComponent(origin)}`;
 }
 window.navigateToReport = navigateToReport;

@@ -32,7 +32,7 @@ if (typeof window !== "undefined") {
   window.setSlotImage = setSlotImage;
 
   // Keyboard accessibility: Escape key closes active API modal
-  document.addEventListener("keydown", function(e) {
+  document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" || e.keyCode === 27) {
       if (typeof closeApiKeyConfigModal === "function") closeApiKeyConfigModal();
     }
@@ -48,7 +48,7 @@ const SERVER_BASE_URL = (() => {
   }
   // When running on local static dev servers (e.g. VS Code Live Server on port 5500/5501 or Live Preview),
   // route backend API calls to the Express server running on port 3000.
-  const isLocalDevServer = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && window.location.port !== "3000";
+  const isLocalDevServer = (window.location.hostname === "localhost" || window.location.hostname === "122.4.1.1") && window.location.port !== "3000";
   if (isLocalDevServer) {
     return "http://localhost:3000";
   }
@@ -720,7 +720,7 @@ function resetInspectionWorkspace() {
 
   // Clear file inputs
   const fileInputs = document.querySelectorAll("input[type='file']");
-  fileInputs.forEach(fi => { try { fi.value = ""; } catch (e) {} });
+  fileInputs.forEach(fi => { try { fi.value = ""; } catch (e) { } });
 
   if (typeof showToast === "function") {
     showToast(`New Inspection Docket Initialized (${currentCaseId})`, "info");
@@ -1400,15 +1400,15 @@ async function startAiOcrInspection() {
 
       // ── DIAGNOSTIC TELEMETRY PILL DOCK ──────────────────────────────
       // Displays real-time server telemetry: active vision model, latency breakdown, and image quality metrics.
-      const confScore   = Math.round((analysis.confidence || 0.98) * 100);
-      const latencyVal  = analysis.latency || "--";
-      const tel         = analysis.telemetry || {};
-      const iq          = tel.imageQuality || {};
-      const modelName   = (tel.modelVersion || analysis.model_used || "Gemini Vision Engine").replace(/^gemini-/i, "Gemini ");
-      const clarityPct  = iq.clarityScore || "--";
-      const glareIdx    = iq.glareIndex   || "--";
-      const inferMs     = tel.geminiInferenceMs ? `${tel.geminiInferenceMs}ms` : "--";
-      const ruleMs      = tel.ruleEngineMs      ? `${tel.ruleEngineMs}ms`      : "--";
+      const confScore = Math.round((analysis.confidence || 0.98) * 100);
+      const latencyVal = analysis.latency || "--";
+      const tel = analysis.telemetry || {};
+      const iq = tel.imageQuality || {};
+      const modelName = (tel.modelVersion || analysis.model_used || "Gemini Vision Engine").replace(/^gemini-/i, "Gemini ");
+      const clarityPct = iq.clarityScore || "--";
+      const glareIdx = iq.glareIndex || "--";
+      const inferMs = tel.geminiInferenceMs ? `${tel.geminiInferenceMs}ms` : "--";
+      const ruleMs = tel.ruleEngineMs ? `${tel.ruleEngineMs}ms` : "--";
 
       // Update the simple header telemetry line
       const engineTelemetryText = document.getElementById("aiEngineTelemetryText");
@@ -1487,8 +1487,8 @@ async function startAiOcrInspection() {
 
     if (isOffline && currentUploadedImageDataUrl) {
       const rawImage = panelImages.front || currentUploadedImageDataUrl || panelImages.back;
-      const compressedImage = (typeof compressImageForStorage === "function") 
-        ? compressImageForStorage(rawImage, 350, 0.6) 
+      const compressedImage = (typeof compressImageForStorage === "function")
+        ? compressImageForStorage(rawImage, 350, 0.6)
         : rawImage;
 
       const offlineRecord = {
@@ -1601,7 +1601,7 @@ async function startAiOcrInspection() {
 function resolveFieldRuleEvaluation(f, curVal, ruleEval, data) {
   let ruleStatus = "COMPLIANT";
   let ruleReason = `Declaration detected and compliant under ${f.ruleClause}.`;
-  
+
   const hasValue = Boolean(curVal && curVal !== "null" && curVal !== "MISSING" && curVal !== "N/A" && String(curVal).trim().length > 0);
   const obsText = (Array.isArray(data?.observations) ? data.observations.join(" ") : (data?.executive_summary || "")).toLowerCase();
 
@@ -1900,37 +1900,37 @@ function renderAutoFilledComplianceReport(data) {
 
       <!-- Unified Smart Declaration Cards -->
       ${fieldDefinitions.map(f => {
-        const rawAiVal = f.origVal && f.origVal !== "null" && f.origVal !== "MISSING" && f.origVal !== "N/A" ? String(f.origVal).trim() : "";
-        const curVal = f.currentVal && f.currentVal !== "null" && f.currentVal !== "MISSING" && f.currentVal !== "N/A" ? String(f.currentVal).trim() : "";
-        const isEdited = Boolean(curVal !== rawAiVal && (curVal.length > 0 || rawAiVal.length > 0));
+      const rawAiVal = f.origVal && f.origVal !== "null" && f.origVal !== "MISSING" && f.origVal !== "N/A" ? String(f.origVal).trim() : "";
+      const curVal = f.currentVal && f.currentVal !== "null" && f.currentVal !== "MISSING" && f.currentVal !== "N/A" ? String(f.currentVal).trim() : "";
+      const isEdited = Boolean(curVal !== rawAiVal && (curVal.length > 0 || rawAiVal.length > 0));
 
-        // Use accurate field-specific rule resolver to eliminate cross-field contamination
-        const { ruleStatus, ruleReason } = resolveFieldRuleEvaluation(f, curVal, ruleEval, data);
+      // Use accurate field-specific rule resolver to eliminate cross-field contamination
+      const { ruleStatus, ruleReason } = resolveFieldRuleEvaluation(f, curVal, ruleEval, data);
 
-        const escapedRawAiVal = escapeHtml(rawAiVal);
-        const escapedCurrentVal = escapeHtml(curVal);
-        const escapedRuleReason = escapeHtml(ruleReason);
+      const escapedRawAiVal = escapeHtml(rawAiVal);
+      const escapedCurrentVal = escapeHtml(curVal);
+      const escapedRuleReason = escapeHtml(ruleReason);
 
-        // Modern Rule Badge & Status Tokens with Statutory Tooltip
-        let ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>✓</span> <span>Compliant</span></span>`;
-        let ruleBoxHeaderColor = "text-emerald-700 dark:text-emerald-400";
-        let cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
+      // Modern Rule Badge & Status Tokens with Statutory Tooltip
+      let ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>✓</span> <span>Compliant</span></span>`;
+      let ruleBoxHeaderColor = "text-emerald-700 dark:text-emerald-400";
+      let cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
 
-        if (ruleStatus.includes("EXEMPT")) {
-          ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>ℹ️</span> <span>Exempt (Rule 6(11))</span></span>`;
-          ruleBoxHeaderColor = "text-blue-700 dark:text-blue-400";
-          cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
-        } else if (ruleStatus === "NON-COMPLIANT" || ruleStatus === "Fail") {
-          ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>✕</span> <span>Contravention</span></span>`;
-          ruleBoxHeaderColor = "text-rose-700 dark:text-rose-400";
-          cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
-        } else if (ruleStatus === "NEEDS VERIFICATION" || ruleStatus === "Review") {
-          ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>🟡</span> <span>Officer Review</span></span>`;
-          ruleBoxHeaderColor = "text-amber-700 dark:text-amber-400";
-          cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
-        }
+      if (ruleStatus.includes("EXEMPT")) {
+        ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>ℹ️</span> <span>Exempt (Rule 6(11))</span></span>`;
+        ruleBoxHeaderColor = "text-blue-700 dark:text-blue-400";
+        cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
+      } else if (ruleStatus === "NON-COMPLIANT" || ruleStatus === "Fail") {
+        ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>✕</span> <span>Contravention</span></span>`;
+        ruleBoxHeaderColor = "text-rose-700 dark:text-rose-400";
+        cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
+      } else if (ruleStatus === "NEEDS VERIFICATION" || ruleStatus === "Review") {
+        ruleBadge = `<span title="${escapedRuleReason}" class="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1.5 shadow-2xs cursor-help"><span>🟡</span> <span>Officer Review</span></span>`;
+        ruleBoxHeaderColor = "text-amber-700 dark:text-amber-400";
+        cardBorderAccent = "hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900";
+      }
 
-        return `
+      return `
           <div class="declaration-card col-span-full rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-3.5 transition-all duration-200 hover:shadow-md ${cardBorderAccent}">
             <!-- Card Header -->
             <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -2006,7 +2006,7 @@ function renderAutoFilledComplianceReport(data) {
             </div>
           </div>
         `;
-      }).join("")}
+    }).join("")}
 
       <!-- Bottom Re-validation Bar -->
       <div class="col-span-full mt-2 p-3.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -2147,7 +2147,7 @@ function updatePendingRevalidationStatus() {
   const isModified = isAnyFieldModified();
   const alertEl = document.getElementById("ocrPendingRevalAlert");
   const verdictSub = document.getElementById("reportVerdictSubtitle");
-  
+
   if (alertEl) {
     if (isModified) {
       alertEl.classList.remove("hidden");
@@ -2177,7 +2177,7 @@ function handleFieldInputChange(key, rawAiVal) {
   const badge = document.getElementById(`badge_user_edit_${key}`);
   const container = document.getElementById(`box_user_edit_${key}`);
   if (!input || !badge || !container) return;
-  
+
   const curVal = input.value.trim();
   const origVal = (rawAiVal || "").trim();
   const isDifferent = curVal !== origVal && (curVal.length > 0 || origVal.length > 0);
@@ -2828,7 +2828,7 @@ function handleSaveOcrInspection(statusType) {
       // Use the real badge number from the user profile (set by admin), never synthesise it
       inspectorBadgeNumber: user.badgeNumber || ("INSP-" + (user.username || "01").toUpperCase()),
       inspectorOffice: user.officeAddress || null,
-      gpsCoordinates: (function() {
+      gpsCoordinates: (function () {
         const m = { "North": "28.5244° N, 77.2066° E", "South": "13.0827° N, 80.2707° E", "West": "19.0760° N, 72.8777° E", "East": "22.5726° N, 88.3639° E", "Central": "23.2599° N, 77.4126° E", "North East": "26.1445° N, 91.7362° E", "Northeast": "26.1445° N, 91.7362° E" };
         return m[user.zone] || "28.5244° N, 77.2066° E";
       })(),
