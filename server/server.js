@@ -867,59 +867,231 @@ function requireApiAuth(allowedRoles = null) {
 }
 
 // =========================================================================
-// USER PROVISIONING & REGISTRY REST API
+// USER PROVISIONING & REGISTRY REST API (WITH STRICT ZONE-BASED ACCESS CONTROL)
 // =========================================================================
+const USER_AUDIT_FILE = path.join(DATA_DIR, "user_audit.json");
+
+function logServerUserAudit(action, actor, targetUsername, targetZone, outcome, details = "") {
+  try {
+    const logs = loadJsonFile(USER_AUDIT_FILE, []);
+    const entry = {
+      id: `UAUD-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      action: String(action || "UNKNOWN").toUpperCase(),
+      actorUsername: actor ? (actor.username || "unknown") : "system",
+      actorRole: actor ? (actor.role || "unknown") : "system",
+      actorZone: actor ? (actor.zone || "All") : "All",
+      targetUsername: String(targetUsername || ""),
+      targetZone: String(targetZone || "Unknown"),
+      outcome: String(outcome || "SUCCESS").toUpperCase(),
+      details: String(details || "")
+    };
+    logs.unshift(entry);
+    if (logs.length > 200) logs.length = 200;
+    saveJsonFile(USER_AUDIT_FILE, logs);
+    return entry;
+  } catch (e) {
+    console.warn("[METRO-CHECK] Server user audit logging failed:", e.message);
+  }
+}
+
 app.get("/api/users", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
   const users = getAllUsers();
+  const reqUser = req.user;
+  const isZonalAdmin = reqUser && reqUser.role === "zonal";
+  const reqZoneNorm = reqUser && reqUser.zone ? (reqUser.zone.trim().toLowerCase().replace(/\bzone\b/g, "").trim()) : "";
+
   const sanitized = {};
   for (const [k, u] of Object.entries(users)) {
-    sanitized[k] = { ...u };
+    const uZoneNorm = (u.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+    const canManage = !isZonalAdmin || (reqZoneNorm && uZoneNorm === reqZoneNorm);
+    
+    sanitized[k] = { ...u, canManage };
     delete sanitized[k].password;
   }
   res.json({ success: true, users: sanitized });
 });
 
-app.post("/api/users", requireApiAuth(["admin", "national"]), (req, res) => {
+app.post("/api/users", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const reqUser = req.user;
   const { username, password, role, name, designation, badgeNumber, officeAddress, zone, state, status } = req.body || {};
   if (!username) {
     return res.status(400).json({ success: false, error: "Username is required." });
   }
   const u = String(username).trim().toLowerCase();
+  const allUsers = getAllUsers();
+  const existing = allUsers[u];
+
+  // Enforce Zone-Based Access Control for Zonal Admins
+  if (reqUser && reqUser.role === "zonal") {
+    const reqZoneNorm = (reqUser.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+    
+    // 1. Cannot modify existing user outside assigned zone
+    if (existing && existing.zone) {
+      const extZoneNorm = existing.zone.trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+      if (extZoneNorm !== reqZoneNorm) {
+        logServerUserAudit("USER_MODIFY_BLOCKED", reqUser, u, existing.zone, "BLOCKED_UNAUTHORIZED", `Zonal Admin @${reqUser.username} (${reqUser.zone}) attempted to modify user @${u} in ${existing.zone} Zone.`);
+        return res.status(403).json({
+          success: false,
+          error: `Access Denied: Zonal Admins cannot modify users outside their assigned zone (${reqUser.zone}). Target user @${u} belongs to ${existing.zone} Zone.`
+        });
+      }
+    }
+
+    // 2. Cannot assign National Admin / Superuser roles
+    const requestedRole = String(role || (existing ? existing.role : "inspector")).toLowerCase();
+    if (requestedRole === "national" || requestedRole === "admin") {
+      logServerUserAudit("ROLE_ASSIGN_BLOCKED", reqUser, u, reqUser.zone, "BLOCKED_UNAUTHORIZED", `Zonal Admin @${reqUser.username} attempted to assign National role to @${u}.`);
+      return res.status(403).json({
+        success: false,
+        error: "Access Denied: Zonal Admins cannot assign National Director / Superuser roles."
+      });
+    }
+  }
+
   const stored = loadJsonFile(USERS_FILE, {});
-  const existing = stored[u] || DEFAULT_SYSTEM_USERS[u] || {};
+  const baseExisting = stored[u] || DEFAULT_SYSTEM_USERS[u] || {};
+
+  const assignedZone = (reqUser && reqUser.role === "zonal") ? reqUser.zone : (zone || baseExisting.zone || "North");
 
   stored[u] = {
-    ...existing,
+    ...baseExisting,
     username: u,
-    password: password || existing.password || "pass123",
-    role: role || existing.role || "inspector",
-    name: name || existing.name || u,
-    designation: designation || existing.designation || "Enforcement Officer",
-    badgeNumber: badgeNumber || existing.badgeNumber || "",
-    officeAddress: officeAddress || existing.officeAddress || "",
-    zone: zone || existing.zone || "North",
-    state: state || existing.state || "Delhi UT",
-    status: status || existing.status || "Active",
+    password: password || baseExisting.password || "pass123",
+    role: role || baseExisting.role || "inspector",
+    name: name || baseExisting.name || u,
+    designation: designation || baseExisting.designation || "Enforcement Officer",
+    badgeNumber: badgeNumber || baseExisting.badgeNumber || "",
+    officeAddress: officeAddress || baseExisting.officeAddress || "",
+    zone: assignedZone,
+    state: state || baseExisting.state || "Delhi UT",
+    status: status || baseExisting.status || "Active",
     updatedAt: new Date().toISOString()
   };
 
   saveJsonFile(USERS_FILE, stored);
+  logServerUserAudit(
+    existing ? "USER_MODIFIED" : "USER_REGISTERED",
+    reqUser,
+    u,
+    assignedZone,
+    "SUCCESS",
+    `User @${u} (${stored[u].role}) updated in ${assignedZone} Zone with status '${stored[u].status}'.`
+  );
+
   const result = { ...stored[u] };
   delete result.password;
   res.json({ success: true, user: result });
 });
 
-app.delete("/api/users/:username", requireApiAuth(["admin", "national"]), (req, res) => {
-  const u = (req.params.username || "").trim().toLowerCase();
+app.patch(["/api/users/:username/status", /^\/api\/users\/(.+)\/status$/], requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const reqUser = req.user;
+  const rawId = req.params.username || req.params[0];
+  const u = rawId ? decodeURIComponent(rawId).trim().toLowerCase() : "";
+  if (u === "admin") {
+    return res.status(403).json({ success: false, error: "The primary administrator account status cannot be altered." });
+  }
+
+  const { status } = req.body || {};
+  const VALID_STATUSES = ["Active", "Inactive", "Suspended"];
+  if (!status || !VALID_STATUSES.includes(status)) {
+    return res.status(400).json({ success: false, error: `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}` });
+  }
+
+  const allUsers = getAllUsers();
+  const target = allUsers[u];
+  if (!target) {
+    return res.status(404).json({ success: false, error: `User @${u} not found.` });
+  }
+
+  if (reqUser && reqUser.role === "zonal") {
+    const reqZoneNorm = (reqUser.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+    const tgtZoneNorm = (target.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+    if (tgtZoneNorm !== reqZoneNorm) {
+      logServerUserAudit("STATUS_CHANGE_BLOCKED", reqUser, u, target.zone, "BLOCKED_UNAUTHORIZED", `Zonal Admin @${reqUser.username} (${reqUser.zone}) attempted to change status of user @${u} in ${target.zone} Zone.`);
+      return res.status(403).json({
+        success: false,
+        error: `Access Denied: Zonal Admins cannot alter status of users outside their assigned zone (${reqUser.zone}). Target @${u} is in ${target.zone} Zone.`
+      });
+    }
+  }
+
+  const stored = loadJsonFile(USERS_FILE, {});
+  stored[u] = {
+    ...(stored[u] || target),
+    status: status,
+    updatedAt: new Date().toISOString()
+  };
+
+  saveJsonFile(USERS_FILE, stored);
+  logServerUserAudit(
+    `USER_${status.toUpperCase()}`,
+    reqUser,
+    u,
+    target.zone,
+    "SUCCESS",
+    `User @${u} account status set to '${status}' by @${reqUser.username}.`
+  );
+
+  const result = { ...stored[u] };
+  delete result.password;
+  res.json({ success: true, user: result });
+});
+
+app.delete(["/api/users/:username", /^\/api\/users\/(.+)$/], requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const reqUser = req.user;
+  const rawId = req.params.username || req.params[0];
+  const u = rawId ? decodeURIComponent(rawId).trim().toLowerCase() : "";
   if (u === "admin") {
     return res.status(403).json({ success: false, error: "The primary administrator account cannot be removed." });
   }
+
+  const allUsers = getAllUsers();
+  const target = allUsers[u];
+
+  if (reqUser && reqUser.role === "zonal" && target) {
+    const reqZoneNorm = (reqUser.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+    const tgtZoneNorm = (target.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+    if (tgtZoneNorm !== reqZoneNorm) {
+      logServerUserAudit("USER_DELETE_BLOCKED", reqUser, u, target.zone, "BLOCKED_UNAUTHORIZED", `Zonal Admin @${reqUser.username} (${reqUser.zone}) attempted to delete user @${u} in ${target.zone} Zone.`);
+      return res.status(403).json({
+        success: false,
+        error: `Access Denied: Zonal Admins cannot delete users outside their assigned zone (${reqUser.zone}). Target @${u} belongs to ${target.zone} Zone.`
+      });
+    }
+  }
+
   const stored = loadJsonFile(USERS_FILE, {});
   if (stored[u]) {
     delete stored[u];
     saveJsonFile(USERS_FILE, stored);
   }
+
+  logServerUserAudit("USER_DELETED", reqUser, u, target ? target.zone : "Unknown", "SUCCESS", `User @${u} deleted from registry by @${reqUser.username}.`);
   res.json({ success: true, message: `User @${u} removed successfully.` });
+});
+
+app.get("/api/users/audit", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const logs = loadJsonFile(USER_AUDIT_FILE, []);
+  const reqUser = req.user;
+  if (reqUser && reqUser.role === "zonal") {
+    const reqZoneNorm = (reqUser.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+    const filtered = logs.filter(l => {
+      const zNorm = (l.targetZone || l.actorZone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+      return zNorm === reqZoneNorm || l.actorUsername === reqUser.username;
+    });
+    return res.json({ success: true, count: filtered.length, auditLogs: filtered });
+  }
+  res.json({ success: true, count: logs.length, auditLogs: logs });
+});
+
+app.post("/api/users/audit", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const entry = req.body;
+  if (!entry || !entry.action) {
+    return res.status(400).json({ error: "Audit entry requires action." });
+  }
+  const result = logServerUserAudit(entry.action, req.user || { username: entry.actorUsername, role: entry.actorRole, zone: entry.actorZone }, entry.targetUsername, entry.targetZone, entry.outcome, entry.details);
+  res.json({ success: true, data: result });
 });
 
 // 1. Fetch all inspections from central registry

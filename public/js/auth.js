@@ -327,24 +327,116 @@ function getUsers() {
 }
 
 /**
- * Saves or updates a user in localStorage and synchronizes with server API.
+ * Zone-Based Access Control (ZBAC) permission validator.
+ * Returns true if actor is National Admin, or if actor is Zonal Admin matching target's zone.
+ */
+function canManageUser(actor, targetUserOrZone) {
+  if (!actor || typeof actor !== "object") return false;
+  const actorRole = String(actor.role || "").trim().toLowerCase();
+  // National Admin / Superuser has cross-zone access across all 6 zones
+  if (actorRole === "national" || actorRole === "admin") return true;
+
+  // Zonal Admin can manage ONLY users within their assigned zone
+  if (actorRole === "zonal") {
+    if (!targetUserOrZone) return false;
+    const targetZone = (typeof targetUserOrZone === "object") ? (targetUserOrZone.zone || "") : String(targetUserOrZone || "");
+    const normActorZone = (typeof normalizeZoneName === "function") ? normalizeZoneName(actor.zone) : String(actor.zone || "").trim().toLowerCase();
+    const normTargetZone = (typeof normalizeZoneName === "function") ? normalizeZoneName(targetZone) : String(targetZone || "").trim().toLowerCase();
+    return normActorZone !== "" && normActorZone === normTargetZone;
+  }
+
+  return false;
+}
+
+/**
+ * Audit log helper for User & Role Management security events.
+ */
+function logUserAudit(action, actor, targetUsername, targetZone, outcome, details = "") {
+  try {
+    const raw = localStorage.getItem("adminUserAuditTrail") || "[]";
+    let auditLogs = [];
+    try { auditLogs = JSON.parse(raw) || []; } catch(e) { auditLogs = []; }
+    const actorObj = (actor && typeof actor === "object") ? actor : (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { username: "system", role: "system", zone: "All" };
+    
+    const entry = {
+      id: `UAUD-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      action: String(action || "UNKNOWN").toUpperCase(),
+      actorUsername: actorObj.username || "unknown",
+      actorName: actorObj.name || actorObj.username || "System",
+      actorRole: actorObj.role || "unknown",
+      actorZone: actorObj.zone || "All",
+      targetUsername: String(targetUsername || ""),
+      targetZone: String(targetZone || "Unknown"),
+      outcome: String(outcome || "SUCCESS").toUpperCase(),
+      details: String(details || "")
+    };
+
+    auditLogs.unshift(entry);
+    if (auditLogs.length > 200) auditLogs = auditLogs.slice(0, 200);
+    localStorage.setItem("adminUserAuditTrail", JSON.stringify(auditLogs));
+
+    if (typeof fetch !== "undefined") {
+      fetch("/api/users/audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(entry)
+      }).catch(function() {});
+    }
+    return entry;
+  } catch(e) {
+    console.warn("[METRO-CHECK] Error logging user audit:", e);
+  }
+}
+
+/**
+ * Saves or updates a user in localStorage and synchronizes with server API,
+ * strictly enforcing zone-based access control.
  */
 function saveUser(user) {
+  const actor = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { role: "national", zone: "All", username: "admin" };
   const users = getUsers();
   const uname = (user.username || "").trim().toLowerCase();
   if (!uname) return null;
 
+  const existing = users[uname];
+
+  // Enforce Zone-Based Access Control for Zonal Admins
+  if (actor.role === "zonal") {
+    // 1. Zonal Admin cannot modify users outside their assigned zone
+    if (existing && !canManageUser(actor, existing)) {
+      const errMsg = `🔒 Access Denied: Zonal Admins (@${actor.username}) can only modify users within their assigned zone (${actor.zone}). Target user @${uname} belongs to ${existing.zone} Zone.`;
+      if (typeof showToast === "function") showToast(errMsg, "error");
+      logUserAudit("USER_MODIFY_BLOCKED", actor, uname, existing.zone, "BLOCKED_UNAUTHORIZED", errMsg);
+      return null;
+    }
+
+    // 2. Zonal Admin cannot assign National Admin / Superuser role
+    const requestedRole = (user.role || (existing ? existing.role : "inspector")).toLowerCase();
+    if (requestedRole === "national" || requestedRole === "admin") {
+      const errMsg = `🔒 Access Denied: Zonal Admins cannot assign National Director / Superuser roles.`;
+      if (typeof showToast === "function") showToast(errMsg, "error");
+      logUserAudit("ROLE_ASSIGN_BLOCKED", actor, uname, user.zone || actor.zone, "BLOCKED_UNAUTHORIZED", errMsg);
+      return null;
+    }
+
+    // 3. Enforce zone restriction: user must belong to actor's assigned zone
+    user.zone = actor.zone;
+  }
+
   const newUserPayload = {
     username: uname,
-    role: user.role || "inspector",
-    name: user.name || (uname.charAt(0).toUpperCase() + uname.slice(1)),
-    designation: user.designation || (user.role === "officer" ? "Metrology Officer" : "Field Inspector"),
-    badgeNumber: user.badgeNumber || "",
-    officeAddress: user.officeAddress || "",
-    zone: user.zone || "North",
-    state: user.state || "Delhi UT",
-    status: user.status || "Active",
-    createdAt: user.createdAt || new Date().toISOString()
+    role: user.role || (existing ? existing.role : "inspector"),
+    name: user.name || (existing ? existing.name : (uname.charAt(0).toUpperCase() + uname.slice(1))),
+    designation: user.designation || (existing ? existing.designation : (user.role === "officer" ? "Metrology Officer" : "Field Inspector")),
+    badgeNumber: user.badgeNumber || (existing ? existing.badgeNumber : ""),
+    officeAddress: user.officeAddress || (existing ? existing.officeAddress : ""),
+    zone: user.zone || (existing ? existing.zone : "North"),
+    state: user.state || (existing ? existing.state : "Delhi UT"),
+    status: user.status || (existing ? existing.status : "Active"),
+    createdAt: (existing && existing.createdAt) ? existing.createdAt : new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
   if (user.password) {
     newUserPayload.password = user.password;
@@ -356,6 +448,15 @@ function saveUser(user) {
   try {
     localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
   } catch (e) {}
+
+  logUserAudit(
+    existing ? "USER_MODIFIED" : "USER_REGISTERED",
+    actor,
+    uname,
+    newUserPayload.zone,
+    "SUCCESS",
+    existing ? `User @${uname} details updated (${newUserPayload.role}, ${newUserPayload.zone} Zone, ${newUserPayload.status})` : `New user @${uname} registered under ${newUserPayload.zone} Zone as ${newUserPayload.role}`
+  );
 
   if (typeof fetch !== "undefined") {
     fetch("/api/users", {
@@ -370,9 +471,69 @@ function saveUser(user) {
 }
 
 /**
- * Deletes a user by username (cannot delete the core admin).
+ * Activates, deactivates, or suspends a system user with strict Zonal RBAC checks.
+ */
+function toggleUserStatus(username, targetStatus = null) {
+  const actor = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { role: "national", zone: "All", username: "admin" };
+  const uname = (username || "").trim().toLowerCase();
+  if (uname === "admin") {
+    if (typeof showToast === "function") showToast("Primary administrator account status cannot be altered.", "warning");
+    return false;
+  }
+
+  const users = getUsers();
+  const target = users[uname];
+  if (!target) {
+    if (typeof showToast === "function") showToast(`User @${uname} not found in system directory.`, "error");
+    return false;
+  }
+
+  if (!canManageUser(actor, target)) {
+    const errMsg = `🔒 Access Denied: Zonal Admins (@${actor.username}) cannot alter status of users outside their assigned zone (${actor.zone}). Target @${uname} is in ${target.zone} Zone.`;
+    if (typeof showToast === "function") showToast(errMsg, "error");
+    logUserAudit("STATUS_CHANGE_BLOCKED", actor, uname, target.zone, "BLOCKED_UNAUTHORIZED", errMsg);
+    return false;
+  }
+
+  let nextStatus = targetStatus;
+  if (!nextStatus) {
+    nextStatus = target.status === "Inactive" ? "Active" : "Inactive";
+  }
+
+  target.status = nextStatus;
+  target.updatedAt = new Date().toISOString();
+  users[uname] = target;
+
+  try {
+    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+  } catch (e) {}
+
+  logUserAudit(
+    `USER_${nextStatus.toUpperCase()}`,
+    actor,
+    uname,
+    target.zone,
+    "SUCCESS",
+    `User @${uname} account status updated to '${nextStatus}' by @${actor.username}`
+  );
+
+  if (typeof fetch !== "undefined") {
+    fetch(`/api/users/${encodeURIComponent(uname)}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ status: nextStatus })
+    }).catch(err => console.warn("[METRO-CHECK] Status API error:", err));
+  }
+
+  return true;
+}
+
+/**
+ * Deletes a user by username (cannot delete the core admin), strictly enforcing Zonal RBAC.
  */
 function deleteUser(username) {
+  const actor = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { role: "national", zone: "All", username: "admin" };
   const uname = (username || "").trim().toLowerCase();
   if (uname === "admin") {
     if (typeof showToast === "function") {
@@ -381,11 +542,29 @@ function deleteUser(username) {
     return false;
   }
   const users = getUsers();
-  if (users[uname]) {
+  const target = users[uname];
+  if (target) {
+    if (!canManageUser(actor, target)) {
+      const errMsg = `🔒 Access Denied: Zonal Admins (@${actor.username}) cannot remove users outside their assigned zone (${actor.zone}). Target @${uname} is in ${target.zone} Zone.`;
+      if (typeof showToast === "function") showToast(errMsg, "error");
+      logUserAudit("USER_DELETE_BLOCKED", actor, uname, target.zone, "BLOCKED_UNAUTHORIZED", errMsg);
+      return false;
+    }
+
+    const targetZone = target.zone;
     delete users[uname];
     try {
       localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
     } catch (e) {}
+
+    logUserAudit(
+      "USER_DELETED",
+      actor,
+      uname,
+      targetZone,
+      "SUCCESS",
+      `User @${uname} permanently deleted from registry by @${actor.username}`
+    );
 
     if (typeof fetch !== "undefined") {
       fetch(`/api/users/${encodeURIComponent(uname)}`, {
@@ -1263,7 +1442,7 @@ function openUserProfileModal() {
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     modal.setAttribute("aria-labelledby", "userProfileTitle");
-    modal.className = "fixed inset-0 z-[9999] bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 transition-all duration-200";
+    modal.className = "fixed inset-0 z-[99999] bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 transition-all duration-200";
     modal.addEventListener("click", (e) => {
       if (e.target === modal) closeUserProfileModal();
     });
@@ -1704,3 +1883,10 @@ window.switchPolicyTab = switchPolicyTab;
 
 
 
+
+
+if (typeof window !== "undefined") {
+  window.canManageUser = canManageUser;
+  window.logUserAudit = logUserAudit;
+  window.toggleUserStatus = toggleUserStatus;
+}

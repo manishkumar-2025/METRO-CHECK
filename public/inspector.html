@@ -2808,55 +2808,173 @@
     </div>
   </div>
 
-  <!-- Detail Modal for Single Inspection -->
-  <div id="inspectorDetailModal" role="dialog" aria-modal="true" aria-labelledby="modalInspectionId" onclick="if (event.target === this) closeInspectorDetailModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
-    <div
-      class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 space-y-4 max-h-[90vh] overflow-y-auto modal-animate-in">
-      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-        <div>
-          <h3 id="modalInspectionId" class="text-base font-extrabold text-slate-900 dark:text-white">INS-0000</h3>
-          <p id="modalInspectionDate" class="text-xs text-slate-400">-</p>
+  <!-- Inspection Details Full-Screen Modal -->
+  <div id="inspectorDetailModal" role="dialog" aria-modal="true" aria-labelledby="idm-title"
+    class="hidden fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
+    onclick="if(event.target===this||event.target.id==='idm-backdrop') closeInspectorDetailModal()">
+    <!-- Backdrop -->
+    <div id="idm-backdrop" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md cursor-pointer"></div>
+
+    <!-- Modal Panel -->
+    <div class="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-2xl shadow-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col max-h-[92vh] overflow-hidden modal-animate-in idm-panel z-10">
+
+      <!-- ── Header ── -->
+      <div class="idm-header flex-shrink-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-5 pt-5 pb-4 rounded-t-3xl relative overflow-hidden">
+        <!-- decorative glow -->
+        <div class="absolute -top-6 -right-6 w-40 h-40 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-4 left-10 w-32 h-20 rounded-full bg-amber-500/8 blur-2xl pointer-events-none"></div>
+
+        <div class="flex items-start justify-between gap-3 relative">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-xl flex-shrink-0 shadow-lg">🔍</div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <h2 id="idm-title" class="font-mono font-black text-amber-400 text-sm tracking-wide">—</h2>
+                <span id="idm-seq" class="hidden px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-700 text-slate-300 border border-slate-600">#000</span>
+                <span id="idm-status-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-amber-100 text-amber-800">PENDING</span>
+              </div>
+              <p id="idm-datetime" class="text-[11px] text-slate-400 mt-0.5 font-mono">—</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeInspectorDetailModal()"
+            class="w-9 h-9 rounded-full bg-slate-700/80 hover:bg-red-600 text-slate-300 hover:text-white flex items-center justify-center text-base font-bold transition-all shadow-md flex-shrink-0 cursor-pointer border border-slate-600/50 hover:border-red-500" title="Close (Esc)">✕</button>
         </div>
+
+        <!-- Quick meta row -->
+        <div class="mt-3 grid grid-cols-3 gap-2">
+          <div class="bg-slate-800/60 rounded-xl px-3 py-2 border border-slate-700/50">
+            <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Product</p>
+            <p id="idm-product" class="text-xs font-bold text-white mt-0.5 line-clamp-1">—</p>
+          </div>
+          <div class="bg-slate-800/60 rounded-xl px-3 py-2 border border-slate-700/50">
+            <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Inspector</p>
+            <p id="idm-inspector" class="text-xs font-bold text-white mt-0.5 line-clamp-1">—</p>
+          </div>
+          <div class="bg-slate-800/60 rounded-xl px-3 py-2 border border-slate-700/50">
+            <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Location</p>
+            <p id="idm-location" class="text-xs font-bold text-white mt-0.5 line-clamp-1">—</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Section Tab Pills (Sticky) ── -->
+      <div class="sticky top-0 z-20 flex-shrink-0 flex gap-1.5 overflow-x-auto px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm scrollbar-thin" id="idm-tab-bar">
+        <button class="idm-tab-pill active" data-idm-tab="declarations" onclick="switchIdmTab('declarations')">📋 Declarations</button>
+        <button class="idm-tab-pill" data-idm-tab="compliance" onclick="switchIdmTab('compliance')">⚖️ Compliance</button>
+        <button class="idm-tab-pill" data-idm-tab="photos" onclick="switchIdmTab('photos')">📸 Photos</button>
+        <button class="idm-tab-pill" data-idm-tab="audit" onclick="switchIdmTab('audit')">🔗 Audit Trail</button>
+        <button class="idm-tab-pill" data-idm-tab="docket" onclick="switchIdmTab('docket')">📁 Docket Info</button>
+      </div>
+
+      <!-- ── Scrollable Content Area ── -->
+      <div class="flex-1 overflow-y-auto px-5 py-4 space-y-4" id="idm-content-area">
+
+        <!-- Tab: Declarations -->
+        <div id="idm-tab-declarations" class="idm-tab-pane space-y-3">
+          <div class="idm-section-card">
+            <h4 class="idm-section-title">📋 Mandatory Statutory Declarations</h4>
+            <div id="idm-declarations-grid" class="space-y-1.5 text-xs mt-2"></div>
+          </div>
+        </div>
+
+        <!-- Tab: Compliance -->
+        <div id="idm-tab-compliance" class="idm-tab-pane hidden space-y-3">
+          <!-- Verdict Banner -->
+          <div id="idm-verdict-banner" class="rounded-2xl p-4 flex items-center gap-3">
+            <span id="idm-verdict-icon" class="text-3xl">—</span>
+            <div>
+              <p id="idm-verdict-label" class="font-black text-base">—</p>
+              <p id="idm-verdict-sub" class="text-xs font-medium opacity-80 mt-0.5">—</p>
+            </div>
+          </div>
+
+          <!-- Violations -->
+          <div id="idm-violations-section" class="idm-section-card border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 hidden">
+            <h4 class="idm-section-title text-red-800 dark:text-red-400">⚠️ Flagged Violations</h4>
+            <ul id="idm-violations-list" class="mt-2 space-y-1.5"></ul>
+          </div>
+
+          <!-- Inspector Notes -->
+          <div id="idm-notes-section" class="idm-section-card border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/20 hidden">
+            <h4 class="idm-section-title text-emerald-800 dark:text-emerald-400">📝 Inspector Remarks</h4>
+            <p id="idm-notes-text" class="mt-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed"></p>
+          </div>
+
+          <!-- Officer Review -->
+          <div id="idm-review-section" class="idm-section-card border-blue-200 dark:border-blue-900 bg-blue-50/60 dark:bg-blue-950/20 hidden">
+            <h4 class="idm-section-title text-blue-800 dark:text-blue-400">👮 Officer Review Finding</h4>
+            <p id="idm-review-text" class="mt-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed"></p>
+          </div>
+        </div>
+
+        <!-- Tab: Photos -->
+        <div id="idm-tab-photos" class="idm-tab-pane hidden space-y-3">
+          <div class="idm-section-card">
+            <h4 class="idm-section-title">📸 Inspection Evidence Photos</h4>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Tap any image to enlarge for full-screen review.</p>
+            <div id="idm-photos-grid" class="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
+            <div id="idm-no-photos" class="hidden mt-3 flex flex-col items-center justify-center py-8 text-center">
+              <div class="text-4xl mb-2">📷</div>
+              <p class="text-sm font-bold text-slate-400">No Photos Captured</p>
+              <p class="text-xs text-slate-400 mt-1">No inspection images were attached to this record.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Audit Trail -->
+        <div id="idm-tab-audit" class="idm-tab-pane hidden space-y-3">
+          <div class="idm-section-card">
+            <h4 class="idm-section-title">🔗 Tamper-Evident Audit Trail</h4>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Cryptographic chain of custody — every status change is permanently recorded.</p>
+            <div id="idm-audit-timeline" class="mt-3 space-y-2"></div>
+            <div id="idm-no-audit" class="hidden mt-3 text-center py-6 text-xs text-slate-400">No audit events recorded.</div>
+          </div>
+        </div>
+
+        <!-- Tab: Docket Info -->
+        <div id="idm-tab-docket" class="idm-tab-pane hidden space-y-3">
+          <div class="idm-section-card">
+            <h4 class="idm-section-title">📁 Case Docket Information</h4>
+            <div id="idm-docket-grid" class="mt-2 space-y-1.5 text-xs"></div>
+          </div>
+          <div class="idm-section-card border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40">
+            <h4 class="idm-section-title">🔐 Forensic Hash Chain</h4>
+            <div id="idm-hash-box" class="mt-2 space-y-2"></div>
+          </div>
+        </div>
+
+      </div><!-- /#idm-content-area -->
+
+      <!-- ── Footer Actions ── -->
+      <div class="flex-shrink-0 flex items-center justify-between gap-2 px-5 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 rounded-b-3xl">
+        <button type="button" onclick="switchIdmTab('photos'); document.querySelector('[data-idm-tab=photos]').click();"
+          id="idm-view-photos-btn"
+          class="idm-btn-photos inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition">
+          <span>📸</span> <span>View Photos</span>
+        </button>
         <div class="flex items-center gap-2">
-          <span id="modalInspectionBadge" class="px-2.5 py-1 text-xs rounded-full font-bold">STATUS</span>
-          <button type="button" onclick="closeInspectorDetailModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
+          <button type="button" onclick="closeInspectorDetailModal()"
+            class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">Close</button>
+          <button type="button" id="idm-pdf-btn"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 shadow transition cursor-pointer active:scale-95">
+            <span>📥</span> <span>Download PDF</span>
+          </button>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="space-y-2 text-xs">
-        <div><span class="text-slate-500 font-semibold">Commodity:</span> <strong id="modalInspectionProduct"
-            class="text-slate-800 dark:text-slate-200">-</strong></div>
-        <div><span class="text-slate-500 font-semibold">Inspector:</span> <span id="modalInspectionInspector"
-            class="text-slate-700 dark:text-slate-300">-</span></div>
-        <div><span class="text-slate-500 font-semibold">Location:</span> <span id="modalInspectionLocation"
-            class="text-slate-700 dark:text-slate-300">-</span></div>
-      </div>
-
-      <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50 dark:bg-slate-800/50">
-        <h4 class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Mandatory
-          Declarations</h4>
-        <div id="modalInspectionFields" class="space-y-1 text-xs"></div>
-      </div>
-
-      <div id="modalViolationsSection"
-        class="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-xs space-y-1">
-        <strong class="text-red-800 dark:text-red-400 font-bold uppercase tracking-wider text-[11px]">Flagged
-          Violations:</strong>
-        <ul id="modalViolationsList" class="list-disc list-inside text-red-700 dark:text-red-300"></ul>
-      </div>
-
-      <div id="modalInspectorNotesSection"
-        class="hidden p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-xl text-xs space-y-1">
-        <strong class="text-emerald-900 dark:text-emerald-300 font-bold uppercase tracking-wider text-[11px]">Inspector
-          Remarks / Forwarding Notes:</strong>
-        <p id="modalInspectorNotesText" class="text-slate-800 dark:text-slate-200 font-medium leading-relaxed mt-0.5">
-        </p>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-        <button type="button" onclick="closeInspectorDetailModal()" class="btn-secondary text-xs">Close</button>
-        <button type="button" id="modalDownloadPdfBtn"
-          class="btn-primary active:scale-95 transition-transform duration-100 text-xs">Download PDF</button>
+  <!-- Photo Lightbox Modal -->
+  <div id="idm-photo-lightbox" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+    onclick="if(event.target===this) closePhotoLightbox()">
+    <button onclick="navLightbox(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition cursor-pointer z-10">‹</button>
+    <button onclick="navLightbox(1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition cursor-pointer z-10">›</button>
+    <button onclick="closePhotoLightbox()" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm font-bold transition cursor-pointer z-10">✕</button>
+    <div class="relative flex flex-col items-center gap-3 max-w-3xl w-full">
+      <img id="idm-lightbox-img" src="" alt="Inspection photo" class="max-h-[75vh] max-w-full rounded-2xl object-contain shadow-2xl">
+      <div class="flex items-center gap-3">
+        <span id="idm-lightbox-label" class="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm"></span>
+        <span id="idm-lightbox-counter" class="text-slate-400 text-xs font-mono"></span>
       </div>
     </div>
   </div>

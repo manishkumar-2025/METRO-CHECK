@@ -291,12 +291,9 @@ function renderMyInspections() {
   const all = filterByZoneAccess(getInspections());
   const search = (document.getElementById("inspectionsSearchInput")?.value || "").trim().toLowerCase();
 
-  const isDraftStatus = (s) => (typeof normalizeInspectionStatus === "function" ? normalizeInspectionStatus(s) : String(s||"").toUpperCase()) === "DRAFT";
-  const isPendingStatus = (s) => (typeof normalizeInspectionStatus === "function" ? normalizeInspectionStatus(s) : String(s||"").toUpperCase()) === "SUBMITTED";
-  const isHistoryStatus = (s) => {
-    const norm = typeof normalizeInspectionStatus === "function" ? normalizeInspectionStatus(s) : String(s||"").toUpperCase();
-    return norm === "APPROVED" || norm === "REJECTED";
-  };
+  const isDraftStatus = (s) => { const n = String(s||"").toUpperCase(); return n === "DRAFT" || n === "PROCESSING"; };
+  const isPendingStatus = (s) => { const n = String(s||"").toUpperCase(); return n === "SUBMITTED" || n === "PENDING" || n === "NON_COMPLIANT_PENDING" || n === "UNDER_REVIEW" || n === "ESCALATED" || n === "FLAGGED"; };
+  const isHistoryStatus = (s) => { const n = String(s||"").toUpperCase(); return n === "COMPLIANT" || n === "COMPLIANT_LOGGED" || n === "APPROVED" || n === "NON_COMPLIANT" || n === "REJECTED" || n === "NOTICE_ISSUED" || n === "OFFICER_APPROVED" || n === "OFFICER_DISMISSED" || n === "DISMISSED"; };
 
   // Update tab counts
   const countAll = all.length;
@@ -381,16 +378,17 @@ function renderMyInspections() {
         </div>
 
         <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
-          <button onclick="openInspectorDetailModal('${item.id}')" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition text-center">
-            Details
-          </button>
           ${isCompleted ? `
+            <button onclick="openInspectorDetailModal('${item.id}')" class="flex-1 py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition text-center cursor-pointer inline-flex items-center justify-center gap-1.5">
+              <span>🔍</span><span>View</span>
+            </button>
             <button onclick="downloadInspectionPDF('${item.id}')" class="flex-1 py-2 px-3 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow transition text-center flex items-center justify-center gap-1">
               <span>📥</span> <span>PDF</span>
             </button>
           ` : `
-            <button onclick="openInspectorDetailModal('${item.id}')" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-bold rounded-xl transition text-center cursor-pointer">
-              ${item.status === 'draft' ? 'Resume' : 'View'}
+            <button onclick="openInspectorDetailModal('${item.id}')" class="flex-1 py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition text-center cursor-pointer inline-flex items-center justify-center gap-1.5">
+              <span>${item.status === 'draft' || item.status === 'DRAFT' ? '✏️' : '🔍'}</span>
+              <span>${item.status === 'draft' || item.status === 'DRAFT' ? 'Resume' : 'View'}</span>
             </button>
           `}
         </div>
@@ -770,81 +768,450 @@ function downloadInspectionPDF(inspectionId) {
 }
 
 /**
- * Inspection Detail Modal
+ * Inspection Detail Modal — Full-Featured Implementation
+ * Populates 5 tabs: Declarations, Compliance, Photos, Audit Trail, Docket Info
  */
+
+// ── IDM state ──────────────────────────────────────────────────────────────
+let _idmCurrentItem = null;
+let _idmLightboxPhotos = [];  // [{src, label}]
+let _idmLightboxIndex = 0;
+
+function switchIdmTab(tabId) {
+  const tabs = ['declarations', 'compliance', 'photos', 'audit', 'docket'];
+  tabs.forEach(t => {
+    const pane = document.getElementById(`idm-tab-${t}`);
+    const btn  = document.querySelector(`[data-idm-tab="${t}"]`);
+    if (pane) pane.classList.toggle('hidden', t !== tabId);
+    if (btn) {
+      btn.classList.toggle('active', t === tabId);
+    }
+  });
+}
+window.switchIdmTab = switchIdmTab;
+
+// ── Declaration row helper ─────────────────────────────────────────────────
+function _idmDeclRow(label, val, missing = false) {
+  const isPresent = val && String(val).trim().length > 0 && String(val).trim() !== '-';
+  const icon = isPresent ? '✅' : '❌';
+  const valClass = isPresent ? 'font-semibold text-slate-800 dark:text-slate-200' : 'font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-1.5 rounded';
+  const displayVal = isPresent ? escapeHtml(String(val)) : (missing ? 'MISSING — Contravenes Rule 6' : 'NOT DECLARED');
+  return `<div class="flex justify-between items-start py-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0 gap-3">
+    <span class="text-slate-500 dark:text-slate-400 font-medium flex-shrink-0 flex items-center gap-1"><span class="text-[10px]">${icon}</span>${escapeHtml(label)}:</span>
+    <span class="text-right ${valClass} text-xs">${displayVal}</span>
+  </div>`;
+}
+
+// ── Audit Timeline helper ──────────────────────────────────────────────────
+function _idmAuditEntry(entry, isLast) {
+  const actionColors = {
+    CASE_INITIALIZED: 'bg-emerald-500',
+    STATUS_UPDATED:   'bg-blue-500',
+    SUBMITTED:        'bg-amber-500',
+    REVIEWED:         'bg-purple-500',
+    APPROVED:         'bg-emerald-600',
+    REJECTED:         'bg-red-500',
+    ESCALATED:        'bg-orange-500',
+  };
+  const dotColor = actionColors[entry.action] || 'bg-slate-400';
+  const statusArrow = (entry.statusFrom && entry.statusTo)
+    ? `<span class="ml-1 text-[10px] font-mono text-slate-400">${escapeHtml(entry.statusFrom)} → ${escapeHtml(entry.statusTo)}</span>`
+    : '';
+  return `<div class="flex gap-3">
+    <div class="flex flex-col items-center">
+      <div class="w-2.5 h-2.5 rounded-full ${dotColor} border-2 border-white dark:border-slate-900 shadow-sm flex-shrink-0 mt-0.5"></div>
+      ${!isLast ? '<div class="w-0.5 flex-1 bg-slate-200 dark:bg-slate-700 mt-1"></div>' : ''}
+    </div>
+    <div class="pb-3 min-w-0 flex-1">
+      <div class="flex items-center flex-wrap gap-1.5">
+        <span class="text-[10px] font-black tracking-wider text-slate-700 dark:text-slate-300 uppercase">${escapeHtml(entry.action.replace(/_/g,' '))}</span>
+        ${statusArrow}
+      </div>
+      <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(entry.actor || 'System')} • <span class="font-mono">${escapeHtml(entry.formattedTime || entry.timestamp || '')}</span></p>
+      ${entry.notes ? `<p class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5 italic leading-relaxed">"${escapeHtml(entry.notes)}"</p>` : ''}
+    </div>
+  </div>`;
+}
+
+// ── Docket info row helper ─────────────────────────────────────────────────
+function _idmDocketRow(label, val) {
+  const display = (val !== null && val !== undefined && String(val).trim()) ? escapeHtml(String(val)) : '<span class="text-slate-400">—</span>';
+  return `<div class="flex justify-between items-start py-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0 gap-3">
+    <span class="text-slate-500 dark:text-slate-400 font-medium flex-shrink-0 text-xs">${escapeHtml(label)}:</span>
+    <span class="text-right font-semibold text-slate-800 dark:text-slate-200 text-xs font-mono">${display}</span>
+  </div>`;
+}
+
 function openInspectorDetailModal(id) {
   const item = getInspectionById(id);
-  if (!item) return;
+  if (!item) {
+    if (typeof showToast === 'function') showToast('Inspection record not found.', 'warning');
+    return;
+  }
+  _idmCurrentItem = item;
+  _idmLightboxPhotos = [];
+  _idmLightboxIndex  = 0;
 
-  const modal = document.getElementById("inspectorDetailModal");
+  const modal = document.getElementById('inspectorDetailModal');
   if (!modal) return;
 
-  document.getElementById("modalInspectionId").textContent = item.id;
-  document.getElementById("modalInspectionDate").textContent = `Logged on: ${item.date || "-"}`;
-  document.getElementById("modalInspectionProduct").textContent = item.product || "-";
-  document.getElementById("modalInspectionInspector").textContent = item.inspectorName || "Field Inspector";
-  document.getElementById("modalInspectionLocation").textContent = item.location || "Regional Depot";
+  // ── Header ──────────────────────────────────────────────────────────────
+  const titleEl = document.getElementById('idm-title');
+  const seqEl   = document.getElementById('idm-seq');
+  const bdgEl   = document.getElementById('idm-status-badge');
+  const dtEl    = document.getElementById('idm-datetime');
+  const prodEl  = document.getElementById('idm-product');
+  const inspEl  = document.getElementById('idm-inspector');
+  const locEl   = document.getElementById('idm-location');
 
-  const badge = document.getElementById("modalInspectionBadge");
-  badge.textContent = typeof formatStatusLabel === 'function' ? formatStatusLabel(item.status) : (item.status || "submitted");
-  badge.className = `px-2.5 py-1 text-xs rounded-full font-bold ${getStatusBadgeClass(item.status)}`;
+  if (titleEl) titleEl.textContent = item.id || '—';
+  if (seqEl) {
+    if (item.sequenceNumber) {
+      seqEl.textContent = `#${item.sequenceNumber}`;
+      seqEl.classList.remove('hidden');
+    } else {
+      seqEl.classList.add('hidden');
+    }
+  }
+  if (bdgEl) {
+    bdgEl.textContent = typeof formatStatusLabel === 'function' ? formatStatusLabel(item.status) : (item.status || 'Pending');
+    bdgEl.className = `px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide ${getStatusBadgeClass(item.status)}`;
+  }
+  const formattedDt = item.formattedDateTime || (typeof formatDisplayDateTime === 'function' ? formatDisplayDateTime(item.createdAt || item.date, true) : (item.date || '—'));
+  if (dtEl) dtEl.textContent = `Logged: ${formattedDt}`;
+  if (prodEl) prodEl.textContent = item.product || '—';
+  if (inspEl) inspEl.textContent = item.inspectorName || item.inspector || '—';
+  if (locEl)  locEl.textContent  = item.location || item.state || '—';
 
-  const ext = item.extractedData || {};
-  const fieldsEl = document.getElementById("modalInspectionFields");
-  const fields = [
-    ["Commodity Name", ext.commodity_name],
-    ["Net Quantity", ext.net_quantity],
-    ["MRP", ext.mrp],
-    ["Manufacturer", ext.manufacturer],
-    ["Month/Year", ext.mfg_date],
-    ["Consumer Care", ext.consumer_care]
-  ];
-
-  fieldsEl.innerHTML = fields.map(([label, val]) => `
-    <div class="flex justify-between py-1 border-b border-slate-200/60">
-      <span class="text-slate-500 font-medium">${label}:</span>
-      <span class="${val ? 'font-semibold text-slate-800' : 'text-red-600 font-bold bg-red-50 px-1 rounded'}">${val || "MISSING"}</span>
-    </div>
-  `).join("");
-
-  const violSec = document.getElementById("modalViolationsSection");
-  const violList = document.getElementById("modalViolationsList");
-  const viols = item.violations || [];
-  if (viols.length > 0) {
-    violSec.classList.remove("hidden");
-    violList.innerHTML = viols.map(v => `<li>${v}</li>`).join("");
-  } else {
-    violSec.classList.add("hidden");
+  // ── Tab: Declarations ───────────────────────────────────────────────────
+  const ext = item.extractedData || item.fields || {};
+  const declEl = document.getElementById('idm-declarations-grid');
+  if (declEl) {
+    const declFields = [
+      ['Commodity / Generic Name',      ext.commodity_name || ext.product_name],
+      ['Net Quantity',                   ext.net_quantity   || ext.net_weight],
+      ['Maximum Retail Price (MRP)',     ext.mrp            || ext.mrp_tax_inclusive],
+      ['Manufacturer Name & Address',   ext.manufacturer   || ext.manufacturer_address],
+      ['Month & Year of Manufacture',   ext.mfg_date       || ext.manufacturing_date || ext.packing_date],
+      ['Consumer Care Contact',         ext.consumer_care  || ext.helpline || ext.customer_care],
+      ['Best Before / Expiry',          ext.best_before    || ext.expiry_date],
+      ['Batch / Lot Number',            ext.batch_no       || ext.lot_no],
+      ['Country of Origin',             ext.country_of_origin],
+      ['FSSAI / Licence No.',           ext.fssai_no       || ext.license_no],
+      ['Unit Sale Price',               ext.unit_sale_price],
+    ];
+    declEl.innerHTML = declFields.map(([label, val]) => _idmDeclRow(label, val, !val)).join('');
   }
 
-  const notesSec = document.getElementById("modalInspectorNotesSection");
-  const notesText = document.getElementById("modalInspectorNotesText");
-  const notesVal = item.inspectorNotes || item.remarks;
-  if (notesSec && notesText) {
-    if (notesVal && String(notesVal).trim().length > 0) {
-      notesSec.classList.remove("hidden");
-      notesText.textContent = notesVal;
+  // ── Tab: Compliance ──────────────────────────────────────────────────────
+  const isComp   = item.isCompliant;
+  const viols    = item.violations || [];
+  const violCount = viols.length;
+
+  const verdictBanner = document.getElementById('idm-verdict-banner');
+  const verdictIcon   = document.getElementById('idm-verdict-icon');
+  const verdictLabel  = document.getElementById('idm-verdict-label');
+  const verdictSub    = document.getElementById('idm-verdict-sub');
+
+  if (isComp) {
+    if (verdictBanner) verdictBanner.className = 'rounded-2xl p-4 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300';
+    if (verdictIcon)  verdictIcon.textContent  = '✅';
+    if (verdictLabel) verdictLabel.textContent = 'COMPLIANT — Statutory Declarations Verified';
+    if (verdictSub)   verdictSub.textContent   = 'All mandatory declarations are present and within permissible limits.';
+  } else {
+    if (verdictBanner) verdictBanner.className = 'rounded-2xl p-4 flex items-center gap-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300';
+    if (verdictIcon)  verdictIcon.textContent  = '⚠️';
+    if (verdictLabel) verdictLabel.textContent = `NON-COMPLIANT — ${violCount} Violation${violCount !== 1 ? 's' : ''} Detected`;
+    if (verdictSub)   verdictSub.textContent   = 'One or more mandatory declarations are missing, incorrect, or contravene Legal Metrology Rules 2011.';
+  }
+
+  const violSec  = document.getElementById('idm-violations-section');
+  const violList = document.getElementById('idm-violations-list');
+  if (violSec && violList) {
+    if (viols.length > 0) {
+      violSec.classList.remove('hidden');
+      violList.innerHTML = viols.map(v => {
+        const text = typeof v === 'string' ? v : (v.rule || v.reason || v.name || JSON.stringify(v));
+        return `<li class="flex items-start gap-2 text-xs text-red-800 dark:text-red-300 bg-red-50 dark:bg-red-950/30 border border-red-200/60 dark:border-red-800/50 rounded-lg p-2">
+          <span class="mt-0.5 flex-shrink-0">⚠️</span><span>${escapeHtml(text)}</span>
+        </li>`;
+      }).join('');
     } else {
-      notesSec.classList.add("hidden");
+      violSec.classList.add('hidden');
     }
   }
 
-  const pdfBtn = document.getElementById("modalDownloadPdfBtn");
-  if (pdfBtn) {
-    pdfBtn.onclick = () => {
-      downloadInspectionPDF(item.id);
-    };
+  const notesSec  = document.getElementById('idm-notes-section');
+  const notesText = document.getElementById('idm-notes-text');
+  const notesVal  = item.inspectorNotes || item.remarks;
+  if (notesSec && notesText) {
+    if (notesVal && String(notesVal).trim()) {
+      notesSec.classList.remove('hidden');
+      notesText.textContent = notesVal;
+    } else {
+      notesSec.classList.add('hidden');
+    }
   }
 
-  modal.classList.remove("hidden");
-  document.body.classList.add("overflow-hidden");
+  const reviewSec  = document.getElementById('idm-review-section');
+  const reviewText = document.getElementById('idm-review-text');
+  const reviewVal  = item.reviewComments || item.officerComments || item.officerRemarks;
+  if (reviewSec && reviewText) {
+    if (reviewVal && String(reviewVal).trim()) {
+      reviewSec.classList.remove('hidden');
+      reviewText.textContent = reviewVal;
+    } else {
+      reviewSec.classList.add('hidden');
+    }
+  }
+
+  // ── Tab: Photos ──────────────────────────────────────────────────────────
+  const photosGrid = document.getElementById('idm-photos-grid');
+  const noPhotos   = document.getElementById('idm-no-photos');
+
+  const photoSources = [
+    { key: 'image',       label: 'Main Photo' },
+    { key: 'imageFront',  label: 'Front Panel' },
+    { key: 'imageBack',   label: 'Back Panel' },
+    { key: 'imageLeft',   label: 'Left Panel' },
+    { key: 'imageRight',  label: 'Right Panel' },
+    { key: 'imageTop',    label: 'Top Panel' },
+    { key: 'imageBottom', label: 'Bottom Panel' },
+  ];
+
+  // Add panel images from panelImages object if present
+  if (item.panelImages && typeof item.panelImages === 'object') {
+    const panelLabels = { front:'Front Panel', back:'Back Panel', left:'Left Panel', right:'Right Panel', top:'Top Panel', bottom:'Bottom Panel' };
+    Object.entries(item.panelImages).forEach(([pk, pv]) => {
+      if (pv && typeof pv === 'string' && pv.startsWith('data:image/')) {
+        photoSources.push({ key: `panel_${pk}`, label: panelLabels[pk] || pk, src: pv });
+      }
+    });
+  }
+
+  _idmLightboxPhotos = [];
+  const photoCards = [];
+
+  photoSources.forEach(ps => {
+    const src = ps.src || item[ps.key];
+    if (src && typeof src === 'string' && src.startsWith('data:image/')) {
+      const idx = _idmLightboxPhotos.length;
+      _idmLightboxPhotos.push({ src, label: ps.label });
+      photoCards.push(`
+        <button type="button" onclick="openPhotoLightbox(${idx})"
+          class="group relative rounded-xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 hover:border-emerald-500 transition-all duration-200 cursor-pointer bg-slate-100 dark:bg-slate-800 aspect-square shadow-sm hover:shadow-md hover:-translate-y-0.5">
+          <img src="${src}" alt="${escapeHtml(ps.label)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
+            <p class="text-white text-[10px] font-bold truncate">${escapeHtml(ps.label)}</p>
+          </div>
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 flex items-center justify-center transition-colors duration-200">
+            <span class="text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 drop-shadow-lg">🔍</span>
+          </div>
+        </button>`);
+    }
+  });
+
+  if (photosGrid) {
+    if (photoCards.length > 0) {
+      photosGrid.innerHTML = photoCards.join('');
+      if (noPhotos) noPhotos.classList.add('hidden');
+    } else {
+      photosGrid.innerHTML = '';
+      if (noPhotos) noPhotos.classList.remove('hidden');
+    }
+  }
+
+  // Update View Photos button badge
+  const viewPhotosBtn = document.getElementById('idm-view-photos-btn');
+  if (viewPhotosBtn) {
+    const cnt = _idmLightboxPhotos.length;
+    viewPhotosBtn.innerHTML = cnt > 0
+      ? `<span>📸</span><span>View Photos</span><span class="ml-1 bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">${cnt}</span>`
+      : `<span>📸</span><span>View Photos</span>`;
+    viewPhotosBtn.disabled = cnt === 0;
+    viewPhotosBtn.onclick = () => { switchIdmTab('photos'); };
+  }
+
+  // ── Tab: Audit Trail ──────────────────────────────────────────────────────
+  const auditEl    = document.getElementById('idm-audit-timeline');
+  const noAuditEl  = document.getElementById('idm-no-audit');
+  const trail      = item.auditTrail || [];
+  if (auditEl) {
+    if (trail.length > 0) {
+      if (noAuditEl) noAuditEl.classList.add('hidden');
+      auditEl.innerHTML = trail.slice().reverse().map((e, i, arr) => _idmAuditEntry(e, i === arr.length - 1)).join('');
+    } else {
+      if (noAuditEl) noAuditEl.classList.remove('hidden');
+      auditEl.innerHTML = '';
+    }
+  }
+
+  // ── Tab: Docket Info ─────────────────────────────────────────────────────
+  const docketGrid = document.getElementById('idm-docket-grid');
+  if (docketGrid) {
+    const docketRows = [
+      ['Case ID',              item.id],
+      ['Sequence #',           item.sequenceNumber ? `#${item.sequenceNumber}` : null],
+      ['Evidence ID',          item.evidenceId],
+      ['Zone',                 item.zone],
+      ['State',                item.state],
+      ['Created At',           item.formattedDateTime || (typeof formatDisplayDateTime === 'function' ? formatDisplayDateTime(item.createdAt || item.date, true) : item.date)],
+      ['Last Updated',         typeof formatDisplayDateTime === 'function' ? formatDisplayDateTime(item.updatedAt) : item.updatedAt],
+      ['Inspector Name',       item.inspectorName || item.inspector],
+      ['Inspector ID',         item.inspectorId   || item.username],
+      ['Priority',             item.priority],
+      ['Commodity Category',   item.commodityCategory],
+      ['Mode',                 item.mode || item.scanMode],
+      ['AI Confidence',        item.confidence ? `${item.confidence}%` : null],
+    ];
+    docketGrid.innerHTML = docketRows.map(([l, v]) => _idmDocketRow(l, v)).join('');
+  }
+
+  const hashBox = document.getElementById('idm-hash-box');
+  if (hashBox) {
+    const dHash = item.docketHash || '—';
+    const pHash = item.previousHash || '—';
+    const algo  = item.hashAlgorithm || 'SHA-256';
+    const sealedAt = item.hashSealedAt ? (typeof formatDisplayDateTime === 'function' ? formatDisplayDateTime(item.hashSealedAt, true) : item.hashSealedAt) : '—';
+    hashBox.innerHTML = `
+      <div class="space-y-2">
+        <div>
+          <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Docket Hash (${escapeHtml(algo)})</p>
+          <code class="block text-[10px] font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1.5 rounded-lg break-all leading-relaxed">${escapeHtml(dHash)}</code>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Previous Block Hash</p>
+          <code class="block text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-lg break-all leading-relaxed">${escapeHtml(pHash)}</code>
+        </div>
+        <p class="text-[10px] text-slate-400 font-mono">Sealed at: ${escapeHtml(sealedAt)}</p>
+      </div>`;
+  }
+
+  // ── PDF button ───────────────────────────────────────────────────────────
+  const pdfBtn = document.getElementById('idm-pdf-btn');
+  if (pdfBtn) {
+    pdfBtn.onclick = () => downloadInspectionPDF(item.id);
+  }
+
+  // ── Show modal at Declarations tab & Lock Scroll ───────────────────────────
+  switchIdmTab('declarations');
+  modal.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+  document.body.style.overflow = 'hidden';
+
+  // Focus trap inside modal
+  _initModalFocusTrap(modal);
 }
 
 function closeInspectorDetailModal() {
-  const modal = document.getElementById("inspectorDetailModal");
-  if (modal) modal.classList.add("hidden");
-  document.body.classList.remove("overflow-hidden");
+  const modal = document.getElementById('inspectorDetailModal');
+  if (modal) modal.classList.add('hidden');
+  closePhotoLightbox();
+  document.body.classList.remove('overflow-hidden');
+  document.body.style.overflow = '';
+  _releaseModalFocusTrap();
 }
+
+// ── Focus Trap for Accessibility ──────────────────────────────────────────
+let _modalFocusHandler = null;
+
+function _initModalFocusTrap(modal) {
+  _releaseModalFocusTrap();
+  const focusables = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  first.focus();
+
+  _modalFocusHandler = function(e) {
+    if (e.key !== 'Tab') return;
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      }
+    } else {
+      if (document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  };
+  document.addEventListener('keydown', _modalFocusHandler);
+}
+
+function _releaseModalFocusTrap() {
+  if (_modalFocusHandler) {
+    document.removeEventListener('keydown', _modalFocusHandler);
+    _modalFocusHandler = null;
+  }
+}
+
+// ── Photo Lightbox ─────────────────────────────────────────────────────────
+function openPhotoLightbox(index) {
+  if (!_idmLightboxPhotos.length) return;
+  _idmLightboxIndex = Math.max(0, Math.min(index, _idmLightboxPhotos.length - 1));
+  _updateLightbox();
+  const lb = document.getElementById('idm-photo-lightbox');
+  if (lb) lb.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+  document.body.style.overflow = 'hidden';
+}
+window.openPhotoLightbox = openPhotoLightbox;
+
+function navLightbox(dir) {
+  const len = _idmLightboxPhotos.length;
+  if (!len) return;
+  _idmLightboxIndex = (_idmLightboxIndex + dir + len) % len;
+  _updateLightbox();
+}
+window.navLightbox = navLightbox;
+
+function _updateLightbox() {
+  const photo = _idmLightboxPhotos[_idmLightboxIndex];
+  if (!photo) return;
+  const imgEl     = document.getElementById('idm-lightbox-img');
+  const labelEl   = document.getElementById('idm-lightbox-label');
+  const counterEl = document.getElementById('idm-lightbox-counter');
+  if (imgEl)     imgEl.src          = photo.src;
+  if (imgEl)     imgEl.alt          = photo.label;
+  if (labelEl)   labelEl.textContent = photo.label;
+  if (counterEl) counterEl.textContent = `${_idmLightboxIndex + 1} / ${_idmLightboxPhotos.length}`;
+}
+
+function closePhotoLightbox() {
+  const lb = document.getElementById('idm-photo-lightbox');
+  if (lb) lb.classList.add('hidden');
+  // Don't remove overflow-hidden if detail modal is still open
+  const detailModal = document.getElementById('inspectorDetailModal');
+  if (!detailModal || detailModal.classList.contains('hidden')) {
+    document.body.classList.remove('overflow-hidden');
+    document.body.style.overflow = '';
+  }
+}
+window.closePhotoLightbox = closePhotoLightbox;
+
+// ── Global Escape key & Arrow navigation listener ──────────────────────────
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const lb = document.getElementById('idm-photo-lightbox');
+    if (lb && !lb.classList.contains('hidden')) {
+      closePhotoLightbox();
+      return;
+    }
+    const modal = document.getElementById('inspectorDetailModal');
+    if (modal && !modal.classList.contains('hidden')) {
+      closeInspectorDetailModal();
+      return;
+    }
+  }
+  const lb = document.getElementById('idm-photo-lightbox');
+  if (lb && !lb.classList.contains('hidden')) {
+    if (e.key === 'ArrowLeft')  navLightbox(-1);
+    if (e.key === 'ArrowRight') navLightbox(1);
+  }
+});
+
 
 function getStatusBadgeClass(status) {
   const s = String(status || "").toUpperCase();

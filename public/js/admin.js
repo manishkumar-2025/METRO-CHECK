@@ -1769,79 +1769,372 @@ function handleSaveCommodityForm(event) {
 /* ==========================================================================
    VIEW 5 — PLATFORM SETTINGS
    ========================================================================== */
+let _userSearchQuery = "";
+
+function onUserSearchInput(val) {
+  _userSearchQuery = (val || "").trim().toLowerCase();
+  renderAdminUsers();
+}
+
 function renderAdminUsers() {
   const tbody = document.getElementById("adminUsersTableBody");
   if (!tbody) return;
-  const users = Object.values(getUsers());
-  tbody.innerHTML = users.map(u => {
-    const isAct = u.status !== "Inactive";
-    const roleCls = u.role === "admin" ? "bg-purple-100 text-purple-800" : u.role === "officer" ? "bg-blue-100 text-blue-800" : "bg-amber-100 text-amber-800";
+
+  const actor = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { role: "national", zone: "All", username: "admin" };
+  const isZonal = actor.role === "zonal";
+
+  // Update Scope Badge & Subtitle in Platform Settings Header
+  const scopeBadge = document.getElementById("adminUserScopeBadge");
+  const scopeSubtitle = document.getElementById("adminUserScopeSubtitle");
+  if (scopeBadge) {
+    if (isZonal) {
+      scopeBadge.textContent = `🔒 Zonal Scope — ${actor.zone} Zone`;
+      scopeBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase font-mono bg-amber-50 text-amber-800 border border-amber-300 shadow-xs";
+    } else {
+      scopeBadge.textContent = "🇮🇳 National Scope — All 6 Zones";
+      scopeBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs";
+    }
+  }
+  if (scopeSubtitle) {
+    if (isZonal) {
+      scopeSubtitle.textContent = `Jurisdiction locked to ${actor.zone} Zone. You can register, activate, deactivate, or manage users within ${actor.zone} Zone only.`;
+    } else {
+      scopeSubtitle.textContent = "Cross-zone user provisioning, role assignments, state jurisdiction mapping, and security status controls across all 6 zones.";
+    }
+  }
+
+  const allUsersMap = getUsers();
+  const allUsers = Object.values(allUsersMap);
+
+  // Update Summary Counters
+  const elTotal = document.getElementById("adminTotalUsers");
+  const elActive = document.getElementById("adminActiveUsers");
+  const elInactive = document.getElementById("adminInactiveUsers");
+  const elZonal = document.getElementById("adminZonalUsers");
+
+  if (elTotal) elTotal.textContent = allUsers.length;
+  if (elActive) elActive.textContent = allUsers.filter(u => u.status !== "Inactive" && u.status !== "Suspended").length;
+  if (elInactive) elInactive.textContent = allUsers.filter(u => u.status === "Inactive" || u.status === "Suspended").length;
+  if (elZonal) elZonal.textContent = allUsers.filter(u => typeof canManageUser === "function" ? canManageUser(actor, u) : true).length;
+
+  // Filter Users Table
+  let filtered = allUsers;
+  if (_userSearchQuery) {
+    filtered = allUsers.filter(u => {
+      const q = _userSearchQuery;
+      return (u.username || "").toLowerCase().includes(q) ||
+             (u.name || "").toLowerCase().includes(q) ||
+             (u.zone || "").toLowerCase().includes(q) ||
+             (u.state || "").toLowerCase().includes(q) ||
+             (u.role || "").toLowerCase().includes(q) ||
+             (u.designation || "").toLowerCase().includes(q);
+    });
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-400 text-xs">${_userSearchQuery ? "No users match search query." : "No users registered."}</td></tr>`;
+    renderUserAuditLogs();
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(u => {
+    const isAct = u.status === "Active" || (!u.status || u.status === "ACTIVE");
+    const isSusp = u.status === "Suspended";
+    const statusLabel = isSusp ? "Suspended" : (isAct ? "Active" : "Inactive");
+    
+    const statusBadgeCls = isSusp
+      ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800"
+      : (isAct ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
+               : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700");
+
+    const roleLabel = u.role === "national" || u.role === "admin" ? "National Admin" : u.role === "zonal" ? "Zonal Controller" : u.role === "officer" ? "Metrology Officer" : "Field Inspector";
+    const roleCls = u.role === "national" || u.role === "admin"
+      ? "bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border-purple-200"
+      : u.role === "zonal" ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-200"
+      : u.role === "officer" ? "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border-blue-200"
+      : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-200";
+
+    const isManageable = (typeof canManageUser === "function") ? canManageUser(actor, u) : true;
+
     return `
-      <tr class="hover:bg-slate-50 border-b border-slate-100 text-xs">
-        <td class="px-4 py-3 font-mono font-bold text-slate-800">@${u.username}</td>
-        <td class="px-4 py-3 font-bold text-slate-900">${u.name}</td>
-        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${roleCls}">${u.role}</span></td>
-        <td class="px-4 py-3 text-slate-600">${u.designation || "—"}</td>
+      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800 text-xs transition-colors">
         <td class="px-4 py-3">
-          <span class="inline-flex items-center gap-1 font-bold ${isAct?"text-emerald-600":"text-slate-400"}">
-            <span class="w-1.5 h-1.5 rounded-full ${isAct?"bg-emerald-500":"bg-slate-400"}"></span>
-            ${isAct ? "Active" : "Inactive"}
+          <div class="flex items-center gap-2">
+            <span class="font-mono font-bold text-slate-900 dark:text-slate-100">@${u.username}</span>
+            ${u.badgeNumber ? `<span class="px-1.5 py-0.2 text-[9.5px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded border border-slate-200 dark:border-slate-700">${u.badgeNumber}</span>` : ""}
+          </div>
+        </td>
+        <td class="px-4 py-3">
+          <div class="font-bold text-slate-900 dark:text-slate-100">${u.name}</div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">${u.designation || "Enforcement Staff"}</div>
+        </td>
+        <td class="px-4 py-3">
+          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide border ${roleCls}">${roleLabel}</span>
+        </td>
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-1.5">
+            <span class="px-2 py-0.5 rounded text-[10.5px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-mono">${u.zone || "North"} Zone</span>
+            <span class="text-[11px] text-slate-500 font-medium">(${u.state || "All"})</span>
+          </div>
+        </td>
+        <td class="px-4 py-3">
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-extrabold border ${statusBadgeCls}">
+            <span class="w-1.5 h-1.5 rounded-full ${isSusp ? "bg-rose-500 animate-pulse" : isAct ? "bg-emerald-500" : "bg-slate-400"}"></span>
+            ${statusLabel}
           </span>
         </td>
         <td class="px-4 py-3 text-right space-x-1 whitespace-nowrap">
-          ${u.username !== "admin" ? `
-            <button onclick="toggleUserStatus('${u.username}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold transition">${isAct ? "Deactivate" : "Activate"}</button>
-            <button onclick="deleteUserAction('${u.username}')" class="px-2.5 py-1 bg-red-50 hover:bg-red-600 hover:text-white text-red-600 rounded text-[11px] font-bold transition">Delete</button>
-          ` : `<span class="text-slate-400 font-mono text-[10px]">Superuser</span>`}
+          ${u.username === "admin" ? `
+            <span class="text-slate-400 font-mono text-[10px] font-bold uppercase tracking-wide px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">Primary Superuser</span>
+          ` : (isManageable ? `
+            <button onclick="openUserModal('${u.username}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded text-[11px] font-bold transition shadow-2xs">Edit</button>
+            <button onclick="toggleUserStatusAction('${u.username}')" class="px-2.5 py-1 ${isAct ? "bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300" : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"} rounded text-[11px] font-bold transition">${isAct ? "Deactivate" : "Activate"}</button>
+            ${isAct ? `<button onclick="suspendUserAction('${u.username}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 rounded text-[11px] font-bold transition">Suspend</button>` : ""}
+            <button onclick="deleteUserAction('${u.username}')" class="px-2.5 py-1 bg-red-50 hover:bg-red-600 hover:text-white text-red-600 dark:bg-red-950/60 dark:text-red-300 rounded text-[11px] font-bold transition">Delete</button>
+          ` : `
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500 rounded text-[10.5px] font-mono border border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-80" title="🔒 Action Blocked: Zonal Admins cannot manage users outside their assigned zone (${actor.zone}). Target is in ${u.zone} Zone.">
+              🔒 Restricted (${u.zone})
+            </span>
+          `)}
         </td>
       </tr>`;
   }).join("");
+
+  renderUserAuditLogs();
 }
 
-function openUserModal() {
+function populateUserFormStates(selectedZone) {
+  const stateSelect = document.getElementById("userFormState");
+  if (!stateSelect) return;
+  const zonesDict = (typeof window !== "undefined" && window.ZONES) ? window.ZONES : {
+    "North": ["Haryana", "Himachal Pradesh", "Jammu and Kashmir UT", "Punjab", "Rajasthan", "Delhi UT", "Chandigarh UT"],
+    "Central": ["Chhattisgarh", "Madhya Pradesh", "Uttarakhand", "Uttar Pradesh"],
+    "East": ["Bihar", "Jharkhand", "Odisha", "West Bengal"],
+    "West": ["Goa", "Gujarat", "Maharashtra", "Dadra and Nagar Haveli and Daman and Diu UT"],
+    "South": ["Andhra Pradesh", "Karnataka", "Kerala", "Tamil Nadu", "Puducherry UT"],
+    "North East": ["Arunachal Pradesh", "Assam", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Sikkim", "Tripura"]
+  };
+
+  const states = zonesDict[selectedZone] || Object.values(zonesDict).flat();
+  stateSelect.innerHTML = `<option value="All">All States in ${selectedZone} Zone</option>` +
+    states.map(s => `<option value="${s}">${s}</option>`).join("");
+}
+
+function onUserFormZoneChange(selectedZone) {
+  populateUserFormStates(selectedZone);
+}
+window.onUserFormZoneChange = onUserFormZoneChange;
+
+function openUserModal(editingUsername = null) {
   const modal = document.getElementById("userModal");
   if (!modal) return;
-  document.getElementById("userForm")?.reset();
+  const form = document.getElementById("userForm");
+  if (form) form.reset();
+
+  const actor = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { role: "national", zone: "All", username: "admin" };
+  const isZonal = actor.role === "zonal";
+
+  const modalTitle = document.getElementById("userModalTitle");
+  const modalNotice = document.getElementById("userModalNotice");
+  const zoneSelect = document.getElementById("userFormZone");
+  const zoneHelp = document.getElementById("userFormZoneHelp");
+  const roleNatOpt = document.getElementById("userFormRoleNationalOpt");
+  const usernameInput = document.getElementById("userFormUsername");
+  const pwdInput = document.getElementById("userFormPassword");
+
+  document.getElementById("userFormEditingId").value = editingUsername || "";
+
+  // Configure Zonal locking on Form fields
+  if (zoneSelect) {
+    if (isZonal) {
+      zoneSelect.value = actor.zone;
+      zoneSelect.disabled = true;
+      if (zoneHelp) {
+        zoneHelp.textContent = `🔒 Jurisdiction locked to your assigned zone (${actor.zone}).`;
+        zoneHelp.classList.remove("hidden");
+      }
+    } else {
+      zoneSelect.disabled = false;
+      if (zoneHelp) zoneHelp.classList.add("hidden");
+    }
+  }
+
+  if (roleNatOpt) {
+    roleNatOpt.style.display = isZonal ? "none" : "block";
+  }
+
+  const initialZone = isZonal ? actor.zone : (zoneSelect ? zoneSelect.value : "North");
+  populateUserFormStates(initialZone);
+
+  if (editingUsername) {
+    const users = getUsers();
+    const target = users[editingUsername];
+    if (target) {
+      if (modalTitle) modalTitle.textContent = `Edit User — @${target.username}`;
+      if (modalNotice) modalNotice.textContent = `Updating user credentials and authority in ${target.zone} Zone.`;
+      if (usernameInput) { usernameInput.value = target.username; usernameInput.readOnly = true; }
+      if (pwdInput) pwdInput.placeholder = "Leave blank to keep existing password";
+
+      document.getElementById("userFormName").value = target.name || "";
+      document.getElementById("userFormRole").value = target.role || "inspector";
+      if (zoneSelect && !isZonal) zoneSelect.value = target.zone || "North";
+      populateUserFormStates(isZonal ? actor.zone : (target.zone || "North"));
+      if (document.getElementById("userFormState")) document.getElementById("userFormState").value = target.state || "All";
+      if (document.getElementById("userFormStatus")) document.getElementById("userFormStatus").value = target.status || "Active";
+      if (document.getElementById("userFormDesignation")) document.getElementById("userFormDesignation").value = target.designation || "";
+      if (document.getElementById("userFormBadge")) document.getElementById("userFormBadge").value = target.badgeNumber || "";
+      if (document.getElementById("userFormOffice")) document.getElementById("userFormOffice").value = target.officeAddress || "";
+    }
+  } else {
+    if (modalTitle) modalTitle.textContent = isZonal ? `Register User — ${actor.zone} Zone` : "Register New System User";
+    if (modalNotice) modalNotice.textContent = isZonal ? `Provisioning user within ${actor.zone} Zone jurisdiction.` : "Configuring user authority and jurisdiction mapping.";
+    if (usernameInput) { usernameInput.readOnly = false; usernameInput.placeholder = "e.g. inspector2"; }
+    if (pwdInput) pwdInput.placeholder = "••••••••";
+  }
+
   modal.classList.remove("hidden");
   document.body.classList.add("overflow-hidden");
 }
+
 function closeUserModal() {
-  document.getElementById("userModal")?.classList.add("hidden");
+  const modal = document.getElementById("userModal");
+  if (modal) modal.classList.add("hidden");
   document.body.classList.remove("overflow-hidden");
 }
+
 function handleSaveUserForm(event) {
   event.preventDefault();
-  const username    = document.getElementById("userFormUsername").value.trim().toLowerCase();
-  const password    = document.getElementById("userFormPassword").value.trim();
-  const name        = document.getElementById("userFormName").value.trim();
-  const role        = document.getElementById("userFormRole").value;
-  const zone        = document.getElementById("userFormZone")?.value || "North";
-  const designation = document.getElementById("userFormDesignation").value.trim();
-  saveUser({ username, password, name, role, zone, designation, status: "Active" });
-  closeUserModal();
-  renderAdminUsers();
-  const el = document.getElementById("adminTotalUsers");
-  if (el) el.textContent = Object.keys(getUsers()).length;
-  if (typeof showToast === "function") showToast(`User @${username} registered successfully!`, "success");
-}
-function toggleUserStatus(uname) {
-  const users = getUsers();
-  if (users[uname]) {
-    users[uname].status = users[uname].status === "Inactive" ? "Active" : "Inactive";
-    localStorage.setItem(typeof STORAGE_KEY_USERS !== "undefined" ? STORAGE_KEY_USERS : "users", JSON.stringify(users));
+  const editingUsername = document.getElementById("userFormEditingId").value;
+  const username = document.getElementById("userFormUsername").value.trim().toLowerCase();
+  const password = document.getElementById("userFormPassword").value.trim();
+  const name = document.getElementById("userFormName").value.trim();
+  const role = document.getElementById("userFormRole").value;
+  const zoneEl = document.getElementById("userFormZone");
+  const zone = zoneEl ? zoneEl.value : "North";
+  const state = document.getElementById("userFormState")?.value || "All";
+  const status = document.getElementById("userFormStatus")?.value || "Active";
+  const designation = document.getElementById("userFormDesignation")?.value.trim() || "";
+  const badgeNumber = document.getElementById("userFormBadge")?.value.trim() || "";
+  const officeAddress = document.getElementById("userFormOffice")?.value.trim() || "";
+
+  if (!username) {
+    if (typeof showToast === "function") showToast("Please provide a valid username handle.", "warning");
+    return;
+  }
+  if (!editingUsername && !password) {
+    if (typeof showToast === "function") showToast("Please specify a password for new user registration.", "warning");
+    return;
+  }
+
+  const payload = {
+    username,
+    name,
+    role,
+    zone,
+    state,
+    status,
+    designation,
+    badgeNumber,
+    officeAddress
+  };
+  if (password) payload.password = password;
+
+  const result = (typeof saveUser === "function") ? saveUser(payload) : null;
+
+  if (result) {
+    closeUserModal();
     renderAdminUsers();
-    if (typeof showToast === "function") showToast(`User @${uname} is now ${users[uname].status}.`, "success");
+    if (typeof showToast === "function") {
+      showToast(editingUsername ? `User @${username} updated successfully!` : `User @${username} registered under ${result.zone} Zone!`, "success");
+    }
   }
 }
+
+function toggleUserStatusAction(uname) {
+  if (typeof toggleUserStatus === "function") {
+    const success = toggleUserStatus(uname);
+    if (success) {
+      renderAdminUsers();
+    }
+  }
+}
+window.toggleUserStatusAction = toggleUserStatusAction;
+
+function suspendUserAction(uname) {
+  if (typeof toggleUserStatus === "function") {
+    const success = toggleUserStatus(uname, "Suspended");
+    if (success) {
+      renderAdminUsers();
+      if (typeof showToast === "function") showToast(`User @${uname} account is now SUSPENDED.`, "warning");
+    }
+  }
+}
+window.suspendUserAction = suspendUserAction;
+
 function deleteUserAction(uname) {
-  if (confirm(`Remove user @${uname} permanently?`)) {
-    if (typeof deleteUser === "function") deleteUser(uname);
-    renderAdminUsers();
-    const el = document.getElementById("adminTotalUsers");
-    if (el) el.textContent = Object.keys(getUsers()).length;
-    if (typeof showToast === "function") showToast(`User @${uname} removed.`, "warning");
+  if (confirm(`Remove user @${uname} permanently from legal metrology registry?`)) {
+    if (typeof deleteUser === "function") {
+      const success = deleteUser(uname);
+      if (success) {
+        renderAdminUsers();
+        if (typeof showToast === "function") showToast(`User @${uname} removed.`, "warning");
+      }
+    }
   }
 }
+window.deleteUserAction = deleteUserAction;
+
+function renderUserAuditLogs() {
+  const tbody = document.getElementById("adminUserAuditTableBody");
+  if (!tbody) return;
+
+  const actor = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { role: "national", zone: "All", username: "admin" };
+  const raw = localStorage.getItem("adminUserAuditTrail") || "[]";
+  let logs = [];
+  try { logs = JSON.parse(raw) || []; } catch(e) { logs = []; }
+
+  if (actor.role === "zonal") {
+    const normActorZone = (typeof normalizeZoneName === "function") ? normalizeZoneName(actor.zone) : actor.zone.toLowerCase();
+    logs = logs.filter(l => {
+      const normTargetZ = (typeof normalizeZoneName === "function") ? normalizeZoneName(l.targetZone || l.actorZone || "") : (l.targetZone||"").toLowerCase();
+      return normTargetZ === normActorZone || l.actorUsername === actor.username;
+    });
+  }
+
+  logs = logs.slice(0, 20);
+
+  if (logs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="px-3 py-4 text-center text-slate-400 text-xs font-sans">No user configuration security audit events recorded.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = logs.map(l => {
+    const isBlocked = l.outcome === "BLOCKED_UNAUTHORIZED";
+    const outcomeCls = isBlocked
+      ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300"
+      : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300";
+    
+    const timeStr = (typeof relativeTime === "function") ? relativeTime(l.timestamp) : l.timestamp.slice(11, 19);
+
+    return `
+      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800 text-[11px] transition-colors">
+        <td class="px-3 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap" title="${l.timestamp}">${timeStr}</td>
+        <td class="px-3 py-2 font-bold text-slate-900 dark:text-slate-100 font-mono text-[10.5px]">${l.action}</td>
+        <td class="px-3 py-2">
+          <span class="font-bold text-slate-800 dark:text-slate-200">@${l.actorUsername}</span>
+          <span class="text-[9.5px] text-slate-400 block font-mono">(${l.actorRole})</span>
+        </td>
+        <td class="px-3 py-2 font-bold text-slate-800 dark:text-slate-200">@${l.targetUsername || "—"}</td>
+        <td class="px-3 py-2 text-slate-600 dark:text-slate-300 font-mono text-[10.5px]">${l.targetZone || "All"}</td>
+        <td class="px-3 py-2">
+          <span class="px-1.5 py-0.2 rounded text-[9.5px] font-extrabold uppercase border ${outcomeCls}">${isBlocked ? "🔒 BLOCKED" : "✓ OK"}</span>
+        </td>
+        <td class="px-3 py-2 text-slate-600 dark:text-slate-400 font-sans text-[11px] max-w-xs truncate" title="${l.details}">${l.details || "Action executed"}</td>
+      </tr>`;
+  }).join("");
+}
+window.renderUserAuditLogs = renderUserAuditLogs;
+window.onUserSearchInput = onUserSearchInput;
 
 /* ==========================================================================
    ADMIN ACTIONS

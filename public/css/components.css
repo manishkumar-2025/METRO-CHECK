@@ -733,9 +733,27 @@ details.faq-accordion[open] {
 div[id*="Modal"].fixed.inset-0,
 div[id*="Drawer"].fixed.inset-0,
 div[id*="Overlay"].fixed.inset-0 {
+  z-index: 99999 !important;
   backdrop-filter: blur(16px) saturate(140%) !important;
   -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
   transition: backdrop-filter 0.25s ease, -webkit-backdrop-filter 0.25s ease, opacity 0.25s ease;
+}
+
+/* Ensure modal content container supports touch momentum scrolling */
+[role="dialog"] .overflow-y-auto,
+div[id*="Modal"] .overflow-y-auto,
+div[id*="Drawer"] .overflow-y-auto,
+.modal-animate-in {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Universal Sticky Tab Bar inside Modals */
+[role="dialog"] .sticky.top-0,
+div[id*="Modal"] .sticky.top-0,
+.modal-tab-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
 body.theme-dark .app-overlay-backdrop,

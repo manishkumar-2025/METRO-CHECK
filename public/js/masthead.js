@@ -546,15 +546,96 @@
     }
   };
 
-  // Global Escape key listener for accessible modal dismissal & focus restoration
+  // ── Lightweight Global Modal Manager ─────────────────────────────────────────
+  let _activeFocusTrapHandler = null;
+
+  function _handleGlobalFocusTrap(e, modal) {
+    if (e.key !== 'Tab') return;
+    const focusables = Array.from(
+      modal.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')
+    ).filter(el => el.offsetWidth > 0 || el.offsetHeight > 0);
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === first || !modal.contains(document.activeElement)) {
+        last.focus();
+        e.preventDefault();
+      }
+    } else {
+      if (document.activeElement === last || !modal.contains(document.activeElement)) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  }
+
+  function syncGlobalModalState() {
+    const openModals = document.querySelectorAll(
+      '[role="dialog"]:not(.hidden), .modal:not(.hidden), div[id*="Modal"]:not(.hidden)'
+    );
+    const visibleModals = Array.from(openModals).filter(m => {
+      if (m.id === 'sidebarBackdrop' || m.id === 'globalLoadingOverlay') return false;
+      return !m.classList.contains('hidden');
+    });
+
+    if (visibleModals.length > 0) {
+      document.body.classList.add('modal-open', 'overflow-hidden');
+      document.body.style.overflow = 'hidden';
+      const topModal = visibleModals[visibleModals.length - 1];
+
+      if (_activeFocusTrapHandler) {
+        document.removeEventListener('keydown', _activeFocusTrapHandler);
+      }
+      _activeFocusTrapHandler = (e) => _handleGlobalFocusTrap(e, topModal);
+      document.addEventListener('keydown', _activeFocusTrapHandler);
+    } else {
+      document.body.classList.remove('modal-open', 'overflow-hidden');
+      document.body.style.overflow = '';
+      if (_activeFocusTrapHandler) {
+        document.removeEventListener('keydown', _activeFocusTrapHandler);
+        _activeFocusTrapHandler = null;
+      }
+    }
+  }
+
+  // Window event listeners for lightweight sync
   window.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' || e.keyCode === 27) {
       if (typeof closeContactModal === 'function') closeContactModal();
       if (typeof closeUserProfileModal === 'function') closeUserProfileModal();
       if (typeof closeApiKeyConfigModal === 'function') closeApiKeyConfigModal();
-      const openModals = document.querySelectorAll('[role="dialog"]:not(.hidden), .modal:not(.hidden), #contactSupportModal:not(.hidden), #userProfileModal:not(.hidden)');
-      openModals.forEach(m => m.classList.add('hidden'));
+      if (typeof closeInspectorDetailModal === 'function') closeInspectorDetailModal();
+      if (typeof closePhotoLightbox === 'function') closePhotoLightbox();
+      if (typeof closeDocketImageModal === 'function') closeDocketImageModal();
+      if (typeof closeInspectorProfileModal === 'function') closeInspectorProfileModal();
+      if (typeof closeDecisionModal === 'function') closeDecisionModal();
+      if (typeof closeCommodityModal === 'function') closeCommodityModal();
+      if (typeof closeUserModal === 'function') closeUserModal();
+      if (typeof closePolicyModal === 'function') closePolicyModal();
+      if (typeof closeSpecimenLightbox === 'function') closeSpecimenLightbox();
+      if (typeof closeInspectorWalkthroughModal === 'function') closeInspectorWalkthroughModal();
+      if (typeof closeForensicIntegrityModal === 'function') closeForensicIntegrityModal();
+
+      const openModals = document.querySelectorAll(
+        '[role="dialog"]:not(.hidden), .modal:not(.hidden), div[id*="Modal"]:not(.hidden)'
+      );
+      openModals.forEach(m => {
+        if (m.id !== 'sidebarBackdrop' && m.id !== 'globalLoadingOverlay') {
+          m.classList.add('hidden');
+        }
+      });
+      syncGlobalModalState();
     }
   });
+
+  document.addEventListener('click', function (e) {
+    const target = e.target;
+    if (target && target.getAttribute && target.getAttribute('role') === 'dialog' && !target.classList.contains('hidden')) {
+      target.classList.add('hidden');
+      syncGlobalModalState();
+    }
+  }, true);
 })();
 

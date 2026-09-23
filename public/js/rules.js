@@ -388,7 +388,7 @@ function validateLabel(extractedData) {
     extractedData.date || 
     ""
   ).trim();
-  const dateRegex = /(\d{1,2}[\/\-\.]\d{2,4})|((jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s,.-]+\d{4})/i;
+  const dateRegex = /(\d{1,2}[\/\-\.]\d{2,4})|((jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s,.\-\/]+\d{2,4})/i;
   const mfgDateValid = Boolean(mfgDate && dateRegex.test(mfgDate));
   checkedFieldsMap.mfg_month_year = mfgDateValid;
   checkedFieldsMap.mfg_date = mfgDateValid;

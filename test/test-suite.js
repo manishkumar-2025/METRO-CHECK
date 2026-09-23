@@ -53,6 +53,7 @@ try {
 }
 
 function makeHttpRequest(options, postData) {
+  options.headers = Object.assign({ Connection: "close" }, options.headers || {});
   return new Promise((resolve, reject) => {
     const req = http.request(options, (res) => {
       let body = "";
@@ -282,6 +283,82 @@ async function runApiTests() {
     }
     console.log("✅ Integration Test 8 Passed: South Zone & Northeast Zone Roles Authenticated & Zone Scopes Validated");
 
+    // 9. Zone-Based Access Control (ZBAC) User Management Security Tests
+    // 9a: Login as North Zonal Admin
+    const northAdminLogin = await makeHttpRequest({
+      hostname: "localhost",
+      port: TEST_PORT,
+      path: "/api/auth/login",
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    }, { username: "north_admin", password: "north123" });
+    assert.strictEqual(northAdminLogin.status, 200);
+    const northAdminCookie = (northAdminLogin.headers["set-cookie"] || []).map(c => c.split(";")[0]).join("; ");
+
+    // 9b: North Zonal Admin attempts to modify user in South Zone (officer_south) -> Must be blocked HTTP 403
+    const crossZoneModRes = await makeHttpRequest({
+      hostname: "localhost",
+      port: TEST_PORT,
+      path: "/api/users",
+      method: "POST",
+      headers: { "Content-Type": "application/json", Cookie: northAdminCookie }
+    }, { username: "officer_south", name: "Hacked Officer", zone: "South" });
+    assert.strictEqual(crossZoneModRes.status, 403, "Zonal Admin cross-zone modification must be blocked with HTTP 403");
+    assert.strictEqual(crossZoneModRes.data.success, false);
+
+    // 9c: North Zonal Admin attempts to delete user in South Zone -> Must be blocked HTTP 403
+    const crossZoneDelRes = await makeHttpRequest({
+      hostname: "localhost",
+      port: TEST_PORT,
+      path: "/api/users/officer_south",
+      method: "DELETE",
+      headers: { Cookie: northAdminCookie }
+    }, {});
+    assert.strictEqual(crossZoneDelRes.status, 403, "Zonal Admin cross-zone deletion must be blocked with HTTP 403");
+
+    // 9d: North Zonal Admin attempts to assign National Admin role -> Must be blocked HTTP 403
+    const nationalRoleRes = await makeHttpRequest({
+      hostname: "localhost",
+      port: TEST_PORT,
+      path: "/api/users",
+      method: "POST",
+      headers: { "Content-Type": "application/json", Cookie: northAdminCookie }
+    }, { username: "test_new_inspector", role: "national", zone: "North" });
+    assert.strictEqual(nationalRoleRes.status, 403, "Zonal Admin assigning National role must be blocked with HTTP 403");
+
+    // 9e: North Zonal Admin creates user in North Zone -> Allowed HTTP 200
+    const validNorthUserRes = await makeHttpRequest({
+      hostname: "localhost",
+      port: TEST_PORT,
+      path: "/api/users",
+      method: "POST",
+      headers: { "Content-Type": "application/json", Cookie: northAdminCookie }
+    }, { username: "north_inspector_test9", password: "pass123", role: "inspector", name: "Test Inspector North", zone: "North", state: "Delhi UT" });
+    assert.strictEqual(validNorthUserRes.status, 200, "Zonal Admin registering user in their own zone must succeed: " + JSON.stringify(validNorthUserRes.data || validNorthUserRes.body));
+    assert.strictEqual(validNorthUserRes.data.user.zone, "North");
+
+    // 9f: Login as National Admin (admin)
+    const natAdminLogin = await makeHttpRequest({
+      hostname: "localhost",
+      port: TEST_PORT,
+      path: "/api/auth/login",
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    }, { username: "admin", password: "admin123" });
+    const natAdminCookie = (natAdminLogin.headers["set-cookie"] || []).map(c => c.split(";")[0]).join("; ");
+
+    // National Admin modifies user in South Zone -> Allowed HTTP 200
+    const natCrossZoneRes = await makeHttpRequest({
+      hostname: "localhost",
+      port: TEST_PORT,
+      path: "/api/users",
+      method: "POST",
+      headers: { "Content-Type": "application/json", Cookie: natAdminCookie }
+    }, { username: "officer_south", name: "Dr K Ramanathan Updated", zone: "South" });
+    assert.strictEqual(natCrossZoneRes.status, 200, "National Admin cross-zone modification must succeed");
+
+    console.log("✅ Security Test 9 Passed: Zone-Based Access Control (ZBAC) Enforced across APIs (Cross-Zone Blocked HTTP 403 & Audited)");
+
     console.log("==========================================================================");
     console.log("🎉 ALL AUTOMATED INTEGRATION & SECURITY TESTS PASSED SUCCESSFULLY!");
     console.log("==========================================================================");
@@ -293,7 +370,7 @@ async function runApiTests() {
       process.exit(0);
     }
   } catch (err) {
-    console.error("❌ Integration Test Failed:", err.message);
+    console.error("❌ Integration Test Failed:", err.stack || err.message);
     if (serverInstance) {
       serverInstance.close(() => {
         process.exit(1);

@@ -1187,38 +1187,109 @@
            =================================================================== -->
         <section id="adminView-settings" class="hidden space-y-6">
 
-          <div
-            class="bg-white rounded-xl p-5 border border-[#E4E7EC] shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h3 class="font-semibold text-[#0F172A] text-base tracking-tight">User & Role Management</h3>
-              <p class="text-xs text-[#64748B]">Add, edit, or deactivate Field Inspector and Metrology Officer user
-                accounts</p>
+          <!-- Zonal Scope Header & Summary Bar -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <h3 class="font-bold text-[#0F172A] dark:text-slate-100 text-base tracking-tight">Platform Settings — User &amp; Role Configuration</h3>
+                  <span id="adminUserScopeBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs">
+                    🇮🇳 National Scope
+                  </span>
+                </div>
+                <p id="adminUserScopeSubtitle" class="text-xs text-[#64748B] dark:text-slate-400 mt-1">
+                  Cross-zone user provisioning, role assignments, state jurisdiction mapping, and security status controls.
+                </p>
+              </div>
+
+              <div class="flex items-center gap-2 flex-wrap">
+                <button type="button" onclick="openUserModal()"
+                  class="btn-primary active:scale-95 transition-transform duration-100 py-2 px-4 text-xs font-bold shadow-md flex items-center gap-2">
+                  <span>👤➕</span> <span>Register New User</span>
+                </button>
+              </div>
             </div>
 
-            <button type="button" onclick="openUserModal()"
-              class="btn-primary active:scale-95 transition-transform duration-100 py-2 px-3.5 text-xs font-semibold">
-              <span>👤➕</span> <span>Register New User</span>
-            </button>
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700">
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Users</div>
+                <div id="adminTotalUsers" class="text-lg font-extrabold text-slate-900 dark:text-slate-100 font-mono mt-0.5">0</div>
+              </div>
+              <div class="bg-emerald-50/70 dark:bg-emerald-950/40 p-3 rounded-xl border border-emerald-200/60 dark:border-emerald-800/60">
+                <div class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Active Users</div>
+                <div id="adminActiveUsers" class="text-lg font-extrabold text-emerald-700 dark:text-emerald-400 font-mono mt-0.5">0</div>
+              </div>
+              <div class="bg-amber-50/70 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200/60 dark:border-amber-800/60">
+                <div class="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Inactive / Suspended</div>
+                <div id="adminInactiveUsers" class="text-lg font-extrabold text-amber-700 dark:text-amber-400 font-mono mt-0.5">0</div>
+              </div>
+              <div class="bg-indigo-50/70 dark:bg-indigo-950/40 p-3 rounded-xl border border-indigo-200/60 dark:border-indigo-800/60">
+                <div class="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">In Your Zone</div>
+                <div id="adminZonalUsers" class="text-lg font-extrabold text-indigo-700 dark:text-indigo-400 font-mono mt-0.5">0</div>
+              </div>
+            </div>
           </div>
 
-          <!-- Users Table -->
-          <div
-            class="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+          <!-- Users Table Container -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-[#E4E7EC] dark:border-slate-800 shadow-sm overflow-hidden transition-all duration-200">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm">System Users &amp; Officers Registry</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Strict zone-based permissions matrix applied per active administrator role</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" id="adminUserSearchInput" oninput="onUserSearchInput(this.value)" placeholder="Search username, name, or zone..." class="ds-input px-3 py-1.5 text-xs w-48 sm:w-64">
+              </div>
+            </div>
+
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
-                <thead
-                  class="bg-[#F8FAFC] text-[#64748B] uppercase font-semibold border-b border-slate-200 dark:border-slate-800 text-[11px]">
+                <thead class="bg-[#F8FAFC] dark:bg-slate-950 text-[#64748B] dark:text-slate-400 uppercase font-semibold border-b border-slate-200 dark:border-slate-800 text-[11px]">
                   <tr>
-                    <th class="px-4 py-3">Username</th>
-                    <th class="px-4 py-3">Full Name</th>
-                    <th class="px-4 py-3">Role</th>
-                    <th class="px-4 py-3">Designation</th>
+                    <th class="px-4 py-3">Username &amp; Handle</th>
+                    <th class="px-4 py-3">Full Name &amp; Designation</th>
+                    <th class="px-4 py-3">System Role</th>
+                    <th class="px-4 py-3">Jurisdiction (Zone &amp; State)</th>
                     <th class="px-4 py-3">Status</th>
-                    <th class="px-4 py-3 text-right">Actions</th>
+                    <th class="px-4 py-3 text-right">ZBAC Actions</th>
                   </tr>
                 </thead>
-                <tbody id="adminUsersTableBody" class="divide-y divide-[#E4E7EC]">
+                <tbody id="adminUsersTableBody" class="divide-y divide-[#E4E7EC] dark:divide-slate-800">
                   <!-- Dynamically populated from admin.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- User Configuration Audit Trail Section -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
+                  <span>🛡️</span> <span>User &amp; Role Security Audit Trail</span>
+                </h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Audited log of user registrations, role changes, status updates, and blocked unauthorized attempts</p>
+              </div>
+              <button type="button" onclick="renderUserAuditLogs()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 cursor-pointer">
+                <span>🔄</span> <span>Refresh Trail</span>
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-[#F8FAFC] dark:bg-slate-950 text-[#64748B] dark:text-slate-400 uppercase font-semibold border-b border-slate-200 dark:border-slate-800 text-[10.5px]">
+                  <tr>
+                    <th class="px-3 py-2">Timestamp</th>
+                    <th class="px-3 py-2">Action</th>
+                    <th class="px-3 py-2">Actor (Admin)</th>
+                    <th class="px-3 py-2">Target User</th>
+                    <th class="px-3 py-2">Zone</th>
+                    <th class="px-3 py-2">Outcome</th>
+                    <th class="px-3 py-2">Details</th>
+                  </tr>
+                </thead>
+                <tbody id="adminUserAuditTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
+                  <!-- Populated from admin.js -->
                 </tbody>
               </table>
             </div>
@@ -1578,64 +1649,100 @@
   <!-- Modal: Add New User -->
   <div id="userModal" role="dialog" aria-modal="true" aria-labelledby="userModalTitle" onclick="if (event.target === this) closeUserModal()" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
     <div
-      class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 modal-animate-in">
+      class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 modal-animate-in">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-        <h3 id="userModalTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Register New System User</h3>
+        <div>
+          <h3 id="userModalTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Register System User</h3>
+          <p id="userModalNotice" class="text-[11px] text-slate-500 dark:text-slate-400">Configuring user authority and jurisdiction mapping</p>
+        </div>
         <button type="button" onclick="closeUserModal()"
           class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer" title="Close">✕</button>
       </div>
 
-      <form id="userForm" onsubmit="handleSaveUserForm(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Username (Login ID)</label>
-          <input type="text" id="userFormUsername" required placeholder="e.g. inspector2"
-            class="ds-input w-full p-2.5 font-mono">
-        </div>
+      <form id="userForm" onsubmit="handleSaveUserForm(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="userFormEditingId" value="">
 
-        <div>
-          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Password</label>
-          <input type="password" id="userFormPassword" required placeholder="••••••••"
-            class="ds-input w-full p-2.5 font-mono">
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Full Name</label>
-          <input type="text" id="userFormName" required placeholder="e.g. Priya Sharma" class="ds-input w-full p-2.5">
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Role</label>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Username (Login Handle) <span class="text-rose-500">*</span></label>
+            <input type="text" id="userFormUsername" required placeholder="e.g. north_officer2"
+              class="ds-input w-full p-2.5 font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Password <span class="text-rose-500">*</span></label>
+            <input type="password" id="userFormPassword" placeholder="Leave blank to keep existing"
+              class="ds-input w-full p-2.5 font-mono">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Full Officer / Inspector Name <span class="text-rose-500">*</span></label>
+          <input type="text" id="userFormName" required placeholder="e.g. Dr. Rajesh Kumar" class="ds-input w-full p-2.5">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">System Role <span class="text-rose-500">*</span></label>
             <select id="userFormRole" class="ds-select w-full p-2.5">
               <option value="inspector">Field Inspector</option>
               <option value="officer">Metrology Officer</option>
               <option value="zonal">Zonal Controller</option>
+              <option value="national" id="userFormRoleNationalOpt">National Director (Superuser)</option>
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Jurisdiction Zone</label>
-            <select id="userFormZone" class="ds-select w-full p-2.5">
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Jurisdiction Zone <span class="text-rose-500">*</span></label>
+            <select id="userFormZone" onchange="onUserFormZoneChange(this.value)" class="ds-select w-full p-2.5">
               <option value="North">North Zone</option>
-              <option value="South">South Zone</option>
+              <option value="Central">Central Zone</option>
               <option value="East">East Zone</option>
               <option value="West">West Zone</option>
-              <option value="Central">Central Zone</option>
+              <option value="South">South Zone</option>
               <option value="North East">North East Zone</option>
+            </select>
+            <p id="userFormZoneHelp" class="text-[10px] text-amber-600 dark:text-amber-400 mt-1 hidden">🔒 Jurisdiction locked to your assigned zone.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">State / UT Jurisdiction</label>
+            <select id="userFormState" class="ds-select w-full p-2.5">
+              <!-- Populated dynamically based on Zone -->
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Account Security Status</label>
+            <select id="userFormStatus" class="ds-select w-full p-2.5">
+              <option value="Active">Active — Full System Access</option>
+              <option value="Inactive">Inactive — Deactivated</option>
+              <option value="Suspended">Suspended — Temporarily Blocked</option>
             </select>
           </div>
         </div>
 
         <div>
           <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Designation Title</label>
-          <input type="text" id="userFormDesignation" placeholder="e.g. Legal Metrology Inspector - Zone 2"
+          <input type="text" id="userFormDesignation" placeholder="e.g. Assistant Controller of Legal Metrology"
             class="ds-input w-full p-2.5">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Badge / Order Number</label>
+            <input type="text" id="userFormBadge" placeholder="e.g. ACM-DL-2026-042" class="ds-input w-full p-2.5 font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-1">Office Address</label>
+            <input type="text" id="userFormOffice" placeholder="e.g. CGO Complex, Lodhi Road, New Delhi" class="ds-input w-full p-2.5">
+          </div>
         </div>
 
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
           <button type="button" onclick="closeUserModal()" class="btn-secondary px-4 py-2 text-xs">Cancel</button>
           <button type="submit"
-            class="btn-primary active:scale-95 transition-transform duration-100 px-5 py-2 text-xs">Save &amp;
-            Authorize</button>
+            class="btn-primary active:scale-95 transition-transform duration-100 px-5 py-2 text-xs font-bold">Save &amp;
+            Authorize User</button>
         </div>
       </form>
     </div>
