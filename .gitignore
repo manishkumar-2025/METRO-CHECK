@@ -8,3 +8,5 @@ server/data/
 data/
 .vercel
 scratch/
+screenshots/
+test-results/
