@@ -358,6 +358,12 @@ details[open] > summary .transition-transform {
   border-color: rgba(16,185,129,0.3);
   color: #059669;
 }
+.btn-start-camera .ocr-status-chip.ready {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
 .dark .ocr-status-chip.ready {
   background: rgba(16,185,129,0.12);
   border-color: rgba(16,185,129,0.3);

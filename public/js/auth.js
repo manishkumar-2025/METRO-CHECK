@@ -729,7 +729,35 @@ function handleLogin(event) {
   performLogin(u, p);
 }
 
-function quickLogin(u, p) {
+function quickLogin(u, p, btnElement) {
+  // Visual feedback on the tapped role card immediately
+  const btn = btnElement || (window.event && (window.event.currentTarget || (window.event.target && window.event.target.closest && window.event.target.closest('button'))));
+  if (btn) {
+    btn.classList.add('sih-role-selected');
+    const arrow = btn.querySelector('.sih-arrow-icon') || btn.querySelector('.w-8.h-8') || btn.querySelector('span:last-child');
+    if (arrow) {
+      arrow.innerHTML = `<svg class="animate-spin h-3.5 w-3.5 text-current inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>`;
+    }
+  }
+
+  // Pre-seed local storage immediately with system user so there's zero chance of desync
+  const users = (typeof getUsers === "function") ? getUsers() : (window.USERS || {});
+  const preUser = users[u];
+  if (preUser) {
+    const tempSession = {
+      username: u,
+      role: preUser.role,
+      name: preUser.name,
+      designation: preUser.designation || "Enforcement Officer",
+      badgeNumber: preUser.badgeNumber || "",
+      officeAddress: preUser.officeAddress || "",
+      zone: preUser.zone || "All",
+      state: preUser.state || "All",
+      loginTime: new Date().toISOString()
+    };
+    try { localStorage.setItem("currentUser", JSON.stringify(tempSession)); } catch(e){}
+  }
+
   const uField = document.getElementById("usernameInput");
   const pField = document.getElementById("passwordInput");
   if (uField && pField) { 
@@ -738,7 +766,7 @@ function quickLogin(u, p) {
   }
 
   // Auto-fill active CAPTCHA so 1-click test evaluation remains seamless while strictly validated
-  let activeCode = getActiveCaptchaCode("loginCaptchaCanvas");
+  let activeCode = (typeof getActiveCaptchaCode === "function") ? getActiveCaptchaCode("loginCaptchaCanvas") : null;
   if (!activeCode && typeof generateCaptcha === "function") {
     activeCode = generateCaptcha("loginCaptchaCanvas");
   }
@@ -752,36 +780,174 @@ function quickLogin(u, p) {
   if (captchaErr) captchaErr.classList.add("hidden");
 
   if (typeof showToast === "function") {
-    showToast(`Signing in as ${u}...`, "info");
+    const roleTitle = preUser ? `${preUser.name} (${preUser.designation || preUser.role})` : u;
+    showToast(`Authenticating ${roleTitle}… Launching portal…`, "info");
   }
 
-  performLogin(u, p);
+  // Smooth short delay on mobile for visual feedback before modal dismiss and redirect
+  setTimeout(() => {
+    if (typeof closeSihEvaluationModal === "function") {
+      closeSihEvaluationModal();
+    }
+    performLogin(u, p);
+  }, 160);
 }
 
-let sihModalLastFocused = null;
+var sihModalLastFocused = null;
+let sihTouchStartY = 0;
+let sihTouchDiffY = 0;
+let sihIsDragging = false;
+
+function initSihTouchGestures() {
+  const modal = document.getElementById('sihEvaluationModal');
+  if (!modal || modal._hasTouchListeners) return;
+  modal._hasTouchListeners = true;
+
+  const sheet = modal.querySelector('.rmc') || modal.querySelector('> div');
+  const dragBar = modal.querySelector('.sih-mobile-drag-bar') || modal.querySelector('.sih-modal-header');
+  if (!sheet) return;
+
+  const targetDragZone = dragBar || sheet;
+
+  targetDragZone.addEventListener('touchstart', (e) => {
+    if (window.innerWidth > 767) return;
+    const touch = e.touches[0];
+    sihTouchStartY = touch.clientY;
+    sihTouchDiffY = 0;
+    sihIsDragging = true;
+    sheet.style.transition = 'none';
+  }, { passive: true });
+
+  targetDragZone.addEventListener('touchmove', (e) => {
+    if (!sihIsDragging || window.innerWidth > 767) return;
+    const touch = e.touches[0];
+    sihTouchDiffY = touch.clientY - sihTouchStartY;
+
+    if (sihTouchDiffY > 0) {
+      sheet.style.transform = `translateY(${sihTouchDiffY * 0.75}px)`;
+    }
+  }, { passive: true });
+
+  const endDrag = () => {
+    if (!sihIsDragging || window.innerWidth > 767) return;
+    sihIsDragging = false;
+    sheet.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+
+    if (sihTouchDiffY > 70) {
+      sheet.style.transform = 'translateY(100%)';
+      setTimeout(() => {
+        closeSihEvaluationModal();
+        sheet.style.transform = '';
+        sheet.style.transition = '';
+      }, 180);
+    } else {
+      sheet.style.transform = 'translateY(0)';
+      setTimeout(() => {
+        sheet.style.transform = '';
+        sheet.style.transition = '';
+      }, 200);
+    }
+  };
+
+  targetDragZone.addEventListener('touchend', endDrag, { passive: true });
+  targetDragZone.addEventListener('touchcancel', endDrag, { passive: true });
+}
 
 function openSihEvaluationModal() {
   sihModalLastFocused = document.activeElement;
   var modal = document.getElementById('sihEvaluationModal');
   if (!modal) return;
   modal.style.display = 'flex';
+  modal.setAttribute('data-state', 'open');
+  modal.classList.add('sih-modal-open');
+  document.body.classList.add('sih-modal-locked');
   document.body.style.overflow = 'hidden';
+
+  // Reset scroll positions on mobile to top
+  var grid = document.getElementById('sihConsoleGrid');
+  if (grid) grid.scrollTop = 0;
+  var sheet = modal.querySelector('.rmc');
+  if (sheet) sheet.scrollTop = 0;
+
+  // Initialize mobile touch gestures if on mobile
+  initSihTouchGestures();
 }
 
 function closeSihEvaluationModal() {
   var modal = document.getElementById('sihEvaluationModal');
   if (modal) {
+    modal.classList.remove('sih-modal-open');
+    modal.setAttribute('data-state', 'closed');
     modal.style.display = 'none';
+    document.body.classList.remove('sih-modal-locked');
     document.body.style.overflow = '';
+    const sheet = modal.querySelector('.rmc');
+    if (sheet) {
+      sheet.style.transform = '';
+      sheet.style.transition = '';
+    }
   }
+
+  // Clear any active state on buttons
+  const activeBtns = document.querySelectorAll('.sih-role-selected');
+  activeBtns.forEach(b => b.classList.remove('sih-role-selected'));
+
   if (sihModalLastFocused && typeof sihModalLastFocused.focus === 'function') {
     try { sihModalLastFocused.focus(); } catch(e) {}
   }
 }
 
+function filterSihRoleCategory(category, buttonElement) {
+  // Toggle category tab buttons
+  var pills = document.querySelectorAll('.sih-cat-pill');
+  pills.forEach(function (pill) {
+    pill.classList.remove('active');
+    pill.classList.remove('bg-slate-900', 'dark:bg-emerald-500', 'text-white', 'dark:text-slate-950', 'shadow-xs');
+    pill.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300');
+    pill.setAttribute('aria-selected', 'false');
+  });
+
+  if (buttonElement) {
+    buttonElement.classList.add('active');
+    buttonElement.classList.add('bg-slate-900', 'dark:bg-emerald-500', 'text-white', 'dark:text-slate-950', 'shadow-xs');
+    buttonElement.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300');
+    buttonElement.setAttribute('aria-selected', 'true');
+
+    // Smoothly center active pill on mobile dock
+    if (typeof buttonElement.scrollIntoView === 'function') {
+      try {
+        buttonElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      } catch (e) {}
+    }
+  }
+
+  // Filter sections
+  var sectionMap = {
+    national: 'sihSectionNational',
+    zonal: 'sihSectionZonal',
+    officer: 'sihSectionOfficer',
+    inspector: 'sihSectionInspector'
+  };
+
+  Object.keys(sectionMap).forEach(function (key) {
+    var sec = document.getElementById(sectionMap[key]);
+    if (!sec) return;
+    if (category === 'all' || category === key) {
+      sec.style.display = '';
+    } else {
+      sec.style.display = 'none';
+    }
+  });
+
+  // Reset scroll to top of grid when switching filters
+  var grid = document.getElementById('sihConsoleGrid');
+  if (grid) grid.scrollTop = 0;
+}
+
 if (typeof window !== "undefined") {
   window.openSihEvaluationModal = openSihEvaluationModal;
   window.closeSihEvaluationModal = closeSihEvaluationModal;
+  window.filterSihRoleCategory = filterSihRoleCategory;
   window.quickLogin = quickLogin;
 }
 
@@ -1213,16 +1379,53 @@ function validateCaptcha(canvasId, userInput) {
 function openContactModal() {
   const modal = document.getElementById("contactSupportModal");
   if (modal) {
+    modal.style.display = "flex";
     modal.classList.remove("hidden");
     document.body.classList.add("overflow-hidden");
     refreshCaptcha("contactCaptchaCanvas", "contactCaptchaInput", "contactCaptchaError");
+    const firstInput = document.getElementById("contactNameInput");
+    if (firstInput) setTimeout(() => firstInput.focus(), 80);
   }
 }
 
 function closeContactModal() {
   const modal = document.getElementById("contactSupportModal");
-  if (modal) modal.classList.add("hidden");
-  document.body.classList.remove("overflow-hidden");
+  if (modal) {
+    modal.style.display = "none";
+    modal.classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+  }
+}
+
+/**
+ * Universal Password Show / Hide Visibility Toggle
+ */
+function togglePasswordVisibility(inputId, btn) {
+  const input = typeof inputId === "string" ? document.getElementById(inputId) : inputId;
+  if (!input) return;
+  const isPassword = input.type === "password";
+  input.type = isPassword ? "text" : "password";
+  
+  if (btn) {
+    btn.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+    btn.setAttribute("title", isPassword ? "Hide password" : "Show password");
+    const showIcon = btn.querySelector("#eyeIconShow") || btn.querySelector(".eye-icon-show");
+    const hideIcon = btn.querySelector("#eyeIconHide") || btn.querySelector(".eye-icon-hide");
+    if (showIcon && hideIcon) {
+      if (isPassword) {
+        showIcon.classList.add("hidden");
+        hideIcon.classList.remove("hidden");
+      } else {
+        showIcon.classList.remove("hidden");
+        hideIcon.classList.add("hidden");
+      }
+    }
+  }
+}
+if (typeof window !== "undefined") {
+  window.openContactModal = openContactModal;
+  window.closeContactModal = closeContactModal;
+  window.togglePasswordVisibility = togglePasswordVisibility;
 }
 
 function handleContactSubmit(event) {

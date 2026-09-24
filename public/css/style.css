@@ -48,16 +48,16 @@
   animation: matrixAtmosphericBreath 14s ease-in-out infinite;
 }
 
-/* Ensure content elements sit cleanly above the matrix background */
-body.index-line-matrix-bg > *,
-body.features-dot-matrix-bg > *,
-body.officer-cross-matrix-bg > *,
-body.inspector-viewfinder-matrix-bg > *,
-body.admin-hex-matrix-bg > *,
-body.report-ruler-matrix-bg > *,
-body.error-403-matrix-bg > *,
-body.error-404-matrix-bg > *,
-body.error-500-matrix-bg > * {
+/* Ensure content elements sit cleanly above the matrix background while preserving fixed modal overlays */
+body.index-line-matrix-bg > *:not([role="dialog"]):not([aria-modal="true"]):not(.fixed),
+body.features-dot-matrix-bg > *:not([role="dialog"]):not([aria-modal="true"]):not(.fixed),
+body.officer-cross-matrix-bg > *:not([role="dialog"]):not([aria-modal="true"]):not(.fixed),
+body.inspector-viewfinder-matrix-bg > *:not([role="dialog"]):not([aria-modal="true"]):not(.fixed),
+body.admin-hex-matrix-bg > *:not([role="dialog"]):not([aria-modal="true"]):not(.fixed),
+body.report-ruler-matrix-bg > *:not([role="dialog"]):not([aria-modal="true"]):not(.fixed),
+body.error-403-matrix-bg > *:not([role="dialog"]):not([aria-modal="true"]):not(.fixed),
+body.error-404-matrix-bg > *:not([role="dialog"]):not([aria-modal="true"]):not(.fixed),
+body.error-500-matrix-bg > *:not([role="dialog"]):not([aria-modal="true"]):not(.fixed) {
   position: relative;
   z-index: 1;
 }
@@ -1169,16 +1169,111 @@ details.faq-accordion[open] {
 }
 
 /* ==========================================================================
-   13. Official National Masthead & Tricolor Header Bar (Modern Executive)
+   13. Official National Masthead & Tricolor Header Bar (Executive Sovereign)
    ========================================================================== */
 .tricolor-strip {
   position: sticky !important;
   top: 0 !important;
-  z-index: 41 !important;
-  height: 3px;
-  width: 100%;
-  background: linear-gradient(90deg, #FF9933 0%, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%, #138808 100%);
-  box-shadow: 0 0 8px rgba(255, 153, 51, 0.4);
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 55 !important;
+  height: 3.5px !important;
+  min-height: 3.5px !important;
+  width: 100% !important;
+  background: linear-gradient(
+    90deg,
+    #E65100 0%,
+    #FF7A00 12%,
+    #FFA133 26%,
+    #FFB74D 38%,
+    #FFFFFF 47%,
+    #F8FAFC 50%,
+    #FFFFFF 53%,
+    #43A047 64%,
+    #2E7D32 76%,
+    #138808 88%,
+    #0A5C28 100%
+  ) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08),
+              0 0 14px rgba(255, 122, 0, 0.35),
+              0 0 14px rgba(19, 136, 8, 0.35) !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* Premium Luminous Specular Sheen Animation */
+.tricolor-strip::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0.2) 80%,
+    transparent 100%
+  );
+  animation: sovereignTricolorShimmer 7s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+@keyframes sovereignTricolorShimmer {
+  0% {
+    left: -70%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  45% {
+    left: 120%;
+    opacity: 0.9;
+  }
+  46%, 100% {
+    left: 120%;
+    opacity: 0;
+  }
+}
+
+/* Obsidian Dark Mode Sovereign Radiance */
+.dark .tricolor-strip,
+body.theme-dark .tricolor-strip {
+  background: linear-gradient(
+    90deg,
+    #E65100 0%,
+    #FF6D00 12%,
+    #FF9100 25%,
+    #FFA726 36%,
+    #FFFFFF 47%,
+    #E2E8F0 50%,
+    #FFFFFF 53%,
+    #34D399 65%,
+    #10B981 78%,
+    #059669 88%,
+    #047857 100%
+  ) !important;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5),
+              0 0 16px rgba(255, 145, 0, 0.45),
+              0 0 16px rgba(16, 185, 129, 0.45) !important;
+}
+
+/* WCAG AAA High Contrast Protection */
+body.gov-high-contrast .tricolor-strip,
+html.gov-high-contrast .tricolor-strip {
+  background: linear-gradient(
+    90deg,
+    #FF7A00 0%,
+    #FF9933 33.3%,
+    #FFFFFF 33.3%,
+    #FFFFFF 66.6%,
+    #00C853 66.6%,
+    #138808 100%
+  ) !important;
+  box-shadow: 0 2px 0 #FFFFFF !important;
 }
 
 #nationalGovMasthead {

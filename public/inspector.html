@@ -790,22 +790,23 @@
               </div>
 
               <!-- Case Reference Badge & Guide Action -->
-              <div class="flex items-center gap-2 shrink-0">
+              <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap max-w-full">
                 <div
-                  class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700 text-xs font-mono shadow-2xs">
+                  class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700 text-xs font-mono shadow-2xs max-w-full overflow-hidden">
                   <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Docket
                     Ref:</span>
                   <strong id="ocrCaseIdDisplay"
-                    class="font-bold text-emerald-600 dark:text-emerald-400 select-all">INS-0000</strong>
+                    class="font-bold text-emerald-600 dark:text-emerald-400 select-all truncate">INS-0000</strong>
                   <button type="button"
                     onclick="navigator.clipboard?.writeText(document.getElementById('ocrCaseIdDisplay')?.textContent?.trim()); if(typeof showToast==='function') showToast('Case Ref copied', 'info');"
-                    title="Copy Case Ref" class="text-slate-400 hover:text-emerald-500 transition cursor-pointer p-0.5">
+                    title="Copy Case Ref" aria-label="Copy Docket Reference ID" class="text-slate-400 hover:text-emerald-500 transition cursor-pointer p-1 min-w-[28px] min-h-[28px] flex items-center justify-center">
                     📋
                   </button>
                 </div>
                 <button type="button" onclick="openInspectorWalkthroughModal()"
-                  class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs rounded-xl border border-slate-200 dark:border-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
-                  <span>📖</span> <span class="hidden sm:inline">Guide</span>
+                  class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs rounded-xl border border-slate-200 dark:border-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs min-h-[36px] flex-shrink-0"
+                  title="Open Inspector Onboarding Guide">
+                  <span>📖</span> <span>Guide</span>
                 </button>
               </div>
             </div>
@@ -3145,7 +3146,7 @@
                 <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
                 <span
                   class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-[9.5px] sm:text-[11px]">Build
-                  v7.0.0</span>
+                  v7.1.0</span>
                 <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
                 <span class="font-semibold">© 2026 Government of India</span>
               </div>
@@ -3426,28 +3427,27 @@
     onclick="if (event.target === this) closeInspectorWalkthroughModal()"
     class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
     <div
-      class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 space-y-4 max-h-[90vh] overflow-y-auto modal-animate-in">
-      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-        <div class="flex items-center gap-3">
+      class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 flex flex-col max-h-[85vh] modal-animate-in">
+      <div class="flex-shrink-0 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div
-            class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold border border-emerald-200 dark:border-emerald-800/80 shadow-xs flex-shrink-0">
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg sm:text-xl font-bold border border-emerald-200 dark:border-emerald-800/80 shadow-xs flex-shrink-0">
             👮
           </div>
-          <div>
-            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Field Inspector Quick Onboarding Guide
+          <div class="min-w-0">
+            <h3 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white truncate">Field Inspector Onboarding
             </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">How to perform statutory verification in 3 simple
-              steps</p>
+            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">Statutory verification in 3 simple steps</p>
           </div>
         </div>
         <button type="button" onclick="closeInspectorWalkthroughModal()"
-          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
-          title="Close">✕</button>
+          class="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center font-bold text-base transition-colors cursor-pointer flex-shrink-0 min-h-[44px] min-w-[44px]"
+          aria-label="Close onboarding modal" title="Close">✕</button>
       </div>
 
-      <div class="space-y-3 text-xs">
+      <div class="flex-1 overflow-y-auto py-3 space-y-2.5 text-xs pr-1">
         <div
-          class="p-3.5 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-900/60 flex gap-3 items-start">
+          class="p-3 sm:p-3.5 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-900/60 flex gap-2.5 sm:gap-3 items-start">
           <span
             class="w-6 h-6 rounded-full bg-amber-500 text-white font-black flex-shrink-0 flex items-center justify-center text-xs shadow-xs">1</span>
           <div>
@@ -3461,7 +3461,7 @@
         </div>
 
         <div
-          class="p-3.5 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-900/60 flex gap-3 items-start">
+          class="p-3 sm:p-3.5 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-900/60 flex gap-2.5 sm:gap-3 items-start">
           <span
             class="w-6 h-6 rounded-full bg-blue-600 text-white font-black flex-shrink-0 flex items-center justify-center text-xs shadow-xs">2</span>
           <div>
@@ -3474,7 +3474,7 @@
         </div>
 
         <div
-          class="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-900/60 flex gap-3 items-start">
+          class="p-3 sm:p-3.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-900/60 flex gap-2.5 sm:gap-3 items-start">
           <span
             class="w-6 h-6 rounded-full bg-emerald-600 text-white font-black flex-shrink-0 flex items-center justify-center text-xs shadow-xs">3</span>
           <div>
@@ -3487,14 +3487,14 @@
         </div>
       </div>
 
-      <div class="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-800">
-        <label class="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-xs cursor-pointer select-none">
+      <div class="flex-shrink-0 flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <label class="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-xs cursor-pointer select-none py-1">
           <input type="checkbox" id="dontShowOnboardingAgain"
             class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
-          <span class="font-medium">Don't show automatically</span>
+          <span class="font-medium">Don't show again</span>
         </label>
         <button type="button" onclick="closeInspectorWalkthroughModal()"
-          class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-500/20 transition-all cursor-pointer">Got
+          class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-500/20 transition-all cursor-pointer min-h-[44px] flex items-center justify-center">Got
           it!</button>
       </div>
     </div>
@@ -3661,7 +3661,6 @@
   </nav>
 
   <!-- Scripts -->
-  <script src="js/auth.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/rules.js"></script>
   <script src="js/pdfService.js"></script>

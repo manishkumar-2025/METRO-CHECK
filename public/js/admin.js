@@ -385,17 +385,19 @@ function initCommandCenter() {
   animateKpi("adminEscalatedCount",   escalated + notice);
 
   // Dynamic trend badge (real data)
+  const isMobileViewport = typeof window !== "undefined" && window.innerWidth <= 640;
+  const trendText = isMobileViewport ? `${trendDir} ${Math.abs(trendPct)}%` : `${trendDir} ${Math.abs(trendPct)}% vs last 7d`;
   const trendEl = document.getElementById("adminScanTrend");
   if (trendEl) {
-    trendEl.textContent = `${trendDir} ${Math.abs(trendPct)}% vs last 7d`;
-    trendEl.className   = trendClass === "up" ? "trend-up" : "trend-down";
+    trendEl.textContent = trendText;
+    trendEl.className   = (trendClass === "up" ? "trend-up" : "trend-down") + " whitespace-nowrap";
   }
 
   // Total-scans KPI dynamic trend badge
   const scanTrendEl = document.getElementById("adminTotalScansTrend");
   if (scanTrendEl) {
-    scanTrendEl.textContent = `${trendDir} ${Math.abs(trendPct)}% vs last 7d`;
-    scanTrendEl.className   = "kpi-trend-delta " + trendClass;
+    scanTrendEl.textContent = trendText;
+    scanTrendEl.className   = "kpi-trend-delta " + trendClass + " whitespace-nowrap";
   }
 
   // Compliance ring
@@ -460,7 +462,7 @@ function _updateRefreshRing() {
     fill.style.strokeDasharray  = circ;
     fill.style.strokeDashoffset = circ * (1 - pct);
   }
-  if (label) label.textContent = _adminRefreshCountdown + "s";
+  if (label) label.textContent = _adminRefreshCountdown;
 }
 window._updateRefreshRing = _updateRefreshRing;
 

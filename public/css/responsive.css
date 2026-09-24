@@ -5,9 +5,20 @@
    ========================================================================== */
 
 /* ── 1. GLOBAL TOUCH & SCROLL UTILITIES ── */
-.touch-target {
-  min-height: 44px;
-  min-width: 44px;
+.touch-target,
+.mobile-touch-target {
+  min-height: 44px !important;
+  min-width: 44px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem !important; /* Minimum 8px safe buffer between action triggers */
+  flex-wrap: wrap;
 }
 
 .table-mobile-scroll {
@@ -24,6 +35,20 @@
 }
 .custom-scroll-x::-webkit-scrollbar {
   display: none;
+}
+
+/* Mobile Pull Bar for Drawers & Modals (Touch Gesture Cue) */
+.mobile-modal-pull-handle {
+  width: 36px;
+  height: 4px;
+  background-color: #CBD5E1;
+  border-radius: 9999px;
+  margin: 8px auto 12px auto;
+  display: block;
+}
+.dark .mobile-modal-pull-handle,
+body.theme-dark .mobile-modal-pull-handle {
+  background-color: #475569;
 }
 
 /* Feature card micro-interactions */
@@ -80,6 +105,11 @@ body.theme-dark .sticky-frosted-nav {
 }
 
 
+/* Essential display utilities - allows responsive modifiers (sm:flex, md:block, etc.) to override */
+.hidden {
+  display: none;
+}
+
 /* ==========================================================================
    2. MOBILE BREAKPOINT: < 768px (Standard Phone & Phablet Viewports)
    ========================================================================== */
@@ -92,18 +122,157 @@ body.theme-dark .sticky-frosted-nav {
     max-width: 100vw !important;
   }
 
-  /* Tricolor strip: strictly 3px height */
+  /* Universal Mobile Touch Targets & Interaction Standards (WCAG 2.5.5) */
+  button, 
+  a.btn,
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  [role="button"],
+  .docket-tab,
+  .tab-btn,
+  .mobile-touch-target {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Universal Horizontal Swipe Containers (hide ugly scrollbars while preserving momentum) */
+  .no-scrollbar::-webkit-scrollbar,
+  .overflow-x-auto::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  .no-scrollbar,
+  .overflow-x-auto {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Contain decorative orbs and background glows to prevent 360px viewport overflow */
+  .sih-quick-trigger,
+  .modern-card,
+  .command-center-stage,
+  .kpi-card,
+  .idm-panel,
+  .idm-header {
+    overflow: hidden !important;
+    contain: paint !important;
+  }
+  .sih-quick-trigger > .absolute {
+    right: 0 !important;
+    bottom: 0 !important;
+  }
+
+  /* Footer Links touch target standard */
+  .footer-nav-link,
+  .footer-legal-link {
+    min-height: 44px;
+    display: inline-flex !important;
+    align-items: center;
+    touch-action: manipulation;
+  }
+
+  /* Ensure Tailwind responsive hidden classes work before CDN script compilation */
+  .hidden.md\:block,
+  nav.hidden.md\:block {
+    display: none !important;
+  }
+
+  /* Inputs with prepended emoji/icons: guaranteed clearance */
+  .relative > span.absolute + input.ds-input,
+  .relative > span.absolute + input {
+    padding-left: 2.75rem !important; /* 44px clearance */
+  }
+
+  /* Form inputs iOS auto-zoom prevention */
+  input:not([type="checkbox"]):not([type="radio"]),
+  select.ds-select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* GPU Mobile Rendering Optimization: Use lightweight backdrop-blur to prevent scroll jank */
+  .sticky-frosted-nav,
+  #nationalGovMasthead,
+  #mobileBottomNavInspector,
+  #mobileBottomNavOfficer,
+  #mobileBottomNavAdmin {
+    backdrop-filter: blur(8px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+  }
+
+  /* Automatic Mobile Card-Table Reflow System */
+  .responsive-card-table table,
+  .responsive-card-table tbody,
+  .responsive-card-table tr,
+  .responsive-card-table td {
+    display: block !important;
+    width: 100% !important;
+  }
+  .responsive-card-table thead {
+    display: none !important; /* Hide dense headers on mobile */
+  }
+  .responsive-card-table tr {
+    margin-bottom: 0.75rem !important;
+    background: #ffffff !important;
+    border-radius: 0.75rem !important;
+    padding: 0.875rem !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid #E2E8F0 !important;
+  }
+  .dark .responsive-card-table tr,
+  body.theme-dark .responsive-card-table tr {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+  }
+  .responsive-card-table td {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.5rem 0 !important;
+    border-bottom: 1px dashed #F1F5F9 !important;
+    font-size: 0.875rem !important;
+  }
+  .dark .responsive-card-table td,
+  body.theme-dark .responsive-card-table td {
+    border-bottom-color: #334155 !important;
+  }
+  .responsive-card-table td:last-child {
+    border-bottom: none !important;
+    padding-top: 0.75rem !important;
+  }
+  .responsive-card-table td::before {
+    content: attr(data-label) !important;
+    font-weight: 600 !important;
+    color: #64748B !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+  }
+  .dark .responsive-card-table td::before,
+  body.theme-dark .responsive-card-table td::before {
+    color: #94A3B8 !important;
+  }
+
+  /* Tricolor strip: strictly 3.5px height with seamless sovereign gradient */
   .tricolor-strip {
-    height: 3px !important;
-    max-height: 3px !important;
+    height: 3.5px !important;
+    max-height: 3.5px !important;
+    min-height: 3.5px !important;
     width: 100% !important;
   }
 
-  /* Sovereign Masthead on mobile: sleek compact 38px bar */
+  /* ==========================================================================
+     MOBILE FOUNDATION 1: NATIVE SOVEREIGN APP BAR (< 768px)
+     Height: 46px (3px tricolor strip + 43px bar) with 36px-44px touch ergonomics.
+     ========================================================================== */
   #nationalGovMasthead {
     position: sticky !important;
-    height: 38px !important;
-    max-height: 38px !important;
+    height: 48px !important;
+    max-height: 48px !important;
     padding: 0 !important;
     top: 0 !important;
     left: 0 !important;
@@ -111,69 +280,133 @@ body.theme-dark .sticky-frosted-nav {
     width: 100% !important;
     z-index: 50 !important;
     overflow: hidden !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.85) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
   }
+  .dark #nationalGovMasthead,
+  body.theme-dark #nationalGovMasthead {
+    background: rgba(15, 23, 42, 0.96) !important;
+    border-bottom: 1px solid rgba(30, 41, 59, 0.85) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+  }
+
   #nationalGovMasthead > div:not(.tricolor-strip) {
-    height: 35px !important;
-    max-height: 35px !important;
+    height: 45px !important;
+    max-height: 45px !important;
     padding: 0 0.5rem !important;
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
     justify-content: space-between !important;
+    gap: 0.375rem !important;
   }
+
+  /* National Ashoka Emblem */
   #nationalGovMasthead img {
-    height: 22px !important;
+    height: 28px !important;
+    width: auto !important;
+    object-fit: contain !important;
   }
-  #nationalGovMasthead #networkSyncPill {
+
+  /* Hide network sync pill & IST clock on mobile — frees space for controls */
+  #nationalGovMasthead #networkSyncPill,
+  #nationalGovMasthead .masthead-clock-pill,
+  .masthead-clock-pill,
+  #mastheadFontSizerWrapper,
+  .masthead-divider {
     display: none !important;
   }
-  #nationalGovMasthead .masthead-clock-pill {
-    padding: 2px 6px !important;
-    gap: 4px !important;
-    display: inline-flex !important;
-  }
-  #nationalGovMasthead .masthead-ist-clock {
-    font-size: 10px !important;
-    display: inline-block !important;
-  }
-  /* Hide secondary English line in masthead on mobile to prevent pill dock displacement */
-  #nationalGovMasthead .flex-col > div:nth-child(2) {
-    display: none !important;
-  }
+
+  /* Compact native mobile bilingual hierarchy - clean and unclipped */
   #nationalGovMasthead .flex-col > div:first-child {
     font-size: 11px !important;
-    max-width: 140px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em !important;
+    color: #0F172A !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.2 !important;
+  }
+  .dark #nationalGovMasthead .flex-col > div:first-child {
+    color: #F8FAFC !important;
+  }
+
+  #nationalGovMasthead .flex-col > div:nth-child(2) {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    font-size: 9px !important;
+    font-weight: 500 !important;
+    line-height: 1.1 !important;
+    color: #64748B !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
   }
-  /* Hide font-sizer controls on small screens in masthead */
-  #fontSizer-decrease,
-  #fontSizer-normal,
-  #fontSizer-increase,
-  div:has(> #fontSizer-decrease),
-  .masthead-pill-dock > div:first-child,
-  .masthead-pill-dock > div:nth-child(2) {
-    display: none !important;
+  .dark #nationalGovMasthead .flex-col > div:nth-child(2) {
+    color: #94A3B8 !important;
   }
+
+  /* Unified Header Utility Dock with native capsule aesthetic */
   .masthead-pill-dock {
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     padding: 2px 4px !important;
     gap: 2px !important;
     flex-shrink: 0 !important;
+    border-radius: 9999px !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    background: #F1F5F9 !important;
+    border: 1px solid #E2E8F0 !important;
   }
+  .dark .masthead-pill-dock,
+  body.theme-dark .masthead-pill-dock {
+    background: rgba(30, 41, 59, 0.9) !important;
+    border-color: rgba(51, 65, 85, 0.8) !important;
+  }
+
+  /* Native touch-friendly buttons in app bar with WCAG compliant hit targets */
   .masthead-pill-dock button {
     min-height: 28px !important;
-    min-width: 26px !important;
-    font-size: 11px !important;
-    padding: 2px !important;
+    min-width: 28px !important;
+    height: 28px !important;
+    width: 28px !important;
+    font-size: 12px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 9999px !important;
+    position: relative !important;
+    transition: transform 0.1s ease, background-color 0.15s ease !important;
+  }
+  .masthead-pill-dock button:active {
+    transform: scale(0.9) !important;
+  }
+
+  /* Language toggle buttons inside masthead */
+  .masthead-pill-dock #govLangEn,
+  .masthead-pill-dock #govLangHi {
+    min-width: 22px !important;
+    min-height: 24px !important;
+    height: 24px !important;
+    width: auto !important;
+    padding: 0 4px !important;
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
   }
 
   /* Global Toast Notifications on Mobile View */
   #globalToastContainer {
-    top: 48px !important;
+    top: 52px !important;
     right: 12px !important;
     left: 12px !important;
     max-width: calc(100vw - 24px) !important;
@@ -183,6 +416,8 @@ body.theme-dark .sticky-frosted-nav {
   #globalToastContainer > div {
     width: 100% !important;
     max-width: 420px !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
   }
 
   /* Main viewport starts in natural flow right below sticky masthead */
@@ -198,22 +433,61 @@ body.theme-dark .sticky-frosted-nav {
     overflow-x: hidden !important;
   }
 
-  /* Sub-header mobile position sits naturally below 38px masthead with zero overlap */
+  /* ==========================================================================
+     MOBILE FOUNDATION 2: NATIVE SUB-HEADER & CONTEXT TOOLBAR (< 768px)
+     ========================================================================== */
   .main-viewport > header,
   .sidebar-container ~ div.flex-1 > header {
     position: relative !important;
     top: 0 !important;
     z-index: 30 !important;
-    padding: 0.45rem 0.75rem !important;
-    min-height: 44px !important;
+    padding: 0.35rem 0.75rem !important;
+    min-height: 48px !important;
+    height: auto !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #E2E8F0 !important;
   }
+  .dark .main-viewport > header,
+  .dark .sidebar-container ~ div.flex-1 > header {
+    background: #0F172A !important;
+    border-bottom-color: #1E293B !important;
+  }
+
   .main-viewport > header h2,
-  .sidebar-container ~ div.flex-1 > header h2 {
-    font-size: 0.9375rem !important;
+  .sidebar-container ~ div.flex-1 > header h2,
+  #currentViewHeaderTitle,
+  #officerPageTitle,
+  #adminPageTitle {
+    font-size: clamp(0.875rem, 3.8vw, 1.05rem) !important;
     font-weight: 700 !important;
     line-height: 1.25 !important;
     color: #0F172A !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
   }
+  .dark .main-viewport > header h2,
+  .dark .sidebar-container ~ div.flex-1 > header h2,
+  .dark #currentViewHeaderTitle,
+  .dark #officerPageTitle,
+  .dark #adminPageTitle {
+    color: #F8FAFC !important;
+  }
+
+  /* Compact Telemetry & Status Badges */
+  #aiEngineReadyBadge,
+  #officerZoneBadge,
+  #adminZoneRoleBadge {
+    padding: 2.5px 8px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
   /* Hide secondary breadcrumb and telemetry pills on mobile to keep header visually light */
   .main-viewport > header > div:first-child .text-\[11px\],
   .sidebar-container ~ div.flex-1 > header > div:first-child .text-\[11px\],
@@ -353,62 +627,139 @@ body.theme-dark .sticky-frosted-nav {
 
   /* Main content padding reduction and safe bottom clearance for mobile nav */
   #mainContent {
-    padding: 0.875rem 0.875rem 5.5rem 0.875rem !important;
+    padding: 0.75rem 0.875rem calc(72px + env(safe-area-inset-bottom, 8px)) 0.875rem !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
   }
   .main-viewport {
-    padding-bottom: 4rem !important;
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 8px)) !important;
   }
 
-  /* Mobile Bottom Navigation Bar Dock */
+  /* ==========================================================================
+     MOBILE FOUNDATION 3: NATIVE FLOATING BOTTOM APP NAVIGATION DOCK (< 768px)
+     ========================================================================== */
   #mobileBottomNavInspector,
   #mobileBottomNavOfficer,
   #mobileBottomNavAdmin {
-    height: 58px !important;
-    padding-bottom: env(safe-area-inset-bottom, 4px) !important;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+    height: calc(58px + env(safe-area-inset-bottom, 8px)) !important;
+    padding: 0 0.5rem calc(env(safe-area-inset-bottom, 8px) + 2px) 0.5rem !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border-top: 1px solid rgba(226, 232, 240, 0.85) !important;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08) !important;
     z-index: 45 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-around !important;
   }
+  .dark #mobileBottomNavInspector,
+  .dark #mobileBottomNavOfficer,
+  .dark #mobileBottomNavAdmin,
+  body.theme-dark #mobileBottomNavInspector,
+  body.theme-dark #mobileBottomNavOfficer,
+  body.theme-dark #mobileBottomNavAdmin {
+    background: rgba(15, 23, 42, 0.94) !important;
+    border-top: 1px solid rgba(30, 41, 59, 0.85) !important;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.45) !important;
+  }
+
   .mobile-nav-inspector-item,
   .mobile-nav-officer-item,
   .mobile-nav-admin-item {
-    min-height: 44px !important;
-    position: relative;
+    min-height: 48px !important;
+    min-width: 48px !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 2px 4px !important;
+    transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s ease !important;
   }
+  .mobile-nav-inspector-item:active,
+  .mobile-nav-officer-item:active,
+  .mobile-nav-admin-item:active {
+    transform: scale(0.92) !important;
+  }
+
+  /* Active tab top glow indicator */
   .mobile-nav-inspector-item.text-emerald-600::before,
   .mobile-nav-officer-item.text-emerald-600::before,
   .mobile-nav-admin-item.text-emerald-600::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    width: 22px;
-    height: 3px;
-    background: #10B981;
-    border-radius: 9999px;
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 22px !important;
+    height: 3px !important;
+    background: #10B981 !important;
+    border-radius: 9999px !important;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6) !important;
   }
 
-  /* Mobile Off-Canvas Drawer Sidebar Position */
+  /* Hero raised AI Scanner button on Inspector mobile bottom nav */
+  #mobileNavBtn-ocr {
+    position: relative !important;
+  }
+  #mobileNavBtn-ocr > span:first-child {
+    width: 42px !important;
+    height: 42px !important;
+    margin-top: -14px !important;
+    border-radius: 9999px !important;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45) !important;
+    border: 2.5px solid #ffffff !important;
+    font-size: 17px !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  }
+  .dark #mobileNavBtn-ocr > span:first-child {
+    border-color: #0F172A !important;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.6) !important;
+  }
+  #mobileNavBtn-ocr:active > span:first-child {
+    transform: scale(0.9) !important;
+  }
+
+  /* ==========================================================================
+     MOBILE FOUNDATION 4: OFF-CANVAS DRAWER SIDEBAR (< 768px)
+     ========================================================================== */
   .sidebar-container {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     bottom: 0 !important;
     height: 100vh !important;
+    height: 100dvh !important;
     max-height: 100vh !important;
-    width: min(280px, 85vw) !important;
+    width: min(285px, 82vw) !important;
     min-width: 0 !important;
-    max-width: 85vw !important;
+    max-width: 82vw !important;
     z-index: 60 !important;
+    padding-top: calc(env(safe-area-inset-top, 12px) + 0.5rem) !important;
+    padding-bottom: calc(env(safe-area-inset-bottom, 12px) + 0.5rem) !important;
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.25) !important;
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1) !important;
   }
 
   /* Sidebar navigation items touch targets */
   .sidebar-nav-item,
   .inspector-nav-btn,
   .officer-nav-btn {
-    min-height: 44px !important;
+    min-height: 46px !important;
     padding-top: 0.625rem !important;
     padding-bottom: 0.625rem !important;
+    border-radius: 0.625rem !important;
+  }
+  .sidebar-nav-item:active,
+  .inspector-nav-btn:active,
+  .officer-nav-btn:active {
+    transform: scale(0.98) !important;
   }
 
   /* Sidebar close (✕) and hamburger toggle buttons */
@@ -419,6 +770,7 @@ body.theme-dark .sticky-frosted-nav {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    border-radius: 0.625rem !important;
   }
 
   /* Form inputs: Force 16px to prevent iOS auto-zoom page shift */
@@ -443,6 +795,231 @@ body.theme-dark .sticky-frosted-nav {
   form button[type="button"] {
     min-height: 44px !important;
   }
+
+  /* ==========================================================================
+     LANDING PAGE (INDEX.HTML) MOBILE OPTIMIZATION (320px – 767px)
+     ========================================================================== */
+  /* Authentication Console & CAPTCHA Ergonomics */
+  .captcha-row-container {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+  .captcha-canvas-box {
+    height: 44px !important;
+    flex-shrink: 0 !important;
+  }
+  #loginCaptchaInput {
+    min-height: 44px !important;
+    font-size: 16px !important;
+    letter-spacing: 0.15em !important;
+  }
+  #authCard,
+  form#loginForm {
+    width: 100% !important;
+  }
+  #togglePasswordVisibilityBtn {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* ==========================================================================
+     NATIVE MOBILE BOTTOM SHEET DRAWER: SIH 11-ROLE CONSOLE (< 768px)
+     ========================================================================== */
+  #sihEvaluationModal[data-state="open"],
+  #sihEvaluationModal.sih-modal-open {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    align-items: flex-end !important; /* Native mobile bottom-sheet docking */
+    justify-content: center !important;
+    padding: 0 !important;
+    background: rgba(15, 23, 42, 0.75) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  }
+
+  /* Native Bottom Sheet Drawer Card */
+  #sihEvaluationModal .rmc {
+    width: 100% !important;
+    max-width: 100vw !important;
+    max-height: 88vh !important;
+    max-height: 88dvh !important;
+    border-radius: 1.5rem 1.5rem 0 0 !important;
+    padding: 0.75rem 0.875rem calc(0.875rem + env(safe-area-inset-bottom, 8px)) 0.875rem !important;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.35) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin: 0 !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Native Mobile Pull Handle & Drag Pill */
+  .sih-mobile-drag-bar {
+    display: flex !important;
+    justify-content: center !important;
+    padding: 0.15rem 0 0.35rem 0 !important;
+    flex-shrink: 0 !important;
+  }
+  .sih-drag-pill {
+    width: 44px !important;
+    height: 5px !important;
+    background-color: #CBD5E1 !important;
+    border-radius: 9999px !important;
+  }
+  .dark .sih-drag-pill,
+  body.theme-dark .sih-drag-pill {
+    background-color: #475569 !important;
+  }
+
+  /* Compact Native Drawer Header */
+  .sih-modal-header {
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
+    flex-shrink: 0 !important;
+    align-items: center !important;
+  }
+  .sih-modal-header h3 {
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;
+  }
+  .sih-modal-header p {
+    display: none !important; /* Reclaims 35px vertical space for grid on mobile */
+  }
+
+  /* Horizontal Category Filter Dock */
+  .sih-filter-dock {
+    padding: 0.25rem 0 !important;
+    margin-bottom: 0.375rem !important;
+    gap: 0.375rem !important;
+    flex-shrink: 0 !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+  .sih-filter-dock::-webkit-scrollbar {
+    display: none !important;
+  }
+  .sih-cat-pill {
+    padding: 0.375rem 0.75rem !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    min-height: 36px !important;
+    border-radius: 0.75rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  /* Scrollable Grid inside Bottom Sheet */
+  #sihConsoleGrid {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-right: 0.15rem !important;
+    padding-bottom: 0.375rem !important;
+    scrollbar-width: thin !important;
+  }
+
+  /* Native Mobile Role List Card Sizing & Touch Ergonomics */
+  .role-card-btn,
+  .sih-role-btn {
+    padding: 0.625rem 0.75rem !important;
+    border-radius: 0.875rem !important;
+    min-height: 52px !important;
+    margin-bottom: 0.375rem !important;
+    touch-action: manipulation !important;
+    transition: transform 0.12s ease, background-color 0.15s ease !important;
+  }
+  .role-card-btn:active,
+  .sih-role-btn:active {
+    transform: scale(0.98) !important;
+  }
+  .sih-role-btn > div:first-child {
+    gap: 0.5rem !important;
+  }
+  .sih-role-btn .font-mono {
+    font-size: 10px !important;
+    padding: 0.15rem 0.375rem !important;
+  }
+  .sih-arrow-icon {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 11px !important;
+    border-radius: 0.5rem !important;
+  }
+
+  /* Compact Bottom Sheet Footer */
+  .sih-modal-footer {
+    padding-top: 0.5rem !important;
+    margin-top: 0.25rem !important;
+    flex-shrink: 0 !important;
+  }
+  .sih-modal-footer > div:first-child {
+    font-size: 10.5px !important;
+  }
+
+  /* Ultra-compact typography for 320px viewports (Zero title truncation) */
+  @media (max-width: 359px) {
+    .sih-role-btn {
+      padding: 0.5rem 0.5rem !important;
+    }
+    .sih-role-btn > div:first-child {
+      gap: 0.375rem !important;
+      min-width: 0 !important;
+      flex: 1 1 auto !important;
+    }
+    .sih-role-btn .font-mono {
+      font-size: 8px !important;
+      padding: 0.1rem 0.25rem !important;
+      max-width: 58px !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+    .sih-role-btn .text-xs,
+    .sih-role-btn .text-[12px],
+    .sih-role-btn .text-[12.5px],
+    .sih-role-btn .text-[13.5px] {
+      font-size: 10.5px !important;
+    }
+    .sih-role-btn .text-[10px],
+    .sih-role-btn .text-[11px] {
+      font-size: 9px !important;
+    }
+  }
+
+  /* Contact & Support Modal */
+  #contactSupportModal[data-state="open"],
+  #contactSupportModal:not(.hidden):not([style*="display: none"]):not([style*="display:none"]) {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.75rem !important;
+  }
+  #contactSupportModal > div {
+    padding: 1.25rem 1rem !important;
+    border-radius: 1.25rem !important;
+    max-height: 90vh !important;
+    max-height: 90dvh !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
 
   /* Tables: Ensure all tables inside horizontal scroll wrappers never crush columns */
   .overflow-x-auto > table,
@@ -508,13 +1085,6 @@ body.theme-dark .sticky-frosted-nav {
     gap: 0.5rem !important;
   }
 
-  /* Login page: Login card first on mobile */
-  #mainContent > div.grid > div:first-child {
-    order: 2;
-  }
-  #mainContent > div.grid > div:last-child {
-    order: 1;
-  }
 
   /* FAQ accordion summary: allow question text to wrap cleanly */
   .faq-accordion summary > span:first-child {
@@ -561,9 +1131,9 @@ body.theme-dark .sticky-frosted-nav {
 
 
 /* ==========================================================================
-   3. MOBILE BREAKPOINT: < 640px (Phones: 360px – 639px)
+   3. MOBILE BREAKPOINT: < 768px (Phones & Phablets: 320px – 767px)
    ========================================================================== */
-@media (max-width: 639px) {
+@media (max-width: 767px) {
 
   /* Features page header sign-in link */
   #nationalGovMasthead a[href="index.html"].bg-emerald-600 {
@@ -591,9 +1161,42 @@ body.theme-dark .sticky-frosted-nav {
     scrollbar-width: none;
   }
 
-  /* Full-width segmented controls on mobile phone */
-  #officerDocketFilterTabs,
-  div:has(> .docket-tab),
+  /* Officer docket filter tabs: swipeable horizontal chip list (6 statutory tabs) */
+  #officerDocketFilterTabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    gap: 0.375rem !important;
+    padding: 0.35rem !important;
+    width: 100% !important;
+    background: #F1F5F9 !important;
+    border-radius: 0.75rem !important;
+  }
+  .dark #officerDocketFilterTabs {
+    background: #1E293B !important;
+  }
+  #officerDocketFilterTabs::-webkit-scrollbar {
+    display: none !important;
+  }
+  #officerDocketFilterTabs > button,
+  .docket-tab {
+    flex-shrink: 0 !important;
+    min-height: 40px !important;
+    padding: 0.45rem 0.85rem !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    border-radius: 0.5rem !important;
+    text-align: center !important;
+    justify-content: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+  }
+
+  /* 4-column segmented controls for Inspector filter tabs */
   div:has(> .inspection-filter-tab) {
     display: grid !important;
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
@@ -603,8 +1206,9 @@ body.theme-dark .sticky-frosted-nav {
     background: #F1F5F9 !important;
     border-radius: 0.75rem !important;
   }
-  #officerDocketFilterTabs > button,
-  .docket-tab,
+  .dark div:has(> .inspection-filter-tab) {
+    background: #1E293B !important;
+  }
   .inspection-filter-tab {
     text-align: center !important;
     justify-content: center !important;
@@ -615,14 +1219,18 @@ body.theme-dark .sticky-frosted-nav {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     flex: none !important;
+    min-height: 38px !important;
   }
 
   /* Full-width mobile search inputs */
   #docketSearchInput,
   #masterLedgerSearchInput,
-  #myInspectionsSearchInput {
+  #myInspectionsSearchInput,
+  #analyticsInspectorSearch,
+  #adminUserSearchInput {
     width: 100% !important;
-    font-size: 14px !important;
+    min-height: 44px !important;
+    font-size: 16px !important;
   }
 
   /* Horizontal touch scrolling for wide filter pill lists */
@@ -642,6 +1250,211 @@ body.theme-dark .sticky-frosted-nav {
   .rules-chap-btn {
     flex-shrink: 0 !important;
     white-space: nowrap !important;
+    min-height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  /* =========================================================================
+     MOBILE FORMS & INPUT ERGONOMICS (< 768px)
+     ========================================================================= */
+
+  /* 1. Prevent iOS auto-zoom and increase usable tap target on all inputs */
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  input[type="number"],
+  input[type="date"],
+  input[type="search"],
+  select,
+  textarea,
+  .ds-input,
+  .ds-select {
+    font-size: 16px !important; /* Prevents iOS Safari 16px auto-zoom */
+    min-height: 44px !important;
+    padding: 0.6rem 0.85rem !important;
+    border-radius: 0.75rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 2. Form field vertical stacking */
+  form .grid,
+  .form-grid,
+  #commodityForm .grid,
+  #manualInspectionForm .grid,
+  #userForm .grid,
+  #contactForm .grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  /* 3. Form labels: distinct, readable, proper touch clearance */
+  form label,
+  .form-label {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.35rem !important;
+    display: inline-block !important;
+    line-height: 1.35 !important;
+  }
+
+  /* 4. Form validation text & alert callouts */
+  form p[id*="Error"],
+  form .text-red-500,
+  form .text-red-600,
+  #errorMessage,
+  #loginCaptchaError {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  /* 5. Primary action buttons in forms: easily reachable by thumb */
+  form button[type="submit"],
+  #loginSubmitButton,
+  #manualInspectionForm button[type="submit"],
+  #commodityForm button[type="submit"],
+  #userForm button[type="submit"] {
+    width: 100% !important;
+    min-height: 46px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    border-radius: 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    touch-action: manipulation !important;
+  }
+
+  /* Form footer actions: stacked or neat 2-button layout */
+  #manualInspectionForm > div:last-child,
+  #commodityForm > div:last-child,
+  #userForm > div:last-child {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+  #manualInspectionForm button,
+  #commodityForm button,
+  #userForm button {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+
+  /* =========================================================================
+     MOBILE FILTERS & DENSE SEARCH ADAPTATIONS (< 768px)
+     ========================================================================= */
+
+  /* Master Ledger filter row: responsive 2-column or 1-column mobile stack */
+  .ledger-filter-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.625rem !important;
+    padding: 0.875rem !important;
+    background: #ffffff !important;
+    border-radius: 0.875rem !important;
+    border: 1px solid #E2E8F0 !important;
+  }
+  .dark .ledger-filter-row {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+  }
+
+  /* Search input in filter row spans full width */
+  .ledger-filter-row > div:first-child,
+  .ledger-filter-row .relative:has(#masterLedgerSearchInput) {
+    grid-column: 1 / span 2 !important;
+    width: 100% !important;
+  }
+
+  /* Hide vertical filter divider lines on mobile */
+  .ledger-filter-divider {
+    display: none !important;
+  }
+
+  /* Filter select dropdowns span appropriate mobile columns */
+  .ledger-filter-row > div:has(#ledgerStatusFilter),
+  .ledger-filter-row > div:has(#ledgerZoneFilter),
+  .ledger-filter-row > div:has(#ledgerInspectorFilter) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+  }
+  #ledgerStatusFilter,
+  #ledgerZoneFilter,
+  #ledgerInspectorFilter {
+    width: 100% !important;
+    min-height: 42px !important;
+    font-size: 16px !important;
+  }
+
+  /* Date Range in filter row spans full width */
+  .ledger-filter-row > div:has(#ledgerDateFrom) {
+    grid-column: 1 / span 2 !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+  #ledgerDateFrom,
+  #ledgerDateTo {
+    width: 100% !important;
+    min-height: 42px !important;
+  }
+
+  /* Reset button spans full width */
+  .ledger-filter-row > button[onclick*="resetLedgerFilters"] {
+    grid-column: 1 / span 2 !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+  }
+
+  /* Live Summary Stat Strip: horizontal swipeable chips with zero overflow */
+  #ledgerStatStrip {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    gap: 0.35rem !important;
+    padding: 0.25rem 0 !important;
+    width: 100% !important;
+  }
+  #ledgerStatStrip::-webkit-scrollbar {
+    display: none !important;
+  }
+  .ledger-stat-chip {
+    flex-shrink: 0 !important;
+    min-height: 38px !important;
+    padding: 0.35rem 0.65rem !important;
+    font-size: 11.5px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Admin master ledger pagination: visible and accessible on mobile */
+  .ledger-table-wrapper {
+    display: block !important;
+  }
+  .ledger-table-scroll {
+    display: none !important;
+  }
+  #ledgerPaginationFooter {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.875rem !important;
+    background: #ffffff !important;
+    border-radius: 0.75rem !important;
+    border: 1px solid #E2E8F0 !important;
+    margin-top: 0.75rem !important;
+  }
+  .dark #ledgerPaginationFooter {
+    background: #1E293B !important;
+    border-color: #334155 !important;
   }
 
   /* =========================================================================
@@ -667,77 +1480,102 @@ body.theme-dark .sticky-frosted-nav {
   }
   #inspectionsTableBody tr,
   #myInspectionsTableBody tr {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    gap: 0.35rem 0.5rem !important;
-    padding: 0.75rem 0.875rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.4rem !important;
+    padding: 0.875rem !important;
     background: #ffffff !important;
     border: 1px solid #E2E8F0 !important;
     border-radius: 0.875rem !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
   }
-  /* Row 1: Product Name (left) & Status (right) */
+  .dark #inspectionsTableBody tr,
+  .dark #myInspectionsTableBody tr {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+  }
+  #inspectionsTableBody tr > td,
+  #myInspectionsTableBody tr > td {
+    padding: 0 !important;
+    border: none !important;
+    white-space: normal !important;
+  }
+  /* Row 1: Header (Product Name left, Status pill right) */
   #inspectionsTableBody tr > td:nth-child(2),
   #myInspectionsTableBody tr > td:nth-child(2) {
-    grid-column: 1;
-    grid-row: 1;
     font-size: 0.9375rem !important;
     font-weight: 700 !important;
     color: #0F172A !important;
-    padding: 0 !important;
-    white-space: normal !important;
-    word-break: break-word !important;
     display: flex !important;
     align-items: center !important;
+    justify-content: space-between !important;
+    word-break: break-word !important;
+    order: 1 !important;
+  }
+  .dark #inspectionsTableBody tr > td:nth-child(2),
+  .dark #myInspectionsTableBody tr > td:nth-child(2) {
+    color: #F8FAFC !important;
   }
   #inspectionsTableBody tr > td:nth-child(5),
   #myInspectionsTableBody tr > td:nth-child(5) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-content: flex-end;
     display: flex !important;
-    padding: 0 !important;
-    align-items: center !important;
+    justify-content: flex-end !important;
+    order: 2 !important;
   }
-  /* Row 2: Case ID (left) & Compliance Badge (right) */
+  /* Row 2: Sub-info (Case ID left, Compliance badge right) */
   #inspectionsTableBody tr > td:nth-child(1),
   #myInspectionsTableBody tr > td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 2;
-    padding: 0 !important;
     font-size: 11.5px !important;
     color: #047857 !important;
     font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    order: 3 !important;
+  }
+  .dark #inspectionsTableBody tr > td:nth-child(1),
+  .dark #myInspectionsTableBody tr > td:nth-child(1) {
+    color: #34D399 !important;
   }
   #inspectionsTableBody tr > td:nth-child(4),
   #myInspectionsTableBody tr > td:nth-child(4) {
-    grid-column: 2;
-    grid-row: 2;
-    justify-content: flex-end;
     display: flex !important;
-    padding: 0 !important;
+    order: 4 !important;
   }
-  /* Hide verbose date column on card preview */
+  /* Row 3: Timestamp & SLA (Fully accessible - NOT hidden) */
   #inspectionsTableBody tr > td:nth-child(3),
   #myInspectionsTableBody tr > td:nth-child(3) {
-    display: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    font-size: 11px !important;
+    color: #64748B !important;
+    font-family: var(--font-mono, monospace) !important;
+    order: 5 !important;
   }
-  /* Row 3: Action Button full-width */
+  .dark #inspectionsTableBody tr > td:nth-child(3),
+  .dark #myInspectionsTableBody tr > td:nth-child(3) {
+    color: #94A3B8 !important;
+  }
+  /* Row 4: Action Button full-width */
   #inspectionsTableBody tr > td:nth-child(6),
   #myInspectionsTableBody tr > td:nth-child(6) {
-    grid-column: 1 / span 2;
-    grid-row: 3;
-    padding: 0.45rem 0 0 0 !important;
+    padding-top: 0.5rem !important;
     border-top: 1px dashed #E2E8F0 !important;
-    margin-top: 0.2rem !important;
+    margin-top: 0.25rem !important;
     width: 100% !important;
+    order: 6 !important;
+  }
+  .dark #inspectionsTableBody tr > td:nth-child(6),
+  .dark #myInspectionsTableBody tr > td:nth-child(6) {
+    border-color: #334155 !important;
   }
   #inspectionsTableBody tr > td:nth-child(6) button,
   #myInspectionsTableBody tr > td:nth-child(6) button {
     width: 100% !important;
-    min-height: 38px !important;
+    min-height: 42px !important;
     justify-content: center !important;
-    font-size: 12px !important;
+    font-size: 12.5px !important;
     font-weight: 700 !important;
     border-radius: 0.625rem !important;
     background: #ECFDF5 !important;
@@ -745,7 +1583,7 @@ body.theme-dark .sticky-frosted-nav {
     border: 1px solid #A7F3D0 !important;
   }
 
-  /* 2. Officer Review Docket Purpose-Built Mobile List Items */
+  /* 2. Officer Review Docket Native Mobile Cards (All 6 Data Columns Preserved) */
   table:has(#officerDocketTableBody) {
     min-width: 100% !important;
     display: block !important;
@@ -756,102 +1594,98 @@ body.theme-dark .sticky-frosted-nav {
   #officerDocketTableBody {
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.625rem !important;
+    gap: 0.75rem !important;
     width: 100% !important;
   }
   #officerDocketTableBody tr {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    gap: 0.35rem 0.5rem !important;
-    padding: 0.75rem 0.875rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.45rem !important;
+    padding: 0.875rem !important;
     background: #ffffff !important;
     border: 1px solid #E2E8F0 !important;
     border-radius: 0.875rem !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
   }
-  /* Row 1: Product Name (left) & Status (right) */
-  #officerDocketTableBody tr > td:nth-child(4) {
-    grid-column: 1;
-    grid-row: 1;
+  .dark #officerDocketTableBody tr {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+  }
+  #officerDocketTableBody tr > td {
     padding: 0 !important;
+    border: none !important;
+    white-space: normal !important;
+    display: block !important;
+  }
+  /* Col 1: Case ID & Jurisdiction Badge */
+  #officerDocketTableBody tr > td:nth-child(1) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 0.25rem !important;
+    order: 2 !important;
+  }
+  /* Col 2: Product Name, Inspector Profile, Photo Option */
+  #officerDocketTableBody tr > td:nth-child(2) {
+    order: 1 !important;
+  }
+  #officerDocketTableBody tr > td:nth-child(2) .font-semibold {
     font-size: 0.9375rem !important;
     font-weight: 700 !important;
     color: #0F172A !important;
-    white-space: normal !important;
-    word-break: break-word !important;
+    max-width: 100% !important;
+  }
+  .dark #officerDocketTableBody tr > td:nth-child(2) .font-semibold {
+    color: #F8FAFC !important;
+  }
+  #officerDocketTableBody tr > td:nth-child(2) .docket-inspector-btn {
+    font-size: 11px !important;
+    min-height: 32px !important;
+    padding: 2px 6px !important;
+  }
+  #officerDocketTableBody tr > td:nth-child(2) .docket-view-photo-btn {
+    font-size: 11px !important;
+    min-height: 32px !important;
+    padding: 2px 8px !important;
+  }
+  /* Col 3: Timestamp & SLA Status (Accessible - NOT hidden) */
+  #officerDocketTableBody tr > td:nth-child(3) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
+    font-size: 11px !important;
+    padding: 0.25rem 0 !important;
+    order: 3 !important;
+  }
+  /* Col 4: Violations Summary & Rule Chips */
+  #officerDocketTableBody tr > td:nth-child(4) {
+    order: 4 !important;
+  }
+  /* Col 5: Status Badge Pill */
+  #officerDocketTableBody tr > td:nth-child(5) {
+    order: 5 !important;
     display: flex !important;
     align-items: center !important;
   }
-  #officerDocketTableBody tr > td:nth-child(8) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-content: flex-end;
-    display: flex !important;
-    padding: 0 !important;
-    align-items: center !important;
-  }
-
-  /* Row 2: Case ID (left) & Violations (right) */
-  #officerDocketTableBody tr > td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 2;
-    padding: 0 !important;
-    font-size: 11.5px !important;
-  }
+  /* Col 6: Full-Width Action Button */
   #officerDocketTableBody tr > td:nth-child(6) {
-    grid-column: 2;
-    grid-row: 2;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    padding: 0 !important;
-  }
-  #officerDocketTableBody tr > td:nth-child(6) span.text-emerald-600 {
-    font-size: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    padding: 2px 7px !important;
-    background: #ECFDF5 !important;
-    color: #059669 !important;
-    border: 1px solid #A7F3D0 !important;
-    border-radius: 9999px !important;
-  }
-  #officerDocketTableBody tr > td:nth-child(6) span.text-emerald-600::before {
-    content: "✓ 0 Violations";
-    font-size: 10.5px !important;
-    font-weight: 600 !important;
-  }
-  #officerDocketTableBody tr > td:nth-child(6) span.bg-red-100 {
-    display: inline-flex !important;
-    align-items: center !important;
-    padding: 2px 7px !important;
-    font-size: 10.5px !important;
-    font-weight: 700 !important;
-    border-radius: 9999px !important;
-  }
-
-  /* Hide verbose redundant columns on mobile card preview */
-  #officerDocketTableBody tr > td:nth-child(2),
-  #officerDocketTableBody tr > td:nth-child(3),
-  #officerDocketTableBody tr > td:nth-child(5),
-  #officerDocketTableBody tr > td:nth-child(7) {
-    display: none !important;
-  }
-
-  /* Row 3: Action Button full-width */
-  #officerDocketTableBody tr > td:nth-child(9) {
-    grid-column: 1 / span 2;
-    grid-row: 3;
-    padding: 0.45rem 0 0 0 !important;
+    order: 6 !important;
+    padding-top: 0.5rem !important;
     border-top: 1px dashed #E2E8F0 !important;
-    margin-top: 0.2rem !important;
+    margin-top: 0.25rem !important;
     width: 100% !important;
   }
-  #officerDocketTableBody tr > td:nth-child(9) button {
+  .dark #officerDocketTableBody tr > td:nth-child(6) {
+    border-color: #334155 !important;
+  }
+  #officerDocketTableBody tr > td:nth-child(6) button {
     width: 100% !important;
-    min-height: 40px !important;
+    min-height: 42px !important;
     justify-content: center !important;
-    font-size: 12.5px !important;
+    font-size: 13px !important;
     font-weight: 700 !important;
     border-radius: 0.625rem !important;
   }
@@ -1005,7 +1839,7 @@ body.theme-dark .sticky-frosted-nav {
     font-family: monospace;
   }
 
-  /* 6. Admin Commodities Standards Table -> Mobile Cards */
+  /* 6. Admin Commodities Standards Table -> Mobile Cards (All Data Preserved) */
   table:has(#adminCommoditiesTableBody) {
     min-width: 100% !important;
     display: block !important;
@@ -1022,45 +1856,85 @@ body.theme-dark .sticky-frosted-nav {
   #adminCommoditiesTableBody tr {
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.4rem !important;
+    gap: 0.45rem !important;
     padding: 0.875rem !important;
     background: #ffffff !important;
     border: 1px solid #E4E7EC !important;
     border-radius: 0.875rem !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
   }
+  .dark #adminCommoditiesTableBody tr {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+  }
   #adminCommoditiesTableBody tr > td {
     padding: 0 !important;
     border: none !important;
     white-space: normal !important;
+    display: block !important;
   }
+  /* Row 1: Commodity Name (Col 2) & ID (Col 1) */
   #adminCommoditiesTableBody tr > td:nth-child(2) {
     font-size: 0.9375rem !important;
     font-weight: 700 !important;
     color: #0F172A !important;
+    order: 1 !important;
+  }
+  .dark #adminCommoditiesTableBody tr > td:nth-child(2) {
+    color: #F8FAFC !important;
   }
   #adminCommoditiesTableBody tr > td:nth-child(1) {
     font-size: 11px !important;
     color: #64748B !important;
+    font-family: var(--font-mono, monospace) !important;
+    order: 2 !important;
+  }
+  /* Row 2: Category (Col 3) & Tolerance MAV (Col 4) */
+  #adminCommoditiesTableBody tr > td:nth-child(3) {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    order: 3 !important;
   }
   #adminCommoditiesTableBody tr > td:nth-child(4) {
     font-size: 11.5px !important;
     color: #B45309 !important;
+    font-weight: 600 !important;
+    order: 4 !important;
   }
+  /* Row 3: Standard Sizes (Col 5) & Rule Reference (Col 6) */
+  #adminCommoditiesTableBody tr > td:nth-child(5) {
+    font-size: 11px !important;
+    color: #64748B !important;
+    order: 5 !important;
+  }
+  #adminCommoditiesTableBody tr > td:nth-child(6) {
+    font-size: 11px !important;
+    color: #047857 !important;
+    font-weight: 600 !important;
+    order: 6 !important;
+  }
+  /* Row 4: Actions (Col 7) */
   #adminCommoditiesTableBody tr > td:nth-child(7) {
     display: grid !important;
-    grid-template-columns: 1fr auto auto !important;
-    gap: 0.35rem !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
     padding-top: 0.5rem !important;
     border-top: 1px dashed #E4E7EC !important;
     margin-top: 0.25rem !important;
+    order: 7 !important;
+  }
+  .dark #adminCommoditiesTableBody tr > td:nth-child(7) {
+    border-color: #334155 !important;
   }
   #adminCommoditiesTableBody tr > td:nth-child(7) button {
-    min-height: 36px !important;
+    min-height: 40px !important;
     justify-content: center !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
   }
 
-  /* 7. Admin User Management Table -> Mobile Cards */
+  /* 7. Admin User Management Table -> Mobile Cards (All Data Preserved) */
   table:has(#adminUsersTableBody) {
     min-width: 100% !important;
     display: block !important;
@@ -1084,27 +1958,287 @@ body.theme-dark .sticky-frosted-nav {
     border-radius: 0.875rem !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
   }
+  .dark #adminUsersTableBody tr {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+  }
   #adminUsersTableBody tr > td {
     padding: 0 !important;
     border: none !important;
     white-space: normal !important;
+    display: block !important;
   }
+  /* Col 2: Full Name & Designation (Header) */
   #adminUsersTableBody tr > td:nth-child(2) {
     font-size: 0.9375rem !important;
     font-weight: 700 !important;
     color: #0F172A !important;
+    order: 1 !important;
   }
-  #adminUsersTableBody tr > td:nth-child(6) {
+  .dark #adminUsersTableBody tr > td:nth-child(2) {
+    color: #F8FAFC !important;
+  }
+  /* Col 1: Username & Handle */
+  #adminUsersTableBody tr > td:nth-child(1) {
+    font-size: 11px !important;
+    color: #64748B !important;
+    font-family: var(--font-mono, monospace) !important;
+    order: 2 !important;
+  }
+  /* Col 3: System Role Badge */
+  #adminUsersTableBody tr > td:nth-child(3) {
+    order: 3 !important;
     display: flex !important;
+  }
+  /* Col 4: Jurisdiction (Zone & State) */
+  #adminUsersTableBody tr > td:nth-child(4) {
+    font-size: 11.5px !important;
+    color: #334155 !important;
+    order: 4 !important;
+  }
+  .dark #adminUsersTableBody tr > td:nth-child(4) {
+    color: #CBD5E1 !important;
+  }
+  /* Col 5: Status */
+  #adminUsersTableBody tr > td:nth-child(5) {
+    order: 5 !important;
+    display: flex !important;
+  }
+  /* Col 6: ZBAC Actions */
+  #adminUsersTableBody tr > td:nth-child(6) {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
     gap: 0.5rem !important;
     padding-top: 0.5rem !important;
     border-top: 1px dashed #E4E7EC !important;
     margin-top: 0.25rem !important;
+    order: 6 !important;
+  }
+  .dark #adminUsersTableBody tr > td:nth-child(6) {
+    border-color: #334155 !important;
   }
   #adminUsersTableBody tr > td:nth-child(6) button {
     flex: 1 !important;
-    min-height: 38px !important;
+    min-height: 40px !important;
     justify-content: center !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+
+  /* 7B. Admin Analytics Inspector Performance Table -> Mobile Cards */
+  table:has(#analyticsInspectorTable) {
+    min-width: 100% !important;
+    display: block !important;
+  }
+  table:has(#analyticsInspectorTable) thead {
+    display: none !important;
+  }
+  #analyticsInspectorTable {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.625rem !important;
+    width: 100% !important;
+  }
+  #analyticsInspectorTable tr {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.35rem !important;
+    padding: 0.75rem 0.875rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E4E7EC !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+  }
+  .dark #analyticsInspectorTable tr {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+  }
+  #analyticsInspectorTable tr > td {
+    padding: 0 !important;
+    border: none !important;
+    white-space: normal !important;
+  }
+  #analyticsInspectorTable tr > td:nth-child(2) {
+    font-size: 0.875rem !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+  }
+  .dark #analyticsInspectorTable tr > td:nth-child(2) {
+    color: #F8FAFC !important;
+  }
+  #analyticsInspectorTable tr > td:nth-child(3) {
+    font-size: 11px !important;
+    color: #64748B !important;
+  }
+
+  /* 8. Features Statutory Compounding Schedule -> Mobile Cards */
+  table:has(.schedule-row) {
+    min-width: 100% !important;
+    display: block !important;
+  }
+  table:has(.schedule-row) thead {
+    display: none !important;
+  }
+  table:has(.schedule-row) tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+  }
+  tr.schedule-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.35rem !important;
+    padding: 0.875rem !important;
+    background: #ffffff !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+  }
+  .dark tr.schedule-row {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+  }
+  tr.schedule-row > td {
+    padding: 0 !important;
+    border: none !important;
+    white-space: normal !important;
+  }
+  tr.schedule-row > td:nth-child(1) {
+    font-size: 0.9375rem !important;
+    font-weight: 700 !important;
+    color: #059669 !important;
+    font-family: var(--font-mono, monospace) !important;
+  }
+  .dark tr.schedule-row > td:nth-child(1) {
+    color: #34D399 !important;
+  }
+  tr.schedule-row > td:nth-child(2) {
+    font-size: 0.8125rem !important;
+    color: #475569 !important;
+    line-height: 1.4 !important;
+  }
+  .dark tr.schedule-row > td:nth-child(2) {
+    color: #94A3B8 !important;
+  }
+  tr.schedule-row > td:nth-child(3) {
+    font-size: 0.75rem !important;
+    color: #0F172A !important;
+    font-weight: 600 !important;
+    padding-top: 0.25rem !important;
+  }
+  .dark tr.schedule-row > td:nth-child(3) {
+    color: #E2E8F0 !important;
+  }
+  tr.schedule-row > td:nth-child(3)::before {
+    content: "1st Offense: ";
+    font-weight: 400;
+    color: #64748B;
+  }
+  tr.schedule-row > td:nth-child(4) {
+    font-size: 0.75rem !important;
+    padding-top: 0.15rem !important;
+  }
+  tr.schedule-row > td:nth-child(4)::before {
+    content: "Repeat Offense: ";
+    font-weight: 400;
+    color: #64748B;
+  }
+  tr.schedule-row > td:nth-child(5) {
+    padding-top: 0.4rem !important;
+    border-top: 1px dashed #E2E8F0 !important;
+    margin-top: 0.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+  .dark tr.schedule-row > td:nth-child(5) {
+    border-color: #334155 !important;
+  }
+
+  /* 9. Features 6-Step Workflow Pipeline -> Native Vertical Stepper */
+  #pipeline .relative > .grid {
+    position: relative;
+    padding-left: 1.5rem;
+    border-left: 2px dashed #10B981;
+    margin-left: 0.5rem;
+    gap: 1rem !important;
+  }
+  #pipeline .card.card-item::before {
+    content: "";
+    position: absolute;
+    left: -1.95rem;
+    top: 1.25rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #10B981;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px #10B981;
+  }
+  .dark #pipeline .card.card-item::before {
+    border-color: #0F172A;
+  }
+
+  /* 10. Admin Master Ledger Inspection Drawer -> Full Width Mobile Sheet */
+  #ledgerInspectDrawer {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    left: 0 !important;
+    right: 0 !important;
+    border-left: none !important;
+    border-radius: 0 !important;
+  }
+  #ledgerInspectDrawer .drawer-header {
+    padding: 1rem 1.25rem !important;
+    min-height: 56px !important;
+  }
+  #ledgerInspectDrawer .drawer-header button {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+
+  /* 11. Report Page Top Action Bar -> Mobile Action Grid */
+  #reportTopActionBar {
+    padding: 0.875rem 1rem !important;
+    margin: 0.75rem 0 !important;
+  }
+  #reportTopActionBar > div {
+    gap: 0.75rem !important;
+  }
+  #reportTopActionBar button {
+    min-height: 44px !important;
+    font-size: 12px !important;
+    justify-content: center !important;
+  }
+  #reportTopActionBar .flex.flex-wrap {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
+  }
+  #reportTopActionBar #downloadPdfButton {
+    order: -1 !important;
+    width: 100% !important;
+    background: #059669 !important;
+    color: #ffffff !important;
+  }
+
+  /* 12. Error Pages (403, 404, 500) -> Stacked Full-Width Action Groups */
+  .error-403-matrix-bg .flex.flex-wrap.items-center.justify-center.gap-3,
+  body:has(#returnPortalBtn) .flex.flex-wrap.items-center.justify-center.gap-3 {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 0.625rem !important;
+  }
+  .error-403-matrix-bg .flex.flex-wrap.items-center.justify-center.gap-3 button,
+  .error-403-matrix-bg .flex.flex-wrap.items-center.justify-center.gap-3 a,
+  body:has(#returnPortalBtn) .flex.flex-wrap.items-center.justify-center.gap-3 button,
+  body:has(#returnPortalBtn) .flex.flex-wrap.items-center.justify-center.gap-3 a {
+    width: 100% !important;
+    min-height: 46px !important;
+    justify-content: center !important;
+    font-size: 13px !important;
   }
 
   /* Camera offline state: hide scanning target HUD overlay to avoid obscuring controls */
@@ -1112,27 +2246,410 @@ body.theme-dark .sticky-frosted-nav {
     display: none !important;
   }
 
-  /* Universal Mobile Modal & Dialog Touch Ergonomics */
-  div[role="dialog"] > div {
-    width: 100% !important;
-    max-width: 95vw !important;
-    padding: 1.125rem !important;
-    border-radius: 1.25rem !important;
-    max-height: 88vh !important;
+  /* ==========================================================================
+     MOBILE FOUNDATION 5: NATIVE BOTTOM SHEET MODALS, DRAWERS & OVERLAYS (< 768px)
+     Robust, touch-accessible, high z-index overlay architecture.
+     Guarantees JS visibility toggles work seamlessly with zero clipping.
+     ========================================================================== */
+
+  /* 1. STRICT VISIBILITY SAFEGUARDS: When hidden/closed, MUST stay hidden */
+  .hidden,
+  [hidden],
+  div[role="dialog"].hidden,
+  [role="dialog"].hidden,
+  #sihEvaluationModal[style*="display: none"],
+  #sihEvaluationModal[style*="display:none"],
+  #ledgerDrawerBackdrop.hidden,
+  #ledgerInspectDrawer.hidden,
+  #sidebarUserDropdownMenu.hidden,
+  #adminNotificationDropdown.hidden,
+  #officerNotificationDropdown.hidden,
+  #inspectorNotificationDropdown.hidden {
+    display: none !important;
   }
+
+  /* 2. ACTIVE MODAL BACKDROP & OVERLAY CONTAINER (All modals except the standalone drawer) */
+  div[role="dialog"]:not(.hidden):not([style*="display: none"]):not([style*="display:none"]):not(#ledgerInspectDrawer),
+  .modal:not(.hidden) {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: rgba(15, 23, 42, 0.75) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    overflow: hidden !important;
+    pointer-events: auto !important;
+  }
+
+  /* 3. NATIVE BOTTOM SHEET MODAL CARD (Inner dialog body) */
+  div[role="dialog"]:not(#ledgerInspectDrawer) > div:first-child,
+  #sihEvaluationModal .rmc,
+  .modal-dialog,
+  .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    max-height: 85dvh !important;
+    margin: 0 !important;
+    border-radius: 1.5rem 1.5rem 0 0 !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding: 1.25rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 16px)) 1rem !important;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4) !important;
+    pointer-events: auto !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Grab handle indicator on top of bottom sheet */
+  div[role="dialog"]:not(#ledgerInspectDrawer) > div:first-child::before,
+  #sihEvaluationModal .rmc::before {
+    content: "" !important;
+    display: block !important;
+    width: 40px !important;
+    height: 4px !important;
+    background: rgba(148, 163, 184, 0.5) !important;
+    border-radius: 9999px !important;
+    margin: 0 auto 0.75rem auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* 4. MODAL CLOSE BUTTON & TOUCH TARGET ERGONOMICS (>= 44px) */
+  div[role="dialog"] button,
+  div[role="dialog"] [role="button"],
+  #sihEvaluationModal button,
+  .modal-close-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    touch-action: manipulation !important;
+  }
+
+  div[role="dialog"] button.modal-close-btn,
+  div[role="dialog"] button.rmc-close,
+  div[role="dialog"] button[aria-label*="Close"],
+  div[role="dialog"] button[title*="lose"]:not(.role-card-btn):not([class*="w-full"]),
+  div[role="dialog"] button[title*="Close"]:not(.role-card-btn):not([class*="w-full"]) {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1rem !important;
+    cursor: pointer !important;
+  }
+
+  /* Modal action footers: stack buttons full-width for easy thumb reach */
+  div[role="dialog"] .flex.items-center.justify-end,
+  div[role="dialog"] .modal-footer,
+  div[role="dialog"] form > div:last-child {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    padding-top: 0.75rem !important;
+  }
+
+  div[role="dialog"] .flex.items-center.justify-end button,
+  div[role="dialog"] .modal-footer button,
+  div[role="dialog"] form > div:last-child button {
+    width: 100% !important;
+    min-height: 46px !important;
+    justify-content: center !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+  }
+
+  /* 5. MASTER LEDGER INSPECT DRAWER (Mobile Full-Screen Sheet) */
+  #ledgerDrawerBackdrop:not(.hidden) {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 99998 !important;
+    display: block !important;
+    background: rgba(15, 23, 42, 0.75) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  #ledgerInspectDrawer:not(.hidden) {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: #ffffff !important;
+    border-radius: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .dark #ledgerInspectDrawer:not(.hidden) {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+  }
+
+  #ledgerInspectDrawer .drawer-header {
+    flex-shrink: 0 !important;
+    min-height: 56px !important;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+  }
+
+  .dark #ledgerInspectDrawer .drawer-header {
+    border-bottom-color: rgba(30, 41, 59, 0.8) !important;
+  }
+
+  #ledgerInspectDrawer #drawerBody,
+  #ledgerInspectDrawer .drawer-body {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 1rem !important;
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 16px)) !important;
+  }
+
+  /* 6. MOBILE DROPDOWNS & POPOVERS (Notifications, Sidebar user menu) */
+  #adminNotificationDropdown:not(.hidden),
+  #officerNotificationDropdown:not(.hidden),
+  #inspectorNotificationDropdown:not(.hidden) {
+    position: fixed !important;
+    top: 56px !important;
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    width: auto !important;
+    max-width: calc(100vw - 1.5rem) !important;
+    max-height: 75dvh !important;
+    overflow-y: auto !important;
+    z-index: 99999 !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35) !important;
+  }
+
+  #sidebarUserDropdownMenu:not(.hidden) {
+    z-index: 99999 !important;
+    border-radius: 1rem !important;
+    padding: 0.5rem !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35) !important;
+    width: calc(100% - 1rem) !important;
+    margin: 0 auto !important;
+  }
+
+  #sidebarUserDropdownMenu button,
+  #sidebarUserDropdownMenu a {
+    min-height: 44px !important;
+    font-size: 13px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+
+  /* 7. PREVENT HORIZONTAL OVERFLOW & CARD CLIPPING INSIDE OVERLAYS */
+  div[role="dialog"] *,
+  #sihEvaluationModal *,
+  #ledgerInspectDrawer * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  div[role="dialog"] p,
+  div[role="dialog"] span,
+  div[role="dialog"] label,
+  div[role="dialog"] td,
+  div[role="dialog"] pre,
+  div[role="dialog"] code,
+  div[role="dialog"] h1,
+  div[role="dialog"] h2,
+  div[role="dialog"] h3,
+  div[role="dialog"] h4,
+  #sihEvaluationModal p,
+  #sihEvaluationModal span,
+  #ledgerInspectDrawer p,
+  #ledgerInspectDrawer span {
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  div[role="dialog"] .grid,
+  div[role="dialog"] form,
+  div[role="dialog"] .card,
+  div[role="dialog"] .ds-card,
+  #sihEvaluationModal .grid {
+    overflow-x: hidden !important;
+  }
+
+
+  /* Empty States on mobile */
+  #emptyStateBanner,
+  #myInspectionsEmptyState,
+  #officerEmptyState,
+  .empty-state-card {
+    padding: 1.5rem 1rem !important;
+    margin: 0.75rem 0 !important;
+    border-radius: 1rem !important;
+  }
+  #emptyStateBanner h4,
+  #myInspectionsEmptyState h4,
+  #officerEmptyState h4 {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+  }
+  #emptyStateBanner p,
+  #myInspectionsEmptyState p,
+  #officerEmptyState p {
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+  #emptyStateBanner button,
+  #myInspectionsEmptyState button,
+  #officerEmptyState button {
+    min-height: 42px !important;
+    font-size: 12.5px !important;
+  }
+
+  /* OCR Loading State on mobile */
+  #ocrLoadingSection {
+    padding: 1.5rem 1rem !important;
+    border-radius: 1rem !important;
+    gap: 0.75rem !important;
+  }
+  #ocrLoadingSection h4 {
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+  }
+  #ocrLoadingSection p {
+    font-size: 11.5px !important;
+  }
+
+  /* Mobile performance & reduced motion accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* GPU-accelerated touch transitions */
+  .sidebar-container,
+  #ledgerInspectDrawer,
+  div[role="dialog"] > div,
+  #sihEvaluationModal > div,
+  .notification-dropdown {
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  div[role="dialog"] > div,
+  [role="dialog"] > div,
+  #sihEvaluationModal > div,
+  #sihEvaluationModal .rmc,
+  #forensicIntegrityModal > div,
+  .rmc {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 0 !important;
+    border-top-left-radius: 1.5rem !important;
+    border-top-right-radius: 1.5rem !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    max-height: 90vh !important;
+    padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 16px)) 1rem !important;
+    box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.35) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin: 0 !important;
+  }
+
+  /* Native grab handle at top of bottom sheets */
+  div[role="dialog"] > div::before,
+  [role="dialog"] > div::before,
+  #sihEvaluationModal .rmc::before,
+  #forensicIntegrityModal > div::before,
+  .rmc::before {
+    content: '' !important;
+    display: block !important;
+    width: 38px !important;
+    height: 4px !important;
+    border-radius: 9999px !important;
+    background: #CBD5E1 !important;
+    margin: 0 auto 0.875rem auto !important;
+    flex-shrink: 0 !important;
+  }
+  .dark div[role="dialog"] > div::before,
+  .dark [role="dialog"] > div::before,
+  html.dark #sihEvaluationModal .rmc::before,
+  .dark #forensicIntegrityModal > div::before,
+  html.dark .rmc::before {
+    background: #475569 !important;
+  }
+
+  /* Modal action buttons with comfortable tap targets */
   div[role="dialog"] form .flex.justify-end,
-  div[role="dialog"] .flex.justify-end {
+  div[role="dialog"] .flex.justify-end,
+  [role="dialog"] .flex.justify-end {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     gap: 0.625rem !important;
     width: 100% !important;
   }
-  div[role="dialog"] button {
-    min-height: 42px !important;
+  div[role="dialog"] button,
+  [role="dialog"] button,
+  .rmc button {
+    min-height: 44px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 13px !important;
+    font-size: 13.5px !important;
+    border-radius: 0.75rem !important;
+    transition: transform 0.1s ease !important;
+  }
+  div[role="dialog"] button:active,
+  [role="dialog"] button:active,
+  .rmc button:active {
+    transform: scale(0.97) !important;
+  }
+
+  /* Close (✕) button in modal header */
+  div[role="dialog"] button.modal-close-btn,
+  div[role="dialog"] button.rmc-close,
+  [role="dialog"] button[title*="Close"]:not(.role-card-btn):not([class*="w-full"]),
+  .rmc-close {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    width: 44px !important;
+    height: 44px !important;
   }
 
   /* ==========================================================================
@@ -1294,63 +2811,83 @@ body.theme-dark .sticky-frosted-nav {
     padding: 2px 5px !important;
   }
   #cameraPlaceholder {
-    padding: 1.25rem 0.75rem !important;
-    gap: 0.5rem !important;
-    background: #F8FAFC !important;
+    padding: 1.5rem 1rem !important;
+    gap: 0.75rem !important;
+    background: linear-gradient(145deg, #0B1120 0%, #0F172A 55%, #080D1A 100%) !important;
     border-radius: 0.875rem !important;
+    color: #F8FAFC !important;
   }
   #cameraPlaceholder > div:first-child {
-    width: 38px !important;
-    height: 38px !important;
-    font-size: 18px !important;
-    border-radius: 0.625rem !important;
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 20px !important;
+    border-radius: 0.75rem !important;
     margin-bottom: 0 !important;
   }
-  #cameraPlaceholder p.text-sm {
-    font-size: 12.5px !important;
-    font-weight: 700 !important;
+  #cameraPlaceholder p.text-\[15px\],
+  #cameraPlaceholder p.text-sm,
+  #cameraPlaceholder p:first-of-type {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    color: #FFFFFF !important;
     margin: 0 !important;
+    letter-spacing: -0.01em !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
   }
-  #cameraPlaceholder p.text-xs {
+  #cameraPlaceholder p.text-\[12px\],
+  #cameraPlaceholder p.text-xs,
+  #cameraPlaceholder p:last-of-type {
     display: block !important;
-    font-size: 11px !important;
-    line-height: 1.35 !important;
+    font-size: 11.5px !important;
+    color: #CBD5E1 !important;
+    line-height: 1.4 !important;
     margin-top: 0.25rem !important;
   }
   #btnStartCamera {
-    min-height: 34px !important;
-    height: 34px !important;
-    padding: 0 1rem !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    border-radius: 0.625rem !important;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25) !important;
+    min-height: 44px !important;
+    height: auto !important;
+    padding: 0.6rem 1.25rem !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
+    color: #FFFFFF !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+  }
+  #btnStartCamera .ocr-status-chip.ready {
+    color: #FFFFFF !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    font-weight: 800 !important;
   }
 
   /* Active live camera shutter controls */
   #cameraActiveControls:not(.hidden) {
     display: flex !important;
     flex-wrap: wrap !important;
-    gap: 0.35rem !important;
-    padding-top: 0.25rem !important;
+    gap: 0.5rem !important;
+    padding-top: 0.5rem !important;
     width: 100% !important;
   }
   #cameraActiveControls button:first-child {
     flex: 2 !important;
-    min-height: 38px !important;
-    height: 38px !important;
-    font-size: 12px !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    font-size: 13px !important;
     font-weight: 800 !important;
-    border-radius: 0.625rem !important;
+    border-radius: 0.75rem !important;
     background: #10B981 !important;
     color: #ffffff !important;
   }
   #cameraActiveControls button:not(:first-child) {
     flex: 1 !important;
-    min-height: 38px !important;
-    height: 38px !important;
-    font-size: 11px !important;
-    border-radius: 0.625rem !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    font-size: 12px !important;
+    border-radius: 0.75rem !important;
   }
 
   /* 6. Captured Panels Gallery Strip */
@@ -1497,28 +3034,11 @@ body.theme-dark .sticky-frosted-nav {
     padding: 0.15rem 0.4rem !important;
   }
 
-  /* Modal Dialogs: compact padding & max bounds on phone */
-  [role="dialog"] > div {
-    width: calc(100vw - 1.25rem) !important;
-    max-width: 100% !important;
-    padding: 1.125rem !important;
-    max-height: 92vh !important;
-    border-radius: 1rem !important;
-    margin: 0.5rem auto !important;
-  }
-
-  /* Modal action buttons touch targets */
-  [role="dialog"] .flex.justify-end.gap-2 button,
-  [role="dialog"] form button[type="submit"],
-  [role="dialog"] form button[type="button"] {
-    min-height: 40px !important;
-  }
-
-  /* Close (✕) buttons */
-  [role="dialog"] button[title="Close Modal"],
-  [role="dialog"] button[title="Close Drawer"] {
-    min-width: 40px !important;
-    min-height: 40px !important;
+  /* Modal close (✕) buttons touch targets */
+  [role="dialog"] button[title*="Close"],
+  div[role="dialog"] button[title*="Close"] {
+    min-width: 44px !important;
+    min-height: 44px !important;
   }
 
   /* Help form captcha row */
@@ -1627,29 +3147,30 @@ body.theme-dark .sticky-frosted-nav {
    ========================================================================== */
 @media (max-width: 479px) {
 
-  /* Sub-header page title truncate smoothly */
+  /* Fluid subheader title fitting — expands dynamically to available width */
   #currentViewHeaderTitle,
   #officerPageTitle,
   #adminPageTitle {
-    font-size: 0.8125rem !important;
-    max-width: 140px !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: clamp(0.8125rem, 3.6vw, 0.9375rem) !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 
   /* AI Engine ready badge */
   #aiEngineReadyBadge {
-    max-width: 130px !important;
-    overflow: hidden;
-    flex-shrink: 1;
+    max-width: 120px !important;
+    overflow: hidden !important;
+    flex-shrink: 1 !important;
   }
   #aiEngineReadyBadge > span:not(.rounded-full) {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 95px;
-    display: inline-block;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: inline-block !important;
     font-size: 10px !important;
   }
 
@@ -1657,8 +3178,8 @@ body.theme-dark .sticky-frosted-nav {
 
   /* Upload slot cards */
   button[onclick*="clearSlotImage"] {
-    min-width: 32px !important;
-    min-height: 32px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1667,9 +3188,9 @@ body.theme-dark .sticky-frosted-nav {
 
   /* Officer 3-pane switcher button text */
   #threePaneMobileTabs button {
-    font-size: 11px !important;
-    padding-left: 0.25rem !important;
-    padding-right: 0.25rem !important;
+    font-size: 10.5px !important;
+    padding-left: 0.2rem !important;
+    padding-right: 0.2rem !important;
   }
 
   /* Stat numbers on smallest phones */
@@ -1687,7 +3208,7 @@ body.theme-dark .sticky-frosted-nav {
   #adminCompliantRatio,
   #adminViolationsCount,
   #adminPendingReview {
-    font-size: 1.45rem !important;
+    font-size: 1.35rem !important;
   }
 
   /* Breadcrumbs in subheaders */
@@ -1695,11 +3216,11 @@ body.theme-dark .sticky-frosted-nav {
   #adminBreadcrumb,
   #currentViewBreadcrumb {
     max-width: 110px !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
-    vertical-align: bottom;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    vertical-align: bottom !important;
   }
 }
 
@@ -1855,24 +3376,493 @@ body.theme-dark .sticky-frosted-nav {
   }
 }
 
-/* ── 7E. SIH EVALUATION MODAL: scroll safety on small screens ── */
-@media (max-width: 767px) {
-
-  #sihEvaluationModal > div {
-    max-height: 85vh !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    padding: 1rem !important;
-    border-radius: 1.25rem !important;
+/* ── 7E. SIH EVALUATION MODAL: Native Sovereign Bottom Sheet Console (Mobile Only) ── */
+@keyframes sihSheetSlideUp {
+  0% {
+    transform: translateY(100%);
+    opacity: 0.8;
   }
-
-  #sihConsoleGrid .flex.flex-wrap button {
-    padding: 0.3rem 0.6rem !important;
-    font-size: 11px !important;
+  100% {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
-/* ── 7F. FEATURES PAGE: Quick nav tab bar — horizontal scroll on mobile ── */
+@keyframes sihPulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+@media (max-width: 767px) {
+  /* Prevent background bounce when modal is active */
+  body.sih-modal-locked {
+    overflow: hidden !important;
+    touch-action: none !important;
+  }
+
+  /* 1. Modal Backdrop & Container: Full viewport bottom docking with ZERO horizontal overflow */
+  #sihEvaluationModal {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: 0 !important;
+    display: none;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: stretch !important;
+    overflow: hidden !important;
+    background: rgba(15, 23, 42, 0.72) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    z-index: 99999 !important;
+  }
+
+  /* When modal is open (active or display: flex) */
+  #sihEvaluationModal.sih-modal-open,
+  #sihEvaluationModal:not(.hidden):not([style*="display: none"]):not([style*="display:none"]) {
+    display: flex !important;
+  }
+
+  /* 2. Bottom Sheet Box (.rmc): Smooth sliding native bottom card */
+  #sihEvaluationModal .rmc,
+  #sihEvaluationModal > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border-top-left-radius: 1.5rem !important;
+    border-top-right-radius: 1.5rem !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-top: 1.5px solid rgba(16, 185, 129, 0.35) !important;
+    max-height: 90vh !important;
+    height: 90vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 -12px 35px -8px rgba(0, 0, 0, 0.45) !important;
+    animation: sihSheetSlideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    will-change: transform !important;
+    touch-action: pan-y !important;
+  }
+
+  .dark #sihEvaluationModal .rmc,
+  .dark #sihEvaluationModal > div {
+    background: #0B1220 !important;
+    border-top-color: rgba(16, 185, 129, 0.45) !important;
+    box-shadow: 0 -15px 40px -10px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  /* 3. Mobile Drag Indicator Bar */
+  .sih-mobile-drag-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.25rem !important;
+    cursor: grab !important;
+    flex-shrink: 0 !important;
+  }
+
+  .sih-drag-pill {
+    width: 38px !important;
+    height: 4.5px !important;
+    border-radius: 9999px !important;
+    background: #CBD5E1 !important;
+    transition: background 0.15s ease !important;
+  }
+
+  .dark .sih-drag-pill {
+    background: #334155 !important;
+  }
+
+  /* 4. Sticky Header with Touch-Friendly Close Target */
+  .sih-modal-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 30 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.5rem 1rem 0.65rem 1rem !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    background: #FFFFFF !important;
+    flex-shrink: 0 !important;
+  }
+
+  .dark .sih-modal-header {
+    background: #0B1220 !important;
+    border-bottom-color: #1E293B !important;
+  }
+
+  .sih-modal-header h3 {
+    font-size: 0.9375rem !important;
+    line-height: 1.25 !important;
+    font-weight: 800 !important;
+  }
+
+  .sih-modal-header p {
+    font-size: 0.6875rem !important;
+    line-height: 1.3 !important;
+    color: #64748B !important;
+    margin-top: 0.15rem !important;
+  }
+
+  .dark .sih-modal-header p {
+    color: #94A3B8 !important;
+  }
+
+  /* Close button: 40px touch hit box */
+  #sihEvaluationModal .modal-close-btn {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    border-radius: 9999px !important;
+    background: #F1F5F9 !important;
+    color: #475569 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  .dark #sihEvaluationModal .modal-close-btn {
+    background: #1E293B !important;
+    color: #CBD5E1 !important;
+  }
+
+  #sihEvaluationModal .modal-close-btn:active {
+    transform: scale(0.92) !important;
+  }
+
+  /* 5. Sticky Category Filter Tab Dock */
+  .sih-filter-dock {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 25 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    padding: 0.5rem 1rem !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    background: #F8FAFC !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .dark .sih-filter-dock {
+    background: #0D1627 !important;
+    border-bottom-color: #1E293B !important;
+  }
+
+  .sih-filter-dock::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .sih-cat-pill {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    padding: 0.4rem 0.8rem !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    color: #475569 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 34px !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  .dark .sih-cat-pill {
+    background: #152238 !important;
+    border-color: #273A56 !important;
+    color: #94A3B8 !important;
+  }
+
+  .sih-cat-pill.active {
+    background: #0F172A !important;
+    border-color: #0F172A !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25) !important;
+  }
+
+  .dark .sih-cat-pill.active {
+    background: #10B981 !important;
+    border-color: #10B981 !important;
+    color: #022C22 !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4) !important;
+  }
+
+  .sih-cat-pill:active {
+    transform: scale(0.95) !important;
+  }
+
+  /* 6. Scrollable Roles Grid Area: Smooth momentum touch scrolling */
+  #sihConsoleGrid {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    padding: 0.75rem 1rem 1.25rem 1rem !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  /* Grid layouts collapse to clean mobile vertical stacks */
+  #sihSectionZonal .grid,
+  #sihSectionOfficer .grid,
+  #sihSectionInspector .grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.65rem !important;
+  }
+
+  /* Section header titles */
+  .sih-role-section > div:first-child {
+    font-size: 11px !important;
+    letter-spacing: 0.04em !important;
+    font-weight: 800 !important;
+    padding-left: 0.15rem !important;
+  }
+
+  /* 7. Sovereign Role Cards on Mobile: Full readability & thumb-friendly */
+  #sihConsoleGrid .rc,
+  #sihConsoleGrid button,
+  #sihEvaluationModal button.role-card-btn,
+  #sihEvaluationModal .sih-role-btn {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    min-height: 60px !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.75rem 0.85rem !important;
+    border-radius: 1rem !important;
+    gap: 0.65rem !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    cursor: pointer !important;
+  }
+
+  .dark #sihConsoleGrid button,
+  .dark #sihEvaluationModal .sih-role-btn {
+    background: #111C2E !important;
+    border-color: #1E2D44 !important;
+  }
+
+  #sihEvaluationModal .sih-role-btn:active {
+    transform: scale(0.98) !important;
+    border-color: #10B981 !important;
+  }
+
+  /* Role icon styling */
+  #sihEvaluationModal .sih-role-btn > div:first-child > div:first-child {
+    width: 2.35rem !important;
+    height: 2.35rem !important;
+    border-radius: 0.75rem !important;
+    font-size: 1.1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Role Card info column */
+  #sihEvaluationModal .sih-role-btn > div:first-child {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.65rem !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  #sihEvaluationModal .sih-role-btn .min-w-0 {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  /* Role Name */
+  #sihEvaluationModal .sih-role-btn .min-w-0 span.text-xs,
+  #sihEvaluationModal .sih-role-btn .min-w-0 span.font-extrabold,
+  #sihEvaluationModal .sih-role-btn .min-w-0 div.font-bold {
+    font-size: 13px !important;
+    line-height: 1.25 !important;
+    color: #0F172A !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.01em !important;
+  }
+
+  .dark #sihEvaluationModal .sih-role-btn .min-w-0 span.text-xs,
+  .dark #sihEvaluationModal .sih-role-btn .min-w-0 span.font-extrabold,
+  .dark #sihEvaluationModal .sih-role-btn .min-w-0 div.font-bold {
+    color: #F8FAFC !important;
+  }
+
+  /* Subtitle / Jurisdiction: Clean wrapping up to 2 lines without harsh clipping */
+  #sihEvaluationModal .sih-role-btn .min-w-0 div.text-\[10px\],
+  #sihEvaluationModal .sih-role-btn .min-w-0 div.text-\[11px\] {
+    font-size: 10.5px !important;
+    line-height: 1.35 !important;
+    color: #64748B !important;
+    margin-top: 0.15rem !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .dark #sihEvaluationModal .sih-role-btn .min-w-0 div.text-\[10px\],
+  .dark #sihEvaluationModal .sih-role-btn .min-w-0 div.text-\[11px\] {
+    color: #94A3B8 !important;
+  }
+
+  /* Right Action Chip Column: Vertical stack for clean compactness */
+  #sihEvaluationModal .sih-role-btn > div:last-child {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    gap: 0.25rem !important;
+    flex-shrink: 0 !important;
+    margin-left: 0.25rem !important;
+  }
+
+  /* Monospace username tag on mobile */
+  #sihEvaluationModal .sih-role-btn span.font-mono {
+    display: inline-block !important;
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    padding: 0.15rem 0.45rem !important;
+    border-radius: 0.35rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* Tap Chevron / Login Arrow */
+  #sihEvaluationModal .sih-role-btn > div:last-child .w-8.h-8 {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 0.5rem !important;
+    font-size: 11px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Authenticating state during tap */
+  .sih-role-btn.sih-role-selected {
+    border-color: #10B981 !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+    animation: sihPulseRing 1.2s infinite !important;
+  }
+
+  /* 8. Sticky Modal Footer Bar on Mobile */
+  .sih-modal-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 30 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    padding: 0.55rem 1rem calc(0.55rem + env(safe-area-inset-bottom, 10px)) 1rem !important;
+    border-top: 1px solid #E2E8F0 !important;
+    background: #FFFFFF !important;
+    flex-shrink: 0 !important;
+  }
+
+  .dark .sih-modal-footer {
+    background: #0B1220 !important;
+    border-top-color: #1E293B !important;
+  }
+
+  .sih-modal-footer > div {
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+    color: #64748B !important;
+    flex: 1 1 auto !important;
+  }
+
+  .dark .sih-modal-footer > div {
+    color: #94A3B8 !important;
+  }
+
+  .sih-modal-footer button {
+    padding: 0.4rem 0.85rem !important;
+    font-size: 11.5px !important;
+    border-radius: 0.75rem !important;
+    flex-shrink: 0 !important;
+    min-height: 34px !important;
+  }
+
+  /* 9. Landing Page Quick Trigger Card: Mobile Optimized */
+  .sih-quick-trigger {
+    padding: 0.875rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    border-radius: 1.25rem !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+  }
+
+  .sih-quick-trigger:active {
+    transform: scale(0.985) !important;
+  }
+
+  .sih-quick-trigger > div:nth-child(2) {
+    width: 100% !important;
+  }
+
+  .sih-quick-trigger button {
+    width: 100% !important;
+    min-height: 42px !important;
+    justify-content: center !important;
+    font-size: 12.5px !important;
+    font-weight: 800 !important;
+    border-radius: 0.85rem !important;
+  }
+}
+
+/* ── 7F. FEATURES PAGE: Quick nav tab bar — native pill dock on mobile ── */
 @media (max-width: 767px) {
 
   /* Reveal the nav bar on mobile (it has hidden md:block) */
@@ -1880,14 +3870,14 @@ body.theme-dark .sticky-frosted-nav {
     display: block !important;
   }
 
-  /* Make the features quick-nav bar scrollable */
+  /* Make the features quick-nav bar scrollable with native pill dock */
   nav.border-t > div > div.flex.items-center {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
     flex-wrap: nowrap !important;
     scrollbar-width: none !important;
-    padding-bottom: 2px !important;
-    gap: 1.25rem !important;
+    padding: 0.35rem 0.5rem !important;
+    gap: 0.5rem !important;
   }
   nav.border-t > div > div.flex.items-center::-webkit-scrollbar {
     display: none !important;
@@ -1896,6 +3886,23 @@ body.theme-dark .sticky-frosted-nav {
     flex-shrink: 0 !important;
     white-space: nowrap !important;
     font-size: 11.5px !important;
+    font-weight: 600 !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 9999px !important;
+    background: #F1F5F9 !important;
+    color: #475569 !important;
+    border: 1px solid #E2E8F0 !important;
+    transition: all 0.15s ease !important;
+  }
+  .dark nav.border-t > div > div.flex.items-center a {
+    background: #1E293B !important;
+    color: #CBD5E1 !important;
+    border-color: #334155 !important;
+  }
+  nav.border-t > div > div.flex.items-center a:active {
+    transform: scale(0.95) !important;
+    background: #10B981 !important;
+    color: #ffffff !important;
   }
 
   /* Hide the right-side mono badge on mobile */
@@ -1952,7 +3959,7 @@ body.theme-dark .sticky-frosted-nav {
   }
 }
 
-/* ── 7H. ADMIN: Zone/scope badge + title overflow ── */
+/* ── 7H. ADMIN: Zone/scope badge + title fluid layout ── */
 @media (max-width: 767px) {
 
   #adminZoneRoleBadge {
@@ -1964,7 +3971,9 @@ body.theme-dark .sticky-frosted-nav {
   }
 
   #adminPageTitle {
-    max-width: 160px !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
@@ -2039,8 +4048,8 @@ body.theme-dark .sticky-frosted-nav {
   }
 }
 
-/* ── 7M. NOTIFICATIONS: Safe z-index stacking on XS ── */
-@media (max-width: 639px) {
+/* ── 7M. NOTIFICATIONS: Safe z-index stacking on mobile ── */
+@media (max-width: 767px) {
 
   #inspectorNotificationDropdown,
   #officerNotificationDropdown,
@@ -2085,7 +4094,7 @@ body.theme-dark .sticky-frosted-nav {
 }
 
 /* ── 7P. OFFICER PAGE: Review header breadcrumb overflow fix ── */
-@media (max-width: 639px) {
+@media (max-width: 767px) {
 
   #officerBreadcrumb {
     max-width: 130px !important;
@@ -2115,7 +4124,31 @@ body.theme-dark .sticky-frosted-nav {
     display: inline-block !important;
     vertical-align: bottom !important;
   }
+
+  /* ── 7Q. SWIPEABLE SCROLL MASK AFFORDANCE & SAFE-AREA INSET POLISH ── */
+  .swipeable-chips,
+  #ledgerStatStrip,
+  #commodityCategoryPills,
+  #rulesChapterFilters,
+  #officerDocketFilterTabs,
+  nav.border-t > div > div.flex.items-center {
+    mask-image: linear-gradient(to right, black 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 88%, transparent 100%);
+  }
+
+  /* Safe-area bottom inset to ensure last page elements are never obscured by bottom nav */
+  body:has(#mobileBottomNavInspector, #mobileBottomNavOfficer, #mobileBottomNavAdmin) .main-viewport,
+  body:has(#mobileBottomNavInspector, #mobileBottomNavOfficer, #mobileBottomNavAdmin) main {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Mobile card hierarchy polish */
+  .card-item,
+  .ds-card {
+    border-radius: 1rem !important;
+  }
 }
+
 
 /* ── 7R. TABLET INTERMEDIATE POLISH (768px – 1023px) ── */
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -2129,7 +4162,10 @@ body.theme-dark .sticky-frosted-nav {
     font-size: 10.5px !important;
   }
 
-  /* Features quick nav: visible on tablet */
+  /* Features quick nav: visible on tablet and desktop */
+  nav.hidden.md\:block {
+    display: block !important;
+  }
   nav.border-t > div > div.flex.items-center {
     flex-wrap: wrap !important;
     gap: 1rem !important;
@@ -2171,6 +4207,415 @@ body.theme-dark .sticky-frosted-nav {
     width: 3rem !important;
     height: 3rem !important;
     font-size: 1.5rem !important;
+  }
+}
+
+/* ==========================================================================
+   8. INDEX.HTML 5-SEGMENT ARCHITECTURE & REDEFINED MOBILE FOOTER
+   Segment 1 — Ministry Intro & Basic Overview (with upper officer login jump)
+   Segment 2 — Citizen Live Verification
+   Segment 3 — Statutory Mandate & Technical Specs
+   Segment 4 — Platform Capabilities Bento Showcase
+   Segment 5 — Statutory Officer Sign In & 11-Role Console
+   ========================================================================== */
+
+/* ── 8A. DESKTOP 2-COLUMN BALANCED COMPOSITION (lg: >= 1024px) ── */
+@media (min-width: 1024px) {
+  #portalContentGrid {
+    display: grid !important;
+    grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+    column-gap: 2rem !important;
+    row-gap: 1.75rem !important;
+    align-items: start !important;
+  }
+
+  #segment-ministry-intro {
+    grid-column: 1 / span 7 !important;
+    grid-row: 1 !important;
+  }
+
+  #segment-citizen-verify {
+    grid-column: 1 / span 7 !important;
+    grid-row: 2 !important;
+  }
+
+  #segment-statutory-mandate {
+    grid-column: 1 / span 7 !important;
+    grid-row: 3 !important;
+  }
+
+  #segment-officer-auth {
+    grid-column: 8 / span 5 !important;
+    grid-row: 1 / span 3 !important;
+    position: sticky !important;
+    top: 5.5rem !important;
+  }
+
+  #segment-platform-capabilities {
+    grid-column: 1 / span 12 !important;
+    grid-row: 4 !important;
+    margin-top: 1rem !important;
+  }
+}
+
+/* ── 8B. MOBILE 5-SEGMENT ORDER HIERARCHY (< 1024px) ── */
+@media (max-width: 1023px) {
+  #portalContentGrid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+    width: 100% !important;
+  }
+
+  #segment-ministry-intro {
+    order: 1 !important;
+    width: 100% !important;
+  }
+
+  #segment-citizen-verify {
+    order: 2 !important;
+    width: 100% !important;
+  }
+
+  #segment-statutory-mandate {
+    order: 3 !important;
+    width: 100% !important;
+  }
+
+  #segment-platform-capabilities {
+    order: 4 !important;
+    width: 100% !important;
+  }
+
+  #segment-officer-auth {
+    order: 5 !important;
+    width: 100% !important;
+  }
+}
+
+/* ── 8C. UPPER SECTION OFFICER LOGIN SMOOTH TRANSITION PULSE ── */
+@keyframes authTargetPulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8), 0 10px 25px -5px rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 1);
+  }
+  35% {
+    box-shadow: 0 0 0 14px rgba(16, 185, 129, 0.25), 0 20px 35px -5px rgba(16, 185, 129, 0.4);
+    border-color: #10b981;
+  }
+  70% {
+    box-shadow: 0 0 0 20px rgba(16, 185, 129, 0), 0 10px 25px -5px rgba(16, 185, 129, 0.2);
+    border-color: #10b981;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.auth-jump-pulse {
+  animation: authTargetPulseGlow 2.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border-color: #10b981 !important;
+  transition: border-color 0.3s ease;
+}
+
+/* ── 8D. REDEFINED COMPACT MOBILE FOOTER (Mobile Interface Only) ── */
+@media (max-width: 639px) {
+  .site-footer-container {
+    padding-top: 1.25rem !important;
+    padding-bottom: 1.25rem !important;
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+  }
+
+  .site-footer-container > div {
+    gap: 0.875rem !important;
+  }
+
+  /* Compact Header Row on Mobile */
+  .site-footer-container > div > div:first-child {
+    padding-bottom: 0.75rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .footer-mobile-accordion {
+    border-radius: 0.875rem !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .dark .footer-mobile-accordion {
+    background: rgba(15, 23, 42, 0.65) !important;
+    border: 1px solid rgba(30, 41, 59, 0.85) !important;
+    box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .footer-mobile-accordion summary {
+    min-height: 42px !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 0 !important;
+    transition: background-color 0.15s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+    font-size: 0.75rem !important;
+  }
+
+  .footer-mobile-accordion summary:active {
+    background: rgba(16, 185, 129, 0.08) !important;
+  }
+
+  .footer-mobile-accordion[open] summary {
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+  }
+  .dark .footer-mobile-accordion[open] summary {
+    border-bottom: 1px solid rgba(30, 41, 59, 0.8) !important;
+  }
+
+  .footer-mobile-accordion ul {
+    padding: 0.25rem 0.5rem 0.5rem 0.5rem !important;
+  }
+
+  .footer-nav-link {
+    min-height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.375rem !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.75rem !important;
+    transition: all 0.15s ease !important;
+  }
+
+  .footer-nav-link:active {
+    background: rgba(16, 185, 129, 0.12) !important;
+    color: #059669 !important;
+  }
+
+  /* Toll-Free Hotline Card Compact */
+  .site-footer-container .grid > div:last-child > div {
+    padding: 0.75rem 0.875rem !important;
+    border-radius: 0.875rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .site-footer-container .grid > div:last-child h4 {
+    font-size: 0.75rem !important;
+    padding-bottom: 0.35rem !important;
+  }
+
+  /* Legal policy links compacting */
+  .footer-legal-link {
+    min-height: 32px !important;
+    padding: 0.2rem 0.375rem !important;
+    font-size: 0.6875rem !important; /* 11px */
+    border-radius: 0.375rem !important;
+  }
+
+  /* GIGW seal compact */
+  button[onclick*="openPolicyModal('gigw')"] {
+    font-size: 0.6875rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+}
+
+/* ── 8E. COMPACT MOBILE INTERFACE (Segment 4 Bento & Key Modules for Mobile Only) ── */
+@media (max-width: 767px) {
+  /* Segment 4: Platform Capabilities Bento Showcase - Compact Mobile Styling */
+  #segment-platform-capabilities {
+    padding-top: 1rem !important;
+    margin-top: 0.25rem !important;
+    gap: 0.75rem !important;
+  }
+
+  #segment-platform-capabilities > div:first-child {
+    margin-bottom: 0.35rem !important;
+  }
+
+  #segment-platform-capabilities h2 {
+    font-size: 1.125rem !important; /* 18px */
+    line-height: 1.25 !important;
+  }
+
+  #segment-platform-capabilities p {
+    font-size: 0.75rem !important; /* 12px */
+    line-height: 1.35 !important;
+  }
+
+  #segment-platform-capabilities .grid {
+    gap: 0.625rem !important; /* 10px spacing instead of 24px */
+    padding-top: 0 !important;
+  }
+
+  #segment-platform-capabilities .ds-card {
+    padding: 0.75rem 0.875rem !important;
+    border-radius: 0.875rem !important;
+    gap: 0.375rem !important;
+  }
+
+  #segment-platform-capabilities .ds-card > div.flex {
+    margin-bottom: 0 !important;
+    gap: 0.625rem !important;
+  }
+
+  #segment-platform-capabilities .ds-card > div.flex > div:first-child {
+    width: 2.25rem !important; /* 36px */
+    height: 2.25rem !important;
+    min-width: 2.25rem !important;
+    border-radius: 0.625rem !important;
+    font-size: 1.05rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  #segment-platform-capabilities .ds-card h3 {
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.25 !important;
+    font-weight: 800 !important;
+  }
+
+  #segment-platform-capabilities .ds-card p {
+    font-size: 0.7188rem !important; /* 11.5px */
+    line-height: 1.35 !important;
+  }
+
+  #segment-platform-capabilities .ds-card > div:last-child {
+    padding-top: 0.25rem !important;
+    font-size: 0.6875rem !important; /* 11px */
+  }
+
+  /* Segment 3: Statutory Mandate Card Compact */
+  #mandateShowcaseCard {
+    padding: 0.875rem !important;
+    border-radius: 0.875rem !important;
+    gap: 0.5rem !important;
+  }
+
+  #mandateShowcaseCard > .flex:first-child {
+    gap: 0.625rem !important;
+  }
+
+  #mandateShowcaseCard > .flex:first-child > div:first-child {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    min-width: 2.25rem !important;
+    font-size: 1.05rem !important;
+    border-radius: 0.625rem !important;
+  }
+
+  #mandateShowcaseCard h3 {
+    font-size: 0.8438rem !important;
+  }
+
+  #mandateShowcaseCard p {
+    font-size: 0.7188rem !important;
+    line-height: 1.35 !important;
+  }
+
+  #mandateShowcaseCard > div:last-child {
+    padding-top: 0.35rem !important;
+  }
+
+  /* Segment 2: Citizen Verify Docket Box Compact */
+  #citizenVerifyDocketBox {
+    padding: 0.875rem !important;
+    border-radius: 0.875rem !important;
+    gap: 0.5rem !important;
+  }
+
+  #citizenVerifyDocketBox h3 {
+    font-size: 0.75rem !important;
+  }
+
+  #citizenVerifyDocketBox p {
+    font-size: 0.7188rem !important;
+    line-height: 1.35 !important;
+  }
+
+  /* Segment 5: Statutory Officer Sign In Card Compact */
+  #segment-officer-auth {
+    gap: 0.75rem !important;
+  }
+
+  #segment-officer-auth .ds-card {
+    padding: 1rem 0.875rem !important;
+    border-radius: 1rem !important;
+  }
+
+  #segment-officer-auth .ds-card > div:first-child {
+    margin-bottom: 0.75rem !important;
+  }
+
+  #segment-officer-auth .ds-card > div:first-child > div {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    margin-bottom: 0.35rem !important;
+  }
+
+  #segment-officer-auth .ds-card > div:first-child > div img {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  #segment-officer-auth .ds-card h2 {
+    font-size: 1.25rem !important;
+  }
+
+  #segment-officer-auth form {
+    gap: 0.625rem !important;
+  }
+
+  /* Segment 1: Metric stat cards compact */
+  #segment-ministry-intro .grid.grid-cols-2 {
+    gap: 0.5rem !important;
+  }
+
+  #segment-ministry-intro .grid.grid-cols-2 .ds-card {
+    padding: 0.5rem 0.35rem !important;
+  }
+
+  #segment-ministry-intro .grid.grid-cols-2 .text-xl {
+    font-size: 1.125rem !important;
+  }
+
+  /* Compact Premium Mobile Footer */
+  .site-footer-container {
+    padding-top: 1.125rem !important;
+    padding-bottom: 1.25rem !important;
+  }
+
+  .site-footer-container .footer-mobile-accordion {
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .site-footer-container .footer-mobile-accordion[open] {
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.08) !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+  }
+
+  .site-footer-container .footer-mobile-accordion summary::-webkit-details-marker {
+    display: none !important;
+  }
+
+  .site-footer-container .footer-mobile-accordion summary {
+    list-style: none !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  .site-footer-container .footer-nav-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.3rem 0.5rem !important;
+    border-radius: 0.5rem !important;
+    min-height: 34px !important;
+    font-size: 0.75rem !important;
+    transition: all 0.15s ease !important;
+  }
+
+  .site-footer-container .footer-nav-link:active {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    transform: scale(0.98) !important;
   }
 }
 

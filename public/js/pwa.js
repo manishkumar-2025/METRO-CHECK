@@ -347,7 +347,7 @@
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               One-Click App Installation
             </span>
-            <span class="text-[10px] text-slate-400 font-mono">Build v7.0.0</span>
+            <span class="text-[10px] text-slate-400 font-mono">Build v7.1.0</span>
           </div>
 
           <button type="button" id="pwa-direct-install-action-btn" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm shadow-lg hover:shadow-emerald-500/20 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-95">
@@ -463,8 +463,56 @@
     }, 4500);
   }
 
+  // 8. Mobile Haptic & Touch Gesture Enhancement Engine
+  function triggerHapticFeedback(pattern = [15]) {
+    if ('vibrate' in navigator && typeof navigator.vibrate === 'function') {
+      try {
+        navigator.vibrate(pattern);
+      } catch (e) {
+        // Ignore vibration failure if blocked by permission policy
+      }
+    }
+  }
+
+  // Mobile Drawer & Overlay Touch Swipe-to-Close Handler
+  document.addEventListener('DOMContentLoaded', () => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+
+      // Swipe Left on Mobile Drawer (Swipe Left > 60px while vertical delta < 40px)
+      if (deltaX < -60 && Math.abs(deltaY) < 40) {
+        const activeSidebar = document.querySelector('aside.sidebar-container:not(.hidden), aside#leftSidebar:not(.hidden), div.sidebar-container:not(.hidden)');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (activeSidebar && (backdrop && !backdrop.classList.contains('hidden'))) {
+          triggerHapticFeedback([10]);
+          if (backdrop) backdrop.click();
+        }
+      }
+    }, { passive: true });
+
+    // Attach haptic feedback to primary mobile action buttons
+    document.addEventListener('click', (e) => {
+      const targetBtn = e.target.closest('button, .mobile-touch-target, .mobile-nav-inspector-item, .mobile-nav-officer-item, .mobile-nav-admin-item');
+      if (targetBtn) {
+        triggerHapticFeedback([12]);
+      }
+    }, { passive: true });
+  });
+
   // Expose global helper for manual triggering if needed
   window.openPwaGuideModal = openPwaGuideModal;
   window.dismissFabPrompt = dismissFabPrompt;
+  window.triggerHapticFeedback = triggerHapticFeedback;
 
 })();

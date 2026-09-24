@@ -610,38 +610,38 @@
 
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <!-- Search Bar -->
-              <div class="relative">
+              <div class="relative w-full sm:w-56 flex items-center">
+                <span class="absolute left-3.5 pointer-events-none text-slate-400 text-sm select-none z-10">🔍</span>
                 <input type="text" id="docketSearchInput" aria-label="Search Legal Metrology Enforcement Docket Cases"
                   oninput="debouncedFilterByStatus(activeDocketFilter)" placeholder="Search docket cases..."
-                  class="ds-input pl-8 pr-3 py-2 text-xs w-full sm:w-56">
-                <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
+                  class="ds-input pr-3 py-2.5 text-xs w-full min-h-[44px]" style="padding-left: 2.75rem !important;">
               </div>
 
               <!-- Filter Tabs: All | Submitted | Under Review | Escalated | Notice Issued | Dismissed -->
               <div id="officerDocketFilterTabs"
-                class="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl gap-1 border border-slate-200 dark:border-slate-700 flex-wrap">
+                class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl gap-1.5 border border-slate-200 dark:border-slate-700 overflow-x-auto max-w-full no-scrollbar whitespace-nowrap scroll-smooth py-1 px-1.5">
                 <button type="button" data-tab="all" onclick="filterByStatus('all')"
-                  class="docket-tab px-3 py-1.5 font-bold text-xs rounded-lg bg-[#10B981] text-white shadow-xs">
+                  class="docket-tab flex-shrink-0 px-3.5 py-2 font-bold text-xs rounded-lg bg-[#10B981] text-white shadow-xs min-h-[44px] inline-flex items-center justify-center">
                   All
                 </button>
                 <button type="button" data-tab="pending" onclick="filterByStatus('pending')"
-                  class="docket-tab px-3 py-1.5 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                  class="docket-tab flex-shrink-0 px-3.5 py-2 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition min-h-[44px] inline-flex items-center justify-center">
                   ⚪ Submitted
                 </button>
                 <button type="button" data-tab="under_review" onclick="filterByStatus('under_review')"
-                  class="docket-tab px-3 py-1.5 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                  class="docket-tab flex-shrink-0 px-3.5 py-2 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition min-h-[44px] inline-flex items-center justify-center">
                   🔵 Under Review
                 </button>
                 <button type="button" data-tab="escalated" onclick="filterByStatus('escalated')"
-                  class="docket-tab px-3 py-1.5 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                  class="docket-tab flex-shrink-0 px-3.5 py-2 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition min-h-[44px] inline-flex items-center justify-center">
                   🟡 Escalated
                 </button>
                 <button type="button" data-tab="approved" onclick="filterByStatus('approved')"
-                  class="docket-tab px-3 py-1.5 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                  class="docket-tab flex-shrink-0 px-3.5 py-2 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition min-h-[44px] inline-flex items-center justify-center">
                   🟢 Notice Issued
                 </button>
                 <button type="button" data-tab="rejected" onclick="filterByStatus('rejected')"
-                  class="docket-tab px-3 py-1.5 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                  class="docket-tab flex-shrink-0 px-3.5 py-2 font-semibold text-xs rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition min-h-[44px] inline-flex items-center justify-center">
                   🔴 Dismissed
                 </button>
               </div>
@@ -1570,7 +1570,7 @@
                 <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
                 <span
                   class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-[9.5px] sm:text-[11px]">Build
-                  v7.0.0</span>
+                  v7.1.0</span>
                 <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
                 <span class="font-semibold">© 2026 Government of India</span>
               </div>

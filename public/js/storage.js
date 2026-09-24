@@ -775,6 +775,14 @@ async function flushPendingSyncQueue() {
  */
 async function syncInspectionsWithServer(onSyncComplete) {
   if (typeof fetch === "undefined" || (typeof navigator !== "undefined" && !navigator.onLine)) return;
+  // Skip unauthenticated background sync on public landing pages to avoid 401 console errors
+  try {
+    const rawUser = localStorage.getItem("currentUser");
+    if (!rawUser) return;
+    const u = JSON.parse(rawUser);
+    if (!u || !u.username || u.role === "public") return;
+  } catch(e) { return; }
+
   try {
     const res = await fetch(`${STORAGE_API_BASE}/api/inspections`, {
       credentials: "include"

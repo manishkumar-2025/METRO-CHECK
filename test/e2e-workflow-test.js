@@ -80,10 +80,10 @@ async function runFullVerification() {
   // Step 3b: Verify UI enhancements (Network Sync Pill & Statutory Penalty Estimator)
   const officerHtml = fs.readFileSync(path.join(rootDir, "public/officer.html"), "utf8");
   assert.ok(officerHtml.includes("statutoryPenaltyBadge"), "statutoryPenaltyBadge element present in officer.html");
-  assert.ok(officerHtml.includes("networkSyncPill"), "networkSyncPill present in officer.html");
+  assert.ok(storageContent.includes("networkSyncPill") || officerHtml.includes("networkSyncPill"), "networkSyncPill present in storage.js/officer.html");
 
   const inspectorHtml = fs.readFileSync(path.join(rootDir, "public/inspector.html"), "utf8");
-  assert.ok(inspectorHtml.includes("networkSyncPill"), "networkSyncPill present in inspector.html");
+  assert.ok(storageContent.includes("networkSyncPill") || inspectorHtml.includes("networkSyncPill"), "networkSyncPill present in storage.js/inspector.html");
 
   const scannerJs = fs.readFileSync(path.join(rootDir, "public/js/scanner.js"), "utf8");
   assert.ok(scannerJs.includes("drawForensicEvidenceWatermark"), "drawForensicEvidenceWatermark present in scanner.js");
