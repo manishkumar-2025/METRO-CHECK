@@ -4693,3 +4693,101 @@ body.theme-dark .sticky-frosted-nav {
     -webkit-backdrop-filter: blur(12px) !important;
   }
 }
+
+/* ==========================================================================
+   MOBILE SIDEBAR DRAWER NAVIGATION POLISH & CONTROLS (< 768px)
+   ========================================================================== */
+@media (max-width: 767.98px) {
+
+  /* 1. Dark, blurred scrim behind drawer (rgba(0, 0, 0, 0.5) with backdrop-filter: blur(4px)) */
+  #sidebarBackdrop {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    z-index: 990 !important;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  #sidebarBackdrop.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* Disable background scrolling while mobile drawer is open */
+  body.mobile-sidebar-open,
+  html:has(body.mobile-sidebar-open) {
+    overflow: hidden !important;
+    touch-action: none !important;
+  }
+
+  /* 2. Hide or lower z-index of mobile bottom tab bar whenever sidebar drawer is open */
+  body.mobile-sidebar-open #mobileBottomNavInspector,
+  body.mobile-sidebar-open #mobileBottomNavOfficer,
+  body.mobile-sidebar-open #mobileBottomNavAdmin,
+  body.mobile-sidebar-open [id^="mobileBottomNav"],
+  body:has(aside#leftSidebar:not(.-translate-x-full)) #mobileBottomNavInspector,
+  body:has(aside#leftSidebar:not(.-translate-x-full)) #mobileBottomNavOfficer,
+  body:has(aside#leftSidebar:not(.-translate-x-full)) #mobileBottomNavAdmin,
+  body:has(aside#leftSidebar:not(.-translate-x-full)) [id^="mobileBottomNav"],
+  body:has(.sidebar-container:not(.-translate-x-full)) #mobileBottomNavInspector,
+  body:has(.sidebar-container:not(.-translate-x-full)) #mobileBottomNavOfficer,
+  body:has(.sidebar-container:not(.-translate-x-full)) #mobileBottomNavAdmin,
+  body:has(.sidebar-container:not(.-translate-x-full)) [id^="mobileBottomNav"] {
+    z-index: 1 !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* 3. Full mobile viewport height (100vh) flex-column drawer with anchored bottom user profile card */
+  aside#leftSidebar,
+  .sidebar-container {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    width: 280px !important;
+    max-width: 85vw !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    z-index: 1000 !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  /* Scrollable navigation list area inside drawer */
+  aside#leftSidebar .sidebar-content-scrollable,
+  .sidebar-container .sidebar-content-scrollable {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    min-height: 0 !important;
+  }
+
+  /* Anchored user profile card at bottom matching desktop layout */
+  aside#leftSidebar .sidebar-footer-pinned,
+  .sidebar-container .sidebar-footer-pinned {
+    margin-top: auto !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    bottom: 0 !important;
+    z-index: 30 !important;
+    width: 100% !important;
+  }
+}
+

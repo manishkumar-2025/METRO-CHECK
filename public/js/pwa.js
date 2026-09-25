@@ -211,28 +211,11 @@
     fab.style.display = '';
   }
 
-  // Render clean, subtle "Install App" option in the footer
+  // Render clean, subtle "Install App" option in the legal links strip
   function renderFooterInstallOption() {
     if (isAppInstalled()) return;
 
-    // Render in #pwa-install-container if present
-    const container = document.getElementById('pwa-install-container');
-    if (container) {
-      container.classList.remove('hidden');
-      container.style.display = 'block';
-      container.innerHTML = `
-        <div class="flex items-center justify-center pt-2 pb-1">
-          <button id="metrocheck-footer-install-btn" type="button" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition active:scale-95 cursor-pointer min-h-[44px]">
-            <span>📥</span>
-            <span>Install METRO-CHECK App</span>
-          </button>
-        </div>
-      `;
-      const footerBtn = document.getElementById('metrocheck-footer-install-btn');
-      if (footerBtn) footerBtn.onclick = handleInstallClick;
-    }
-
-    // 2. Also render inside the legal policy links row if present
+    // Render inside the legal policy links row if present
     const legalLink = document.querySelector('.footer-legal-link');
     if (legalLink && legalLink.parentElement) {
       const parentRow = legalLink.parentElement;

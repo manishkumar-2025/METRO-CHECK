@@ -1138,7 +1138,7 @@ function hideLoading() {
  * Mobile Sidebar Toggle:
  */
 function toggleMobileSidebar() {
-  const sidebar = document.querySelector("aside");
+  const sidebar = document.getElementById("leftSidebar") || document.querySelector("aside") || document.querySelector(".sidebar-container");
   let backdrop = document.getElementById("sidebarBackdrop");
   if (!sidebar) return;
 
@@ -1147,7 +1147,7 @@ function toggleMobileSidebar() {
   if (!backdrop) {
     backdrop = document.createElement("div");
     backdrop.id = "sidebarBackdrop";
-    backdrop.className = "fixed inset-0 bg-black/60 z-30 md:hidden transition-opacity";
+    backdrop.className = "fixed inset-0 z-30 md:hidden transition-opacity";
     backdrop.onclick = toggleMobileSidebar;
     document.body.appendChild(backdrop);
   }
@@ -1155,12 +1155,23 @@ function toggleMobileSidebar() {
   if (isHidden) {
     sidebar.classList.remove("-translate-x-full");
     backdrop.classList.remove("hidden");
+    document.body.classList.add("mobile-sidebar-open");
+    document.body.style.overflow = "hidden";
   } else {
     sidebar.classList.add("-translate-x-full");
     backdrop.classList.add("hidden");
+    document.body.classList.remove("mobile-sidebar-open");
+    document.body.style.overflow = "";
   }
 }
 window.toggleMobileSidebar = toggleMobileSidebar;
+
+window.addEventListener("resize", () => {
+  if (window.innerWidth >= 768) {
+    document.body.classList.remove("mobile-sidebar-open");
+    document.body.style.overflow = "";
+  }
+});
 
 /**
  * Desktop Sidebar Collapse / Expand Toggle
@@ -1199,6 +1210,11 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleDesktopSidebar();
     }
     if (e.key === "Escape") {
+      const sidebar = document.getElementById("leftSidebar") || document.querySelector("aside");
+      if (sidebar && !sidebar.classList.contains("-translate-x-full") && window.innerWidth < 768) {
+        toggleMobileSidebar();
+        return;
+      }
       const openModals = document.querySelectorAll("[role='dialog']:not(.hidden), .fixed.inset-0:not(.hidden)");
       openModals.forEach(modal => {
         if (modal.id === "sidebarBackdrop" || modal.id === "globalLoadingOverlay") return;

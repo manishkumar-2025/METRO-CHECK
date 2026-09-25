@@ -127,6 +127,11 @@ function switchInspectorTab(tabId, updateUrl = true) {
     }
   });
 
+  // Apply mobile scanner flow if switching to OCR tab
+  if (tabId === "ocr" && typeof checkAndApplyMobileScannerFlow === "function") {
+    checkAndApplyMobileScannerFlow();
+  }
+
   // Auto-close mobile sidebar drawer on selection
   if (window.innerWidth < 768) {
     const sidebar = document.getElementById("leftSidebar") || document.querySelector("aside");
@@ -134,6 +139,8 @@ function switchInspectorTab(tabId, updateUrl = true) {
     if (sidebar && !sidebar.classList.contains("-translate-x-full")) {
       sidebar.classList.add("-translate-x-full");
       if (backdrop) backdrop.classList.add("hidden");
+      document.body.classList.remove("mobile-sidebar-open");
+      document.body.style.overflow = "";
     }
   }
 
@@ -195,6 +202,8 @@ function switchInspectorTab(tabId, updateUrl = true) {
   if (sidebar && !sidebar.classList.contains("-translate-x-full") && window.innerWidth < 768) {
     sidebar.classList.add("-translate-x-full");
     if (backdrop) backdrop.classList.add("hidden");
+    document.body.classList.remove("mobile-sidebar-open");
+    document.body.style.overflow = "";
   }
 }
 
@@ -1327,6 +1336,8 @@ function switchOfficerTab(tabId, updateUrl = true) {
     if (sidebar && !sidebar.classList.contains("-translate-x-full")) {
       sidebar.classList.add("-translate-x-full");
       if (backdrop) backdrop.classList.add("hidden");
+      document.body.classList.remove("mobile-sidebar-open");
+      document.body.style.overflow = "";
     }
   }
 

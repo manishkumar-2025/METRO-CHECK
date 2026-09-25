@@ -57,6 +57,161 @@ const SERVER_BASE_URL = (() => {
 let isBackendServerOnline = false;
 
 /**
+ * Detects whether any scan is currently active, content/images are detected,
+ * or an active report/inspection result is in view.
+ */
+function isScannerActiveOrHasContent() {
+  // 1. Live camera stream active
+  const isCameraStreaming = Boolean(
+    (typeof activeCameraStream !== "undefined" && activeCameraStream && activeCameraStream.active) ||
+    (typeof window !== "undefined" && window.cameraStream && window.cameraStream.active)
+  );
+  if (isCameraStreaming) return true;
+
+  // 2. Any multi-panel images loaded
+  if (typeof panelImages !== "undefined" && panelImages) {
+    if (Object.values(panelImages).some(Boolean)) return true;
+  }
+
+  // 3. Fallback uploaded image data URL
+  if (typeof currentUploadedImageDataUrl !== "undefined" && currentUploadedImageDataUrl) {
+    return true;
+  }
+
+  // 4. Active specimen image list has items
+  if (typeof activeSpecimenImageList !== "undefined" && Array.isArray(activeSpecimenImageList) && activeSpecimenImageList.length > 0) {
+    return true;
+  }
+
+  // 5. Inspection report results section currently visible
+  const resultsSection = document.getElementById("ocrReportResultsSection");
+  if (resultsSection && !resultsSection.classList.contains("hidden")) {
+    return true;
+  }
+
+  // 6. Active inspection docket result object present
+  if (typeof currentInspectionResult !== "undefined" && currentInspectionResult) {
+    return true;
+  }
+
+  // 7. AI analysis in progress
+  const analyzingOverlay = document.getElementById("ocrAnalyzingOverlay") || document.getElementById("ocrProgressIndicator");
+  if (analyzingOverlay && !analyzingOverlay.classList.contains("hidden")) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Handles mobile-only scanner entry flow:
+ * - On desktop (>= 768px): Choice screen is always hidden; desktop layout untouched.
+ * - On mobile (< 768px): If no scan is active/detected, display choice screen (Live Scanner vs Upload).
+ *                        If a scan is active/detected, display active workstation directly.
+ */
+function checkAndApplyMobileScannerFlow(forceShowChoice = false) {
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const choiceScreen = document.getElementById("mobileScannerChoiceScreen");
+  const cameraOverlay = document.getElementById("mobileLiveCameraOverlay");
+  const previewScreen = document.getElementById("mobileImagePreviewScreen");
+  const headerBar = document.getElementById("ocrHeaderStatutoryBar");
+  const mainDeck = document.getElementById("ocrMainCaptureDeck");
+  const manualAccordion = document.getElementById("manualEntryAccordion");
+
+  if (!choiceScreen) return;
+
+  if (!isMobile) {
+    // Desktop: Always hide mobile screens, keep full desktop workspace visible
+    choiceScreen.classList.add("hidden");
+    if (cameraOverlay) cameraOverlay.classList.add("hidden");
+    if (previewScreen) previewScreen.classList.add("hidden");
+    if (headerBar) headerBar.classList.remove("hidden");
+    if (mainDeck) mainDeck.classList.remove("hidden");
+    if (manualAccordion) manualAccordion.classList.remove("hidden");
+    return;
+  }
+
+  // Mobile:
+  if (typeof window.MobileScanner !== "undefined" && window.MobileScanner.Images.scannedImages.length > 0) {
+    window.MobileScanner.UI.showImagePreview();
+    return;
+  }
+
+  const hasActiveContent = isScannerActiveOrHasContent();
+  if (forceShowChoice || !hasActiveContent) {
+    if (typeof window.MobileScanner !== "undefined") {
+      window.MobileScanner.UI.showScannerOptions();
+    } else {
+      choiceScreen.classList.remove("hidden");
+      if (headerBar) headerBar.classList.add("hidden");
+      if (mainDeck) mainDeck.classList.add("hidden");
+      if (manualAccordion) manualAccordion.classList.add("hidden");
+    }
+  } else {
+    choiceScreen.classList.add("hidden");
+    if (headerBar) headerBar.classList.remove("hidden");
+    if (mainDeck) mainDeck.classList.remove("hidden");
+    if (manualAccordion) manualAccordion.classList.remove("hidden");
+  }
+}
+
+/**
+ * Invoked when mobile user taps either option (Live Scanner or Upload).
+ * Unhides the workstation, selects the mode, and initializes camera if live mode.
+ */
+function selectMobileScannerChoice(method) {
+  const choiceScreen = document.getElementById("mobileScannerChoiceScreen");
+  const headerBar = document.getElementById("ocrHeaderStatutoryBar");
+  const mainDeck = document.getElementById("ocrMainCaptureDeck");
+  const manualAccordion = document.getElementById("manualEntryAccordion");
+
+  if (choiceScreen) choiceScreen.classList.add("hidden");
+  if (headerBar) headerBar.classList.remove("hidden");
+  if (mainDeck) mainDeck.classList.remove("hidden");
+  if (manualAccordion) manualAccordion.classList.remove("hidden");
+
+  if (method === "camera") {
+    switchCaptureMode("camera");
+    if (typeof startLiveCamera === "function") {
+      startLiveCamera().catch(err => console.warn("Camera auto-start:", err));
+    }
+  } else if (method === "upload") {
+    switchCaptureMode("upload");
+  }
+
+  mainDeck?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/**
+ * Allows mobile user to return to the 2-option choice screen if desired.
+ */
+function returnToMobileScannerChoice() {
+  if (window.innerWidth >= 768) return;
+  if (typeof stopLiveCamera === "function") stopLiveCamera();
+  checkAndApplyMobileScannerFlow(true);
+}
+
+window.isScannerActiveOrHasContent = isScannerActiveOrHasContent;
+window.checkAndApplyMobileScannerFlow = checkAndApplyMobileScannerFlow;
+window.selectMobileScannerChoice = selectMobileScannerChoice;
+window.returnToMobileScannerChoice = returnToMobileScannerChoice;
+
+if (typeof window !== "undefined") {
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 768) {
+      const choiceScreen = document.getElementById("mobileScannerChoiceScreen");
+      const headerBar = document.getElementById("ocrHeaderStatutoryBar");
+      const mainDeck = document.getElementById("ocrMainCaptureDeck");
+      const manualAccordion = document.getElementById("manualEntryAccordion");
+      if (choiceScreen) choiceScreen.classList.add("hidden");
+      if (headerBar) headerBar.classList.remove("hidden");
+      if (mainDeck) mainDeck.classList.remove("hidden");
+      if (manualAccordion) manualAccordion.classList.remove("hidden");
+    }
+  }, { passive: true });
+}
+
+/**
  * Toggles capture mode between Live Camera and File Upload with active visual indicators.
  */
 function switchCaptureMode(mode) {
@@ -236,6 +391,10 @@ const panelImages = {
   top: null,
   bottom: null
 };
+
+window.panelImages = panelImages;
+window.PANEL_SLOTS = PANEL_SLOTS;
+window.PANEL_DEFINITIONS = PANEL_DEFINITIONS;
 
 let activeCaptureSlot = "front"; // 'front', 'back', 'left', 'right', 'top', 'bottom'
 let currentInspectionResult = null;
@@ -700,6 +859,13 @@ function resetInspectionWorkspace() {
   currentInspectionResult = null;
   updateMultiPanelState();
 
+  if (typeof window.MobileScanner !== "undefined" && window.MobileScanner.Images) {
+    window.MobileScanner.Images.clearImages();
+  }
+  if (typeof checkAndApplyMobileScannerFlow === "function") {
+    checkAndApplyMobileScannerFlow(true);
+  }
+
   const resultsSection = document.getElementById("ocrReportResultsSection");
   if (resultsSection) resultsSection.classList.add("hidden");
   const loadingSection = document.getElementById("ocrLoadingSection");
@@ -881,7 +1047,9 @@ async function startLiveCamera() {
       audio: false
     };
 
-    activeCameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    const getStreamPromise = navigator.mediaDevices.getUserMedia(constraints);
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Camera request timed out or unavailable")), 3500));
+    activeCameraStream = await Promise.race([getStreamPromise, timeoutPromise]);
     window.cameraStream = activeCameraStream;
 
     if (videoEl) {
@@ -1070,6 +1238,10 @@ function clearSpecimenImage() {
         panelImages[slot] = null;
       }
     });
+  }
+
+  if (typeof window.MobileScanner !== "undefined" && window.MobileScanner.Images) {
+    window.MobileScanner.Images.clearImages();
   }
 
   // 2. Clear all file inputs so re-selecting the same file fires onchange
@@ -3202,6 +3374,21 @@ window.handleSaveOcrInspection = handleSaveOcrInspection;
 window.revalidateUserCorrectedDeclarations = revalidateUserCorrectedDeclarations;
 window.copyRawOcrText = copyRawOcrText;
 window.renderAutoFilledComplianceReport = renderAutoFilledComplianceReport;
+
+// Sync mobile scanner flow on load if ocr tab is active
+if (typeof document !== "undefined") {
+  const initMobileFlow = () => {
+    const viewOcr = document.getElementById("view-ocr");
+    if (viewOcr && !viewOcr.classList.contains("hidden")) {
+      checkAndApplyMobileScannerFlow();
+    }
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMobileFlow);
+  } else {
+    initMobileFlow();
+  }
+}
 
 
 

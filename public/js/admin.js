@@ -306,6 +306,8 @@ function switchAdminTab(tabId, updateUrl = true) {
     if (sb && !sb.classList.contains("-translate-x-full")) {
       sb.classList.add("-translate-x-full");
       if (bd) bd.classList.add("hidden");
+      document.body.classList.remove("mobile-sidebar-open");
+      document.body.style.overflow = "";
     }
   }
 

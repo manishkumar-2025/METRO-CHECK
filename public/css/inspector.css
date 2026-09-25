@@ -557,3 +557,291 @@ details[open] > summary .transition-transform {
 .idm-header {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
 }
+
+/* ==========================================================================
+   Mobile Live Scanner & Multi-Image Review HUD Styles (Mobile Only)
+   ========================================================================== */
+
+body.mobile-cam-open {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+body.mobile-cam-open #mobileBottomNavInspector,
+body.mobile-cam-open #nationalGovMasthead,
+body.mobile-cam-open #pwaInstallBanner,
+body.mobile-cam-open #emergencyNotificationRibbon,
+body.mobile-cam-open .main-viewport > header,
+body.mobile-cam-open footer {
+  display: none !important;
+}
+
+#mobileLiveCameraOverlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: 100vw !important;
+  max-height: 100dvh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 99999 !important;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+  background-color: #000000 !important;
+}
+
+/* Thin, Non-Obtrusive Viewfinder Laser Line */
+#mobileLiveCameraOverlay .scanner-laser-line {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.3) 15%, #34d399 50%, rgba(52, 211, 153, 0.3) 85%, transparent);
+  box-shadow: 0 0 10px 1px rgba(52, 211, 153, 0.5);
+  border-radius: 999px;
+  opacity: 0.6;
+  animation: mobileLaserScan 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes mobileLaserScan {
+  0% {
+    top: 10%;
+    opacity: 0.3;
+  }
+  15% {
+    opacity: 0.6;
+  }
+  85% {
+    opacity: 0.6;
+  }
+  100% {
+    top: 90%;
+    opacity: 0.3;
+  }
+}
+
+/* Classic Double-Ring Circular Shutter tactile animation */
+#mobileCamShutterBtn {
+  flex-shrink: 0 !important;
+  min-width: 80px !important;
+  min-height: 80px !important;
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+
+#mobileCamShutterBtn:active {
+  transform: scale(0.90);
+  box-shadow: 0 0 32px rgba(255, 255, 255, 0.65) !important;
+}
+
+#mobileCamShutterBtn:active > div {
+  transform: scale(0.88);
+  background-color: #10b981 !important;
+}
+
+/* Flashlight button active glow */
+#mobileCamFlashBtn.flash-active {
+  background-color: #f59e0b !important;
+  color: #0f172a !important;
+  border-color: #fde68a !important;
+  box-shadow: 0 0 24px 4px rgba(245, 158, 11, 0.75) !important;
+  animation: torchPulse 1.8s infinite alternate;
+}
+
+@keyframes torchPulse {
+  0% {
+    box-shadow: 0 0 16px 2px rgba(245, 158, 11, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 28px 6px rgba(245, 158, 11, 0.9);
+  }
+}
+
+/* 3:4 Portrait Scanner Viewfinder Container with 40% Dark Mask Scrim */
+#mobileViewfinderGuide {
+  width: calc(100% - 32px) !important;
+  max-width: 380px !important;
+  aspect-ratio: 3 / 4 !important;
+  max-height: 52vh !important;
+  position: relative !important;
+  margin: 0 auto !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.40), 0 0 20px rgba(52, 211, 153, 0.25) !important;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Reticle Auto-Detection Feedback State */
+#mobileViewfinderGuide.detected {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.40), 0 0 28px rgba(16, 185, 129, 0.65) !important;
+}
+
+#mobileViewfinderGuide.detected .reticle-corner {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.75);
+}
+
+/* Corner Reticle Brackets (L-Shape: 2.5px stroke, 24px arm, 6px radius) */
+.reticle-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #34d399;
+  border-style: solid;
+  border-width: 2.5px;
+  pointer-events: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reticle-corner-tl {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 6px;
+}
+
+.reticle-corner-tr {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 6px;
+}
+
+.reticle-corner-bl {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: 6px;
+}
+
+.reticle-corner-br {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 6px;
+}
+
+/* Mobile Camera Controls Dock & Shutter Row Structure */
+#mobileCameraControlsDock {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+#mobileShutterControlsRow {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  max-width: 340px !important;
+}
+
+#mobileShutterControlsRow button:not(#mobileCamShutterBtn) {
+  width: 64px !important;
+  max-width: 64px !important;
+  flex: 0 0 64px !important;
+}
+
+/* Horizontal thumbnail scroll styling */
+#mobilePreviewThumbnailsStrip {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+}
+
+#mobilePreviewThumbnailsStrip > div {
+  scroll-snap-align: center;
+}
+
+#mobilePreviewThumbnailsStrip::-webkit-scrollbar {
+  height: 3px;
+}
+
+#mobilePreviewThumbnailsStrip::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#mobilePreviewThumbnailsStrip::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+/* Mobile Zoom Controls & Slider */
+#mobileZoomPillSelector {
+  touch-action: manipulation;
+  user-select: none;
+  border-radius: 9999px !important;
+  background: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+  padding: 3px 5px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.mobile-zoom-btn {
+  touch-action: manipulation;
+  user-select: none;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mobile-zoom-btn:active {
+  transform: scale(0.92);
+}
+
+#mobileZoomSlider {
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
+#mobileZoomSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #34d399;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.75);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+#mobileZoomSlider::-webkit-slider-thumb:active {
+  transform: scale(1.25);
+}
+
+#mobileZoomSlider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #34d399;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.75);
+  cursor: pointer;
+}
+
+/* Strict Desktop Isolation */
+@media (min-width: 768px) {
+  #mobileScannerChoiceScreen,
+  #mobileLiveCameraOverlay,
+  #mobileImagePreviewScreen {
+    display: none !important;
+  }
+}
