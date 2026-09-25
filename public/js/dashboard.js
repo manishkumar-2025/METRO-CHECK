@@ -1360,6 +1360,39 @@ function switchOfficerTab(tabId, updateUrl = true) {
   }
 }
 
+// ── Officer Docket Sorting State & Helpers ──────────────────────────────
+let activeDocketSort = "newest";
+
+function onDocketSortChange(sortVal) {
+  activeDocketSort = sortVal || "newest";
+  filterByStatus(activeDocketFilter || "all");
+}
+window.onDocketSortChange = onDocketSortChange;
+
+function sortDocketList(list, sortBy) {
+  if (!Array.isArray(list)) return [];
+  const sorted = [...list];
+  if (sortBy === "oldest") {
+    sorted.sort((a, b) => new Date(a.createdAt || a.date || 0) - new Date(b.createdAt || b.date || 0));
+  } else if (sortBy === "sla") {
+    // Critical / breached first (older cases or SLA status)
+    sorted.sort((a, b) => {
+      const aTime = new Date(a.createdAt || a.date || 0).getTime();
+      const bTime = new Date(b.createdAt || b.date || 0).getTime();
+      return aTime - bTime;
+    });
+  } else if (sortBy === "violations") {
+    sorted.sort((a, b) => ((b.violations || []).length) - ((a.violations || []).length));
+  } else if (sortBy === "product") {
+    sorted.sort((a, b) => (a.product || "").localeCompare(b.product || ""));
+  } else {
+    // default: newest first
+    sorted.sort((a, b) => new Date(b.createdAt || b.date || 0) - new Date(a.createdAt || a.date || 0));
+  }
+  return sorted;
+}
+window.sortDocketList = sortDocketList;
+
 function filterByStatus(status) {
   activeDocketFilter = status;
   
@@ -1422,6 +1455,8 @@ function filterByStatus(status) {
       return p.includes(search) || id.includes(search) || insp.includes(search) || st.includes(search) || seq.includes(search) || evd.includes(search);
     });
   }
+
+  filtered = sortDocketList(filtered, activeDocketSort);
 
   renderTable(filtered);
 }
@@ -1714,7 +1749,8 @@ window.resolveInspectorInfo = resolveInspectorInfo;
   tbody.innerHTML = inspections.map(item => {
     const formattedDt = item.formattedDateTime || (typeof formatDisplayDateTime === "function" ? formatDisplayDateTime(item.createdAt || item.date) : (item.date || "-"));
     const inspInfo = resolveInspectorInfo(item);
-    const jurisdiction = `${item.state || item.location || "Delhi UT"}${item.zone ? ` (${item.zone} Zone)` : ""}`;
+    const cleanZone = item.zone ? (item.zone.endsWith("Zone") ? item.zone : `${item.zone} Zone`) : "";
+    const jurisdiction = `${item.state || item.location || "Delhi UT"}${cleanZone ? ` (${cleanZone})` : ""}`;
     const slaHtml = computeSlaHtml(item);
     const violHtml = buildViolationChips(item);
     const statusPill = buildStatusPill(item);
@@ -1889,9 +1925,9 @@ function switchThreePaneTab(activeTab) {
 
     if (btn) {
       if (t === activeTab) {
-        btn.className = "flex-1 py-2 px-2.5 rounded-xl bg-[#10B981] text-white shadow-xs text-center transition flex items-center justify-center gap-1.5 font-semibold";
+        btn.className = "flex-1 min-h-[44px] py-2 px-2.5 rounded-lg bg-[#10B981] text-white shadow-xs text-center transition flex items-center justify-center gap-1.5 font-semibold active:scale-95";
       } else {
-        btn.className = "flex-1 py-2 px-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-center transition flex items-center justify-center gap-1.5 font-medium";
+        btn.className = "flex-1 min-h-[44px] py-2 px-2.5 rounded-lg text-[#64748B] dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-center transition flex items-center justify-center gap-1.5 font-medium active:scale-95";
       }
     }
   });
@@ -3182,3 +3218,5 @@ if (typeof window !== "undefined") {
 
 
 
+
+window.renderDocketTable = function() { filterByStatus(activeDocketFilter || "all"); };

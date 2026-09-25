@@ -1033,7 +1033,7 @@
     "evidenceId": "EVD-LM/NZ/20260923/00107-G0OS",
     "sequenceNumber": 97095,
     "createdAt": "2026-09-22T23:45:10.650Z",
-    "updatedAt": "2026-09-22T23:45:10.666Z",
+    "updatedAt": "2026-09-25T06:09:49.778Z",
     "timestamp": "2026-09-22T23:45:10.650Z",
     "submittedAt": "2026-09-22T23:45:10.650Z",
     "scannedAt": "2026-09-22T23:45:10.650Z",
@@ -1042,7 +1042,7 @@
     "time": "05:15:10 am",
     "formattedDateTime": "23 Sep 2026, 05:15:10 AM",
     "product": "Milk based confectionery",
-    "status": "SUBMITTED",
+    "status": "UNDER_REVIEW",
     "priority": "Urgent",
     "location": "Delhi UT Inspection Unit",
     "zone": "North",
@@ -1215,10 +1215,24 @@
         "notes": "Case LM/NZ/20260923/00107-G0OS submitted for Officer adjudication.",
         "statusFrom": null,
         "statusTo": null
+      },
+      {
+        "id": "AUD-mugk9tno-mxyi",
+        "timestamp": "2026-09-25T06:09:49.668Z",
+        "formattedTime": "25 Sep 2026, 11:39:49 AM",
+        "action": "REVIEW_OPENED",
+        "actorId": null,
+        "actor": "Dr S Roy",
+        "role": "System",
+        "notes": "Case docket opened in 3-pane review workspace by Dr S Roy.",
+        "statusFrom": "SUBMITTED",
+        "statusTo": "UNDER_REVIEW"
       }
     ],
-    "docketHash": "COMPUTING...",
-    "previousHash": "SHA256-8A3F9D1E"
+    "docketHash": "CF0DF57B735E7AF6D06A9C169E1B86C3DB4672DC27B2ED01A17D6A5DDF867D8F",
+    "previousHash": "SHA256-8A3F9D1E",
+    "hashAlgorithm": "SHA-256",
+    "hashSealedAt": "2026-09-22T23:45:10.727Z"
   },
   {
     "id": "INS-20260922-YYW8",

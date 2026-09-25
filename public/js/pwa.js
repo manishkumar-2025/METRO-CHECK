@@ -215,12 +215,21 @@
   function renderFooterInstallOption() {
     if (isAppInstalled()) return;
 
-    // Dedicated #pwa-install-container is kept hidden/empty to avoid rendering a duplicate bottom button
+    // Render in #pwa-install-container if present
     const container = document.getElementById('pwa-install-container');
     if (container) {
-      container.innerHTML = '';
-      container.style.display = 'none';
-      container.classList.add('hidden');
+      container.classList.remove('hidden');
+      container.style.display = 'block';
+      container.innerHTML = `
+        <div class="flex items-center justify-center pt-2 pb-1">
+          <button id="metrocheck-footer-install-btn" type="button" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition active:scale-95 cursor-pointer min-h-[44px]">
+            <span>📥</span>
+            <span>Install METRO-CHECK App</span>
+          </button>
+        </div>
+      `;
+      const footerBtn = document.getElementById('metrocheck-footer-install-btn');
+      if (footerBtn) footerBtn.onclick = handleInstallClick;
     }
 
     // 2. Also render inside the legal policy links row if present

@@ -4,33 +4,142 @@
    ========================================================================== */
 
 let activeReportId = null;
+let currentReportRecord = null;
+
+/**
+ * Helper to escape HTML characters
+ */
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 /**
  * Initializes and populates the Report Preview template on page load.
  * Reads the inspection ID from URL search parameters (?id=INS-XXXX).
+ * Resiliently falls back to server API if record is not present in local storage.
  */
-function initReportView() {
+async function initReportView() {
   const urlParams = new URLSearchParams(window.location.search);
-  const inspections = getInspections();
   const rawId = urlParams.get("id");
-  const targetId = rawId ? decodeURIComponent(rawId) : (inspections[0] && inspections[0].id) || null;
-  activeReportId = targetId;
+  let targetId = rawId ? decodeURIComponent(rawId).trim() : null;
 
+  // If no explicit ID in URL, fallback to first available local inspection
   if (!targetId) {
-    if (typeof showToast === "function") {
-      showToast("No inspection records available. Perform a scan in the Field Inspector Portal to generate a report.", "warning");
+    const localInspections = (typeof getInspections === "function") ? getInspections() : [];
+    targetId = (localInspections[0] && localInspections[0].id) || null;
+  }
+
+  // Attempt local storage resolution first
+  let record = targetId ? (getInspectionById(targetId) || (rawId ? getInspectionById(rawId) : null)) : null;
+
+  // If not found locally, fetch from backend server API
+  if (!record && targetId) {
+    renderReportLoadingSkeleton(targetId);
+    try {
+      const res = await fetch(`/api/inspections/${encodeURIComponent(targetId)}`, {
+        credentials: "include",
+        headers: { "Accept": "application/json" }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.data) {
+          record = json.data;
+          if (typeof saveInspection === "function") {
+            saveInspection(record);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("[Report] Single inspection API fetch error:", err);
     }
+
+    // Secondary fallback: query list endpoint if direct ID lookup fails
+    if (!record) {
+      try {
+        const listRes = await fetch(`/api/inspections`, { credentials: "include" });
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          if (listJson && Array.isArray(listJson.data)) {
+            record = listJson.data.find(x => x.id === targetId || (rawId && x.id === rawId));
+            if (record && typeof saveInspection === "function") {
+              saveInspection(record);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("[Report] List sync fallback error:", err);
+      }
+    }
+  }
+
+  if (!record) {
+    renderReportNotFoundState(targetId);
     return;
   }
 
-  // Fetch the inspection record from localStorage
-  const record = getInspectionById(targetId) || (rawId ? getInspectionById(rawId) : null);
-  if (!record) {
-    if (typeof showToast === "function") {
-      showToast("Inspection docket " + targetId + " not found!", "error");
-    }
-    return;
-  }
+  activeReportId = record.id || targetId;
+  renderReportData(record);
+}
+
+/**
+ * Displays a clean skeleton placeholder while fetching docket details from server.
+ */
+function renderReportLoadingSkeleton(id) {
+  const title = document.getElementById("reportProductName");
+  if (title) title.innerHTML = `<span class="inline-block w-48 h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded"></span>`;
+  const idDisplay = document.getElementById("reportIdDisplay");
+  if (idDisplay) idDisplay.textContent = id || "Loading...";
+}
+
+/**
+ * Renders a user-friendly recovery state when the requested inspection cannot be found.
+ */
+function renderReportNotFoundState(targetId) {
+  const mainContent = document.getElementById("mainContent");
+  if (!mainContent) return;
+
+  const user = (typeof getCurrentUser === "function") ? getCurrentUser() : null;
+  const backTarget = user?.role === "officer" ? "officer.html#docket" : (user?.role === "admin" ? "admin.html#ledger" : "inspector.html#reports");
+
+  mainContent.innerHTML = `
+    <div id="reportNotFoundContainer" class="p-6 sm:p-12 text-center bg-slate-50 dark:bg-slate-800/60 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 space-y-4 my-6">
+      <div class="w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-3xl mx-auto shadow-sm">
+        📋
+      </div>
+      <div class="space-y-1">
+        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-100">Inspection Docket Not Found</h2>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+          The requested inspection record <code class="font-mono font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">${escapeHtml(targetId || "Unknown")}</code> could not be located in local memory or central registry records.
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-3">
+        <button type="button" onclick="window.location.reload()"
+          class="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-2 shadow-xs cursor-pointer min-h-[44px]">
+          <span>🔄</span> <span>Retry Fetch</span>
+        </button>
+        <a href="${backTarget}"
+          class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2 cursor-pointer min-h-[44px]">
+          <span>←</span> <span>Return to Docket Workspace</span>
+        </a>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Populates all DOM elements in the inspection report.
+ */
+function renderReportData(record) {
+  currentReportRecord = record;
+  activeReportId = record ? record.id : null;
+  const targetId = record.id;
+  const extracted = record.extractedData || record.extracted_fields || record.fields || {};
 
   // Header Details
   const idDisplay = document.getElementById("reportIdDisplay");
@@ -48,9 +157,6 @@ function initReportView() {
   if (hashDisplay) {
     hashDisplay.textContent = record.docketHash || `SHA256-${String(record.id).replace(/[^A-Za-z0-9]/g, "").slice(-8)}`;
   }
-
-  // Extracted declarations with fallback to extractedData, extracted_fields, or fields
-  const extracted = record.extractedData || record.extracted_fields || record.fields || {};
 
   // 1. Inspector Details
   const inspName = document.getElementById("reportInspectorName");
@@ -99,13 +205,15 @@ function initReportView() {
     tbody.innerHTML = fields.map(function(item) {
       const isMissing = !item.value || item.value === "MISSING";
       const statusIcon = isMissing ? "❌ Non-Compliant" : "✅ Compliant";
-      const statusClass = isMissing ? "text-red-700 bg-red-50" : "text-emerald-700 bg-emerald-50";
+      const statusClass = isMissing
+        ? "text-red-700 bg-red-50 dark:text-red-300 dark:bg-red-950/60 border border-red-200 dark:border-red-800"
+        : "text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800";
       return `
-        <tr class="border-b border-slate-200 text-xs">
-          <td class="py-2 px-3 font-semibold text-slate-800">${item.name}</td>
-          <td class="py-2 px-3 font-mono ${isMissing ? 'text-red-600 font-bold' : 'text-slate-700'}">${item.value || "MISSING"}</td>
-          <td class="py-2 px-3 text-slate-500">${item.rule}</td>
-          <td class="py-2 px-3"><span class="px-2 py-0.5 rounded font-bold ${statusClass}">${statusIcon}</span></td>
+        <tr class="border-b border-slate-200 dark:border-slate-800 text-xs">
+          <td class="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-200">${escapeHtml(item.name)}</td>
+          <td class="py-2.5 px-3 font-mono ${isMissing ? 'text-red-600 dark:text-red-400 font-bold' : 'text-slate-700 dark:text-slate-300'}">${escapeHtml(item.value || "MISSING")}</td>
+          <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 font-mono text-[11px]">${escapeHtml(item.rule)}</td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded-md font-bold text-[11px] ${statusClass}">${statusIcon}</span></td>
         </tr>
       `;
     }).join("");
@@ -117,18 +225,18 @@ function initReportView() {
     if (record.isCompliant) {
       stampEl.className = "official-gov-seal seal-compliant p-3 w-32 h-32";
       stampEl.innerHTML = `
-        <div class="text-[8px] font-black tracking-widest text-emerald-800 border-b border-emerald-500/40 pb-0.5">GOVT. OF INDIA</div>
+        <div class="text-[8px] font-black tracking-widest text-emerald-800 dark:text-emerald-300 border-b border-emerald-500/40 pb-0.5">GOVT. OF INDIA</div>
         <div class="text-2xl my-0.5">⚖️</div>
-        <div class="text-xs font-black tracking-wider text-emerald-700">COMPLIANT</div>
-        <div class="text-[7.5px] font-bold text-emerald-600 mt-0.5">ACT 2009 / PCR 2011</div>
+        <div class="text-xs font-black tracking-wider text-emerald-700 dark:text-emerald-400">COMPLIANT</div>
+        <div class="text-[7.5px] font-bold text-emerald-600 dark:text-emerald-500 mt-0.5">ACT 2009 / PCR 2011</div>
       `;
     } else {
       stampEl.className = "official-gov-seal seal-violation p-3 w-32 h-32";
       stampEl.innerHTML = `
-        <div class="text-[8px] font-black tracking-widest text-red-900 border-b border-red-500/40 pb-0.5">GOVT. OF INDIA</div>
+        <div class="text-[8px] font-black tracking-widest text-red-900 dark:text-red-300 border-b border-red-500/40 pb-0.5">GOVT. OF INDIA</div>
         <div class="text-2xl my-0.5">⚠️</div>
-        <div class="text-xs font-black tracking-wider text-red-700">VIOLATION</div>
-        <div class="text-[7.5px] font-bold text-red-600 mt-0.5">SECTION 36 NOTICE</div>
+        <div class="text-xs font-black tracking-wider text-red-700 dark:text-red-400">VIOLATION</div>
+        <div class="text-[7.5px] font-bold text-red-600 dark:text-red-500 mt-0.5">SECTION 36 NOTICE</div>
       `;
     }
   }
@@ -138,11 +246,11 @@ function initReportView() {
   if (violationsList) {
     const viols = record.violations || [];
     if (viols.length === 0) {
-      violationsList.innerHTML = "<li class='text-xs text-emerald-700 font-medium'>Zero violations found. All mandatory declarations comply with Rules, 2011.</li>";
+      violationsList.innerHTML = "<li class='text-xs text-emerald-700 dark:text-emerald-400 font-medium'>Zero violations found. All mandatory declarations comply with Rules, 2011.</li>";
     } else {
       violationsList.innerHTML = viols.map(function(v, index) {
         const vText = typeof v === "object" ? (v?.reason || v?.rule || v?.violation || JSON.stringify(v)) : String(v || "Statutory Violation");
-        return `<li class="text-xs text-red-700 font-medium">${index + 1}. ${vText} — (Per Legal Metrology Packaged Commodities Rules)</li>`;
+        return `<li class="text-xs text-red-700 dark:text-red-400 font-medium flex items-start gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5"></span><span>${index + 1}. ${escapeHtml(vText)} — (Per Legal Metrology Packaged Commodities Rules)</span></li>`;
       }).join("");
     }
   }
@@ -190,6 +298,47 @@ function initReportView() {
     officerTokenEl.textContent = `Digital Token: MC-${cleanId.slice(-8)}-AUTH`;
   }
 }
+
+/**
+ * Mobile-First Native Share or Link Copy Helper
+ */
+async function shareReport() {
+  const shareData = {
+    title: `METRO-CHECK Report • ${activeReportId || "Inspection"}`,
+    text: `Official Legal Metrology Statutory Inspection Verification Report for Docket ${activeReportId || ""}.`,
+    url: window.location.href
+  };
+
+  if (typeof navigator !== "undefined" && navigator.share) {
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        console.warn("[Report] Web Share failed, falling back to clipboard:", err);
+      } else {
+        return;
+      }
+    }
+  }
+
+  // Fallback: Copy link to clipboard
+  if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      if (typeof showToast === "function") {
+        showToast("🔗 Report verification link copied to clipboard!", "success");
+      } else {
+        alert("Report link copied to clipboard!");
+      }
+      return;
+    } catch (e) {}
+  }
+
+  prompt("Copy report verification URL:", window.location.href);
+}
+window.shareReport = shareReport;
+window.closeForensicIntegrityModal = () => document.getElementById("forensicIntegrityModal")?.remove();
 
 /**
  * Draws a subtle diagonal watermark "OFFICIAL COPY" across the generated PDF page.
@@ -304,7 +453,8 @@ window.handleReportBack = handleReportBack;
  */
 async function openForensicIntegrityModal(recordId) {
   const id = recordId || activeReportId;
-  const record = (typeof getInspectionById === "function") ? getInspectionById(id) : null;
+  let record = (typeof getInspectionById === "function") ? getInspectionById(id) : null;
+  if (!record && currentReportRecord) record = currentReportRecord;
   if (!record) {
     if (typeof showToast === "function") showToast("Docket not found: " + id, "error");
     return;
@@ -316,45 +466,45 @@ async function openForensicIntegrityModal(recordId) {
   const storedHash = (record.docketHash || "").toUpperCase();
   const modal = document.createElement("div");
   modal.id = "forensicIntegrityModal";
-  modal.className = "fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm";
+  modal.className = "fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md";
   modal.innerHTML = `
-    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg p-6 relative flex flex-col gap-4 border border-slate-200 dark:border-slate-700">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg p-5 sm:p-6 relative flex flex-col gap-3 sm:gap-4 border border-slate-200 dark:border-slate-700 max-h-[92vh] overflow-y-auto">
       <button onclick="document.getElementById('forensicIntegrityModal')?.remove()"
-        class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none">&times;</button>
-      <div class="flex items-center gap-3">
+        class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white text-2xl leading-none w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition">&times;</button>
+      <div class="flex items-center gap-3 pr-8">
         <span class="text-3xl">🔐</span>
         <div>
-          <h2 class="text-base font-black text-slate-900 dark:text-slate-100 tracking-tight">Forensic Integrity Verification</h2>
-          <p class="text-xs text-slate-500">SHA-256 Evidence Chain • Section 63, Bharatiya Sakshya Adhiniyam 2023</p>
+          <h2 class="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 tracking-tight">Forensic Integrity Verification</h2>
+          <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">SHA-256 Evidence Chain • Section 63, BSA 2023</p>
         </div>
       </div>
 
-      <div class="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 space-y-2 text-xs border border-slate-200 dark:border-slate-700">
-        <div class="flex justify-between"><span class="text-slate-500 font-semibold">Docket ID</span><span class="font-mono text-slate-800 dark:text-slate-200 text-right max-w-[55%] truncate" title="${record.id}">${record.id}</span></div>
-        <div class="flex justify-between"><span class="text-slate-500 font-semibold">Inspector</span><span class="font-mono text-slate-800 dark:text-slate-200">${record.inspectorName || record.inspectorId || "—"}</span></div>
-        <div class="flex justify-between"><span class="text-slate-500 font-semibold">Status</span><span class="font-mono text-slate-800 dark:text-slate-200">${record.overallStatus || record.status || "—"}</span></div>
-        <div class="flex justify-between"><span class="text-slate-500 font-semibold">Stored Hash</span><span class="font-mono text-emerald-700 dark:text-emerald-400 text-right text-[10px] max-w-[55%] break-all">${storedHash || "Not yet computed"}</span></div>
+      <div class="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-3.5 sm:p-4 space-y-2 text-xs border border-slate-200 dark:border-slate-700">
+        <div class="flex justify-between items-center"><span class="text-slate-500 dark:text-slate-400 font-semibold">Docket ID</span><span class="font-mono text-slate-800 dark:text-slate-200 text-right max-w-[55%] truncate font-bold" title="${escapeHtml(record.id)}">${escapeHtml(record.id)}</span></div>
+        <div class="flex justify-between items-center"><span class="text-slate-500 dark:text-slate-400 font-semibold">Inspector</span><span class="font-mono text-slate-800 dark:text-slate-200">${escapeHtml(record.inspectorName || record.inspectorId || "—")}</span></div>
+        <div class="flex justify-between items-center"><span class="text-slate-500 dark:text-slate-400 font-semibold">Status</span><span class="font-mono text-slate-800 dark:text-slate-200 font-bold">${escapeHtml(record.overallStatus || record.status || "—")}</span></div>
+        <div class="flex justify-between items-center"><span class="text-slate-500 dark:text-slate-400 font-semibold">Stored Hash</span><span class="font-mono text-emerald-700 dark:text-emerald-400 text-right text-[10px] max-w-[55%] break-all font-bold">${escapeHtml(storedHash || "Not yet computed")}</span></div>
       </div>
 
-      <div id="forensicVerifyResult" class="rounded-2xl p-4 text-sm font-semibold text-center border border-dashed border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500">
-        Click "Verify Now" to compute hash and compare...
+      <div id="forensicVerifyResult" class="rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm font-semibold text-center border border-dashed border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500">
+        Click "Verify Chain Integrity" to compute SHA-256 hash and authenticate...
       </div>
 
       <div id="forensicComputedHashRow" class="hidden text-xs font-mono bg-slate-50 dark:bg-slate-800 rounded-xl p-3 break-all text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"></div>
 
-      <div class="flex flex-col sm:flex-row gap-2">
+      <div class="flex flex-col sm:flex-row gap-2 pt-1">
         <button id="forensicVerifyBtn" onclick="window._runForensicVerify && window._runForensicVerify()"
-          class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
+          class="flex-1 py-2.5 sm:py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md min-h-[44px]">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           Verify Chain Integrity
         </button>
         <button id="forensicTamperBtn" onclick="window._runTamperSimulation && window._runTamperSimulation()"
-          class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
+          class="flex-1 py-2.5 sm:py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md min-h-[44px]">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
           Simulate Tamper Attack
         </button>
       </div>
-      <p class="text-[10px] text-slate-400 text-center">Tamper simulation mutates a field in memory only — no data is permanently modified.</p>
+      <p class="text-[10.5px] text-slate-400 text-center">Tamper simulation mutates a field in memory only — no server data is permanently modified.</p>
     </div>`;
 
   document.body.appendChild(modal);
@@ -370,11 +520,11 @@ async function openForensicIntegrityModal(recordId) {
     try {
       const result = await verifyRecordIntegrity(workingRecord);
       if (result.verified) {
-        resDiv.className = "rounded-2xl p-4 text-sm font-semibold text-center border-2 border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300";
-        resDiv.innerHTML = `✅ Evidence Chain INTACT<br><span class="text-[11px] font-normal text-emerald-600">${result.reason}</span>`;
+        resDiv.className = "rounded-2xl p-4 text-sm font-semibold text-center border-2 border-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300";
+        resDiv.innerHTML = `✅ Evidence Chain INTACT<br><span class="text-[11px] font-normal text-emerald-600 dark:text-emerald-400">${result.reason}</span>`;
       } else {
-        resDiv.className = "rounded-2xl p-4 text-sm font-semibold text-center border-2 border-rose-400 bg-rose-50 dark:bg-rose-950/30 text-rose-800 dark:text-rose-300";
-        resDiv.innerHTML = `❌ HASH MISMATCH DETECTED<br><span class="text-[11px] font-normal text-rose-600">${result.reason}</span>`;
+        resDiv.className = "rounded-2xl p-4 text-sm font-semibold text-center border-2 border-rose-400 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300";
+        resDiv.innerHTML = `❌ HASH MISMATCH DETECTED<br><span class="text-[11px] font-normal text-rose-600 dark:text-rose-400">${result.reason}</span>`;
       }
       if (hashRow) {
         hashRow.className = "text-xs font-mono bg-slate-50 dark:bg-slate-800 rounded-xl p-3 break-all text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700";
@@ -398,7 +548,7 @@ async function openForensicIntegrityModal(recordId) {
     workingRecord.overallStatus = tamperValue;
     workingRecord.status        = tamperValue;
 
-    resDiv.className = "rounded-2xl p-4 text-xs text-center border-2 border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-800";
+    resDiv.className = "rounded-2xl p-4 text-xs text-center border-2 border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300";
     resDiv.innerHTML = `⚠️ Field tampered in memory:<br><b>overallStatus</b> changed from "<b>${originalStatus}</b>" to "<b>${tamperValue}</b>"<br>Re-computing SHA-256 hash…`;
 
     await new Promise(r => setTimeout(r, 600));

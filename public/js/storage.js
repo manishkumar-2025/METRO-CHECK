@@ -813,6 +813,9 @@ async function syncInspectionsWithServer(onSyncComplete) {
 
           // Automatically re-render active portal views with fresh synced records
           if (typeof renderDocketTable === "function") renderDocketTable();
+          if (typeof filterByStatus === "function" && typeof window !== "undefined" && (window.location.pathname.includes("officer") || window.location.hash.includes("docket"))) {
+            filterByStatus(typeof activeDocketFilter !== "undefined" ? activeDocketFilter : "all");
+          }
           if (typeof renderStats === "function") renderStats();
           if (typeof renderRecentDashboardTable === "function") renderRecentDashboardTable();
           if (typeof renderMyInspections === "function") renderMyInspections();

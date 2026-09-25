@@ -77,6 +77,18 @@
   <link rel="stylesheet" href="css/responsive.css">
 
   <style>
+    .sr-only:not(:focus):not(:focus-within) {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+  
     /* Executive Sovereign Masthead & Top Action Bar Layout */
     #nationalGovMasthead {
       position: sticky;
@@ -137,91 +149,95 @@
 
   <!-- 1. OFFICIAL NATIONAL MASTHEAD & TRICOLOR HEADER BAR (Screen Only) -->
   <header id="nationalGovMasthead"
-    class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 sticky top-0 z-40 flex-shrink-0 select-none text-slate-800 dark:text-slate-200 print:hidden no-print shadow-xs glass-header">
-    <div class="tricolor-strip print:hidden"></div>
-    <div class="w-full px-4 sm:px-6 py-2 flex items-center justify-between gap-3">
+    class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-[#E4E7EC] dark:border-slate-800 z-50 flex-shrink-0 select-none text-[#0F172A] glass-header fixed top-0 left-0 right-0 shadow-xs">
+    <div class="tricolor-strip"></div>
+    <div class="w-full px-2.5 sm:px-6 py-1.5 sm:py-2 flex items-center justify-between gap-2 sm:gap-3">
 
-      <!-- Left: Sovereign Emblem & Bilingual Hierarchy -->
-      <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+      <!-- Left: Sovereign Emblem & Bilingual Navy Ministry Text -->
+      <div class="flex items-center gap-2 sm:gap-3.5 min-w-0">
         <!-- Official State Emblem of India (Ashoka Lion Capital) -->
         <div class="flex-shrink-0 flex items-center justify-center focus:outline-none group cursor-default"
           title="Government of India • State Emblem of India • सत्यमेव जयते">
           <img src="logo/header-logo-emblem.png" alt="State Emblem of India"
-            class="h-9 sm:h-11 w-auto object-contain select-none drop-shadow-xs transition-transform group-hover:scale-105" />
+            class="h-8 sm:h-11 w-auto object-contain select-none drop-shadow-xs transition-transform group-hover:scale-105" />
           <span class="sr-only">सत्यमेव जयते / State Emblem of India</span>
+          <span id="emblemGoldLight" class="hidden"></span>
         </div>
 
-        <div class="w-[1px] h-8 bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
+        <div class="w-[1px] h-7 sm:h-8 bg-[#E4E7EC] dark:bg-slate-800"></div>
 
-        <!-- Hierarchy & Official Portal Indicator -->
+        <!-- Navy Ministry Hierarchy Text -->
         <div class="flex flex-col justify-center min-w-0 py-0.5">
           <div
-            class="text-[12px] sm:text-[13px] font-bold leading-tight tracking-tight text-slate-900 dark:text-white truncate">
-            उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय
+            class="text-[11px] sm:text-[13.5px] font-bold leading-tight tracking-tight text-[#0F172A] dark:text-slate-100 truncate">
+            <span class="sm:hidden">उपभोक्ता मामले मंत्रालय</span>
+            <span class="hidden sm:inline">उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय</span>
           </div>
           <div
-            class="text-[10px] sm:text-[11px] font-medium leading-tight mt-1 pb-0.5 text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5">
-            <span>Ministry of Consumer Affairs, Food & Public Distribution</span>
+            class="text-[9px] sm:text-[11.5px] font-medium leading-tight mt-0.5 text-[#64748B] dark:text-slate-400 flex items-center gap-1 sm:gap-1.5 truncate">
             <span
-              class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono ml-1">e-LMCEP</span>
-            <span class="text-slate-400 font-normal hidden lg:inline">(e-Legal Metrology Compliance & Enforcement
-              Portal / METRO-CHECK)</span>
+              class="px-1 sm:px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono flex-shrink-0">e-LMCEP</span>
+            <span class="text-slate-400 dark:text-slate-600 sm:hidden select-none">•</span>
+            <span class="sm:hidden text-slate-500 dark:text-slate-400 truncate">Govt. of India</span>
+            <span class="hidden sm:inline truncate">Ministry of Consumer Affairs, Food &amp; Public Distribution</span>
+            <span class="text-[#64748B] dark:text-slate-400 font-normal hidden lg:inline">(e-Legal Metrology Compliance
+              &amp; Enforcement Portal / METRO-CHECK)</span>
           </div>
         </div>
       </div>
 
-      <!-- Right: Modern Floating Glass Pill Dock -->
-      <div class="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
+      <!-- Right: Live Clock & Accessible Dock -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
 
-        <!-- Live IST Clock Ticker -->
+        <!-- Live IST Clock Ticker (Desktop / Tablet Only) -->
         <div
-          class="masthead-clock-pill flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-mono text-[10px] sm:text-[11px] font-bold shadow-xs"
+          class="masthead-clock-pill hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-mono text-[10px] sm:text-[11px] font-semibold shadow-xs"
           title="Indian Standard Time (UTC + 05:30)">
           <span class="masthead-clock-dot w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span class="masthead-ist-clock tracking-tight">-- --- ---- | --:--:-- IST</span>
         </div>
 
+        <!-- Unified Header Utility Dock -->
+        <div
+          class="masthead-pill-dock flex items-center gap-0.5 sm:gap-1.5 px-1 sm:px-2.5 py-0.5 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 shadow-xs">
 
-
-        <!-- Accessibility Pill Dock -->
-        <div class="masthead-pill-dock">
-          <!-- Font Sizer -->
-          <div class="flex items-center text-[10px] font-bold rounded-full overflow-hidden p-0.5">
+          <!-- Font Sizer (Desktop Only) -->
+          <div id="mastheadFontSizerWrapper" class="hidden sm:flex items-center text-[10px] font-semibold rounded-full overflow-hidden p-0.5">
             <button type="button" onclick="govChangeFontSize('decrease')" id="fontSizer-decrease"
               title="Decrease Font (A-)"
-              class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">A-</button>
+              class="px-1.5 py-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition opacity-80">A-</button>
             <button type="button" onclick="govChangeFontSize('normal')" id="fontSizer-normal" title="Normal Font (A)"
-              class="px-1.5 py-0.5 rounded-full bg-[#10B981] text-white shadow-xs transition">A</button>
+              class="px-1.5 py-0.5 rounded bg-[#10B981] text-white shadow-xs transition">A</button>
             <button type="button" onclick="govChangeFontSize('increase')" id="fontSizer-increase"
               title="Increase Font (A+)"
-              class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">A+</button>
+              class="px-1.5 py-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition opacity-80">A+</button>
           </div>
 
-          <div class="w-[1px] h-3 bg-slate-300/80 dark:bg-slate-700"></div>
+          <div class="masthead-divider w-[1px] h-3 bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
 
           <!-- High-Contrast Toggle -->
           <button type="button" onclick="govToggleHighContrast()" id="govHighContrastBtn"
             title="Toggle High-Contrast Mode"
-            class="p-1 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs transition cursor-pointer">
+            class="w-7 h-7 min-w-[28px] min-h-[28px] p-0 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700 text-xs transition text-slate-700 dark:text-slate-300 cursor-pointer flex items-center justify-center">
             🌓
           </button>
 
-          <div class="w-[1px] h-3 bg-slate-300/80 dark:bg-slate-700"></div>
+          <div class="masthead-divider w-[1px] h-3 bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
 
-          <!-- Theme Toggle (Executive Light / Dark) -->
+          <!-- Theme Toggle -->
           <button type="button" onclick="govToggleTheme()" id="govThemeToggleBtn" title="Switch Theme (Light / Dark)"
-            class="p-1 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs transition cursor-pointer">
+            class="w-7 h-7 min-w-[28px] min-h-[28px] p-0 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700 text-xs transition text-slate-700 dark:text-slate-300 cursor-pointer flex items-center justify-center">
             🌙
           </button>
 
-          <div class="w-[1px] h-3 bg-slate-300/80 dark:bg-slate-700"></div>
+          <div class="masthead-divider w-[1px] h-3 bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
 
           <!-- Language Toggle -->
-          <div class="flex items-center text-[9.5px] font-bold rounded-full overflow-hidden p-0.5">
+          <div class="flex items-center text-[9px] sm:text-[9.5px] font-semibold rounded-full overflow-hidden p-0.5">
             <button type="button" onclick="govSetLanguage('en')" id="govLangEn"
-              class="px-1.5 py-0.5 rounded-full bg-[#10B981] text-white transition shadow-xs">EN</button>
+              class="px-1.5 py-0.5 rounded bg-[#10B981] text-white transition shadow-xs">EN</button>
             <button type="button" onclick="govSetLanguage('hi')" id="govLangHi"
-              class="px-1.5 py-0.5 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-800 transition opacity-60">हि</button>
+              class="px-1.5 py-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition opacity-80">हि</button>
           </div>
         </div>
 
@@ -240,26 +256,38 @@
 
   <!-- Top Action Sub-Header Bar (Positioned below top navbar with clear padding) -->
   <div id="reportTopActionBar"
-    class="w-full bg-slate-200/60 dark:bg-slate-900/80 border-y border-slate-200 dark:border-slate-800 py-6 px-4 sm:px-6 mt-4 sm:mt-6 mb-6 print:hidden no-print">
-    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-      <div class="flex items-center justify-start">
+    class="w-full bg-slate-100/90 dark:bg-slate-900/90 border-y border-slate-200 dark:border-slate-800 py-2.5 px-3 sm:px-6 my-2 sm:my-4 print:hidden no-print">
+    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+      <!-- Left: Back & Mobile Share -->
+      <div class="flex items-center justify-between sm:justify-start gap-2">
         <button type="button" onclick="handleReportBack()"
-          class="px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer">
+          class="px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer min-h-[44px]">
           <span>←</span> <span>Back</span>
         </button>
-      </div>
-      <div class="flex flex-wrap items-center justify-end gap-2.5">
-        <button type="button" onclick="printReport()"
-          class="px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer">
-          <span>🖨️</span> <span>Print Official Report</span>
+        <button type="button" onclick="shareReport()"
+          class="sm:hidden px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer min-h-[44px]"
+          title="Share Official Report Link">
+          <span>🔗</span> <span>Share</span>
         </button>
-        <!-- Forensic Integrity Verification -->
+      </div>
+
+      <!-- Right: Primary Action Buttons -->
+      <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-end gap-2">
+        <button type="button" onclick="printReport()"
+          class="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px]">
+          <span>🖨️</span> <span>Print</span>
+        </button>
         <button type="button" id="forensicIntegrityBtn" onclick="openForensicIntegrityModal()"
-          class="px-3.5 py-2 rounded-xl font-extrabold text-xs border border-violet-500/80 text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950/50 hover:bg-violet-100 dark:hover:bg-violet-900/60 shadow-xs transition-all flex items-center gap-2 cursor-pointer">
-          <span>🔐</span> <span>Test Forensic Integrity</span>
+          class="px-3 py-2 rounded-xl font-bold text-xs border border-violet-500/80 text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950/50 hover:bg-violet-100 dark:hover:bg-violet-900/60 shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px]">
+          <span>🔐</span> <span>Forensic</span>
+        </button>
+        <button type="button" onclick="shareReport()"
+          class="hidden sm:flex px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs rounded-xl shadow-xs transition-all items-center justify-center gap-1.5 cursor-pointer min-h-[44px]"
+          title="Share Official Report Link">
+          <span>🔗</span> <span>Share</span>
         </button>
         <button type="button" id="downloadPdfButton" onclick="generatePDF()"
-          class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer">
+          class="col-span-2 sm:col-span-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[44px]">
           <span>📥</span> <span>Download PDF</span>
         </button>
       </div>
@@ -268,10 +296,10 @@
 
   <!-- Printable A4 Document Sheet -->
   <main id="mainContent"
-    class="max-w-4xl mx-auto bg-white dark:bg-slate-900 p-8 sm:p-10 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 space-y-6 my-4 print:shadow-none print:border-none print:p-0 print:my-0">
+    class="max-w-4xl mx-auto bg-white dark:bg-slate-900 p-3.5 sm:p-7 md:p-10 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 space-y-6 my-2 sm:my-4 print:shadow-none print:border-none print:p-0 print:my-0">
 
     <!-- Report Document Header with Official Emblem & Ministry Credentials -->
-    <header class="border-b-2 border-slate-800 pb-4 flex items-center justify-between">
+    <header class="border-b-2 border-slate-800 dark:border-slate-700 pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
       <div class="flex items-center gap-3.5">
         <div class="flex-shrink-0 w-10 h-12 flex items-center justify-center">
           <svg viewBox="0 0 100 125" class="w-full h-full drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg"
@@ -340,7 +368,7 @@
     <!-- Section 1 & 2: Inspector Details & Product Information -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
       <!-- 1. Inspector Details -->
-      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+      <div class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
         <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-2 border-b border-slate-200 pb-1">1.
           Inspector Particulars</h3>
         <div class="space-y-1">
@@ -356,7 +384,7 @@
       </div>
 
       <!-- 2. Product Information -->
-      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-start justify-between">
+      <div class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex items-start justify-between">
         <div class="space-y-1">
           <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-2 border-b border-slate-200 pb-1">
             2. Product Information</h3>
@@ -383,9 +411,9 @@
     <section>
       <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-2">3. Mandatory Label Declarations (AI
         Vision Audit)</h3>
-      <div class="overflow-x-auto border border-slate-200 rounded-xl">
+      <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
         <table class="w-full text-left">
-          <thead class="bg-slate-100 text-slate-600 text-[11px] uppercase font-bold border-b border-slate-200">
+          <thead class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] uppercase font-bold border-b border-slate-200 dark:border-slate-700">
             <tr>
               <th class="py-2 px-3">Statutory Declaration</th>
               <th class="py-2 px-3">Extracted Value</th>
@@ -411,7 +439,7 @@
       </div>
 
       <!-- 5. Violations Found -->
-      <div class="p-4 bg-red-50/60 border border-red-200 rounded-xl md:col-span-2">
+      <div class="p-4 bg-red-50/60 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-xl md:col-span-2">
         <h3 class="font-bold text-red-900 uppercase tracking-wider text-[11px] mb-1">5. Detected Statutory Violations
         </h3>
         <ul id="reportViolationsList" class="space-y-1"></ul>
@@ -443,7 +471,7 @@
     </section>
 
     <!-- Section 7: Document Official Footer -->
-    <footer class="border-t border-slate-200 pt-3 text-center text-[10px] text-slate-400">
+    <footer class="border-t border-slate-200 dark:border-slate-700 pt-3 text-center text-[10px] text-slate-400 dark:text-slate-500">
       <p>© 2026 e-LMCEP (METRO-CHECK) | Ministry of Consumer Affairs, Food & Public Distribution, Govt. of India</p>
       <p class="mt-0.5 font-medium">Official Verification Copy • Legal Metrology (Packaged Commodities) Rules, 2011</p>
     </footer>
