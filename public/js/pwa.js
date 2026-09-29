@@ -339,7 +339,7 @@
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               One-Click App Installation
             </span>
-            <span class="text-[10px] text-slate-400 font-mono">Build v7.1.0</span>
+            <span class="text-[10px] text-slate-400 font-mono">Build v8.0.0</span>
           </div>
 
           <button type="button" id="pwa-direct-install-action-btn" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm shadow-lg hover:shadow-emerald-500/20 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-95">
@@ -470,7 +470,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     let touchStartX = 0;
     let touchStartY = 0;
-    
+
     document.addEventListener('touchstart', (e) => {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;

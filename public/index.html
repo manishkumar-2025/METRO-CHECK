@@ -91,6 +91,7 @@
   <!-- 3. Custom Stylesheet (Design Tokens, Animations, Utilities) -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/demo-mode.css">
 </head>
 
 <body
@@ -167,7 +168,8 @@
           class="masthead-pill-dock flex items-center gap-0.5 sm:gap-1.5 px-1 sm:px-2.5 py-0.5 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 shadow-xs">
 
           <!-- Font Sizer (Desktop Only) -->
-          <div id="mastheadFontSizerWrapper" class="hidden sm:flex items-center text-[10px] font-semibold rounded-full overflow-hidden p-0.5">
+          <div id="mastheadFontSizerWrapper"
+            class="hidden sm:flex items-center text-[10px] font-semibold rounded-full overflow-hidden p-0.5">
             <button type="button" onclick="govChangeFontSize('decrease')" id="fontSizer-decrease"
               title="Decrease Font (A-)"
               class="px-1.5 py-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition opacity-80">A-</button>
@@ -235,7 +237,8 @@
       <!-- =========================================================================
            SEGMENT 1: MINISTRY INTRO & BASIC OVERVIEW
            ========================================================================= -->
-      <section id="segment-ministry-intro" class="segment-block segment-ministry-intro space-y-6 text-[#0F172A] dark:text-slate-100">
+      <section id="segment-ministry-intro"
+        class="segment-block segment-ministry-intro space-y-6 text-[#0F172A] dark:text-slate-100">
 
         <!-- Glowing Sovereign Pill Badges + Upper Officer Sign In Quick Jump -->
         <div class="flex flex-wrap items-center justify-between gap-2.5">
@@ -323,7 +326,8 @@
           </div>
           <p class="text-xs text-slate-600 dark:text-slate-400">Enter a Case Docket ID or scan barcode from an official
             inspection notice to view signed compliance reports:</p>
-          <form onsubmit="handlePublicReportLookup(event)" class="flex flex-col sm:flex-row items-stretch gap-2.5 pt-0.5">
+          <form onsubmit="handlePublicReportLookup(event)"
+            class="flex flex-col sm:flex-row items-stretch gap-2.5 pt-0.5">
             <div class="relative flex-1">
               <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-mono">#</span>
               <input type="text" id="publicReportSearchInput" aria-label="Search Public Inspection Docket by Case ID"
@@ -351,15 +355,19 @@
               🏛️
             </div>
             <div class="space-y-1">
-              <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">Statutory Metrology Enforcement Mandate</h3>
+              <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">Statutory
+                Metrology Enforcement Mandate</h3>
               <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                Empowering Metrology Inspectors and Senior Enforcement Controllers to audit mandatory declarations (MRP, Net Quantity, Mfg Date, Country of Origin, Customer Care) and generate digitally signed Form-V seizure receipts in real time.
+                Empowering Metrology Inspectors and Senior Enforcement Controllers to audit mandatory declarations (MRP,
+                Net Quantity, Mfg Date, Country of Origin, Customer Care) and generate digitally signed Form-V seizure
+                receipts in real time.
               </p>
             </div>
           </div>
 
           <div class="pt-2.5 sm:pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Want to inspect technical specs?</span>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Want to inspect technical
+              specs?</span>
             <a href="features.html"
               class="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-xs font-bold transition-all duration-150 cursor-pointer border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 shadow-xs min-h-[44px]">
               <span>Explore Platform Features</span>
@@ -372,13 +380,15 @@
       <!-- =========================================================================
            SEGMENT 4: PLATFORM CAPABILITIES BENTO SHOWCASE (Compact Mobile Layout)
            ========================================================================= -->
-      <section id="segment-platform-capabilities" class="segment-block segment-platform-capabilities pt-4 sm:pt-6 border-t border-slate-200/80 dark:border-slate-800/80 space-y-3 sm:space-y-6">
+      <section id="segment-platform-capabilities"
+        class="segment-block segment-platform-capabilities pt-4 sm:pt-6 border-t border-slate-200/80 dark:border-slate-800/80 space-y-3 sm:space-y-6">
         <div class="text-left sm:text-center max-w-2xl sm:mx-auto space-y-1.5 sm:space-y-2">
           <div
             class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] sm:text-xs font-bold">
             <span>⚡</span> <span>Core Engine Architecture</span>
           </div>
-          <h2 class="text-lg sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
+          <h2
+            class="text-lg sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
             Statutory Verification &amp; Enforcement Capabilities
           </h2>
           <p class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -388,31 +398,37 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-6 pt-1 sm:pt-2">
           <!-- Bento 1: Optical Inspection -->
-          <div class="ds-card p-3.5 sm:p-6 space-y-2 sm:space-y-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl rounded-xl sm:rounded-2xl">
+          <div
+            class="ds-card p-3.5 sm:p-6 space-y-2 sm:space-y-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl rounded-xl sm:rounded-2xl">
             <div class="flex items-center gap-3 sm:block">
               <div
                 class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center text-lg sm:text-xl shadow-md flex-shrink-0 sm:mb-3">
                 📷
               </div>
-              <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">AI Optical Label Extraction</h3>
+              <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">AI Optical Label
+                Extraction</h3>
             </div>
             <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 sm:line-clamp-none">
-              Extracts mandatory declarations (MRP, Net Quantity, Mfg Date, Country of Origin, Customer Care) in real time
+              Extracts mandatory declarations (MRP, Net Quantity, Mfg Date, Country of Origin, Customer Care) in real
+              time
               using neural vision models optimized for field PWA environments.
             </p>
-            <div class="pt-1 sm:pt-2 flex items-center gap-2 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+            <div
+              class="pt-1 sm:pt-2 flex items-center gap-2 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
               <span>Automated Rule 6 Extraction</span> <span>→</span>
             </div>
           </div>
 
           <!-- Bento 2: Penalty Engine -->
-          <div class="ds-card p-3.5 sm:p-6 space-y-2 sm:space-y-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl rounded-xl sm:rounded-2xl">
+          <div
+            class="ds-card p-3.5 sm:p-6 space-y-2 sm:space-y-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl rounded-xl sm:rounded-2xl">
             <div class="flex items-center gap-3 sm:block">
               <div
                 class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-lg sm:text-xl shadow-md flex-shrink-0 sm:mb-3">
                 ⚖️
               </div>
-              <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">Statutory Seizure &amp; Penalty Engine</h3>
+              <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">Statutory Seizure
+                &amp; Penalty Engine</h3>
             </div>
             <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 sm:line-clamp-none">
               Automates penalty compounding under Section 36 of Legal Metrology Act, 2009 and PCR 2011 rules, generating
@@ -424,19 +440,22 @@
           </div>
 
           <!-- Bento 3: Multi-Tier Workflow -->
-          <div class="ds-card p-3.5 sm:p-6 space-y-2 sm:space-y-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl rounded-xl sm:rounded-2xl">
+          <div
+            class="ds-card p-3.5 sm:p-6 space-y-2 sm:space-y-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl rounded-xl sm:rounded-2xl">
             <div class="flex items-center gap-3 sm:block">
               <div
                 class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center text-lg sm:text-xl shadow-md flex-shrink-0 sm:mb-3">
                 🏛️
               </div>
-              <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">Multi-Tier Zonal Adjudication</h3>
+              <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">Multi-Tier Zonal
+                Adjudication</h3>
             </div>
             <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 sm:line-clamp-none">
               Seamless multi-tier hierarchy across 6 Zonal Jurisdictions connecting Field Inspectors, Legal Controllers,
               and National Directors with real-time cloud synchronization.
             </p>
-            <div class="pt-1 sm:pt-2 flex items-center gap-2 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+            <div
+              class="pt-1 sm:pt-2 flex items-center gap-2 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
               <span>Role-Based Security Matrix</span> <span>→</span>
             </div>
           </div>
@@ -449,15 +468,18 @@
       <section id="segment-officer-auth" class="segment-block segment-officer-auth space-y-4 sm:space-y-5">
 
         <!-- Modern Authentication Card -->
-        <div class="ds-card w-full p-4 sm:p-7 shadow-2xl transition-all border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl">
+        <div
+          class="ds-card w-full p-4 sm:p-7 shadow-2xl transition-all border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl">
 
           <!-- Brand Header -->
           <div class="text-center mb-4 sm:mb-6">
             <div
               class="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-slate-800 dark:to-slate-900 border border-emerald-200 dark:border-slate-700 p-1 mb-2 sm:mb-2.5 shadow-md">
-              <img src="logo/logo.png" alt="METRO-CHECK Logo" class="w-9 h-9 sm:w-11 sm:h-11 object-contain rounded-xl select-none" />
+              <img src="logo/logo.png" alt="METRO-CHECK Logo"
+                class="w-9 h-9 sm:w-11 sm:h-11 object-contain rounded-xl select-none" />
             </div>
-            <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">METRO-CHECK Sign In</h2>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">METRO-CHECK Sign In
+            </h2>
             <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Department of Consumer Affairs •
               Statutory Enforcement</p>
           </div>
@@ -482,8 +504,9 @@
               </label>
               <div class="relative">
                 <span class="absolute left-3.5 top-3.5 text-slate-400 text-sm select-none pointer-events-none">👤</span>
-                <input type="text" id="usernameInput" placeholder="e.g. inspector, officer, or admin" required autocomplete="username"
-                  class="ds-input pl-11 pr-3.5 py-2.5 text-sm w-full font-medium min-h-[44px]" style="padding-left: 2.75rem !important;">
+                <input type="text" id="usernameInput" placeholder="e.g. inspector, officer, or admin" required
+                  autocomplete="username" class="ds-input pl-11 pr-3.5 py-2.5 text-sm w-full font-medium min-h-[44px]"
+                  style="padding-left: 2.75rem !important;">
               </div>
             </div>
 
@@ -494,17 +517,25 @@
               </label>
               <div class="relative flex items-center">
                 <span class="absolute left-3.5 top-3.5 text-slate-400 text-sm select-none pointer-events-none">🔒</span>
-                <input type="password" id="passwordInput" placeholder="••••••••" required autocomplete="current-password"
-                  class="ds-input pl-11 pr-11 py-2.5 text-sm w-full font-medium min-h-[44px]" style="padding-left: 2.75rem !important; padding-right: 2.75rem !important;">
-                <button type="button" id="togglePasswordVisibilityBtn" onclick="togglePasswordVisibility('passwordInput', this)"
-                  aria-label="Show password" title="Show/Hide Password"
+                <input type="password" id="passwordInput" placeholder="••••••••" required
+                  autocomplete="current-password"
+                  class="ds-input pl-11 pr-11 py-2.5 text-sm w-full font-medium min-h-[44px]"
+                  style="padding-left: 2.75rem !important; padding-right: 2.75rem !important;">
+                <button type="button" id="togglePasswordVisibilityBtn"
+                  onclick="togglePasswordVisibility('passwordInput', this)" aria-label="Show password"
+                  title="Show/Hide Password"
                   class="absolute right-2 p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 focus:outline-none transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center">
-                  <svg id="eyeIconShow" class="w-4 h-4 eye-icon-show" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  <svg id="eyeIconShow" class="w-4 h-4 eye-icon-show" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
-                  <svg id="eyeIconHide" class="w-4 h-4 hidden eye-icon-hide" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                  <svg id="eyeIconHide" class="w-4 h-4 hidden eye-icon-hide" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
                   </svg>
                 </button>
               </div>
@@ -536,7 +567,8 @@
                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                   </button>
-                  <button type="button" onclick="speakCaptcha('loginCaptchaCanvas')" title="Audio Challenge" aria-label="Audio Challenge"
+                  <button type="button" onclick="speakCaptcha('loginCaptchaCanvas')" title="Audio Challenge"
+                    aria-label="Audio Challenge"
                     class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -574,7 +606,9 @@
         <!-- Role Access & Demo Console Quick Trigger -->
         <div onclick="openSihEvaluationModal()"
           class="sih-quick-trigger relative overflow-hidden p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 border border-emerald-500/40 text-white shadow-xl flex items-center justify-between gap-3 cursor-pointer hover:border-emerald-400 hover:shadow-emerald-900/40 transition-all duration-200 group">
-          <div class="absolute right-0 bottom-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none group-hover:bg-emerald-500/20 transition-all"></div>
+          <div
+            class="absolute right-0 bottom-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none group-hover:bg-emerald-500/20 transition-all">
+          </div>
           <div class="flex items-center gap-3 min-w-0 relative z-10">
             <div
               class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-sm flex-shrink-0 group-hover:bg-emerald-500/30 group-hover:scale-105 transition-all shadow-inner">
@@ -585,7 +619,8 @@
                 <span class="text-xs sm:text-[13px] font-black tracking-tight text-white font-heading truncate">
                   Role Access &amp; Demo Console
                 </span>
-                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+                <span
+                  class="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
                   11 Roles
                 </span>
               </div>
@@ -616,7 +651,8 @@
     onclick="if(event.target===this) closeSihEvaluationModal()"
     style="display:none; position:fixed; inset:0; z-index:99999; align-items:center; justify-content:center; padding:1rem; background:rgba(15,23,42,0.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);">
 
-    <div class="rmc bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-4xl w-full p-4 sm:p-6 lg:p-7 shadow-2xl space-y-4 max-h-[88vh] overflow-y-auto text-slate-900 dark:text-slate-100 modal-animate-in">
+    <div
+      class="rmc bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-4xl w-full p-4 sm:p-6 lg:p-7 shadow-2xl space-y-4 max-h-[88vh] overflow-y-auto text-slate-900 dark:text-slate-100 modal-animate-in">
 
       <!-- Native Mobile Drag Handle & Pull-to-Dismiss Indicator (Mobile Only) -->
       <div class="sih-mobile-drag-bar sm:hidden">
@@ -624,7 +660,8 @@
       </div>
 
       <!-- Modal Header -->
-      <div class="sih-modal-header flex items-start sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3.5">
+      <div
+        class="sih-modal-header flex items-start sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3.5">
         <div class="flex items-center gap-3">
           <div
             class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-lg sm:text-xl flex-shrink-0 shadow-xs">
@@ -636,7 +673,8 @@
                 class="text-sm sm:text-base lg:text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading">
                 Role Access &amp; Demo Console
               </h3>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/80">
+              <span
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/80">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 11 Sovereign Roles
               </span>
@@ -652,7 +690,9 @@
       </div>
 
       <!-- Quick Role Tier Filter Tabs -->
-      <div class="sih-filter-dock flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-none select-none" role="tablist">
+      <div
+        class="sih-filter-dock flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-none select-none"
+        role="tablist">
         <button type="button" onclick="filterSihRoleCategory('all', this)"
           class="sih-cat-pill active px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-xs flex-shrink-0">
           All Roles (11)
@@ -680,7 +720,8 @@
 
         <!-- Group 1: National Command -->
         <div id="sihSectionNational" class="sih-role-section space-y-2">
-          <div class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
+          <div
+            class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>Tier 1 • National Command (Apex Statutory Authority)</span>
           </div>
@@ -694,10 +735,12 @@
               </div>
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
-                  <span class="text-xs sm:text-[13.5px] font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">
+                  <span
+                    class="text-xs sm:text-[13.5px] font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">
                     Director General (DoCA)
                   </span>
-                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-200/80 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200">
+                  <span
+                    class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-200/80 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200">
                     Apex
                   </span>
                 </div>
@@ -708,12 +751,15 @@
             </div>
             <div class="flex items-center gap-2.5 flex-shrink-0 ml-3">
               <div class="text-right hidden sm:block">
-                <span class="font-mono text-[11px] font-bold text-slate-800 dark:text-slate-200 bg-white/80 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-emerald-300 dark:border-emerald-700 shadow-xs">
+                <span
+                  class="font-mono text-[11px] font-bold text-slate-800 dark:text-slate-200 bg-white/80 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-emerald-300 dark:border-emerald-700 shadow-xs">
                   admin : admin123
                 </span>
               </div>
-              <span class="sm:hidden font-mono text-[10px] font-bold bg-white/80 dark:bg-slate-800 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-700">admin</span>
-              <div class="sih-arrow-icon w-8 h-8 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+              <span
+                class="sm:hidden font-mono text-[10px] font-bold bg-white/80 dark:bg-slate-800 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-700">admin</span>
+              <div
+                class="sih-arrow-icon w-8 h-8 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
                 →
               </div>
             </div>
@@ -722,7 +768,8 @@
 
         <!-- Group 2: Zonal Controllers (Regional Jurisdiction) -->
         <div id="sihSectionZonal" class="sih-role-section space-y-2">
-          <div class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 flex items-center gap-2">
+          <div
+            class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
             <span>Tier 2 • Zonal Controllers (Regional Jurisdiction)</span>
           </div>
@@ -737,7 +784,8 @@
                   🛡️
                 </div>
                 <div class="min-w-0">
-                  <div class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 truncate">
+                  <div
+                    class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 truncate">
                     Northern Zone
                   </div>
                   <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -746,8 +794,10 @@
                 </div>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                <span class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold border border-indigo-200 dark:border-indigo-700">north_admin</span>
-                <span class="sih-arrow-icon text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                <span
+                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold border border-indigo-200 dark:border-indigo-700">north_admin</span>
+                <span
+                  class="sih-arrow-icon text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </button>
 
@@ -760,7 +810,8 @@
                   🛡️
                 </div>
                 <div class="min-w-0">
-                  <div class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 truncate">
+                  <div
+                    class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 truncate">
                     Southern Zone
                   </div>
                   <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -769,8 +820,10 @@
                 </div>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                <span class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold border border-indigo-200 dark:border-indigo-700">south_admin</span>
-                <span class="sih-arrow-icon text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                <span
+                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold border border-indigo-200 dark:border-indigo-700">south_admin</span>
+                <span
+                  class="sih-arrow-icon text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </button>
 
@@ -783,7 +836,8 @@
                   🛡️
                 </div>
                 <div class="min-w-0">
-                  <div class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 truncate">
+                  <div
+                    class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 truncate">
                     Northeast Zone
                   </div>
                   <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -792,8 +846,10 @@
                 </div>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                <span class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold border border-indigo-200 dark:border-indigo-700">northeast_admin</span>
-                <span class="sih-arrow-icon text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                <span
+                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold border border-indigo-200 dark:border-indigo-700">northeast_admin</span>
+                <span
+                  class="sih-arrow-icon text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </button>
           </div>
@@ -801,7 +857,8 @@
 
         <!-- Group 3: Adjudication Officers (Form-V Compounding) -->
         <div id="sihSectionOfficer" class="sih-role-section space-y-2">
-          <div class="text-[11px] font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-2">
+          <div
+            class="text-[11px] font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-amber-500"></span>
             <span>Tier 3 • Adjudication Officers (Form-V Compounding)</span>
           </div>
@@ -816,7 +873,8 @@
                   ⚖️
                 </div>
                 <div class="min-w-0">
-                  <div class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate">
+                  <div
+                    class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate">
                     Dr S Roy (North)
                   </div>
                   <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -825,8 +883,10 @@
                 </div>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                <span class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-200 dark:border-amber-700">officer</span>
-                <span class="sih-arrow-icon text-xs text-amber-600 dark:text-amber-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                <span
+                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-200 dark:border-amber-700">officer</span>
+                <span
+                  class="sih-arrow-icon text-xs text-amber-600 dark:text-amber-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </button>
 
@@ -839,7 +899,8 @@
                   ⚖️
                 </div>
                 <div class="min-w-0">
-                  <div class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate">
+                  <div
+                    class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate">
                     Dr K Ramanathan (South)
                   </div>
                   <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -848,8 +909,10 @@
                 </div>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                <span class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-200 dark:border-amber-700">officer_south</span>
-                <span class="sih-arrow-icon text-xs text-amber-600 dark:text-amber-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                <span
+                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-200 dark:border-amber-700">officer_south</span>
+                <span
+                  class="sih-arrow-icon text-xs text-amber-600 dark:text-amber-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </button>
 
@@ -862,7 +925,8 @@
                   ⚖️
                 </div>
                 <div class="min-w-0">
-                  <div class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate">
+                  <div
+                    class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate">
                     Dr B Gogoi (Northeast)
                   </div>
                   <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -871,8 +935,10 @@
                 </div>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                <span class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-200 dark:border-amber-700">officer_ne</span>
-                <span class="sih-arrow-icon text-xs text-amber-600 dark:text-amber-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                <span
+                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-200 dark:border-amber-700">officer_ne</span>
+                <span
+                  class="sih-arrow-icon text-xs text-amber-600 dark:text-amber-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </button>
           </div>
@@ -880,7 +946,8 @@
 
         <!-- Group 4: Field Inspectors (On-Ground Inspection & AI Scan) -->
         <div id="sihSectionInspector" class="sih-role-section space-y-2">
-          <div class="text-[11px] font-extrabold uppercase tracking-wider text-teal-700 dark:text-teal-400 flex items-center gap-2">
+          <div
+            class="text-[11px] font-extrabold uppercase tracking-wider text-teal-700 dark:text-teal-400 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-teal-500"></span>
             <span>Tier 4 • Field Inspectors (On-Ground Inspection &amp; AI Scan)</span>
           </div>
@@ -895,7 +962,8 @@
                   📸
                 </div>
                 <div class="min-w-0">
-                  <div class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
+                  <div
+                    class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
                     R Sharma
                   </div>
                   <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -904,8 +972,10 @@
                 </div>
               </div>
               <div class="flex items-center gap-1 flex-shrink-0 ml-1.5">
-                <span class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector</span>
-                <span class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                <span
+                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector</span>
+                <span
+                  class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </button>
 
@@ -918,7 +988,8 @@
                   📸
                 </div>
                 <div class="min-w-0">
-                  <div class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
+                  <div
+                    class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
                     S Kaur
                   </div>
                   <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -927,8 +998,10 @@
                 </div>
               </div>
               <div class="flex items-center gap-1 flex-shrink-0 ml-1.5">
-                <span class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector_pb</span>
-                <span class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                <span
+                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector_pb</span>
+                <span
+                  class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </button>
 
@@ -941,7 +1014,8 @@
                   📸
                 </div>
                 <div class="min-w-0">
-                  <div class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
+                  <div
+                    class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
                     A Menon
                   </div>
                   <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -950,8 +1024,10 @@
                 </div>
               </div>
               <div class="flex items-center gap-1 flex-shrink-0 ml-1.5">
-                <span class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector_south</span>
-                <span class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                <span
+                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector_south</span>
+                <span
+                  class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </button>
 
@@ -964,7 +1040,8 @@
                   📸
                 </div>
                 <div class="min-w-0">
-                  <div class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
+                  <div
+                    class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
                     T Longkumer
                   </div>
                   <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -973,8 +1050,10 @@
                 </div>
               </div>
               <div class="flex items-center gap-1 flex-shrink-0 ml-1.5">
-                <span class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector_ne</span>
-                <span class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                <span
+                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector_ne</span>
+                <span
+                  class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
             </button>
           </div>
@@ -983,7 +1062,8 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="sih-modal-footer pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+      <div
+        class="sih-modal-footer pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
         <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
           <span class="text-amber-500">⚡</span>
           <span>Click any sovereign account for instant authentication &amp; automatic redirection</span>
@@ -1035,7 +1115,7 @@
         if (buttonElement) {
           buttonElement.classList.add('active');
           if (typeof buttonElement.scrollIntoView === 'function') {
-            try { buttonElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch(e){}
+            try { buttonElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch (e) { }
           }
         }
 
@@ -1135,10 +1215,13 @@
           <summary
             class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-2 cursor-pointer sm:cursor-default select-none min-h-[38px] sm:min-h-[44px]">
             <span class="flex items-center gap-2">
-              <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🏛️</span>
+              <span
+                class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🏛️</span>
               <span>OPERATIONAL PORTALS</span>
             </span>
-            <svg class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -1180,10 +1263,13 @@
           <summary
             class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-2 cursor-pointer sm:cursor-default select-none min-h-[38px] sm:min-h-[44px]">
             <span class="flex items-center gap-2">
-              <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">⚖️</span>
+              <span
+                class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">⚖️</span>
               <span>STATUTORY FRAMEWORK</span>
             </span>
-            <svg class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -1225,10 +1311,13 @@
           <summary
             class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-2 cursor-pointer sm:cursor-default select-none min-h-[38px] sm:min-h-[44px]">
             <span class="flex items-center gap-2">
-              <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🔗</span>
+              <span
+                class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🔗</span>
               <span>GOVERNMENT LINKS</span>
             </span>
-            <svg class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
@@ -1276,7 +1365,8 @@
         <div class="space-y-1.5 sm:space-y-2">
           <h4
             class="hidden sm:flex text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-300/80 dark:border-emerald-900/60 pb-1.5 sm:pb-2 items-center gap-2">
-            <span class="w-6 h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">📞</span>
+            <span
+              class="w-6 h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">📞</span>
             <span>National Metrology Toll-Free</span>
           </h4>
           <div
@@ -1287,7 +1377,8 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>National Consumer Helpline</span>
               </div>
-              <span class="text-[9px] sm:text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Toll-Free</span>
+              <span
+                class="text-[9px] sm:text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Toll-Free</span>
             </div>
 
             <!-- Dual 1-Tap Dial Action Grid -->
@@ -1371,7 +1462,7 @@
           <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
           <span
             class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[9px] sm:text-[11px]">Build
-            v7.1.0</span>
+            v8.0.0</span>
           <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
           <span class="font-medium">© 2026 Government of India</span>
         </div>
@@ -1640,6 +1731,7 @@
       window.addEventListener('resize', handleFooterResponsiveAccordions);
     });
   </script>
+  <script src="js/demo-mode.js"></script>
   <script src="js/footer.js"></script>
 </body>
 

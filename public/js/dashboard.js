@@ -992,18 +992,29 @@ function openInspectorDetailModal(id) {
   if (item.panelImages && typeof item.panelImages === 'object') {
     const panelLabels = { front:'Front Panel', back:'Back Panel', left:'Left Panel', right:'Right Panel', top:'Top Panel', bottom:'Bottom Panel' };
     Object.entries(item.panelImages).forEach(([pk, pv]) => {
-      if (pv && typeof pv === 'string' && pv.startsWith('data:image/')) {
+      if (pv && typeof pv === 'string' && pv.trim().length > 0) {
         photoSources.push({ key: `panel_${pk}`, label: panelLabels[pk] || pk, src: pv });
+      }
+    });
+  }
+
+  // Add images from images array if present
+  if (Array.isArray(item.images)) {
+    item.images.forEach((img, idx) => {
+      if (img && typeof img === 'string' && img.trim().length > 0) {
+        photoSources.push({ key: `img_${idx}`, label: idx === 0 ? 'Front Panel' : (idx === 1 ? 'Back Panel' : `Panel ${idx + 1}`), src: img });
       }
     });
   }
 
   _idmLightboxPhotos = [];
   const photoCards = [];
+  const seenSrcs = new Set();
 
   photoSources.forEach(ps => {
     const src = ps.src || item[ps.key];
-    if (src && typeof src === 'string' && src.startsWith('data:image/')) {
+    if (src && typeof src === 'string' && src.trim().length > 0 && !seenSrcs.has(src)) {
+      seenSrcs.add(src);
       const idx = _idmLightboxPhotos.length;
       _idmLightboxPhotos.push({ src, label: ps.label });
       photoCards.push(`
@@ -2336,6 +2347,15 @@ function _setupReviewCaseImages(item) {
     Object.entries(item.panelImages).forEach(([pk, pv]) => {
       if (pv && typeof pv === "string" && pv.trim() !== "") {
         candidateImages.push({ src: pv, label: panelLabels[pk] || `${pk} Panel` });
+      }
+    });
+  }
+
+  // Candidate images from item.images array if provided
+  if (Array.isArray(item.images)) {
+    item.images.forEach((img, idx) => {
+      if (img && typeof img === "string" && img.trim() !== "") {
+        candidateImages.push({ src: img, label: idx === 0 ? "Front Panel" : (idx === 1 ? "Back Panel" : `Panel ${idx + 1}`) });
       }
     });
   }
