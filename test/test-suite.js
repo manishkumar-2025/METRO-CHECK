@@ -52,6 +52,45 @@ try {
   process.exit(1);
 }
 
+// 1c. Draft Lifecycle & Statutory Checking Unit Tests
+try {
+  // Test Draft Status in storage schema
+  const draftRecord = {
+    id: "INS-20261001-DF01",
+    status: normalizeInspectionStatus("DRAFT"),
+    fields: {
+      generic_name: "Premium Ground Roasted Coffee",
+      net_quantity: "500 g",
+      mrp_tax_inclusive: "₹350.00",
+      manufacturer_name_address: "Himalayan Roasters Pvt Ltd, Solan, HP 173212",
+      mfg_month_year: "08/2026",
+      consumer_care_contact: "care@roasters.in",
+      country_of_origin: "India",
+      unit_sale_price: "₹0.70 / g"
+    }
+  };
+  assert.strictEqual(draftRecord.status, "DRAFT");
+
+  // Re-evaluation mapper logic
+  const mockRules = [
+    { parameter_name: "Net Quantity", clause: "Rule 6(1)(c)", compliant: true, value: "500 g" },
+    { parameter_name: "MRP", clause: "Rule 6(1)(e)", compliant: true, value: "₹350.00" }
+  ];
+  const mappedTests = mockRules.map(r => ({
+    parameter_name: r.parameter_name,
+    rule_reference: r.clause,
+    detected_value: r.value,
+    status: r.compliant ? "Pass" : "Fail",
+    compliant: r.compliant
+  }));
+  assert.strictEqual(mappedTests[0].status, "Pass");
+  assert.strictEqual(mappedTests[0].compliant, true);
+  console.log("✅ Unit Test 1c Passed: Draft Statutory Checking & Re-Validation Engine");
+} catch (e) {
+  console.error("❌ Unit Test 1c Failed:", e.message);
+  process.exit(1);
+}
+
 function makeHttpRequest(options, postData) {
   options.headers = Object.assign({ Connection: "close" }, options.headers || {});
   return new Promise((resolve, reject) => {

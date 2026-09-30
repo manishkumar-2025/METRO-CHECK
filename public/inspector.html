@@ -1224,6 +1224,15 @@
                         </div>
                       </div>
 
+                      <!-- LIVE BARCODE & QR AUTO-DECODER HUD PILL -->
+                      <div id="liveBarcodeDetectorPill"
+                        class="hidden absolute top-12 left-1/2 -translate-x-1/2 z-30 max-w-[92%] px-3 py-1.5 rounded-full bg-slate-950/95 text-white backdrop-blur-md border border-emerald-400/80 shadow-2xl flex items-center gap-2 transition-all">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping flex-shrink-0"></span>
+                        <span class="text-[10px] font-mono font-bold text-emerald-300 flex-shrink-0">BARCODE:</span>
+                        <span id="liveBarcodeValue" class="text-xs font-mono font-black text-white tracking-wider truncate"></span>
+                        <span id="liveBarcodeOrigin" class="text-[9.5px] px-1.5 py-0.5 rounded bg-emerald-900/90 text-emerald-200 font-mono font-bold border border-emerald-500/50 flex-shrink-0">GS1</span>
+                      </div>
+
                       <!-- MIDDLE: Laser scan line only (no text labels here) -->
                       <div class="scanner-laser-line"></div>
 
@@ -1565,6 +1574,20 @@
                   </div>
                   <img id="specimenPreviewImg" src="" alt="Specimen Preview"
                     class="max-h-52 mx-auto rounded shadow-sm object-contain">
+                </div>
+
+                <!-- REAL-TIME IMAGE QUALITY PRE-CHECK TELEMETRY BAR -->
+                <div id="imageQualityPreCheckContainer"
+                  class="hidden p-3 rounded-2xl border transition-all text-xs flex items-center justify-between bg-slate-50/90 dark:bg-slate-800/90 border-slate-200 dark:border-slate-700">
+                  <div class="flex items-center gap-2.5">
+                    <span id="imageQualityIcon" class="text-lg flex-shrink-0">🟢</span>
+                    <div>
+                      <div id="imageQualityTitle" class="font-bold text-slate-800 dark:text-slate-100 text-xs">Quality Verified</div>
+                      <div id="imageQualityDetail" class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Brightness: Normal • Sharpness: High</div>
+                    </div>
+                  </div>
+                  <span id="imageQualityBadge"
+                    class="text-[9.5px] font-mono font-bold px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 shadow-2xs">OPTIMAL</span>
                 </div>
 
                 <!-- PRIMARY CTA DOCK (Scan & Execution Control Center) -->
@@ -2018,11 +2041,18 @@
                         </span>
                       </div>
 
-                      <div onclick="openSpecimenLightbox()"
-                        class="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                        <span
-                          class="px-2 py-0.5 rounded-md bg-black/80 hover:bg-emerald-600 text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-white/10 transition-colors">🔍
-                          Zoom Panel</span>
+                      <div class="absolute top-2 right-2 z-10 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+                        <button type="button" id="btnToggleBoundingBoxes" onclick="toggleBoundingBoxesVisibility()"
+                          class="px-2 py-0.5 rounded-md bg-emerald-950/85 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-emerald-500/40 shadow-xs transition-colors cursor-pointer"
+                          title="Toggle AI Declaration Bounding Boxes">
+                          🏷️ Boxes: ON
+                        </button>
+                        <div onclick="openSpecimenLightbox()"
+                          class="cursor-pointer">
+                          <span
+                            class="px-2 py-0.5 rounded-md bg-black/80 hover:bg-emerald-600 text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-white/10 transition-colors">🔍
+                            Zoom</span>
+                        </div>
                       </div>
 
                       <button type="button" id="btnPrevSpecimenImage" onclick="navigateSpecimenImage(-1)"
@@ -2031,8 +2061,11 @@
                         <span>&lt;</span>
                       </button>
 
-                      <img id="reportSpecimenThumb" src="" alt="Specimen Thumbnail" onclick="openSpecimenLightbox()"
-                        class="max-h-48 max-w-full rounded-lg object-contain shadow-sm transition-transform duration-300 group-hover:scale-105 cursor-pointer">
+                      <div class="relative inline-flex items-center justify-center max-w-full">
+                        <img id="reportSpecimenThumb" src="" alt="Specimen Thumbnail" onclick="openSpecimenLightbox()"
+                          class="max-h-48 max-w-full rounded-lg object-contain shadow-sm transition-transform duration-300 group-hover:scale-105 cursor-pointer">
+                        <div id="specimenBoundingBoxesContainer" class="absolute inset-0 pointer-events-none z-15 overflow-hidden rounded-lg"></div>
+                      </div>
 
                       <button type="button" id="btnNextSpecimenImage" onclick="navigateSpecimenImage(1)"
                         aria-label="Next Captured Panel" title="Next Image (>)"
@@ -3687,6 +3720,10 @@
         <div class="flex items-center gap-2">
           <button type="button" onclick="closeInspectorDetailModal()"
             class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">Close</button>
+          <button type="button" id="idm-resume-draft-btn"
+            class="hidden inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow transition cursor-pointer active:scale-95">
+            <span>✏️</span> <span>Resume & Edit Draft</span>
+          </button>
           <button type="button" id="idm-pdf-btn"
             class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 shadow transition cursor-pointer active:scale-95">
             <span>📥</span> <span>Download PDF</span>
@@ -4141,6 +4178,7 @@
   <script src="js/storage.js"></script>
   <script src="js/demo-mode.js"></script>
   <script src="js/rules.js"></script>
+  <script src="js/qrcode.min.js"></script>
   <script src="js/pdfService.js"></script>
   <script src="js/notifications.js"></script>
   <script src="js/dashboard.js"></script>

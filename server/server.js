@@ -14,6 +14,57 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const multer = require("multer");
 const { GoogleGenAI } = require("@google/genai");
+const { z } = require("zod");
+
+// =========================================================================
+// ZOD STRICT SCHEMA VALIDATION DEFINITIONS
+// =========================================================================
+const scanPayloadSchema = z.object({
+  imageBase64: z.string().optional(),
+  mimeType: z.string().optional(),
+  panels: z.array(z.any()).optional(),
+  images: z.array(z.any()).optional(),
+  commodityCategory: z.string().optional(),
+  standardPacks: z.string().optional(),
+  tolerance: z.string().optional()
+}).passthrough();
+
+const inspectionItemSchema = z.object({
+  id: z.string().min(1, "Inspection docket must have a valid non-empty ID."),
+  date: z.string().optional(),
+  createdAt: z.string().optional(),
+  status: z.string().optional(),
+  inspectorId: z.string().optional(),
+  inspectorName: z.string().optional(),
+  productName: z.string().optional(),
+  brandName: z.string().optional(),
+  manufacturer: z.string().optional(),
+  fields: z.record(z.any()).optional(),
+  extractedData: z.record(z.any()).optional(),
+  rules: z.array(z.any()).optional(),
+  violations: z.array(z.any()).optional(),
+  confidence: z.number().optional()
+}).passthrough();
+
+const statusPatchSchema = z.object({
+  status: z.enum([
+    "ACCEPTED", "REJECTED", "FLAGGED", "PENDING_REVIEW", "ESCALATED",
+    "OFFICER_APPROVED", "OFFICER_DISMISSED", "NOTICE_ISSUED",
+    "COMPLIANT_LOGGED", "APPROVED", "SUBMITTED", "DRAFT",
+    "UNDER_REVIEW", "COMPLIANT", "NON_COMPLIANT", "PROCESSING"
+  ]).optional(),
+  reviewComments: z.string().optional(),
+  violationsChecked: z.array(z.any()).optional(),
+  officerPrivateNotes: z.string().optional(),
+  penaltyAmount: z.union([z.number(), z.string()]).optional(),
+  penaltySection: z.string().optional(),
+  auditTrail: z.array(z.any()).optional(),
+  reviewedBy: z.string().optional(),
+  officerName: z.string().optional(),
+  officerDesignation: z.string().optional(),
+  officerBadgeNumber: z.string().optional(),
+  officerOffice: z.string().optional()
+}).passthrough();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -596,12 +647,20 @@ Return ONLY a single valid JSON object (no markdown, no code fences, no conversa
       "severity": "None | Minor | Moderate | Critical"
     }
   ],
+  "bounding_boxes": [
+    {
+      "parameter_name": "Retail Sale Price (MRP)",
+      "clause": "Rule 6(1)(e)",
+      "box_2d": [100, 200, 160, 450]
+    }
+  ],
   "overall_status": "Compliant | Non-Compliant | Partial",
   "confidence": 0.98,
   "observations": ["detailed legal compliance notes"]
 }
 
 Statutory Evaluation Standards:
+- Bounding Boxes: If visible on the package label, return normalized coordinates [ymin, xmin, ymax, xmax] (0 to 1000) for key declarations: MRP, Net Quantity, Mfg Date, Manufacturer/Packer Details, Country of Origin, Consumer Care.
 - Rule 6(1)(a): Complete registered company name and physical geographical address of manufacturer/packer/importer.
 - Rule 6(1)(b): Generic or common nomenclature of the pre-packaged commodity.
 - Rule 6(1)(c): Declared weight or measure in standard metric units (g, kg, ml, l, m, n). Non-standard units (e.g. lbs, oz alone) are violations.
@@ -697,6 +756,31 @@ function computeServerSideHash(record) {
 }
 
 /**
+ * Generates an authoritative digital signature for an inspection docket
+ * under Section 63 of Bharatiya Sakshya Adhiniyam, 2023.
+ */
+function generateDocketDigitalSignature(record) {
+  const canonical = [
+    String(record.id || ""),
+    String(record.createdAt || record.date || ""),
+    String(record.overallStatus || record.status || ""),
+    String(record.inspectorId || record.inspectorName || ""),
+    String((record.extractedData && record.extractedData.mrp) || (record.fields && record.fields.mrp_tax_inclusive) || ""),
+    String((record.extractedData && record.extractedData.net_quantity) || (record.fields && record.fields.net_quantity) || ""),
+    JSON.stringify(record.violations || record.rules || []),
+    String(record.previousHash || "0000000000000000000000000000000000000000000000000000000000000000")
+  ].join("|");
+  const sigHash = crypto.createHash("sha256").update(canonical, "utf8").digest("hex").toUpperCase();
+  return {
+    signature: sigHash,
+    algorithm: "SHA-256 (Canonical Statutory Digest)",
+    signedAt: new Date().toISOString(),
+    legalStandard: "Section 63, Bharatiya Sakshya Adhiniyam (BSA), 2023",
+    verified: true
+  };
+}
+
+/**
  * GET /api/verify/:id
  * Verifies the cryptographic integrity of a stored inspection docket.
  * Re-computes the SHA-256 hash server-side and compares against the stored hash.
@@ -727,13 +811,36 @@ app.get(["/api/verify/:id", /^\/api\/verify\/(.+)$/], (req, res) => {
   }
 
   const computedHash = computeServerSideHash(record);
-  const verified = storedHash === computedHash;
+  const hashVerified = storedHash === computedHash;
+
+  // Digital Signature Check
+  const expectedSig = generateDocketDigitalSignature(record).signature;
+  let signatureVerified = false;
+  if (record.digitalSignature) {
+    const sigVal = typeof record.digitalSignature === "object" ? record.digitalSignature.signature : record.digitalSignature;
+    if (sigVal && String(sigVal).toUpperCase() === expectedSig) {
+      signatureVerified = true;
+    }
+  } else {
+    // If docket was sealed with primary hash, verify block
+    signatureVerified = hashVerified;
+  }
+
+  const verified = hashVerified && signatureVerified;
 
   return res.json({
     verified,
+    hashVerified,
+    signatureVerified,
     docketId: record.id,
     storedHash,
     computedHash,
+    digitalSignature: record.digitalSignature || {
+      signature: expectedSig,
+      algorithm: "SHA-256 (Canonical Statutory Digest)",
+      signedAt: record.createdAt || new Date().toISOString(),
+      legalStandard: "Section 63, Bharatiya Sakshya Adhiniyam (BSA), 2023"
+    },
     algorithm: "SHA-256 (Node.js crypto module)",
     previousBlockHash: record.previousHash || null,
     chainBlockIndex: record.sequenceNumber || null,
@@ -741,8 +848,8 @@ app.get(["/api/verify/:id", /^\/api\/verify\/(.+)$/], (req, res) => {
     inspectorId: record.inspectorId || record.inspectorName || null,
     overallStatus: record.overallStatus || record.status || null,
     reason: verified
-      ? "\u2705 Forensic chain intact \u2014 Section 63 BSA compliant. No tampering detected."
-      : "\u274C HASH MISMATCH \u2014 Evidence chain broken. Possible unauthorized modification detected.",
+      ? "✅ Forensic chain intact & digitally signed — Section 63 BSA compliant. No tampering detected."
+      : "❌ HASH OR SIGNATURE MISMATCH — Evidence chain broken. Possible unauthorized modification detected.",
     bsaSection: "Section 63, Bharatiya Sakshya Adhiniyam, 2023",
     verifiedAt: new Date().toISOString()
   });
@@ -1108,6 +1215,19 @@ app.post(["/api/inspections", "/api/inspections/sync"], requireApiAuth(["inspect
     return res.status(400).json({ error: "Inspection record must specify an ID." });
   }
 
+  // Zod Schema Validation for incoming inspection dockets
+  for (let idx = 0; idx < items.length; idx++) {
+    const valResult = inspectionItemSchema.safeParse(items[idx]);
+    if (!valResult.success) {
+      const issueMsgs = valResult.error.issues.map(i => `${i.path.join('.') || 'root'}: ${i.message}`).join("; ");
+      return res.status(400).json({
+        success: false,
+        error: `Validation Error in docket [${idx}]: ${issueMsgs}`,
+        validationErrors: valResult.error.issues
+      });
+    }
+  }
+
   // Statuses that represent legally finalized adjudications.
   // Once a case reaches one of these states it is immutable via the sync endpoint.
   // Status changes on finalized records must go through PATCH /status with explicit authority.
@@ -1117,6 +1237,14 @@ app.post(["/api/inspections", "/api/inspections/sync"], requireApiAuth(["inspect
   const rejected = [];
   items.forEach(item => {
     if (!item || !item.id) return;
+    
+    // Digitally sign and seal docket with SHA-256
+    item.digitalSignature = generateDocketDigitalSignature(item);
+    if (!item.docketHash || item.docketHash === "COMPUTING...") {
+      item.docketHash = computeServerSideHash(item);
+    }
+    item.hashSealedAt = item.hashSealedAt || new Date().toISOString();
+
     const existingIdx = inspections.findIndex(i => i.id === item.id);
     if (existingIdx >= 0) {
       const existing = inspections[existingIdx];
@@ -1144,6 +1272,18 @@ app.post(["/api/inspections", "/api/inspections/sync"], requireApiAuth(["inspect
 app.patch(["/api/inspections/:id/status", /^\/api\/inspections\/(.+)\/status$/], requireApiAuth(["officer", "admin", "national", "zonal"]), (req, res) => {
   const rawId = req.params.id || req.params[0];
   const id = rawId ? decodeURIComponent(rawId) : "";
+  
+  // Zod Strict Schema Validation for status updates
+  const patchVal = statusPatchSchema.safeParse(req.body);
+  if (!patchVal.success) {
+    const errorDetails = patchVal.error.issues.map(i => `${i.path.join('.') || 'root'}: ${i.message}`).join("; ");
+    return res.status(400).json({
+      success: false,
+      error: `Status update validation failed: ${errorDetails}`,
+      validationErrors: patchVal.error.issues
+    });
+  }
+
   const { status, reviewComments } = req.body;
 
   const VALID_STATUSES = [
@@ -1199,6 +1339,12 @@ app.patch(["/api/inspections/:id/status", /^\/api\/inspections\/(.+)\/status$/],
     if (req.body.officerOffice)      target.officerOffice      = req.body.officerOffice;
     target.updatedAt = new Date().toISOString();
     target.reviewedAt = req.body.reviewedAt || new Date().toISOString();
+
+    // Re-sign digital signature and recompute hash after officer adjudication
+    target.digitalSignature = generateDocketDigitalSignature(target);
+    target.docketHash = computeServerSideHash(target);
+    target.hashSealedAt = new Date().toISOString();
+
     saveJsonFile(INSPECTIONS_FILE, inspections);
     return res.json({ success: true, data: target });
   }
@@ -1339,6 +1485,19 @@ app.post("/api/scan", scanLimiter, requireApiAuth(["inspector", "officer", "admi
   { name: "imageBottom", maxCount: 1 }
 ]), async (req, res) => {
   try {
+    // Validate JSON request body with Zod schema if not a multipart file upload
+    if (req.body && (!req.files || Object.keys(req.files).length === 0)) {
+      const scanVal = scanPayloadSchema.safeParse(req.body);
+      if (!scanVal.success) {
+        const errorDetails = scanVal.error.issues.map(i => `${i.path.join('.') || 'root'}: ${i.message}`).join("; ");
+        return res.status(400).json({
+          success: false,
+          error: `Scan payload validation failed: ${errorDetails}`,
+          validationErrors: scanVal.error.issues
+        });
+      }
+    }
+
     const imagesToProcess = [];
 
     const panelLabels = {

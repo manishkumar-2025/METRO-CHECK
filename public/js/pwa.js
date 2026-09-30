@@ -16,6 +16,13 @@
         .then((reg) => {
           console.log('[METRO-CHECK PWA] Service Worker registered successfully with scope:', reg.scope);
 
+          // Register Background Sync if supported
+          if ('sync' in reg) {
+            reg.sync.register('sync-inspections')
+              .then(() => console.log('[METRO-CHECK PWA] Background Sync tag registered: sync-inspections'))
+              .catch((syncErr) => console.warn('[METRO-CHECK PWA] Background Sync registration notice:', syncErr));
+          }
+
           // Check for worker updates
           reg.onupdatefound = () => {
             const installingWorker = reg.installing;
@@ -31,17 +38,92 @@
         .catch((err) => {
           console.warn('[METRO-CHECK PWA] Service Worker registration info:', err.message);
         });
+
+      // Listen for messages from Service Worker (such as background sync events)
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'METROCHECK_BACKGROUND_SYNC_TRIGGERED') {
+          console.log('[METRO-CHECK PWA] Received background sync trigger from SW. Synchronizing offline queue...');
+          if (typeof window.triggerCentralCloudSync === 'function') {
+            window.triggerCentralCloudSync();
+          } else if (typeof syncOfflineInspections === 'function') {
+            syncOfflineInspections();
+          }
+        }
+      });
     });
   }
 
   // 2. Network Status Monitoring
   window.addEventListener('online', () => {
     showPwaToast('🌐 Back Online! Inspection data will sync with central registry.', 'success');
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+      navigator.serviceWorker.ready.then(reg => {
+        if ('sync' in reg) reg.sync.register('sync-inspections').catch(() => {});
+      });
+    }
+    if (typeof window.triggerCentralCloudSync === 'function') {
+      window.triggerCentralCloudSync();
+    } else if (typeof syncOfflineInspections === 'function') {
+      syncOfflineInspections();
+    }
   });
 
   window.addEventListener('offline', () => {
     showPwaToast('⚡ Offline Mode Active. Inspection forms stored locally until connection is restored.', 'warning');
   });
+
+  // Helper: Check if device is running iOS
+  function isIosDevice() {
+    const ua = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(ua);
+  }
+
+  // Helper: Check if running as iOS standalone app
+  function isIosStandalone() {
+    return ('standalone' in window.navigator) && window.navigator.standalone;
+  }
+
+  // Helper: Render iOS Safari Install Guidance Banner
+  function renderIosInstallPrompt() {
+    if (!isIosDevice() || isAppInstalled() || isIosStandalone() || localStorage.getItem('metrocheck_ios_dismissed') === 'true') {
+      return;
+    }
+    if (document.getElementById('metrocheck-ios-install-banner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'metrocheck-ios-install-banner';
+    banner.className = 'fixed bottom-4 left-4 right-4 max-w-md mx-auto z-50 p-4 bg-slate-900/95 dark:bg-[#020B09]/95 text-white backdrop-blur-xl border border-emerald-500/40 rounded-2xl shadow-2xl select-none';
+    banner.setAttribute('role', 'dialog');
+    banner.setAttribute('aria-label', 'Install METRO-CHECK on iOS');
+    banner.innerHTML = `
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl flex-shrink-0 border border-emerald-500/40">
+          📱
+        </div>
+        <div class="flex-1 text-xs space-y-1.5">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-slate-100 text-sm">Install METRO-CHECK on iPhone/iPad</h4>
+            <button type="button" id="metrocheck-ios-dismiss" class="text-slate-400 hover:text-white text-base leading-none p-1 cursor-pointer">✕</button>
+          </div>
+          <p class="text-slate-300 text-[11.5px]">To install for fast offline legal metrology inspection:</p>
+          <ol class="list-decimal list-inside text-slate-300 space-y-0.5 text-[11px]">
+            <li>Tap the <strong class="text-emerald-400">Share</strong> icon <span class="text-emerald-400 font-bold">⎋</span> in Safari's bottom bar.</li>
+            <li>Scroll down and tap <strong class="text-white">"Add to Home Screen" ➕</strong>.</li>
+            <li>Tap <strong class="text-emerald-400">Add</strong> at top right to complete.</li>
+          </ol>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(banner);
+
+    const closeBtn = document.getElementById('metrocheck-ios-dismiss');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        localStorage.setItem('metrocheck_ios_dismissed', 'true');
+        banner.remove();
+      });
+    }
+  }
 
   // Helper: Check if App is already installed or launched as Standalone PWA
   function isAppInstalled() {
@@ -125,6 +207,9 @@
       hideInstallButton();
       return;
     }
+
+    // Render iOS install prompt if visited on iPhone/iPad in Safari
+    renderIosInstallPrompt();
 
     // Always ensure subtle footer install option is ready in the footer if not installed
     renderFooterInstallOption();

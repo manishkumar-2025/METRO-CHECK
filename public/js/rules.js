@@ -449,18 +449,24 @@ function validateLabel(extractedData) {
     violationsList.push("Rule 6(1)(e): Invalid or missing MRP (must include currency symbol ₹ or Rs. and price inclusive of all taxes).");
   }
 
-  // 7. Rule 6(1)(n) - Consumer Care Details
+  // 7. Rule 6(1)(f) / Rule 6(1)(n) - Consumer Care Details
+  // Mandates Name, Address, Telephone number, and Email address of the grievance officer
   const consumerCare = (
     extractedData.consumer_care_contact || 
     extractedData.consumer_care || 
     extractedData.consumer_care_helpline || 
     ""
   ).trim();
-  const consumerCareValid = Boolean(consumerCare.length > 0);
+  const hasPhone = /(?:1800|\+?91|tel|phone|ph|mob|helpline|\b\d{8,11}\b|\b\d{3,5}[-\s]\d{3,6}\b)/i.test(consumerCare);
+  const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(consumerCare);
+  const hasGenericContact = /(?:care|customercare|support|contact|nodal|grievance)/i.test(consumerCare);
+  // Truncated P.O. Bag or missing both phone & email fails statutory audit
+  const isTruncatedAddressOnly = /p\.?o\.?\s*bag\s*\d*$/i.test(consumerCare.trim());
+  const consumerCareValid = Boolean(consumerCare.length > 5 && (hasPhone || hasEmail || (hasGenericContact && !isTruncatedAddressOnly)));
   checkedFieldsMap.consumer_care_contact = consumerCareValid;
   checkedFieldsMap.consumer_care = consumerCareValid;
   if (!consumerCareValid) {
-    violationsList.push("Rule 6(1)(n): Missing Consumer Care contact details (telephone number, email address, or postal contact).");
+    violationsList.push("Rule 6(1)(f): Incomplete Consumer Care declaration — statutory telephone helpline number and/or email address missing.");
   }
 
   // 8. Rule 6(1)(aa) - Country of Origin

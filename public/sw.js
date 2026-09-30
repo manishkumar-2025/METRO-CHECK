@@ -3,7 +3,7 @@
    Provides Offline Inspection Support & Cache Management for Field Officers
    ========================================================================== */
 
-const CACHE_NAME = 'metrocheck-pwa-v1';
+const CACHE_NAME = 'metrocheck-pwa-v2';
 
 // Static assets to pre-cache on Service Worker installation (unauthenticated public + offline core)
 const STATIC_ASSETS = [
@@ -14,12 +14,15 @@ const STATIC_ASSETS = [
   '/404.html',
   '/500.html',
   '/css/style.css',
+  '/css/theme-dark.css',
+  '/css/officer.css',
   '/css/components.css',
   '/css/responsive.css',
   '/js/admin.js',
   '/js/auth.js',
   '/js/dashboard.js',
   '/js/jspdf.umd.min.js',
+  '/js/qrcode.min.js',
   '/js/masthead.js',
   '/js/notifications.js',
   '/js/pdfService.js',
@@ -109,4 +112,29 @@ self.addEventListener('fetch', (event) => {
       });
     })
   );
+});
+
+// 4. Background Sync Event - Auto-sync queued offline inspection records
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-inspections' || event.tag === 'metrocheck-sync') {
+    console.log('[METRO-CHECK SW] Background Sync event triggered for tag:', event.tag);
+    event.waitUntil(
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({
+            type: 'METROCHECK_BACKGROUND_SYNC_TRIGGERED',
+            tag: event.tag,
+            timestamp: new Date().toISOString()
+          });
+        });
+      })
+    );
+  }
+});
+
+// 5. Message event for manual worker control
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });

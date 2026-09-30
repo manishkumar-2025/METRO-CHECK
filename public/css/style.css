@@ -6,6 +6,7 @@
 /* 1. Import Google Font (Inter for clean, modern readability) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import url('officer.css');
+@import url('theme-dark.css');
 
 /* ==========================================================================
    2. Modern Sovereign Design Token System (Linear / Supabase / Apple Inspired)

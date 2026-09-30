@@ -386,7 +386,7 @@ function renderMyInspections() {
           </div>
         </div>
 
-        <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
           ${isCompleted ? `
             <button onclick="openInspectorDetailModal('${item.id}')" class="flex-1 py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition text-center cursor-pointer inline-flex items-center justify-center gap-1.5">
               <span>🔍</span><span>View</span>
@@ -394,12 +394,19 @@ function renderMyInspections() {
             <button onclick="downloadInspectionPDF('${item.id}')" class="flex-1 py-2 px-3 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow transition text-center flex items-center justify-center gap-1">
               <span>📥</span> <span>PDF</span>
             </button>
+          ` : (item.status === 'draft' || item.status === 'DRAFT' ? `
+            <button onclick="resumeInspectionDraft('${item.id}')" class="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition text-center cursor-pointer inline-flex items-center justify-center gap-1.5 active:scale-95">
+              <span>✏️</span> <span>Resume Draft</span>
+            </button>
+            <button onclick="openInspectorDetailModal('${item.id}')" class="py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 transition text-center cursor-pointer inline-flex items-center justify-center gap-1">
+              <span>🔍</span> <span>View</span>
+            </button>
           ` : `
             <button onclick="openInspectorDetailModal('${item.id}')" class="flex-1 py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition text-center cursor-pointer inline-flex items-center justify-center gap-1.5">
-              <span>${item.status === 'draft' || item.status === 'DRAFT' ? '✏️' : '🔍'}</span>
-              <span>${item.status === 'draft' || item.status === 'DRAFT' ? 'Resume' : 'View'}</span>
+              <span>🔍</span>
+              <span>View</span>
             </button>
-          `}
+          `)}
         </div>
       </div>`;
   }).join("");
@@ -1113,6 +1120,19 @@ function openInspectorDetailModal(id) {
     pdfBtn.onclick = () => downloadInspectionPDF(item.id);
   }
 
+  // ── Resume Draft button ───────────────────────────────────────────────────
+  const resumeDraftBtn = document.getElementById('idm-resume-draft-btn');
+  const isDraftStatus = String(item.status || '').toUpperCase() === 'DRAFT' || item.status === 'draft';
+  if (resumeDraftBtn) {
+    if (isDraftStatus) {
+      resumeDraftBtn.classList.remove('hidden');
+      resumeDraftBtn.onclick = () => resumeInspectionDraft(item.id);
+    } else {
+      resumeDraftBtn.classList.add('hidden');
+      resumeDraftBtn.onclick = null;
+    }
+  }
+
   // ── Show modal at Declarations tab & Lock Scroll ───────────────────────────
   switchIdmTab('declarations');
   modal.classList.remove('hidden');
@@ -1122,6 +1142,26 @@ function openInspectorDetailModal(id) {
   // Focus trap inside modal
   _initModalFocusTrap(modal);
 }
+
+function resumeInspectionDraft(id) {
+  if (typeof closeInspectorDetailModal === 'function') {
+    closeInspectorDetailModal();
+  }
+
+  if (typeof window !== 'undefined' && window.location.pathname.includes('inspector.html')) {
+    if (typeof switchInspectorTab === 'function') {
+      switchInspectorTab('ocr');
+    }
+    if (typeof window.loadDraftIntoWorkspace === 'function') {
+      window.loadDraftIntoWorkspace(id);
+    } else if (typeof loadDraftIntoWorkspace === 'function') {
+      loadDraftIntoWorkspace(id);
+    }
+  } else {
+    window.location.href = `inspector.html?draft=${encodeURIComponent(id)}#ocr`;
+  }
+}
+window.resumeInspectionDraft = resumeInspectionDraft;
 
 function closeInspectorDetailModal() {
   const modal = document.getElementById('inspectorDetailModal');

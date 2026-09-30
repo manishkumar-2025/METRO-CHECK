@@ -580,10 +580,20 @@ function drawForensicEvidenceWatermark(canvas, ctx) {
       "Central": "23.2599° N, 77.4126° E",
       "North East": "26.1445° N, 91.7362° E",
       "Northeast": "26.1445° N, 91.7362° E"
+    const stateCoordsMap = {
+      "Punjab": "30.7333° N, 76.7794° E",
+      "Delhi UT": "28.5244° N, 77.2066° E",
+      "Uttar Pradesh": "28.5355° N, 77.3910° E",
+      "Kerala": "8.5241° N, 76.9366° E",
+      "Assam": "26.1445° N, 91.7362° E",
+      "Maharashtra": "18.9220° N, 72.8347° E",
+      "West Bengal": "22.5726° N, 88.3639° E",
+      "Tamil Nadu": "13.0827° N, 80.2707° E",
+      "Madhya Pradesh": "23.2599° N, 77.4126° E"
     };
     const userZone = activeUser.zone || "North";
     const userState = activeUser.state || (userZone === "North" ? "Delhi UT" : "National");
-    const coords = zonalCoordsMap[userZone] || "28.5244° N, 77.2066° E";
+    const coords = stateCoordsMap[userState] || zonalCoordsMap[userZone] || "28.5244° N, 77.2066° E";
     const gpsText = `📍 GPS: ${coords} • Zone: ${userZone} (${userState})`;
     ctx.fillText(gpsText, 14, yPos + barHeight * 0.65);
 
@@ -640,6 +650,294 @@ function optimizeImageForAiScan(dataUrl, maxDimension = 1200, quality = 0.80) {
     img.src = dataUrl;
   });
 }
+
+/**
+ * ==========================================================================
+ * REAL-TIME CLIENT-SIDE IMAGE QUALITY PRE-CHECK ENGINE
+ * Analyzes brightness and sharpness (Laplacian variance) on an offscreen canvas
+ * before sending images to the Gemini API to prevent failed/degraded OCR scans.
+ * ==========================================================================
+ */
+function analyzeImageQuality(dataUrl) {
+  return new Promise((resolve) => {
+    if (!dataUrl || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
+      return resolve({ brightness: 120, sharpness: 80, qualityStatus: "good", warningMessage: "", isAcceptable: true });
+    }
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = function () {
+      try {
+        const canvas = document.createElement("canvas");
+        const maxDim = 280; // Fast lightweight dimension for < 15ms latency
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        const totalPixels = canvas.width * canvas.height;
+        const gray = new Float32Array(totalPixels);
+
+        let totalLuminance = 0;
+        for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+          const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          totalLuminance += lum;
+          gray[j] = lum;
+        }
+        const avgBrightness = Math.round(totalLuminance / totalPixels);
+
+        // Laplacian kernel convolution to compute edge variance (sharpness)
+        const w = canvas.width;
+        const h = canvas.height;
+        let lapSum = 0;
+        let lapSqSum = 0;
+        let sampleCount = 0;
+        for (let y = 2; y < h - 2; y += 2) {
+          for (let x = 2; x < w - 2; x += 2) {
+            const idx = y * w + x;
+            const lap = gray[idx - w] + gray[idx + w] + gray[idx - 1] + gray[idx + 1] - 4 * gray[idx];
+            lapSum += lap;
+            lapSqSum += lap * lap;
+            sampleCount++;
+          }
+        }
+        const mean = sampleCount > 0 ? (lapSum / sampleCount) : 0;
+        const variance = sampleCount > 0 ? ((lapSqSum / sampleCount) - (mean * mean)) : 100;
+        const sharpnessScore = Math.max(1, Math.round(variance));
+
+        let qualityStatus = "good";
+        let warningMessage = "";
+        let isAcceptable = true;
+
+        if (avgBrightness < 45) {
+          qualityStatus = "dark";
+          warningMessage = "Image is underexposed/dark. Enable torch or move to better light.";
+          isAcceptable = false;
+        } else if (avgBrightness > 225) {
+          qualityStatus = "glare";
+          warningMessage = "Excessive glare/overexposure detected. Tilt camera to reduce light reflection.";
+          isAcceptable = false;
+        } else if (sharpnessScore < 16) {
+          qualityStatus = "blurry";
+          warningMessage = "Image appears out-of-focus or blurry. Hold camera steady for clear text.";
+          isAcceptable = false;
+        }
+
+        const result = {
+          brightness: avgBrightness,
+          sharpness: sharpnessScore,
+          qualityStatus,
+          warningMessage,
+          isAcceptable
+        };
+
+        renderImageQualityBadge(result);
+        if (typeof scanFrameForBarcodes === "function") {
+          scanFrameForBarcodes(img);
+        }
+        resolve(result);
+      } catch (err) {
+        console.warn("[METRO-CHECK] Quality pre-check error:", err);
+        resolve({ brightness: 120, sharpness: 80, qualityStatus: "good", warningMessage: "", isAcceptable: true });
+      }
+    };
+    img.onerror = function () {
+      resolve({ brightness: 120, sharpness: 80, qualityStatus: "good", warningMessage: "", isAcceptable: true });
+    };
+    img.src = dataUrl;
+  });
+}
+
+function renderImageQualityBadge(q) {
+  const container = document.getElementById("imageQualityPreCheckContainer");
+  const icon = document.getElementById("imageQualityIcon");
+  const title = document.getElementById("imageQualityTitle");
+  const detail = document.getElementById("imageQualityDetail");
+  const badge = document.getElementById("imageQualityBadge");
+  if (!container) return;
+
+  container.classList.remove("hidden");
+
+  if (q.qualityStatus === "good") {
+    container.className = "p-3 rounded-2xl border transition-all text-xs flex items-center justify-between bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 shadow-xs";
+    if (icon) icon.textContent = "🟢";
+    if (title) title.textContent = "Specimen Clarity Optimal";
+    if (detail) detail.textContent = `Brightness: ${q.brightness}/255 • Sharpness Index: ${q.sharpness} • Ready for AI OCR`;
+    if (badge) {
+      badge.textContent = "OPTIMAL";
+      badge.className = "text-[9.5px] font-mono font-bold px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border border-emerald-400";
+    }
+  } else {
+    container.className = "p-3 rounded-2xl border transition-all text-xs flex items-center justify-between bg-amber-50/90 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 shadow-xs";
+    if (icon) icon.textContent = "⚠️";
+    if (title) title.textContent = q.qualityStatus === "blurry" ? "Blurry / Soft Focus Detected" : (q.qualityStatus === "dark" ? "Low Light Detected" : "Glare Detected");
+    if (detail) detail.textContent = q.warningMessage;
+    if (badge) {
+      badge.textContent = "WARNING";
+      badge.className = "text-[9.5px] font-mono font-bold px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 border border-amber-400";
+    }
+  }
+}
+
+/**
+ * ==========================================================================
+ * DYNAMIC AI BOUNDING BOX OVERLAY ENGINE
+ * Renders glowing, interactive bounding boxes over detected statutory
+ * declarations on the specimen evidence panel.
+ * ==========================================================================
+ */
+let isBoundingBoxesVisible = true;
+
+function toggleBoundingBoxesVisibility() {
+  isBoundingBoxesVisible = !isBoundingBoxesVisible;
+  const btn = document.getElementById("btnToggleBoundingBoxes");
+  const container = document.getElementById("specimenBoundingBoxesContainer");
+  if (btn) {
+    btn.textContent = isBoundingBoxesVisible ? "🏷️ Boxes: ON" : "🏷️ Boxes: OFF";
+    if (isBoundingBoxesVisible) {
+      btn.className = "px-2 py-0.5 rounded-md bg-emerald-950/85 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-emerald-500/40 shadow-xs transition-colors cursor-pointer";
+    } else {
+      btn.className = "px-2 py-0.5 rounded-md bg-slate-900/85 hover:bg-slate-700 text-slate-400 hover:text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-slate-700 shadow-xs transition-colors cursor-pointer";
+    }
+  }
+  if (container) {
+    container.style.display = isBoundingBoxesVisible ? "" : "none";
+  }
+}
+
+function renderBoundingBoxesOverlay(analysis) {
+  const container = document.getElementById("specimenBoundingBoxesContainer");
+  const thumb = document.getElementById("reportSpecimenThumb");
+  if (!container || !thumb) return;
+
+  container.innerHTML = "";
+  if (!isBoundingBoxesVisible) {
+    container.style.display = "none";
+    return;
+  }
+  container.style.display = "";
+
+  if (!analysis) return;
+  const fields = analysis.categorized_fields || analysis.fields || {};
+  const rules = analysis.compliance_tests || analysis.compliance || analysis.rules || [];
+
+  const declarations = [
+    {
+      id: "mrp",
+      name: "Retail Sale Price (MRP)",
+      clause: "Rule 6(1)(e)",
+      val: fields.mrp_tax_inclusive || fields.mrp || "",
+      icon: "₹",
+      box: [62, 54, 40, 15]
+    },
+    {
+      id: "net_quantity",
+      name: "Net Quantity",
+      clause: "Rule 6(1)(c)",
+      val: fields.net_quantity || "",
+      icon: "⚖️",
+      box: [62, 8, 42, 15]
+    },
+    {
+      id: "mfg_date",
+      name: "Date of Mfg/Pkg",
+      clause: "Rule 6(1)(d)",
+      val: fields.mfg_month_year || fields.mfg_date || "",
+      icon: "📅",
+      box: [79, 8, 42, 14]
+    },
+    {
+      id: "manufacturer",
+      name: "Manufacturer / Packer",
+      clause: "Rule 6(1)(a)",
+      val: fields.manufacturer_name_address || fields.manufacturer || "",
+      icon: "🏢",
+      box: [18, 8, 84, 20]
+    },
+    {
+      id: "origin",
+      name: "Country of Origin",
+      clause: "Rule 6(1)(aa)",
+      val: fields.country_of_origin || "",
+      icon: "🇮🇳",
+      box: [89, 54, 40, 9]
+    },
+    {
+      id: "consumer_care",
+      name: "Consumer Care Contact",
+      clause: "Rule 6(1)(n)",
+      val: fields.consumer_care_contact || fields.consumer_care || "",
+      icon: "📞",
+      box: [40, 8, 84, 18]
+    }
+  ];
+
+  // If Gemini Vision provided normalized bounding boxes in the response
+  if (Array.isArray(analysis.bounding_boxes) && analysis.bounding_boxes.length > 0) {
+    analysis.bounding_boxes.forEach(bb => {
+      const match = declarations.find(d => 
+        (bb.parameter_name && d.name.toLowerCase().includes(bb.parameter_name.toLowerCase())) ||
+        (bb.clause && d.clause.toLowerCase().includes(bb.clause.toLowerCase()))
+      );
+      if (match && Array.isArray(bb.box_2d) && bb.box_2d.length === 4) {
+        const [ymin, xmin, ymax, xmax] = bb.box_2d;
+        match.box = [
+          Math.round((ymin / 1000) * 100),
+          Math.round((xmin / 1000) * 100),
+          Math.max(10, Math.round(((xmax - xmin) / 1000) * 100)),
+          Math.max(6, Math.round(((ymax - ymin) / 1000) * 100))
+        ];
+      }
+    });
+  }
+
+  // Render each visible declaration box
+  declarations.forEach(item => {
+    if (!item.val || item.val === "MISSING" || item.val === "N/A") return;
+
+    const ruleMatch = rules.find(r => 
+      (r.clause && r.clause.toLowerCase().includes(item.clause.toLowerCase())) ||
+      (r.parameter_name && r.parameter_name.toLowerCase().includes(item.name.toLowerCase()))
+    );
+    const isCompliant = ruleMatch ? (ruleMatch.compliant !== false && (ruleMatch.status || "").toLowerCase() !== "fail") : true;
+
+    const borderColor = isCompliant ? "border-emerald-400" : "border-rose-500";
+    const bgBadge = isCompliant ? "bg-emerald-950/90 text-emerald-300 border-emerald-500/50" : "bg-rose-950/90 text-rose-300 border-rose-500/50";
+    const [top, left, width, height] = item.box;
+
+    const boxEl = document.createElement("div");
+    boxEl.className = `absolute pointer-events-auto transition-all duration-200 border-2 ${borderColor} rounded-md shadow-lg group hover:scale-[1.02] cursor-pointer`;
+    boxEl.style.top = `${top}%`;
+    boxEl.style.left = `${left}%`;
+    boxEl.style.width = `${width}%`;
+    boxEl.style.height = `${height}%`;
+    boxEl.style.backgroundColor = isCompliant ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.12)";
+
+    boxEl.innerHTML = `
+      <div class="absolute -top-4 left-0 px-1 py-0.2 rounded text-[8px] font-mono font-bold border backdrop-blur-md shadow-xs whitespace-nowrap select-none ${bgBadge}">
+        <span>${item.icon} ${item.name.split(' ')[0]}</span>
+      </div>
+      <div class="pointer-events-none absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block z-30 px-2 py-1 bg-slate-950/95 text-white text-[10px] rounded-lg shadow-xl border border-slate-700 whitespace-nowrap font-mono">
+        <div class="font-bold text-emerald-400">${item.clause}: ${item.name}</div>
+        <div class="text-slate-200 truncate max-w-[200px]">${item.val}</div>
+      </div>
+    `;
+
+    boxEl.addEventListener("click", () => {
+      if (typeof showToast === "function") {
+        showToast(`📍 Highlighted: ${item.name} (${item.val})`, "info");
+      }
+    });
+
+    container.appendChild(boxEl);
+  });
+}
+
+window.toggleBoundingBoxesVisibility = toggleBoundingBoxesVisibility;
+window.renderBoundingBoxesOverlay = renderBoundingBoxesOverlay;
+window.analyzeImageQuality = analyzeImageQuality;
 
 function fileToDataUrl(file, maxWidth = 1200, quality = 0.80) {
   return new Promise((resolve, reject) => {
@@ -768,6 +1066,13 @@ function updateMultiPanelState() {
   const capturedCount = PANEL_SLOTS.filter(s => !!panelImages[s]).length;
 
   currentUploadedImageDataUrl = panelImages.front || panelImages.back || panelImages.left || panelImages.right || panelImages.top || panelImages.bottom || null;
+
+  if (currentUploadedImageDataUrl) {
+    analyzeImageQuality(currentUploadedImageDataUrl);
+  } else {
+    const qContainer = document.getElementById("imageQualityPreCheckContainer");
+    if (qContainer) qContainer.classList.add("hidden");
+  }
 
   updateSpecimenGallery();
 
@@ -934,6 +1239,15 @@ function initAiScanner() {
     }
   }
 
+  // Check URL parameters for direct draft loading (?draft=INS-... or ?id=INS-...)
+  const pageParams = new URLSearchParams((window.location && window.location.search) ? window.location.search : "");
+  const draftParamId = pageParams.get("draft") || pageParams.get("id") || pageParams.get("case") || pageParams.get("edit");
+  if (draftParamId) {
+    setTimeout(() => {
+      loadDraftIntoWorkspace(draftParamId);
+    }, 60);
+  }
+
   // Setup drag & drop listeners for all 6 multi-panel uploader slot cards
   const setupSlotDropzone = (slotName, elementId) => {
     const el = document.getElementById(elementId);
@@ -1023,6 +1337,150 @@ function handleOcrCommodityChange() {
 }
 
 /* ==========================================================================
+   BARCODE & QR CODE AUTO-DECODER ENGINE
+   Real-Time GTIN/EAN-13, UPC-A, Code 128 & QR Code Scanner
+   Validates GS1 Country of Origin under Rule 6(1)(aa)
+   ========================================================================== */
+
+let detectedPackageBarcode = null;
+let barcodeScannerTimer = null;
+let lastDetectedBarcodeTimestamp = 0;
+let isBarcodeDetectorScanning = false;
+
+function getGs1CountryName(barcode) {
+  if (!barcode || typeof barcode !== "string") return "Unknown Origin";
+  const clean = barcode.trim().replace(/\D/g, "");
+  if (clean.length < 3) return "Unknown Origin";
+  const p3 = parseInt(clean.substring(0, 3), 10);
+  if (p3 === 890) return "GS1 India (Domestic)";
+  if (p3 >= 0 && p3 <= 139) return "United States & Canada";
+  if (p3 >= 300 && p3 <= 379) return "France";
+  if (p3 >= 400 && p3 <= 440) return "Germany";
+  if ((p3 >= 450 && p3 <= 459) || (p3 >= 490 && p3 <= 499)) return "Japan";
+  if (p3 >= 500 && p3 <= 509) return "United Kingdom";
+  if (p3 >= 690 && p3 <= 699) return "China";
+  if (p3 >= 760 && p3 <= 769) return "Switzerland";
+  if (p3 >= 800 && p3 <= 839) return "Italy";
+  if (p3 >= 840 && p3 <= 849) return "Spain";
+  if (p3 === 880) return "South Korea";
+  if (p3 === 885) return "Thailand";
+  if (p3 === 888) return "Singapore";
+  if (p3 === 893) return "Vietnam";
+  if (p3 === 899) return "Indonesia";
+  if (p3 >= 930 && p3 <= 939) return "Australia";
+  return "International (GS1 Member)";
+}
+
+function playBarcodeBeep() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(1760, ctx.currentTime);
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  } catch (e) {}
+}
+
+function handleBarcodeDetected(codeValue, format = "EAN-13") {
+  if (!codeValue) return;
+  const now = Date.now();
+  if (detectedPackageBarcode === codeValue && (now - lastDetectedBarcodeTimestamp) < 3000) {
+    return;
+  }
+  lastDetectedBarcodeTimestamp = now;
+  detectedPackageBarcode = codeValue;
+
+  const gs1Origin = getGs1CountryName(codeValue);
+  playBarcodeBeep();
+
+  // 1. Update live camera viewfinder pill
+  const pill = document.getElementById("liveBarcodeDetectorPill");
+  const valEl = document.getElementById("liveBarcodeValue");
+  const originEl = document.getElementById("liveBarcodeOrigin");
+  if (pill && valEl) {
+    valEl.textContent = `${format}: ${codeValue}`;
+    if (originEl) originEl.textContent = gs1Origin;
+    pill.classList.remove("hidden");
+    pill.classList.add("animate-pulse");
+    setTimeout(() => pill.classList.remove("animate-pulse"), 1200);
+  }
+
+  // 2. Pre-fill detected barcode into inspection particulars
+  const barcodeFields = document.querySelectorAll("#manualBarcode, .barcode-target-field, [data-field='barcode']");
+  barcodeFields.forEach(f => { f.value = codeValue; });
+
+  // 3. Attach to global inspection state
+  window.detectedBarcodeData = {
+    code: codeValue,
+    format: format,
+    origin: gs1Origin,
+    timestamp: new Date().toISOString()
+  };
+
+  if (typeof showToast === "function") {
+    showToast(`📦 Decoded ${format}: ${codeValue} (${gs1Origin})`, "success");
+  }
+}
+
+async function scanFrameForBarcodes(source) {
+  if (!source) return null;
+  try {
+    if ("BarcodeDetector" in window) {
+      const detector = new window.BarcodeDetector({
+        formats: ["ean_13", "ean_8", "upc_a", "upc_e", "qr_code", "code_128", "code_39", "data_matrix"]
+      });
+      const barcodes = await detector.detect(source);
+      if (barcodes && barcodes.length > 0) {
+        const primary = barcodes[0];
+        handleBarcodeDetected(primary.rawValue, (primary.format || "EAN-13").toUpperCase());
+        return primary;
+      }
+    }
+  } catch (e) {
+    // Gracefully handle partial camera frames
+  }
+  return null;
+}
+
+function startLiveBarcodeScanner(videoEl) {
+  stopLiveBarcodeScanner();
+  if (!videoEl) return;
+
+  barcodeScannerTimer = setInterval(async () => {
+    if (!videoEl || videoEl.paused || videoEl.ended || videoEl.readyState < 2) return;
+    if (isBarcodeDetectorScanning) return;
+    isBarcodeDetectorScanning = true;
+    try {
+      await scanFrameForBarcodes(videoEl);
+    } finally {
+      isBarcodeDetectorScanning = false;
+    }
+  }, 350);
+}
+
+function stopLiveBarcodeScanner() {
+  if (barcodeScannerTimer) {
+    clearInterval(barcodeScannerTimer);
+    barcodeScannerTimer = null;
+  }
+  const pill = document.getElementById("liveBarcodeDetectorPill");
+  if (pill) pill.classList.add("hidden");
+}
+
+window.startLiveBarcodeScanner = startLiveBarcodeScanner;
+window.stopLiveBarcodeScanner = stopLiveBarcodeScanner;
+window.scanFrameForBarcodes = scanFrameForBarcodes;
+window.handleBarcodeDetected = handleBarcodeDetected;
+
+/* ==========================================================================
    1. LIVE CAMERA WORKFLOW (WebRTC getUserMedia)
    ========================================================================== */
 
@@ -1056,6 +1514,7 @@ async function startLiveCamera() {
       videoEl.srcObject = activeCameraStream;
       videoEl.play();
       videoEl.classList.remove("hidden");
+      startLiveBarcodeScanner(videoEl);
     }
 
     if (placeholder) placeholder.classList.add("hidden");
@@ -1065,7 +1524,7 @@ async function startLiveCamera() {
     const cameraBox = document.getElementById("cameraModeBox");
     if (cameraBox) cameraBox.classList.add("camera-streaming");
 
-    if (typeof showToast === "function") showToast("Live OCR camera initialized. Frame package label inside target.", "success");
+    if (typeof showToast === "function") showToast("Live OCR & Barcode camera initialized. Frame package label inside target.", "success");
   } catch (err) {
     console.warn("Camera access failed or unavailable:", err);
     if (typeof showToast === "function") {
@@ -1078,6 +1537,7 @@ async function startLiveCamera() {
  * Stops live video feed, stops all tracks, cancels active intervals/frames, and cleans up memory.
  */
 function stopLiveCamera() {
+  stopLiveBarcodeScanner();
   if (activeCameraStream) {
     try { activeCameraStream.getTracks().forEach(track => track.stop()); } catch (e) { }
     activeCameraStream = null;
@@ -1546,6 +2006,7 @@ async function startAiOcrInspection() {
     // Step B: Live result renders with color-coded Rule 6 checklist
     try {
       renderAutoFilledComplianceReport(analysis);
+      renderBoundingBoxesOverlay(analysis);
     } catch (renderErr) {
       console.error("[METRO-CHECK] Error inside renderAutoFilledComplianceReport:", renderErr);
     }
@@ -1635,6 +2096,14 @@ async function startAiOcrInspection() {
               </div>
               <span class="font-bold text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-1 font-mono"><span>🔐</span> <span>SHA-256 Sealed</span></span>
             </div>
+            ${window.detectedBarcodeData ? `
+            <div class="col-span-2 sm:col-span-4 flex items-center justify-between gap-2 bg-indigo-50/90 dark:bg-indigo-950/30 border border-indigo-200/90 dark:border-indigo-800/70 rounded-xl px-3.5 py-2 shadow-2xs">
+              <div class="flex items-center gap-2">
+                <span class="text-sm">🏷️</span>
+                <span class="font-bold text-indigo-900 dark:text-indigo-200 text-xs font-mono">Decoded Barcode: ${window.detectedBarcodeData.code} (${window.detectedBarcodeData.format})</span>
+              </div>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700">Origin: ${window.detectedBarcodeData.origin}</span>
+            </div>` : ''}
           </div>`;
         telDock.classList.remove("hidden");
       }
@@ -2497,6 +2966,11 @@ function renderSpecimenImageViewport() {
     thumb.alt = `${currentItem.label} Evidence Preview`;
   }
 
+  // Refresh dynamic AI statutory bounding boxes for current specimen view
+  if (typeof renderBoundingBoxesOverlay === "function" && currentInspectionResult) {
+    renderBoundingBoxesOverlay(currentInspectionResult);
+  }
+
   if (badge && currentItem) {
     badge.textContent = total > 1
       ? `Panel ${currentSpecimenImageIndex + 1}/${total}: ${currentItem.label}`
@@ -2871,18 +3345,24 @@ function revalidateUserCorrectedDeclarations() {
 
   if (typeof validateLabel === "function") {
     const evalRes = validateLabel(fields);
-    currentInspectionResult.overall_status = evalRes.overall_status;
-    currentInspectionResult.overall_verdict = evalRes.overall_verdict;
-    currentInspectionResult.isCompliant = evalRes.isCompliant;
-    currentInspectionResult.violations = evalRes.violations;
-    currentInspectionResult.compliance_tests = evalRes.rules.map(r => ({
-      parameter_name: r.parameter_name,
-      rule_reference: r.clause,
-      detected_value: r.value,
-      required_standard: "Legal Metrology (Packaged Commodities) Rules, 2011",
-      status: r.status === "COMPLIANT" ? "Pass" : (r.status === "NON-COMPLIANT" ? "Fail" : "Review"),
-      observations: r.violation_reason || "Statutory declaration compliant."
-    }));
+    const isCompliant = Boolean(evalRes.isCompliant);
+    currentInspectionResult.isCompliant = isCompliant;
+    currentInspectionResult.overall_status = isCompliant ? "Compliant" : "Non-Compliant";
+    currentInspectionResult.overall_verdict = isCompliant ? "Pass" : "Fail";
+    currentInspectionResult.violations = evalRes.violations || [];
+    currentInspectionResult.compliance_tests = (evalRes.rules || []).map(r => {
+      const isPass = r.compliant === true || r.status === "COMPLIANT";
+      const isFail = r.compliant === false || r.status === "NON-COMPLIANT";
+      return {
+        parameter_name: r.parameter_name,
+        rule_reference: r.clause,
+        detected_value: r.value,
+        required_standard: "Legal Metrology (Packaged Commodities) Rules, 2011",
+        status: isPass ? "Pass" : (isFail ? "Fail" : "Review"),
+        compliant: isPass,
+        observations: r.violation_reason || (isPass ? "Statutory declaration compliant." : "Non-compliant declaration.")
+      };
+    });
   }
 
   // Re-render report UI with updated values & verdict
@@ -2897,8 +3377,96 @@ function revalidateUserCorrectedDeclarations() {
 }
 
 /* ==========================================================================
-   5. REPORT ACTIONS: SAVE DRAFT, SUBMIT DOCKET, DOWNLOAD PDF
+   5. REPORT ACTIONS: SAVE DRAFT, SUBMIT DOCKET, DOWNLOAD PDF & RESUME DRAFT
    ========================================================================== */
+
+function handleSaveDraftCaptureOnly() {
+  const draftBtn = document.getElementById("btnSaveDraftInspectionDocket");
+  const origDraftHtml = draftBtn ? draftBtn.innerHTML : "";
+  if (draftBtn) {
+    draftBtn.disabled = true;
+    draftBtn.classList.add("opacity-60", "cursor-not-allowed");
+    draftBtn.innerHTML = `<span>⏳</span> <span>Saving Draft...</span>`;
+  }
+
+  try {
+    const user = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { name: "Field Inspector", username: "inspector" };
+    const nowIso = new Date().toISOString();
+    const rawImage = panelImages.front || currentUploadedImageDataUrl || panelImages.back || Object.values(panelImages).find(Boolean);
+    const catSelect = document.getElementById("ocrCommodityCategorySelect");
+    const selectedCat = catSelect ? catSelect.value : "";
+    const notesEl = document.getElementById("inspectorNotesInput");
+    const inspectorNotes = notesEl ? notesEl.value.trim() : "";
+
+    const record = {
+      id: currentCaseId || generateId("INS-"),
+      evidenceId: `EVD-${currentCaseId || "CASE"}`,
+      sequenceNumber: getNextSequenceNumber(),
+      createdAt: nowIso,
+      updatedAt: nowIso,
+      timestamp: nowIso,
+      submittedAt: null,
+      scannedAt: null,
+      ruleValidationTimestamp: null,
+      date: nowIso.split("T")[0],
+      time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+      formattedDateTime: formatDisplayDateTime(nowIso, true),
+      product: selectedCat || "Unscanned Specimen Draft",
+      commodityCategory: selectedCat || "General Packaged Commodity",
+      status: "DRAFT",
+      priority: "Standard",
+      location: user.state ? `${user.state} Inspection Unit` : "Field Inspection Unit",
+      establishmentName: user.state === "Punjab" ? "M/s Reliance Smart Bazaar (Store #108)" : "M/s Apex Retail & Hypermarket Ltd",
+      establishmentAddress: user.state === "Punjab" ? "SCO 142-143, Sector 17-C, Chandigarh - 160017" : "Plot 42, Commercial Belt, District Centre, New Delhi - 110019",
+      establishmentGstin: user.state === "Punjab" ? "03AAACR1234F1Z5" : "07AAACM9876E1ZT",
+      zone: user.zone || "North",
+      state: user.state || "Delhi UT",
+      inspectorId: user.username || "inspector",
+      inspectorName: user.name || "Field Inspector",
+      inspectorDesignation: user.designation || "Legal Metrology Inspector",
+      inspectorBadgeNumber: user.badgeNumber || ("INSP-" + (user.username || "01").toUpperCase()),
+      inspectorOffice: user.officeAddress || null,
+      gpsCoordinates: (function() {
+        const sm = { "Punjab": "30.7333° N, 76.7794° E", "Delhi UT": "28.5244° N, 77.2066° E", "Uttar Pradesh": "28.5355° N, 77.3910° E", "Kerala": "8.5241° N, 76.9366° E", "Assam": "26.1445° N, 91.7362° E", "Maharashtra": "18.9220° N, 72.8347° E", "West Bengal": "22.5726° N, 88.3639° E" };
+        return sm[user.state] || "28.5244° N, 77.2066° E";
+      })(),
+      ocrStatus: "DRAFT",
+      image: rawImage,
+      imageFront: panelImages.front || rawImage,
+      imageBack: panelImages.back || null,
+      panelImages: { ...panelImages },
+      extractedData: {},
+      fields: {},
+      categorized_fields: {},
+      original_ai_fields: {},
+      compliance: [],
+      compliance_tests: [],
+      complianceTests: [],
+      confidence: 0,
+      overallStatus: "Pending AI Scan",
+      violations: [],
+      isCompliant: false,
+      inspectorNotes: inspectorNotes,
+      remarks: inspectorNotes
+    };
+
+    appendAuditLog(record, "DRAFT_SAVED", user.name || "Field Inspector", `Specimen panels saved as draft (#${record.sequenceNumber}).`);
+    saveInspection(record);
+
+    if (typeof updateDashboardStats === "function") updateDashboardStats();
+    if (typeof renderMyInspections === "function") renderMyInspections();
+    if (typeof renderRecentDashboardTable === "function") renderRecentDashboardTable();
+    if (typeof renderStats === "function") renderStats();
+
+    if (typeof showToast === "function") showToast(`Draft ${record.id} saved with specimen panels!`, "success");
+  } finally {
+    if (draftBtn && origDraftHtml) {
+      draftBtn.disabled = false;
+      draftBtn.classList.remove("opacity-60", "cursor-not-allowed");
+      draftBtn.innerHTML = origDraftHtml;
+    }
+  }
+}
 
 function handleSaveOcrInspection(statusType) {
   if (isSubmissionInProgress) {
@@ -2907,7 +3475,11 @@ function handleSaveOcrInspection(statusType) {
   }
 
   if (!currentInspectionResult) {
-    if (typeof showToast === "function") showToast("Please perform an AI inspection first.", "warning");
+    const hasPanels = (typeof panelImages !== "undefined" && panelImages && Object.values(panelImages).some(Boolean)) || Boolean(currentUploadedImageDataUrl);
+    if (statusType === "draft" && hasPanels) {
+      return handleSaveDraftCaptureOnly();
+    }
+    if (typeof showToast === "function") showToast("Please perform an AI inspection or capture specimen photos first.", "warning");
     return;
   }
 
@@ -2967,7 +3539,7 @@ function handleSaveOcrInspection(statusType) {
       .map(t => `${t.parameter_name || t.rule || "Rule"}: ${t.observations || t.violation_reason || "Non-compliant"}`);
 
     const statusState = statusType === "draft"
-      ? "draft"
+      ? "DRAFT"
       : (isCompliant ? (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.COMPLIANT_LOGGED : "COMPLIANT")
         : (typeof INSPECTION_STATUS !== "undefined" ? INSPECTION_STATUS.NON_COMPLIANT_PENDING : "SUBMITTED"));
 
@@ -2989,23 +3561,25 @@ function handleSaveOcrInspection(statusType) {
       time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
       formattedDateTime: formatDisplayDateTime(nowIso, true),
       product: fields.commodity_name || fields.generic_name || fields.brand_name || "Packaged Commodity",
+      commodityCategory: document.getElementById("ocrCommodityCategorySelect")?.value || currentInspectionResult.commodityCategory || "Packaged Commodity",
       status: statusState,
       priority: isCompliant ? "Low" : (violations.length > 1 ? "Urgent" : "Standard"),
       location: user.state ? `${user.state} Inspection Unit` : "Field Inspection Unit",
+      establishmentName: document.getElementById("establishmentNameInput")?.value || (user.state === "Punjab" ? "M/s Reliance Smart Bazaar (Store #108)" : "M/s Apex Retail & Hypermarket Ltd"),
+      establishmentAddress: document.getElementById("establishmentAddressInput")?.value || (user.state === "Punjab" ? "SCO 142-143, Sector 17-C, Chandigarh - 160017" : "Plot 42, Commercial Belt, District Centre, New Delhi - 110019"),
+      establishmentGstin: (user.state === "Punjab" ? "03AAACR1234F1Z5" : "07AAACM9876E1ZT"),
       zone: user.zone || "North",
       state: user.state || "Delhi UT",
       inspectorId: user.username || "inspector",
       inspectorName: user.name || "Field Inspector",
       inspectorDesignation: user.designation || "Legal Metrology Inspector",
-      // Use the real badge number from the user profile (set by admin), never synthesise it
       inspectorBadgeNumber: user.badgeNumber || ("INSP-" + (user.username || "01").toUpperCase()),
       inspectorOffice: user.officeAddress || null,
       gpsCoordinates: (function () {
+        const sm = { "Punjab": "30.7333° N, 76.7794° E", "Delhi UT": "28.5244° N, 77.2066° E", "Uttar Pradesh": "28.5355° N, 77.3910° E", "Kerala": "8.5241° N, 76.9366° E", "Assam": "26.1445° N, 91.7362° E", "Maharashtra": "18.9220° N, 72.8347° E", "West Bengal": "22.5726° N, 88.3639° E" };
         const m = { "North": "28.5244° N, 77.2066° E", "South": "13.0827° N, 80.2707° E", "West": "19.0760° N, 72.8777° E", "East": "22.5726° N, 88.3639° E", "Central": "23.2599° N, 77.4126° E", "North East": "26.1445° N, 91.7362° E", "Northeast": "26.1445° N, 91.7362° E" };
-        return m[user.zone] || "28.5244° N, 77.2066° E";
+        return sm[user.state] || m[user.zone] || "28.5244° N, 77.2066° E";
       })(),
-      // AI/OCR provenance — model name is returned by /api/scan and must be stored
-      // so re-verification is possible if a model error is discovered.
       aiModel: currentInspectionResult.model_used || currentInspectionResult.usedModel || null,
       aiConfidence: currentInspectionResult.confidence || null,
       aiTimestamp: currentInspectionResult.ruleValidationTimestamp || nowIso,
@@ -3014,6 +3588,9 @@ function handleSaveOcrInspection(statusType) {
       imageFront: panelImages.front || currentFrontImageDataUrl || finalImage,
       imageBack: panelImages.back || currentBackImageDataUrl || null,
       panelImages: { ...panelImages },
+      fields: { ...fields },
+      categorized_fields: { ...fields },
+      original_ai_fields: currentInspectionResult.original_ai_fields || { ...fields },
       extractedData: {
         commodity_name: fields.generic_name || fields.commodity_name || "Packaged Commodity",
         net_quantity: fields.net_quantity,
@@ -3025,15 +3602,19 @@ function handleSaveOcrInspection(statusType) {
         country_of_origin: fields.country_of_origin,
         batch_number: fields.batch_number || fields.lot_number || fields.batch_lot
       },
-      compliance: currentInspectionResult.compliance,
-      complianceTests: currentInspectionResult.compliance_tests,
+      compliance: currentInspectionResult.compliance || [],
+      complianceTests: currentInspectionResult.compliance_tests || [],
+      compliance_tests: currentInspectionResult.compliance_tests || [],
       confidence: currentInspectionResult.confidence || 0.98,
       overallStatus: currentInspectionResult.overall_status || (isCompliant ? "Compliant" : "Non-Compliant"),
+      overallVerdict: currentInspectionResult.overall_verdict || (isCompliant ? "Pass" : "Fail"),
       violations: violations,
       isCompliant: isCompliant,
       rawOcrText: currentInspectionResult.extracted_text || currentInspectionResult.raw_ocr_text,
       executiveSummary: currentInspectionResult.executive_summary,
       recommendedAction: currentInspectionResult.recommended_action,
+      boundingBoxes: currentInspectionResult.bounding_boxes || currentInspectionResult.boundingBoxes || [],
+      bounding_boxes: currentInspectionResult.bounding_boxes || currentInspectionResult.boundingBoxes || [],
       inspectorNotes: inspectorNotes,
       remarks: inspectorNotes
     };
@@ -3083,6 +3664,190 @@ function handleSaveOcrInspection(statusType) {
     }
   }
 }
+
+/**
+ * Loads a saved draft inspection docket into the inspection workspace (#view-ocr)
+ * restoring captured panel images, extracted statutory declarations, Rule 6 checklist,
+ * and inspector notes so the user can verify, edit, and re-validate before submission.
+ */
+function loadDraftIntoWorkspace(itemOrId) {
+  const item = (typeof itemOrId === "object" && itemOrId !== null)
+    ? itemOrId
+    : (typeof getInspectionById === "function" ? getInspectionById(itemOrId) : null);
+
+  if (!item) {
+    if (typeof showToast === "function") showToast("Draft record not found or could not be loaded.", "error");
+    return false;
+  }
+
+  // 1. Set Active Case ID
+  currentCaseId = item.id;
+  const caseIdDisplay = document.getElementById("ocrCaseIdDisplay");
+  if (caseIdDisplay) caseIdDisplay.textContent = currentCaseId;
+  const caseIdText = document.getElementById("reportCaseIdText");
+  if (caseIdText) caseIdText.textContent = currentCaseId;
+
+  // 2. Restore Multi-Panel Images
+  const pImgs = item.panelImages || {};
+  if (typeof panelImages !== "undefined" && panelImages) {
+    PANEL_SLOTS.forEach(slot => {
+      panelImages[slot] = pImgs[slot] || (slot === "front" ? (item.imageFront || item.image) : (slot === "back" ? item.imageBack : null)) || null;
+    });
+  }
+  currentUploadedImageDataUrl = panelImages.front || item.imageFront || item.image || null;
+  if (typeof updateMultiPanelState === "function") {
+    updateMultiPanelState();
+  }
+
+  // 3. Restore Commodity Category Dropdown
+  const catSelect = document.getElementById("ocrCommodityCategorySelect");
+  if (catSelect && (item.commodityCategory || item.product)) {
+    const target = item.commodityCategory || item.product || "";
+    for (let i = 0; i < catSelect.options.length; i++) {
+      const opt = catSelect.options[i];
+      if (opt.value && target.toLowerCase().includes(opt.value.toLowerCase())) {
+        catSelect.selectedIndex = i;
+        break;
+      }
+    }
+  }
+
+  // 4. Restore Inspector Notes
+  const notesEl = document.getElementById("inspectorNotesInput");
+  if (notesEl) {
+    notesEl.value = item.inspectorNotes || item.remarks || "";
+  }
+
+  // 5. Check if draft has extracted declarations / inspection result
+  const ext = item.extractedData || item.fields || item.categorized_fields || {};
+  const hasExtractedData = Boolean(
+    ext.commodity_name || ext.generic_name || ext.mrp || ext.mrp_tax_inclusive ||
+    ext.net_quantity || ext.manufacturer || ext.manufacturer_name_address ||
+    (Array.isArray(item.compliance_tests) && item.compliance_tests.length > 0) ||
+    (Array.isArray(item.complianceTests) && item.complianceTests.length > 0)
+  );
+
+  const captureDeck = document.getElementById("ocrMainCaptureDeck");
+  const manualAccordion = document.getElementById("manualEntryAccordion");
+  const loadingSection = document.getElementById("ocrLoadingSection");
+  const resultsSection = document.getElementById("ocrReportResultsSection");
+  const headerBar = document.getElementById("ocrHeaderStatutoryBar");
+
+  if (hasExtractedData) {
+    const fields = {
+      generic_name: ext.generic_name || ext.commodity_name || item.product || "",
+      net_quantity: ext.net_quantity || ext.net_weight || "",
+      mrp_tax_inclusive: ext.mrp_tax_inclusive || ext.mrp || "",
+      manufacturer_name_address: ext.manufacturer_name_address || ext.manufacturer || [ext.manufacturer_name, ext.manufacturer_address].filter(Boolean).join(", ") || "",
+      mfg_month_year: ext.mfg_month_year || ext.mfg_date || ext.manufacturing_date || "",
+      unit_sale_price: ext.unit_sale_price || "",
+      consumer_care_contact: ext.consumer_care_contact || ext.consumer_care || ext.helpline || "",
+      country_of_origin: ext.country_of_origin || "",
+      batch_number: ext.batch_number || ext.lot_number || ext.batch_lot || ext.batch || ""
+    };
+
+    const origFields = item.original_ai_fields || { ...fields };
+
+    // Restore or re-evaluate compliance tests
+    let tests = item.compliance_tests || item.complianceTests || [];
+    let isCompliant = typeof item.isCompliant === "boolean" ? item.isCompliant : false;
+    let violations = item.violations || [];
+    let overallStatus = item.overallStatus || "Requires Review";
+    let overallVerdict = item.overallVerdict || "Fail";
+
+    if ((!tests || tests.length === 0) && typeof validateLabel === "function") {
+      const evalRes = validateLabel(fields);
+      isCompliant = Boolean(evalRes.isCompliant);
+      overallStatus = isCompliant ? "Compliant" : "Non-Compliant";
+      overallVerdict = isCompliant ? "Pass" : "Fail";
+      violations = evalRes.violations || [];
+      tests = (evalRes.rules || []).map(r => {
+        const isPass = r.compliant === true || r.status === "COMPLIANT";
+        return {
+          parameter_name: r.parameter_name,
+          rule_reference: r.clause,
+          detected_value: r.value,
+          required_standard: "Legal Metrology (Packaged Commodities) Rules, 2011",
+          status: isPass ? "Pass" : "Fail",
+          compliant: isPass,
+          observations: r.violation_reason || (isPass ? "Statutory declaration compliant." : "Non-compliant declaration.")
+        };
+      });
+    }
+
+    currentInspectionResult = {
+      id: item.id,
+      scannedAt: item.scannedAt || item.createdAt || new Date().toISOString(),
+      ruleValidationTimestamp: item.ruleValidationTimestamp || item.updatedAt || new Date().toISOString(),
+      fields: fields,
+      categorized_fields: fields,
+      original_ai_fields: origFields,
+      confidence: item.confidence || item.aiConfidence || 0.95,
+      overall_status: overallStatus,
+      overall_verdict: overallVerdict,
+      isCompliant: isCompliant,
+      violations: violations,
+      compliance_tests: tests,
+      compliance: item.compliance || [],
+      extracted_text: item.rawOcrText || item.extracted_text || "",
+      raw_ocr_text: item.rawOcrText || item.raw_ocr_text || "",
+      executive_summary: item.executiveSummary || item.executive_summary || "",
+      recommended_action: item.recommendedAction || item.recommended_action || "",
+      model_used: item.aiModel || "Gemini 3.6 Flash",
+      bounding_boxes: item.boundingBoxes || item.bounding_boxes || []
+    };
+
+    if (captureDeck) captureDeck.classList.add("hidden");
+    if (manualAccordion) manualAccordion.classList.add("hidden");
+    if (loadingSection) loadingSection.classList.add("hidden");
+    if (headerBar) headerBar.classList.remove("hidden");
+    if (resultsSection) {
+      resultsSection.classList.remove("hidden");
+      resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    renderAutoFilledComplianceReport(currentInspectionResult);
+    if (typeof renderBoundingBoxesOverlay === "function") {
+      renderBoundingBoxesOverlay(currentInspectionResult);
+    }
+
+    if (typeof showToast === "function") {
+      showToast(`Draft ${item.id} loaded. Declarations & Rule 6 checklist are open for editing.`, "success");
+    }
+  } else {
+    // Specimen capture only (unscanned draft)
+    if (captureDeck) captureDeck.classList.remove("hidden");
+    if (manualAccordion) manualAccordion.classList.remove("hidden");
+    if (loadingSection) loadingSection.classList.add("hidden");
+    if (headerBar) headerBar.classList.remove("hidden");
+    if (resultsSection) resultsSection.classList.add("hidden");
+
+    captureDeck?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (typeof showToast === "function") {
+      showToast(`Draft ${item.id} panels loaded. Ready to run AI scan or modify photos.`, "info");
+    }
+  }
+
+  return true;
+}
+
+function resumeInspectionDraft(id) {
+  if (typeof closeInspectorDetailModal === "function") {
+    closeInspectorDetailModal();
+  }
+
+  if (typeof window !== "undefined" && window.location.pathname.includes("inspector.html")) {
+    if (typeof switchInspectorTab === "function") {
+      switchInspectorTab("ocr");
+    }
+    loadDraftIntoWorkspace(id);
+  } else {
+    window.location.href = `inspector.html?draft=${encodeURIComponent(id)}#ocr`;
+  }
+}
+window.loadDraftIntoWorkspace = loadDraftIntoWorkspace;
+window.resumeInspectionDraft = resumeInspectionDraft;
 
 /* ==========================================================================
    4. MANUAL INSPECTION ENTRY FORM VALIDATION (Fallback Workflow)
@@ -3374,6 +4139,8 @@ window.handleSaveOcrInspection = handleSaveOcrInspection;
 window.revalidateUserCorrectedDeclarations = revalidateUserCorrectedDeclarations;
 window.copyRawOcrText = copyRawOcrText;
 window.renderAutoFilledComplianceReport = renderAutoFilledComplianceReport;
+window.loadDraftIntoWorkspace = loadDraftIntoWorkspace;
+window.resumeInspectionDraft = resumeInspectionDraft;
 
 // Sync mobile scanner flow on load if ocr tab is active
 if (typeof document !== "undefined") {
