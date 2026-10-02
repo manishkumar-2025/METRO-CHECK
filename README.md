@@ -103,7 +103,7 @@ The system validates package labels against the mandatory declarations prescribe
 ## 🚀 Quick Start & Installation
 
 ### Prerequisites
-- **Node.js:** v18.0.0 or higher
+- **Node.js:** v18.1.0 or higher
 - **npm:** v9.0.0 or higher
 - **Google Gemini API Key:** (Optional for live AI OCR; fallback scanner activates automatically if unset)
 

@@ -4444,6 +4444,246 @@ body:not(.dark) .command-center-stage {
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
 }
 
+/* ==========================================================================
+   STATUTORY COMPUTER VISION BOUNDING BOX HUD OVERLAY
+   ========================================================================== */
+.statutory-bounding-box {
+  position: absolute;
+  pointer-events: auto;
+  border-radius: 6px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  z-index: 20;
+}
+
+.statutory-bounding-box.compliant {
+  border: 1.5px solid rgba(16, 185, 129, 0.9);
+  background: rgba(16, 185, 129, 0.08);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+  color: #10b981;
+}
+
+.statutory-bounding-box.compliant:hover,
+.statutory-bounding-box.compliant.active-hover {
+  border-color: #34d399;
+  background: rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.65), inset 0 0 8px rgba(16, 185, 129, 0.25);
+  transform: scale(1.02);
+  z-index: 60 !important;
+}
+
+.statutory-bounding-box.non-compliant {
+  border: 2px solid rgba(244, 63, 94, 0.95);
+  background: rgba(244, 63, 94, 0.15);
+  box-shadow: 0 0 14px rgba(244, 63, 94, 0.5);
+  color: #f43f5e;
+}
+
+.statutory-bounding-box.non-compliant:hover,
+.statutory-bounding-box.non-compliant.active-hover {
+  border-color: #fb7185;
+  background: rgba(244, 63, 94, 0.28);
+  box-shadow: 0 0 22px rgba(244, 63, 94, 0.8), inset 0 0 10px rgba(244, 63, 94, 0.3);
+  transform: scale(1.02);
+  z-index: 60 !important;
+}
+
+.statutory-bounding-box.review {
+  border: 1.5px dashed rgba(245, 158, 11, 0.9);
+  background: rgba(245, 158, 11, 0.10);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.statutory-bounding-box.review:hover,
+.statutory-bounding-box.review.active-hover {
+  border-color: #fbbf24;
+  background: rgba(245, 158, 11, 0.22);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.6);
+  transform: scale(1.02);
+  z-index: 60 !important;
+}
+
+/* 4 Precision Corner Reticles (Military/CV Optical Viewfinder Reticles) */
+.statutory-bounding-box .box-reticle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+}
+.statutory-bounding-box .box-reticle.tl {
+  top: -2px; left: -2px;
+  border-top: 2.5px solid currentColor;
+  border-left: 2.5px solid currentColor;
+  border-top-left-radius: 4px;
+}
+.statutory-bounding-box .box-reticle.tr {
+  top: -2px; right: -2px;
+  border-top: 2.5px solid currentColor;
+  border-right: 2.5px solid currentColor;
+  border-top-right-radius: 4px;
+}
+.statutory-bounding-box .box-reticle.bl {
+  bottom: -2px; left: -2px;
+  border-bottom: 2.5px solid currentColor;
+  border-left: 2.5px solid currentColor;
+  border-bottom-left-radius: 4px;
+}
+.statutory-bounding-box .box-reticle.br {
+  bottom: -2px; right: -2px;
+  border-bottom: 2.5px solid currentColor;
+  border-right: 2.5px solid currentColor;
+  border-bottom-right-radius: 4px;
+}
+
+/* Micro-Chip Badge Pinned to Box Header */
+.statutory-bounding-box .box-chip-badge {
+  position: absolute;
+  top: -15px;
+  left: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3.5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8.5px;
+  font-weight: 800;
+  line-height: 1.25;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  pointer-events: none;
+  letter-spacing: 0.02em;
+}
+
+/* Smart badge positioning when box is near top boundary */
+.statutory-bounding-box.badge-inside .box-chip-badge {
+  top: 3px !important;
+  left: 3px !important;
+}
+
+/* Rich Floating Tooltip (Glassmorphism & Auto-Positioning) */
+.statutory-bounding-box .box-tooltip {
+  pointer-events: none;
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  min-width: 195px;
+  max-width: 270px;
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: rgba(10, 15, 29, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.85), 0 0 1px 1px rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 10px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.statutory-bounding-box:hover .box-tooltip,
+.statutory-bounding-box.active-hover .box-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Tooltip Downward Arrow (Default: Centered) */
+.statutory-bounding-box .box-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(10, 15, 29, 0.97) transparent transparent transparent;
+}
+
+/* Smart Tooltip Horizontal Alignments */
+.statutory-bounding-box.tooltip-align-left .box-tooltip {
+  left: 0;
+  transform: translateX(0) translateY(4px);
+}
+.statutory-bounding-box.tooltip-align-left:hover .box-tooltip,
+.statutory-bounding-box.tooltip-align-left.active-hover .box-tooltip {
+  transform: translateX(0) translateY(0);
+}
+.statutory-bounding-box.tooltip-align-left .box-tooltip::after {
+  left: 20px;
+  transform: none;
+}
+
+.statutory-bounding-box.tooltip-align-right .box-tooltip {
+  left: auto;
+  right: 0;
+  transform: translateX(0) translateY(4px);
+}
+.statutory-bounding-box.tooltip-align-right:hover .box-tooltip,
+.statutory-bounding-box.tooltip-align-right.active-hover .box-tooltip {
+  transform: translateX(0) translateY(0);
+}
+.statutory-bounding-box.tooltip-align-right .box-tooltip::after {
+  left: auto;
+  right: 20px;
+  transform: none;
+}
+
+/* Inverted Tooltip for Top Elements */
+.statutory-bounding-box.tooltip-below .box-tooltip {
+  bottom: auto;
+  top: calc(100% + 7px);
+  transform: translateX(-50%) translateY(-4px);
+}
+.statutory-bounding-box.tooltip-below:hover .box-tooltip,
+.statutory-bounding-box.tooltip-below.active-hover .box-tooltip {
+  transform: translateX(-50%) translateY(0);
+}
+.statutory-bounding-box.tooltip-below .box-tooltip::after {
+  top: auto;
+  bottom: 100%;
+  border-color: transparent transparent rgba(10, 15, 29, 0.97) transparent;
+}
+
+.statutory-bounding-box.tooltip-below.tooltip-align-left .box-tooltip {
+  transform: translateX(0) translateY(-4px);
+}
+.statutory-bounding-box.tooltip-below.tooltip-align-left:hover .box-tooltip,
+.statutory-bounding-box.tooltip-below.tooltip-align-left.active-hover .box-tooltip {
+  transform: translateX(0) translateY(0);
+}
+
+.statutory-bounding-box.tooltip-below.tooltip-align-right .box-tooltip {
+  transform: translateX(0) translateY(-4px);
+}
+.statutory-bounding-box.tooltip-below.tooltip-align-right:hover .box-tooltip,
+.statutory-bounding-box.tooltip-below.tooltip-align-right.active-hover .box-tooltip {
+  transform: translateX(0) translateY(0);
+}
+
+/* Card Target Pulse Animation when clicked from Bounding Box */
+@keyframes cardTargetPulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); transform: scale(1.02); border-color: #10b981; }
+  50% { box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); transform: scale(1.02); border-color: #10b981; }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); transform: scale(1); }
+}
+
+.declaration-card-target-highlight {
+  animation: cardTargetPulse 1.8s ease-out;
+  border-color: #10b981 !important;
+  background-color: rgba(16, 185, 129, 0.08) !important;
+}
+
 /* Status Indicator Pip */
 .status-pip {
   width: 8px;

@@ -580,6 +580,7 @@ function drawForensicEvidenceWatermark(canvas, ctx) {
       "Central": "23.2599° N, 77.4126° E",
       "North East": "26.1445° N, 91.7362° E",
       "Northeast": "26.1445° N, 91.7362° E"
+    };
     const stateCoordsMap = {
       "Punjab": "30.7333° N, 76.7794° E",
       "Delhi UT": "28.5244° N, 77.2066° E",
@@ -789,154 +790,445 @@ function renderImageQualityBadge(q) {
  * ==========================================================================
  */
 let isBoundingBoxesVisible = true;
+let boundingBoxesFilterMode = "all"; // 'all' (all boxes), 'flags' (contraventions only), 'off' (hidden)
 
-function toggleBoundingBoxesVisibility() {
-  isBoundingBoxesVisible = !isBoundingBoxesVisible;
-  const btn = document.getElementById("btnToggleBoundingBoxes");
-  const container = document.getElementById("specimenBoundingBoxesContainer");
-  if (btn) {
-    btn.textContent = isBoundingBoxesVisible ? "🏷️ Boxes: ON" : "🏷️ Boxes: OFF";
-    if (isBoundingBoxesVisible) {
-      btn.className = "px-2 py-0.5 rounded-md bg-emerald-950/85 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-emerald-500/40 shadow-xs transition-colors cursor-pointer";
-    } else {
-      btn.className = "px-2 py-0.5 rounded-md bg-slate-900/85 hover:bg-slate-700 text-slate-400 hover:text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-slate-700 shadow-xs transition-colors cursor-pointer";
-    }
+function toggleBoundingBoxesVisibility(targetMode) {
+  if (targetMode) {
+    boundingBoxesFilterMode = targetMode;
+  } else {
+    // Cycle: all -> flags -> off -> all
+    if (boundingBoxesFilterMode === "all") boundingBoxesFilterMode = "flags";
+    else if (boundingBoxesFilterMode === "flags") boundingBoxesFilterMode = "off";
+    else boundingBoxesFilterMode = "all";
   }
-  if (container) {
-    container.style.display = isBoundingBoxesVisible ? "" : "none";
+  isBoundingBoxesVisible = boundingBoxesFilterMode !== "off";
+
+  const btnConfigs = [
+    { id: "btnToggleBoundingBoxes", isSmall: true },
+    { id: "lightboxBtnToggleBoundingBoxes", isSmall: false }
+  ];
+
+  btnConfigs.forEach(cfg => {
+    const btn = document.getElementById(cfg.id);
+    if (!btn) return;
+    if (boundingBoxesFilterMode === "all") {
+      btn.innerHTML = `<span>🏷️</span> <span>Boxes: ALL</span>`;
+      btn.className = cfg.isSmall
+        ? "px-2 py-0.5 rounded-md bg-emerald-950/85 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-emerald-500/40 shadow-xs transition-colors cursor-pointer"
+        : "px-2.5 py-1 rounded-lg bg-emerald-950/85 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[11px] font-mono font-bold border border-emerald-500/40 shadow-xs transition cursor-pointer";
+      btn.title = "Showing all statutory declarations. Click for contraventions only.";
+    } else if (boundingBoxesFilterMode === "flags") {
+      btn.innerHTML = `<span>⚠️</span> <span>Boxes: FLAGS</span>`;
+      btn.className = cfg.isSmall
+        ? "px-2 py-0.5 rounded-md bg-rose-950/85 hover:bg-rose-600 text-rose-300 hover:text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-rose-500/40 shadow-xs transition-colors cursor-pointer animate-pulse"
+        : "px-2.5 py-1 rounded-lg bg-rose-950/85 hover:bg-rose-600 text-rose-300 hover:text-white text-[11px] font-mono font-bold border border-rose-500/40 shadow-xs transition cursor-pointer animate-pulse";
+      btn.title = "Showing flagged contraventions only. Click to hide boxes.";
+    } else {
+      btn.innerHTML = `<span>✕</span> <span>Boxes: OFF</span>`;
+      btn.className = cfg.isSmall
+        ? "px-2 py-0.5 rounded-md bg-slate-900/85 hover:bg-slate-700 text-slate-400 hover:text-white text-[9.5px] font-mono font-bold backdrop-blur-xs border border-slate-700 shadow-xs transition-colors cursor-pointer"
+        : "px-2.5 py-1 rounded-lg bg-slate-900/85 hover:bg-slate-700 text-slate-400 hover:text-white text-[11px] font-mono font-bold border border-slate-700 shadow-xs transition cursor-pointer";
+      btn.title = "Boxes hidden. Click to show all boxes.";
+    }
+  });
+
+  const containers = [
+    document.getElementById("specimenBoundingBoxesContainer"),
+    document.getElementById("lightboxBoundingBoxesContainer")
+  ].filter(Boolean);
+
+  containers.forEach(container => {
+    if (!isBoundingBoxesVisible) {
+      container.style.display = "none";
+    } else {
+      container.style.display = "";
+    }
+  });
+
+  if (isBoundingBoxesVisible && currentInspectionResult) {
+    renderBoundingBoxesOverlay(currentInspectionResult);
+  }
+
+  if (typeof showToast === "function") {
+    const label = boundingBoxesFilterMode === "all"
+      ? "All statutory declaration boxes visible"
+      : (boundingBoxesFilterMode === "flags"
+        ? "Filtered: Highlighting statutory defects & flags only"
+        : "Bounding boxes hidden");
+    showToast(label, "info");
   }
 }
 
-function renderBoundingBoxesOverlay(analysis) {
-  const container = document.getElementById("specimenBoundingBoxesContainer");
-  const thumb = document.getElementById("reportSpecimenThumb");
-  if (!container || !thumb) return;
+/**
+ * Resolves compliance status for a statutory declaration from rule engine tests or violation logs.
+ * Leverages the field-specific rule resolver to ensure 100% concordance with workbench cards.
+ */
+function getDeclarationCompliance(item, analysis) {
+  const fields = analysis?.categorized_fields || analysis?.fields || {};
+  const rules = analysis?.compliance_tests || analysis?.complianceTests || analysis?.compliance || analysis?.rules || [];
+  const violations = analysis?.violations || [];
 
-  container.innerHTML = "";
-  if (!isBoundingBoxesVisible) {
-    container.style.display = "none";
-    return;
+  // Check if resolveFieldRuleEvaluation is available for field-specific resolution
+  if (typeof resolveFieldRuleEvaluation === "function") {
+    let ruleEval = null;
+    if (typeof validateLabel === "function") {
+      ruleEval = validateLabel(fields);
+    }
+    const f = {
+      key: item.fieldKey,
+      ruleClause: item.clause,
+      label: item.name
+    };
+    const res = resolveFieldRuleEvaluation(f, item.val, ruleEval, analysis);
+    if (res && res.ruleStatus) {
+      const isPass = res.ruleStatus === "COMPLIANT" || res.ruleStatus === "Pass";
+      const isExempt = res.ruleStatus.includes("EXEMPT");
+      return {
+        status: res.ruleStatus,
+        isCompliant: isPass || isExempt,
+        reason: res.ruleReason
+      };
+    }
   }
-  container.style.display = "";
 
+  // Fallback: Cross-reference with compliance_tests
+  const ruleMatch = (rules || []).find(r => 
+    (r.clause && (r.clause.toLowerCase().includes(item.clause.toLowerCase()) || item.clause.toLowerCase().includes(r.clause.toLowerCase()))) ||
+    (r.rule_reference && (r.rule_reference.toLowerCase().includes(item.clause.toLowerCase()) || item.clause.toLowerCase().includes(r.rule_reference.toLowerCase()))) ||
+    (r.parameter_name && (r.parameter_name.toLowerCase().includes(item.name.toLowerCase()) || item.name.toLowerCase().includes(r.parameter_name.toLowerCase())))
+  );
+
+  if (ruleMatch) {
+    if (ruleMatch.isExempt || (ruleMatch.status || "").includes("EXEMPT")) {
+      return { status: "EXEMPT", isCompliant: true, reason: ruleMatch.violation_reason || "Statutory exemption under Rule 6(11)" };
+    }
+    const isPass = ruleMatch.compliant === true || (ruleMatch.status || "").toLowerCase() === "pass" || (ruleMatch.status || "").toLowerCase() === "compliant";
+    const isFail = ruleMatch.compliant === false || (ruleMatch.status || "").toLowerCase() === "fail" || (ruleMatch.status || "").toLowerCase() === "non-compliant";
+    if (isFail) {
+      return { status: "NON-COMPLIANT", isCompliant: false, reason: ruleMatch.violation_reason || ruleMatch.observations || `Non-compliant declaration under ${item.clause}.` };
+    }
+    if (isPass) {
+      return { status: "COMPLIANT", isCompliant: true, reason: `Statutory declaration compliant under ${item.clause}.` };
+    }
+  }
+
+  const violMatch = (violations || []).find(v => {
+    const vStr = typeof v === "string" ? v : (v.reason || v.observations || v.rule || "");
+    return vStr.toLowerCase().includes(item.clause.toLowerCase()) || vStr.toLowerCase().includes(item.name.toLowerCase());
+  });
+  if (violMatch) {
+    const vText = typeof violMatch === "string" ? violMatch : (violMatch.reason || violMatch.observations || "Flagged statutory contravention");
+    return { status: "NON-COMPLIANT", isCompliant: false, reason: vText };
+  }
+
+  if (!item.val || item.val === "MISSING" || item.val === "N/A" || item.val === "null") {
+    return { status: "NON-COMPLIANT", isCompliant: false, reason: `Missing mandatory declaration under ${item.clause}. Penalty under Section 36 applies.` };
+  }
+
+  return { status: "COMPLIANT", isCompliant: true, reason: "Verified under Legal Metrology (Packaged Commodities) Rules, 2011" };
+}
+
+/**
+ * Renders precision, color-coded, interactive statutory declaration bounding boxes
+ * over the package specimen image with corner reticles, micro-badges, and bi-directional workbench links.
+ * Follows Rule 7 PCR 2011 Principal Display Panel (PDP) zoning guidelines.
+ */
+function renderBoundingBoxesOverlay(analysis) {
+  const targetContainers = [
+    document.getElementById("specimenBoundingBoxesContainer"),
+    document.getElementById("lightboxBoundingBoxesContainer")
+  ].filter(Boolean);
+
+  if (targetContainers.length === 0) return;
+
+  targetContainers.forEach(container => {
+    container.innerHTML = "";
+    if (!isBoundingBoxesVisible || boundingBoxesFilterMode === "off") {
+      container.style.display = "none";
+    } else {
+      container.style.display = "";
+    }
+  });
+
+  if (!isBoundingBoxesVisible || boundingBoxesFilterMode === "off") return;
   if (!analysis) return;
-  const fields = analysis.categorized_fields || analysis.fields || {};
-  const rules = analysis.compliance_tests || analysis.compliance || analysis.rules || [];
 
+  const fields = analysis.categorized_fields || analysis.fields || {};
+
+  // Statutory Declarations Catalog under Rule 6, 7 & 11 PCR 2011
+  // Geometry partitioned into realistic non-overlapping zones conforming to Rule 7 PDP guidelines:
+  // - Top Zone (Header): Generic Commodity Name (Rule 6(1)(b))
+  // - Middle Zone (Body): Manufacturer Details (Rule 6(1)(a)) & Consumer Care Contact (Rule 6(1)(n))
+  // - PDP Bottom 30% Mandate (Rule 7): Net Quantity (Rule 6(1)(c)) & MRP (Rule 6(1)(e))
+  // - Sub-PDP Footer Strip: Mfg Date (Rule 6(1)(d)), Country of Origin (Rule 6(1)(aa)), Unit Sale Price (Rule 6(11))
   const declarations = [
     {
-      id: "mrp",
-      name: "Retail Sale Price (MRP)",
-      clause: "Rule 6(1)(e)",
-      val: fields.mrp_tax_inclusive || fields.mrp || "",
-      icon: "₹",
-      box: [62, 54, 40, 15]
-    },
-    {
-      id: "net_quantity",
-      name: "Net Quantity",
-      clause: "Rule 6(1)(c)",
-      val: fields.net_quantity || "",
-      icon: "⚖️",
-      box: [62, 8, 42, 15]
-    },
-    {
-      id: "mfg_date",
-      name: "Date of Mfg/Pkg",
-      clause: "Rule 6(1)(d)",
-      val: fields.mfg_month_year || fields.mfg_date || "",
-      icon: "📅",
-      box: [79, 8, 42, 14]
+      id: "generic_name",
+      fieldKey: "generic_name",
+      name: "Commodity / Generic Name",
+      clause: "Rule 6(1)(b)",
+      val: fields.generic_name || fields.commodity_name || "",
+      icon: "📦",
+      box: [4, 5, 90, 14] // Top Header
     },
     {
       id: "manufacturer",
-      name: "Manufacturer / Packer",
+      fieldKey: "manufacturer_name_address",
+      name: "Manufacturer / Packer Details",
       clause: "Rule 6(1)(a)",
-      val: fields.manufacturer_name_address || fields.manufacturer || "",
+      val: fields.manufacturer_name_address || [fields.manufacturer_name, fields.manufacturer_address].filter(Boolean).join(", ") || fields.manufacturer || "",
       icon: "🏢",
-      box: [18, 8, 84, 20]
-    },
-    {
-      id: "origin",
-      name: "Country of Origin",
-      clause: "Rule 6(1)(aa)",
-      val: fields.country_of_origin || "",
-      icon: "🇮🇳",
-      box: [89, 54, 40, 9]
+      box: [22, 5, 43, 38] // Mid-left block
     },
     {
       id: "consumer_care",
+      fieldKey: "consumer_care_contact",
       name: "Consumer Care Contact",
       clause: "Rule 6(1)(n)",
       val: fields.consumer_care_contact || fields.consumer_care || "",
       icon: "📞",
-      box: [40, 8, 84, 18]
+      box: [22, 52, 43, 38] // Mid-right block
+    },
+    {
+      id: "net_quantity",
+      fieldKey: "net_quantity",
+      name: "Net Quantity & Metric Unit",
+      clause: "Rule 6(1)(c)",
+      val: fields.net_quantity || fields.net_weight || "",
+      icon: "⚖️",
+      box: [64, 5, 43, 14] // Rule 7: Situated in bottom 30% of PDP
+    },
+    {
+      id: "mrp",
+      fieldKey: "mrp_tax_inclusive",
+      name: "Retail Sale Price (MRP)",
+      clause: "Rule 6(1)(e)",
+      val: fields.mrp_tax_inclusive || fields.mrp || "",
+      icon: "🏷️",
+      box: [64, 52, 43, 14] // Bottom price panel
+    },
+    {
+      id: "mfg_date",
+      fieldKey: "mfg_month_year",
+      name: "Date of Mfg / Packaging",
+      clause: "Rule 6(1)(d)",
+      val: fields.mfg_month_year || fields.mfg_date || "",
+      icon: "📅",
+      box: [82, 5, 28, 13] // Sub-footer left
+    },
+    {
+      id: "origin",
+      fieldKey: "country_of_origin",
+      name: "Country of Origin",
+      clause: "Rule 6(1)(aa)",
+      val: fields.country_of_origin || fields.origin || "",
+      icon: "🇮🇳",
+      box: [82, 36, 28, 13] // Sub-footer center
+    },
+    {
+      id: "unit_sale_price",
+      fieldKey: "unit_sale_price",
+      name: "Unit Sale Price (USP)",
+      clause: "Rule 6(11)",
+      val: fields.unit_sale_price || "",
+      icon: "⚡",
+      box: [82, 67, 28, 13] // Sub-footer right
     }
   ];
 
-  // If Gemini Vision provided normalized bounding boxes in the response
-  if (Array.isArray(analysis.bounding_boxes) && analysis.bounding_boxes.length > 0) {
-    analysis.bounding_boxes.forEach(bb => {
+  // Overlay Gemini Vision 2D coordinates if provided in response (normalized 0-1000)
+  const rawBoxes = analysis.bounding_boxes || analysis.boundingBoxes || [];
+  if (Array.isArray(rawBoxes) && rawBoxes.length > 0) {
+    rawBoxes.forEach(bb => {
       const match = declarations.find(d => 
+        (bb.clause && d.clause.toLowerCase().includes(bb.clause.toLowerCase())) ||
         (bb.parameter_name && d.name.toLowerCase().includes(bb.parameter_name.toLowerCase())) ||
-        (bb.clause && d.clause.toLowerCase().includes(bb.clause.toLowerCase()))
+        (bb.fieldKey && d.fieldKey === bb.fieldKey) ||
+        (bb.id && d.id === bb.id)
       );
       if (match && Array.isArray(bb.box_2d) && bb.box_2d.length === 4) {
         const [ymin, xmin, ymax, xmax] = bb.box_2d;
-        match.box = [
-          Math.round((ymin / 1000) * 100),
-          Math.round((xmin / 1000) * 100),
-          Math.max(10, Math.round(((xmax - xmin) / 1000) * 100)),
-          Math.max(6, Math.round(((ymax - ymin) / 1000) * 100))
-        ];
+        const top = Math.max(2, Math.min(92, Math.round((ymin / 1000) * 100)));
+        const left = Math.max(2, Math.min(90, Math.round((xmin / 1000) * 100)));
+        const width = Math.max(12, Math.min(96 - left, Math.round(((xmax - xmin) / 1000) * 100)));
+        const height = Math.max(6, Math.min(96 - top, Math.round(((ymax - ymin) / 1000) * 100)));
+        match.box = [top, left, width, height];
       }
     });
   }
 
-  // Render each visible declaration box
-  declarations.forEach(item => {
-    if (!item.val || item.val === "MISSING" || item.val === "N/A") return;
+  // Render bounding boxes inside all active containers (preview card + zoom modal)
+  targetContainers.forEach(container => {
+    let renderedCount = 0;
+    const isLightbox = container.id === "lightboxBoundingBoxesContainer";
 
-    const ruleMatch = rules.find(r => 
-      (r.clause && r.clause.toLowerCase().includes(item.clause.toLowerCase())) ||
-      (r.parameter_name && r.parameter_name.toLowerCase().includes(item.name.toLowerCase()))
-    );
-    const isCompliant = ruleMatch ? (ruleMatch.compliant !== false && (ruleMatch.status || "").toLowerCase() !== "fail") : true;
+    declarations.forEach(item => {
+      const rawVal = String(item.val || "").trim();
+      const comp = getDeclarationCompliance(item, analysis);
 
-    const borderColor = isCompliant ? "border-emerald-400" : "border-rose-500";
-    const bgBadge = isCompliant ? "bg-emerald-950/90 text-emerald-300 border-emerald-500/50" : "bg-rose-950/90 text-rose-300 border-rose-500/50";
-    const [top, left, width, height] = item.box;
-
-    const boxEl = document.createElement("div");
-    boxEl.className = `absolute pointer-events-auto transition-all duration-200 border-2 ${borderColor} rounded-md shadow-lg group hover:scale-[1.02] cursor-pointer`;
-    boxEl.style.top = `${top}%`;
-    boxEl.style.left = `${left}%`;
-    boxEl.style.width = `${width}%`;
-    boxEl.style.height = `${height}%`;
-    boxEl.style.backgroundColor = isCompliant ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.12)";
-
-    boxEl.innerHTML = `
-      <div class="absolute -top-4 left-0 px-1 py-0.2 rounded text-[8px] font-mono font-bold border backdrop-blur-md shadow-xs whitespace-nowrap select-none ${bgBadge}">
-        <span>${item.icon} ${item.name.split(' ')[0]}</span>
-      </div>
-      <div class="pointer-events-none absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block z-30 px-2 py-1 bg-slate-950/95 text-white text-[10px] rounded-lg shadow-xl border border-slate-700 whitespace-nowrap font-mono">
-        <div class="font-bold text-emerald-400">${item.clause}: ${item.name}</div>
-        <div class="text-slate-200 truncate max-w-[200px]">${item.val}</div>
-      </div>
-    `;
-
-    boxEl.addEventListener("click", () => {
-      if (typeof showToast === "function") {
-        showToast(`📍 Highlighted: ${item.name} (${item.val})`, "info");
+      // If filtering to flags/contraventions only, skip compliant items
+      if (boundingBoxesFilterMode === "flags" && comp.isCompliant) {
+        return;
       }
+
+      renderedCount++;
+
+      const isPass = comp.isCompliant && comp.status !== "EXEMPT";
+      const isExempt = comp.status === "EXEMPT";
+      const isFail = !comp.isCompliant;
+
+      const statusClass = isFail ? "non-compliant" : (isExempt ? "review" : "compliant");
+      const chipBg = isFail
+        ? "bg-rose-950/95 text-rose-200 border-rose-500/70"
+        : (isExempt ? "bg-amber-950/95 text-amber-200 border-amber-500/70" : "bg-emerald-950/95 text-emerald-200 border-emerald-500/70");
+      const dotColor = isFail ? "bg-rose-500" : (isExempt ? "bg-amber-400" : "bg-emerald-400");
+      const statusLabel = isFail ? "CONTRAVENTION" : (isExempt ? "EXEMPT" : "PASS");
+
+      const [top, left, width, height] = item.box;
+      const isNearTop = top < 16;
+      const isTooltipBelow = top < 25;
+      const isAlignLeft = left < 25;
+      const isAlignRight = left > 58;
+
+      const smartClasses = [
+        "statutory-bounding-box",
+        statusClass,
+        isNearTop ? "badge-inside" : "",
+        isTooltipBelow ? "tooltip-below" : "",
+        isAlignLeft ? "tooltip-align-left" : "",
+        isAlignRight ? "tooltip-align-right" : ""
+      ].filter(Boolean).join(" ");
+
+      const boxEl = document.createElement("div");
+      boxEl.className = smartClasses;
+      boxEl.setAttribute("data-box-key", item.fieldKey);
+      boxEl.style.top = `${top}%`;
+      boxEl.style.left = `${left}%`;
+      boxEl.style.width = `${width}%`;
+      boxEl.style.height = `${height}%`;
+
+      const escapedVal = escapeHtml(rawVal || "Declaration Missing / Defective");
+      const escapedReason = escapeHtml(comp.reason);
+      const shortLabel = item.name.split("/")[0].trim().replace(/\s+Details$/, "").replace(/\s+&.*$/, "");
+
+      boxEl.innerHTML = `
+        <!-- Corner Optical Reticles -->
+        <span class="box-reticle tl"></span>
+        <span class="box-reticle tr"></span>
+        <span class="box-reticle bl"></span>
+        <span class="box-reticle br"></span>
+
+        <!-- Micro-Chip Badge Pinned to Box Header -->
+        <div class="box-chip-badge border ${chipBg}">
+          <span class="w-1.5 h-1.5 rounded-full ${dotColor} flex-shrink-0 animate-pulse"></span>
+          <span>${item.icon}</span>
+          <span class="truncate max-w-[110px]">${shortLabel} · ${item.clause.split(' ')[0]}</span>
+        </div>
+
+        <!-- Rich Floating Tooltip (Auto-positioned & Auto-aligned) -->
+        <div class="box-tooltip font-mono">
+          <div class="flex items-center justify-between gap-1.5 pb-1 border-b border-white/10 mb-1">
+            <span class="font-extrabold text-[10.5px] text-emerald-300 flex items-center gap-1">
+              <span>${item.icon}</span>
+              <span>${escapeHtml(item.name)}</span>
+            </span>
+            <span class="text-[9px] px-1.5 py-0.2 rounded font-bold uppercase tracking-wider ${isFail ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' : (isExempt ? 'bg-amber-500/30 text-amber-300 border border-amber-500/50' : 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/50')}">
+              ${statusLabel}
+            </span>
+          </div>
+          <div class="text-[10px] text-slate-200 bg-black/40 px-2 py-1 rounded border border-white/10 font-bold break-words my-1 select-text">
+            "${escapedVal}"
+          </div>
+          <div class="text-[9.5px] leading-tight text-slate-300">
+            <strong>${escapeHtml(item.clause)}:</strong> ${escapedReason}
+          </div>
+          <div class="mt-1.5 pt-1 border-t border-white/10 text-[8.5px] text-emerald-400 font-semibold flex items-center gap-1">
+            <span>👆</span> <span>Click to inspect & edit in Declarations Workbench</span>
+          </div>
+        </div>
+      `;
+
+      // Click on bounding box scrolls smoothly to declaration card in workbench
+      boxEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (isLightbox && typeof closeSpecimenLightbox === "function") {
+          closeSpecimenLightbox();
+        }
+        jumpToDeclarationInWorkbench(item.fieldKey, item.name, rawVal);
+      });
+
+      container.appendChild(boxEl);
     });
 
-    container.appendChild(boxEl);
+    // If in flags mode and no defects are detected, show congratulatory notice
+    if (boundingBoxesFilterMode === "flags" && renderedCount === 0) {
+      const emptyNotice = document.createElement("div");
+      emptyNotice.className = "absolute inset-0 flex items-center justify-center pointer-events-none p-3";
+      emptyNotice.innerHTML = `
+        <div class="px-3.5 py-2 rounded-xl bg-emerald-950/90 text-emerald-300 border border-emerald-500/60 shadow-2xl font-mono text-[10.5px] font-bold flex items-center gap-2 backdrop-blur-md">
+          <span>✅</span> <span>All Statutory Declarations Compliant (0 Flags)</span>
+        </div>
+      `;
+      container.appendChild(emptyNotice);
+    }
+  });
+}
+
+/**
+ * Switches to Declarations workbench, scrolls smoothly to target card,
+ * and adds an interactive focus pulse.
+ */
+function jumpToDeclarationInWorkbench(fieldKey, name, val) {
+  if (typeof switchOcrResultTab === "function") {
+    switchOcrResultTab("declarations");
+  }
+
+  setTimeout(() => {
+    const card = document.getElementById(`declaration_card_${fieldKey}`) ||
+      document.getElementById(`box_user_edit_${fieldKey}`) ||
+      document.querySelector(`[data-declaration-key="${fieldKey}"]`);
+
+    const input = document.getElementById(`edit_field_${fieldKey}`);
+
+    if (card) {
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.classList.remove("declaration-card-target-highlight");
+      void card.offsetWidth; // trigger reflow
+      card.classList.add("declaration-card-target-highlight");
+      setTimeout(() => {
+        card.classList.remove("declaration-card-target-highlight");
+      }, 2000);
+    }
+
+    if (input) {
+      input.focus();
+    }
+
+    if (typeof showToast === "function") {
+      showToast(`📍 Inspected: ${name} (${val || "Declaration Missing"})`, "info");
+    }
+  }, 120);
+}
+
+/**
+ * Bi-directional linkage: Highlights the bounding box when user hovers over a declaration card in the workbench.
+ */
+function highlightBoundingBox(fieldKey, active) {
+  const boxes = document.querySelectorAll(`.statutory-bounding-box[data-box-key="${fieldKey}"]`);
+  if (!boxes || boxes.length === 0) return;
+  boxes.forEach(box => {
+    if (active) {
+      box.classList.add("active-hover");
+    } else {
+      box.classList.remove("active-hover");
+    }
   });
 }
 
 window.toggleBoundingBoxesVisibility = toggleBoundingBoxesVisibility;
 window.renderBoundingBoxesOverlay = renderBoundingBoxesOverlay;
+window.jumpToDeclarationInWorkbench = jumpToDeclarationInWorkbench;
+window.highlightBoundingBox = highlightBoundingBox;
 window.analyzeImageQuality = analyzeImageQuality;
 
 function fileToDataUrl(file, maxWidth = 1200, quality = 0.80) {
@@ -2572,7 +2864,7 @@ function renderAutoFilledComplianceReport(data) {
       }
 
       return `
-          <div class="declaration-card col-span-full rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-3.5 transition-all duration-200 hover:shadow-md ${cardBorderAccent}">
+          <div id="declaration_card_${f.key}" data-declaration-key="${f.key}" onmouseenter="highlightBoundingBox('${f.key}', true)" onmouseleave="highlightBoundingBox('${f.key}', false)" class="declaration-card col-span-full rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-3.5 transition-all duration-200 hover:shadow-md ${cardBorderAccent}">
             <!-- Card Header -->
             <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
               <div class="flex items-center gap-2.5">
@@ -3154,6 +3446,11 @@ function updateLightboxView() {
     } else {
       thumbsContainer.innerHTML = "";
     }
+  }
+
+  // Refresh dynamic AI statutory bounding boxes for high-res lightbox view
+  if (typeof renderBoundingBoxesOverlay === "function" && currentInspectionResult) {
+    renderBoundingBoxesOverlay(currentInspectionResult);
   }
 }
 
