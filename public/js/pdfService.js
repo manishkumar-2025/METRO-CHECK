@@ -287,18 +287,20 @@ async function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     doc.rect(10, 10, 190, 26, "F");
 
     doc.setTextColor(255, 255, 255);
+    const isHindiLang = (typeof localStorage !== "undefined" && localStorage.getItem("elmcep_lang") === "hi") || options.lang === "hi";
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10.5);
-    doc.text("GOVERNMENT OF INDIA", 105, 16, { align: "center" });
+    doc.text(isHindiLang ? "GOVERNMENT OF INDIA / BHARAT SARKAR" : "GOVERNMENT OF INDIA", 105, 16, { align: "center" });
 
     doc.setFontSize(8);
     doc.setTextColor(251, 191, 36); // amber-400
-    doc.text("MINISTRY OF CONSUMER AFFAIRS, FOOD & PUBLIC DISTRIBUTION", 105, 21, { align: "center" });
+    doc.text(isHindiLang ? "MINISTRY OF CONSUMER AFFAIRS, FOOD & PUBLIC DISTRIBUTION (UPBHOKTA MAMLE MANTRALAYA)" : "MINISTRY OF CONSUMER AFFAIRS, FOOD & PUBLIC DISTRIBUTION", 105, 21, { align: "center" });
 
     doc.setFontSize(7);
     doc.setTextColor(226, 232, 240);
     doc.setFont("helvetica", "normal");
-    doc.text("DEPARTMENT OF CONSUMER AFFAIRS • DIRECTORATE OF LEGAL METROLOGY", 105, 25.5, { align: "center" });
+    doc.text(isHindiLang ? "DEPARTMENT OF CONSUMER AFFAIRS • DIRECTORATE OF LEGAL METROLOGY (VIDHIK MAPVIGYAN)" : "DEPARTMENT OF CONSUMER AFFAIRS • DIRECTORATE OF LEGAL METROLOGY", 105, 25.5, { align: "center" });
     doc.text("Krishi Bhawan, Dr. Rajendra Prasad Road, New Delhi - 110001", 105, 29.5, { align: "center" });
 
     // Gold Accent Bar
@@ -332,8 +334,12 @@ async function generateStatutoryNoticePDF(inspectionDataOrId, options = {}) {
     doc.setTextColor(15, 23, 42);
 
     const formBadgeTitle = isInspectorReport
-      ? (isCompliant ? "FORM LM-I: STATUTORY COMPLIANCE INSPECTION RECORD" : "FORM LM-I: FIELD INSPECTION AUDIT & EVIDENCE RECORD")
-      : (isCompliant ? "FORM LM-I: STATUTORY COMPLIANCE INSPECTION RECORD" : "FORM LM-III: STATUTORY NOTICE OF NON-COMPLIANCE & SHOW CAUSE");
+      ? (isCompliant 
+          ? (isHindiLang ? "FORM LM-I: STATUTORY COMPLIANCE RECORD (VIDHIK ANUPALAN ABHILEKH)" : "FORM LM-I: STATUTORY COMPLIANCE INSPECTION RECORD") 
+          : (isHindiLang ? "FORM LM-I: FIELD AUDIT & EVIDENCE RECORD (KSHETRA NIRIKSHAN ABHILEKH)" : "FORM LM-I: FIELD INSPECTION AUDIT & EVIDENCE RECORD"))
+      : (isCompliant 
+          ? (isHindiLang ? "FORM LM-I: STATUTORY COMPLIANCE RECORD (VIDHIK ANUPALAN ABHILEKH)" : "FORM LM-I: STATUTORY COMPLIANCE INSPECTION RECORD") 
+          : (isHindiLang ? "FORM LM-III: STATUTORY NOTICE & SHOW CAUSE (VIDHIK KARAN BATAO NOTICE)" : "FORM LM-III: STATUTORY NOTICE OF NON-COMPLIANCE & SHOW CAUSE"));
 
     doc.text(formBadgeTitle, 105, curY + 5, { align: "center" });
 

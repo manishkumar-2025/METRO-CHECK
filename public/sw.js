@@ -24,6 +24,7 @@ const STATIC_ASSETS = [
   '/js/jspdf.umd.min.js',
   '/js/qrcode.min.js',
   '/js/masthead.js',
+  '/js/i18n.js',
   '/js/notifications.js',
   '/js/pdfService.js',
   '/js/report.js',

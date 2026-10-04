@@ -539,6 +539,21 @@ app.use((req, res, next) => {
 // Public static files
 app.use(express.static(PUBLIC_DIR));
 
+// Dynamic Hindi (/hi) Language Routing Support
+app.use("/hi", express.static(PUBLIC_DIR));
+app.get(["/hi", "/hi/"], (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "index.html"));
+});
+app.get("/hi/:page", (req, res, next) => {
+  let target = req.params.page;
+  if (!target.includes(".")) target += ".html";
+  const filePath = path.join(PUBLIC_DIR, target);
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    return res.sendFile(filePath);
+  }
+  next();
+});
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 } });
 

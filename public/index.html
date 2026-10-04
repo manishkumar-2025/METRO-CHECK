@@ -22,13 +22,16 @@
   <script src="js/auth.js"></script>
   <script src="js/pdfService.js"></script>
   <script src="js/masthead.js"></script>
+  <script src="js/i18n.js"></script>
 
-  <!-- 1. Google Font: Inter (Lightweight, Modern & Accessible) -->
+  <!-- 1. Google Font: Inter & Noto Sans Devanagari (Lightweight, Modern & Accessible) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
+  <link rel="alternate" hreflang="en" href="/" />
+  <link rel="alternate" hreflang="hi" href="/hi" />
 
   <!-- Prevent theme flicker / white flash on initial load -->
   <script>
@@ -320,9 +323,16 @@
               <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">Verify Official
                 Case Docket</h3>
             </div>
-            <span
-              class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">Live
-              Verification</span>
+            <div class="flex items-center gap-2">
+              <button type="button" id="btnSpeakVerifyGuide" onclick="speakVerificationInstructions()"
+                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition flex items-center gap-1 cursor-pointer"
+                title="Listen to verification instructions">
+                <span>🔊</span> <span>Listen</span>
+              </button>
+              <span
+                class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">Live
+                Verification</span>
+            </div>
           </div>
           <p class="text-xs text-slate-600 dark:text-slate-400">Enter a Case Docket ID or scan barcode from an official
             inspection notice to view signed compliance reports:</p>
@@ -1830,7 +1840,10 @@
         if (form) form.after(statusEl);
       }
       statusEl.className = 'mt-2 text-xs rounded-xl px-3 py-2 text-center font-semibold border border-slate-200 bg-slate-50 text-slate-500 animate-pulse';
-      statusEl.textContent = '🔐 Querying National Legal Metrology Registry… Verifying SHA-256 evidence chain…';
+      const isHi = window.elmcepI18n && window.elmcepI18n.currentLang === 'hi';
+      statusEl.textContent = isHi
+        ? '🔐 राष्ट्रीय विधिक मापविज्ञान रजिस्ट्री से सत्यापन जारी है… SHA-256 प्रमाण श्रृंखला जांची जा रही है…'
+        : '🔐 Querying National Legal Metrology Registry… Verifying SHA-256 evidence chain…';
 
       try {
         const verifyRes = await fetch(`${apiBase}/api/verify/${encodeURIComponent(val)}`, { signal: AbortSignal.timeout(5000) });
@@ -1840,24 +1853,49 @@
         const localItems = typeof getInspections === 'function' ? getInspections() : [];
         const localMatch = localItems.find(i => i.id === val || i.docketNumber === val);
 
+        // Check if user queried by commodity name (supports bilingual: rice/चावल, wheat/गेहूं, etc.)
+        const equivalents = window.elmcepI18n && typeof window.elmcepI18n.getCommodityEquivalents === 'function'
+          ? window.elmcepI18n.getCommodityEquivalents(val)
+          : [val];
+        const commodityMatch = localItems.find(i => {
+          const prod = (i.productName || i.commodity || '').toLowerCase();
+          return equivalents.some(eq => prod.includes(eq.toLowerCase()));
+        });
+
         if (verifyRes.status === 404 || !data.verified) {
           if (localMatch) {
             statusEl.className = 'mt-2 text-xs rounded-xl px-3 py-2 text-center font-semibold border border-emerald-400 bg-emerald-50 text-emerald-800 flex items-center justify-between gap-2';
-            statusEl.innerHTML = `<span>✅ Docket verified in offline local storage.</span> <a href="report.html?id=${encodeURIComponent(val)}&from=index.html" class="px-2.5 py-1 rounded bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">View Report →</a>`;
+            statusEl.innerHTML = `<span>${isHi ? '✅ डॉकेट स्थानीय सुरक्षित स्टोरेज में सत्यापित।' : '✅ Docket verified in offline local storage.'}</span> <a href="report.html?id=${encodeURIComponent(val)}&from=index.html" class="px-2.5 py-1 rounded bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">${isHi ? 'रिपोर्ट देखें →' : 'View Report →'}</a>`;
+          } else if (commodityMatch) {
+            statusEl.className = 'mt-2 text-xs rounded-xl px-3 py-2 text-center font-semibold border border-emerald-400 bg-emerald-50 text-emerald-800 flex items-center justify-between gap-2';
+            statusEl.innerHTML = `<span>${isHi ? `✅ "<strong>${val}</strong>" के लिए ऑडिट रिकॉर्ड मिला (${commodityMatch.id || commodityMatch.docketNumber})।` : `✅ Matching audit record found for "<strong>${val}</strong>" (${commodityMatch.id || commodityMatch.docketNumber}).`}</span> <a href="report.html?id=${encodeURIComponent(commodityMatch.id || commodityMatch.docketNumber)}&from=index.html" class="px-2.5 py-1 rounded bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">${isHi ? 'रिपोर्ट देखें →' : 'View Report →'}</a>`;
           } else {
             statusEl.className = 'mt-2 text-xs rounded-xl px-3 py-2 text-center font-semibold border border-amber-300 bg-amber-50 text-amber-900';
-            statusEl.innerHTML = `⚠️ Docket "<strong>${val}</strong>" is not registered in the National Registry or local cache. Please verify the Case ID.`;
+            statusEl.innerHTML = isHi
+              ? `⚠️ डॉकेट "<strong>${val}</strong>" राष्ट्रीय रजिस्ट्री या स्थानीय कैश में पंजीकृत नहीं है। कृपया केस आईडी जांचें।`
+              : `⚠️ Docket "<strong>${val}</strong>" is not registered in the National Registry or local cache. Please verify the Case ID.`;
           }
         } else {
           statusEl.className = 'mt-2 text-xs rounded-xl px-3 py-2 text-center font-semibold border border-emerald-400 bg-emerald-50 text-emerald-800 flex items-center justify-between gap-2';
-          statusEl.innerHTML = `<span>✅ ${data.reason || 'SHA-256 evidence chain intact.'}</span> <a href="report.html?id=${encodeURIComponent(val)}&from=index.html" class="px-2.5 py-1 rounded bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">View Signed Notice →</a>`;
+          statusEl.innerHTML = `<span>✅ ${data.reason || (isHi ? 'SHA-256 साक्ष्य श्रृंखला सुरक्षित है।' : 'SHA-256 evidence chain intact.')}</span> <a href="report.html?id=${encodeURIComponent(val)}&from=index.html" class="px-2.5 py-1 rounded bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">${isHi ? 'हस्ताक्षरित नोटिस देखें →' : 'View Signed Notice →'}</a>`;
         }
       } catch (e) {
         statusEl.className = 'mt-2 text-xs rounded-xl px-3 py-2 text-center font-semibold border border-slate-200 bg-slate-50 text-slate-600 flex items-center justify-between gap-2';
-        statusEl.innerHTML = `<span>📡 Offline mode active.</span> <a href="report.html?id=${encodeURIComponent(val)}&from=index.html" class="px-2.5 py-1 rounded bg-slate-700 text-white font-bold hover:bg-slate-800 transition">Open Local Cache →</a>`;
+        statusEl.innerHTML = `<span>${isHi ? '📡 ऑफ़लाइन मोड सक्रिय।' : '📡 Offline mode active.'}</span> <a href="report.html?id=${encodeURIComponent(val)}&from=index.html" class="px-2.5 py-1 rounded bg-slate-700 text-white font-bold hover:bg-slate-800 transition">${isHi ? 'लोकल कैश खोलें →' : 'Open Local Cache →'}</a>`;
       }
     }
     window.handlePublicReportLookup = handlePublicReportLookup;
+
+    function speakVerificationInstructions() {
+      const currentLang = window.elmcepI18n ? window.elmcepI18n.currentLang : 'en';
+      const text = currentLang === 'hi'
+        ? 'आधिकारिक केस डॉकेट सत्यापित करें। हस्ताक्षरित अनुपालन रिपोर्ट देखने के लिए केस डॉकेट आईडी दर्ज करें या आधिकारिक निरीक्षण नोटिस से बारकोड स्कैन करें।'
+        : 'Verify Official Case Docket. Enter a Case Docket ID or scan barcode from an official inspection notice to view signed compliance reports.';
+      if (window.elmcepI18n && typeof window.elmcepI18n.speakText === 'function') {
+        window.elmcepI18n.speakText(text, currentLang);
+      }
+    }
+    window.speakVerificationInstructions = speakVerificationInstructions;
 
     // Ultra-smooth zero-lag UI transition from Hero to Statutory Officer Sign In (Segment 5)
     function scrollToOfficerAuth() {

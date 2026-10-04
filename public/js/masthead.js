@@ -178,10 +178,19 @@
     } catch (e) {}
     updateLanguageButtons(lang);
 
+    if (window.elmcepI18n && typeof window.elmcepI18n.setLanguage === 'function') {
+      try {
+        window.elmcepI18n.setLanguage(lang);
+      } catch (err) {
+        console.warn('[Masthead] i18n dynamic sync warning:', err);
+      }
+    }
+
     const event = new CustomEvent('govLanguageChanged', { detail: { lang } });
     document.dispatchEvent(event);
   };
 
+  window.updateLanguageButtons = updateLanguageButtons;
   function updateLanguageButtons(lang) {
     const enBtn = document.getElementById('govLangEn');
     const hiBtn = document.getElementById('govLangHi');
@@ -387,7 +396,12 @@
     } catch (e) {}
 
     try {
-      const savedLang = localStorage.getItem('elmcep_lang') || 'en';
+      const pathname = (window.location && window.location.pathname) ? window.location.pathname : '';
+      const isHiUrl = pathname.startsWith('/hi');
+      const savedLang = isHiUrl ? 'hi' : (localStorage.getItem('elmcep_lang') || 'en');
+      if (isHiUrl) {
+        try { localStorage.setItem('elmcep_lang', 'hi'); } catch (e) {}
+      }
       updateLanguageButtons(savedLang);
     } catch (e) {}
 
