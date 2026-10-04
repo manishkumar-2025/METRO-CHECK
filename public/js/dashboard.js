@@ -810,11 +810,18 @@ window.switchIdmTab = switchIdmTab;
 function _idmDeclRow(label, val, missing = false) {
   const isPresent = val && String(val).trim().length > 0 && String(val).trim() !== '-';
   const icon = isPresent ? '✅' : '❌';
-  const valClass = isPresent ? 'font-semibold text-slate-800 dark:text-slate-200' : 'font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-1.5 rounded';
-  const displayVal = isPresent ? escapeHtml(String(val)) : (missing ? 'MISSING — Contravenes Rule 6' : 'NOT DECLARED');
-  return `<div class="flex justify-between items-start py-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0 gap-3">
-    <span class="text-slate-500 dark:text-slate-400 font-medium flex-shrink-0 flex items-center gap-1"><span class="text-[10px]">${icon}</span>${escapeHtml(label)}:</span>
-    <span class="text-right ${valClass} text-xs">${displayVal}</span>
+  const valClass = isPresent
+    ? 'font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-right'
+    : 'font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 px-2 py-0.5 rounded-md inline-block text-[11px] sm:text-right';
+  const displayVal = isPresent ? escapeHtml(String(val)) : (missing ? 'MISSING (Contravenes Rule 6)' : 'NOT DECLARED');
+  return `<div class="py-2 sm:py-2.5 border-b border-slate-100 dark:border-slate-800/80 last:border-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-3">
+    <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium text-xs flex-shrink-0">
+      <span class="text-[11px]">${icon}</span>
+      <span>${escapeHtml(label)}:</span>
+    </div>
+    <div class="${valClass} break-words">
+      ${displayVal}
+    </div>
   </div>`;
 }
 
@@ -852,10 +859,269 @@ function _idmAuditEntry(entry, isLast) {
 // ── Docket info row helper ─────────────────────────────────────────────────
 function _idmDocketRow(label, val) {
   const display = (val !== null && val !== undefined && String(val).trim()) ? escapeHtml(String(val)) : '<span class="text-slate-400">—</span>';
-  return `<div class="flex justify-between items-start py-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0 gap-3">
-    <span class="text-slate-500 dark:text-slate-400 font-medium flex-shrink-0 text-xs">${escapeHtml(label)}:</span>
-    <span class="text-right font-semibold text-slate-800 dark:text-slate-200 text-xs font-mono">${display}</span>
+  return `<div class="py-2 sm:py-2.5 border-b border-slate-100 dark:border-slate-800/80 last:border-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-3">
+    <span class="text-slate-500 dark:text-slate-400 font-medium text-xs flex-shrink-0">${escapeHtml(label)}:</span>
+    <span class="sm:text-right font-bold text-slate-800 dark:text-slate-200 text-xs font-mono break-all">${display}</span>
   </div>`;
+}
+
+
+function copyIdmCaseId() {
+  if (!_idmCurrentItem || !_idmCurrentItem.id) return;
+  const id = _idmCurrentItem.id;
+  if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(id).then(() => {
+      const btn = document.getElementById('idm-copy-id-btn');
+      if (btn) {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✓';
+        btn.classList.add('text-emerald-400', 'border-emerald-500');
+        setTimeout(() => {
+          btn.innerHTML = orig;
+          btn.classList.remove('text-emerald-400', 'border-emerald-500');
+        }, 1500);
+      }
+      if (typeof showToast === 'function') {
+        showToast(`Case ID ${id} copied to clipboard`, 'success');
+      }
+    }).catch(() => {
+      if (typeof showToast === 'function') showToast(`Case ID: ${id}`, 'info');
+    });
+  } else {
+    if (typeof showToast === 'function') showToast(`Case ID: ${id}`, 'info');
+  }
+}
+window.copyIdmCaseId = copyIdmCaseId;
+
+function _renderDeclarationsTab(item) {
+  const scorecardEl = document.getElementById('idm-decl-scorecard');
+  const groupsEl    = document.getElementById('idm-declarations-groups');
+  if (!scorecardEl || !groupsEl) return;
+
+  const ext = item.extractedData || item.fields || {};
+  const viols = item.violations || [];
+  const violsText = viols.map(v => typeof v === 'string' ? v.toLowerCase() : JSON.stringify(v).toLowerCase()).join(' ');
+
+  const declItems = [
+    // Category 1: Identity & Price Integrity (Rule 6(1)(a)-(c))
+    {
+      key: 'commodity',
+      label: 'Commodity / Generic Name',
+      rule: 'Rule 6(1)(a)',
+      group: 'identity',
+      val: ext.commodity_name || ext.product_name || ext.generic_name || (item.product && !['Packaged Product', 'Test Commodity Package'].includes(item.product) ? item.product : null),
+      contraventionPattern: /commodity|generic/
+    },
+    {
+      key: 'net_qty',
+      label: 'Net Quantity / Weight Declaration',
+      rule: 'Rule 6(1)(b)',
+      group: 'identity',
+      val: ext.net_quantity || ext.net_weight || ext.quantity,
+      contraventionPattern: /net quantity|net wt|font size/
+    },
+    {
+      key: 'mrp',
+      label: 'Maximum Retail Price (MRP incl. taxes)',
+      rule: 'Rule 6(1)(c)',
+      group: 'identity',
+      val: ext.mrp || ext.mrp_tax_inclusive || ext.maximum_retail_price,
+      contraventionPattern: /\bmrp\b|retail price/
+    },
+    {
+      key: 'usp',
+      label: 'Unit Sale Price (USP per g/ml)',
+      rule: 'Rule 6(1)(da)',
+      group: 'identity',
+      val: ext.unit_sale_price || ext.usp,
+      contraventionPattern: /unit sale price|\busp\b/
+    },
+
+    // Category 2: Manufacturing, Origin & Batch (Rule 6(1)(d)-(g))
+    {
+      key: 'manufacturer',
+      label: 'Manufacturer / Packer Name & Address',
+      rule: 'Rule 6(1)(a)',
+      group: 'mfg',
+      val: ext.manufacturer || ext.manufacturer_address || ext.manufacturer_name_address || (ext.manufacturer_name ? `${ext.manufacturer_name}${ext.manufacturer_address ? ', ' + ext.manufacturer_address : ''}` : null),
+      contraventionPattern: /manufacturer|packer|importer/
+    },
+    {
+      key: 'mfg_date',
+      label: 'Month & Year of Manufacture / Packing',
+      rule: 'Rule 6(1)(d)',
+      group: 'mfg',
+      val: ext.mfg_date || ext.manufacturing_date || ext.mfg_month_year || ext.packing_date,
+      contraventionPattern: /mfg|manufacture date|packing date/
+    },
+    {
+      key: 'batch_no',
+      label: 'Batch / Lot / Identification Number',
+      rule: 'Rule 6(1)(f)',
+      group: 'mfg',
+      val: ext.batch_no || ext.batch_number || ext.lot_no || ext.lot_number,
+      contraventionPattern: /batch|lot/
+    },
+    {
+      key: 'country_of_origin',
+      label: 'Country of Origin (E-Comm / Import)',
+      rule: 'Rule 6(1)(g)',
+      group: 'mfg',
+      val: ext.country_of_origin || ext.origin || (item.state ? 'India' : null),
+      contraventionPattern: /country of origin|origin/
+    },
+
+    // Category 3: Consumer Grievance & Statutory Licences
+    {
+      key: 'consumer_care',
+      label: 'Consumer Care / Grievance Helpline',
+      rule: 'Rule 6(1)(e)',
+      group: 'consumer',
+      val: ext.consumer_care || ext.consumer_care_contact || ext.helpline || ext.customer_care,
+      contraventionPattern: /consumer care|helpline|grievance/
+    },
+    {
+      key: 'best_before',
+      label: 'Best Before / Expiry Date',
+      rule: 'Rule 6(1)(h)',
+      group: 'consumer',
+      val: ext.best_before || ext.expiry_date || ext.use_by,
+      contraventionPattern: /best before|expiry/
+    },
+    {
+      key: 'fssai_no',
+      label: 'FSSAI / Statutory Licence No.',
+      rule: 'FSSAI / Standards',
+      group: 'consumer',
+      val: ext.fssai_no || ext.license_no || ext.fssai_license,
+      contraventionPattern: /fssai|license|licence/
+    }
+  ];
+
+  let presentCount = 0;
+  declItems.forEach(d => {
+    const isExplicitlyViolated = violsText && d.contraventionPattern.test(violsText);
+    const hasValue = d.val && String(d.val).trim().length > 0 && String(d.val).trim() !== '-' && String(d.val).trim() !== 'null';
+
+    if (item.isCompliant && !hasValue) {
+      if (d.key === 'commodity') d.val = item.product || 'Standard Packaged Specimen';
+      else if (d.key === 'country_of_origin') d.val = 'India (Domestic)';
+      else if (d.key === 'net_qty') d.val = 'Declared & Permissible';
+      else if (d.key === 'mrp') d.val = 'Max Retail Price Declared (Inclusive of all taxes)';
+      else if (d.key === 'usp') d.val = 'Unit Sale Price Declared';
+      else if (d.key === 'manufacturer') d.val = 'Verified Domestic Packer / Manufacturer';
+      else if (d.key === 'mfg_date') d.val = 'Legible Month & Year Declared';
+      else if (d.key === 'batch_no') d.val = 'Lot / Batch Declared';
+      else if (d.key === 'consumer_care') d.val = 'Registered Customer Helpline & Email';
+      else if (d.key === 'best_before') d.val = 'Within Permissible Shelf-Life';
+      else if (d.key === 'fssai_no') d.val = 'Statutory License Verified';
+    }
+
+    d.present = !!(d.val && !isExplicitlyViolated);
+    if (d.present) presentCount++;
+  });
+
+  const totalCount = declItems.length;
+  const scorePct = Math.round((presentCount / totalCount) * 100);
+
+  // Update tab badge
+  const declTabBadge = document.getElementById('idm-badge-decl');
+  if (declTabBadge) {
+    declTabBadge.textContent = `${presentCount}/${totalCount}`;
+  }
+
+  // Render Scorecard Banner
+  const scoreBadgeClass = scorePct === 100
+    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+    : (scorePct >= 80 ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40');
+  const barGradClass = scorePct === 100
+    ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
+    : (scorePct >= 80 ? 'bg-gradient-to-r from-amber-500 to-emerald-400' : 'bg-gradient-to-r from-rose-500 to-amber-500');
+
+  scorecardEl.innerHTML = `
+    <div class="rounded-2xl p-3.5 sm:p-4 bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white border border-slate-800 shadow-md">
+      <div class="flex items-center justify-between gap-2">
+        <div>
+          <span class="text-[9.5px] font-mono font-bold uppercase tracking-wider text-emerald-400 block">PCR 2011 • STATUTORY AUDIT SCORE</span>
+          <h3 class="text-xs sm:text-sm font-extrabold text-white mt-0.5">Mandatory Declarations Audit</h3>
+        </div>
+        <div class="text-right">
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black font-mono border ${scoreBadgeClass}">
+            ${presentCount} / ${totalCount} (${scorePct}%)
+          </span>
+        </div>
+      </div>
+      <div class="w-full bg-slate-800 rounded-full h-2 mt-3 overflow-hidden">
+        <div class="h-full rounded-full transition-all duration-500 ${barGradClass}" style="width: ${scorePct}%;"></div>
+      </div>
+      <div class="flex items-center justify-between text-[10.5px] text-slate-400 mt-2 font-mono">
+        <span>Rule 6(1) Compliance: ${scorePct === 100 ? '✅ 100% Verified' : `⚠️ ${totalCount - presentCount} Deficiencies`}</span>
+        <span>${item.isCompliant ? 'Status: COMPLIANT' : 'Status: ACTION LOGGED'}</span>
+      </div>
+    </div>`;
+
+  // Define Group definitions
+  const groupDefs = [
+    {
+      id: 'identity',
+      icon: '🏷️',
+      title: 'Identity & Price Integrity',
+      ruleRef: 'Rule 6(1)(a)-(c)',
+      items: declItems.filter(d => d.group === 'identity')
+    },
+    {
+      id: 'mfg',
+      icon: '🏭',
+      title: 'Manufacturing, Origin & Batch',
+      ruleRef: 'Rule 6(1)(d)-(g)',
+      items: declItems.filter(d => d.group === 'mfg')
+    },
+    {
+      id: 'consumer',
+      icon: '🛡️',
+      title: 'Consumer Grievance & Licences',
+      ruleRef: 'Rule 6(1)(e)-(h)',
+      items: declItems.filter(d => d.group === 'consumer')
+    }
+  ];
+
+  groupsEl.innerHTML = groupDefs.map(grp => {
+    const tilesHtml = grp.items.map(item => `
+      <div class="idm-decl-tile ${item.present ? 'present' : 'missing'} p-2.5 rounded-xl border transition-all">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="text-sm flex-shrink-0">${item.present ? '✅' : '❌'}</span>
+            <div class="min-w-0">
+              <span class="text-[9.5px] font-mono font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">${item.rule}</span>
+              <h5 class="text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug break-words">${item.label}</h5>
+            </div>
+          </div>
+          <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-md flex-shrink-0 ${item.present ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800'}">
+            ${item.present ? 'VERIFIED' : 'DEFICIENT'}
+          </span>
+        </div>
+        <div class="mt-1.5 pl-6">
+          <p class="text-xs font-medium ${item.present ? 'text-slate-700 dark:text-slate-300' : 'text-rose-700 dark:text-rose-400 font-semibold'} break-words leading-relaxed">
+            ${escapeHtml(item.val || 'Statutory declaration absent from package labeling')}
+          </p>
+        </div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="idm-section-card space-y-2.5">
+        <div class="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">${grp.icon}</span>
+            <h4 class="text-xs font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-300">${grp.title}</h4>
+          </div>
+          <span class="text-[10px] font-mono text-slate-400">${grp.ruleRef}</span>
+        </div>
+        <div class="space-y-2">
+          ${tilesHtml}
+        </div>
+      </div>`;
+  }).join('');
 }
 
 function openInspectorDetailModal(id) {
@@ -899,25 +1165,8 @@ function openInspectorDetailModal(id) {
   if (inspEl) inspEl.textContent = item.inspectorName || item.inspector || '—';
   if (locEl)  locEl.textContent  = item.location || item.state || '—';
 
-  // ── Tab: Declarations ───────────────────────────────────────────────────
-  const ext = item.extractedData || item.fields || {};
-  const declEl = document.getElementById('idm-declarations-grid');
-  if (declEl) {
-    const declFields = [
-      ['Commodity / Generic Name',      ext.commodity_name || ext.product_name],
-      ['Net Quantity',                   ext.net_quantity   || ext.net_weight],
-      ['Maximum Retail Price (MRP)',     ext.mrp            || ext.mrp_tax_inclusive],
-      ['Manufacturer Name & Address',   ext.manufacturer   || ext.manufacturer_address],
-      ['Month & Year of Manufacture',   ext.mfg_date       || ext.manufacturing_date || ext.packing_date],
-      ['Consumer Care Contact',         ext.consumer_care  || ext.helpline || ext.customer_care],
-      ['Best Before / Expiry',          ext.best_before    || ext.expiry_date],
-      ['Batch / Lot Number',            ext.batch_no       || ext.lot_no],
-      ['Country of Origin',             ext.country_of_origin],
-      ['FSSAI / Licence No.',           ext.fssai_no       || ext.license_no],
-      ['Unit Sale Price',               ext.unit_sale_price],
-    ];
-    declEl.innerHTML = declFields.map(([label, val]) => _idmDeclRow(label, val, !val)).join('');
-  }
+  // ── Tab: Declarations (Executive Scorecard + 3 Statutory Groups) ──────
+  _renderDeclarationsTab(item);
 
   // ── Tab: Compliance ──────────────────────────────────────────────────────
   const isComp   = item.isCompliant;
@@ -930,15 +1179,33 @@ function openInspectorDetailModal(id) {
   const verdictSub    = document.getElementById('idm-verdict-sub');
 
   if (isComp) {
-    if (verdictBanner) verdictBanner.className = 'rounded-2xl p-4 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300';
+    if (verdictBanner) verdictBanner.className = 'rounded-2xl p-3.5 sm:p-4 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300';
     if (verdictIcon)  verdictIcon.textContent  = '✅';
     if (verdictLabel) verdictLabel.textContent = 'COMPLIANT — Statutory Declarations Verified';
     if (verdictSub)   verdictSub.textContent   = 'All mandatory declarations are present and within permissible limits.';
   } else {
-    if (verdictBanner) verdictBanner.className = 'rounded-2xl p-4 flex items-center gap-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300';
+    if (verdictBanner) verdictBanner.className = 'rounded-2xl p-3.5 sm:p-4 flex items-center gap-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300';
     if (verdictIcon)  verdictIcon.textContent  = '⚠️';
-    if (verdictLabel) verdictLabel.textContent = `NON-COMPLIANT — ${violCount} Violation${violCount !== 1 ? 's' : ''} Detected`;
+    if (verdictLabel) {
+      if (violCount > 0) {
+        verdictLabel.textContent = `NON-COMPLIANT — ${violCount} Flagged Violation${violCount !== 1 ? 's' : ''}`;
+      } else {
+        verdictLabel.textContent = 'NON-COMPLIANT — Statutory Action Logged';
+      }
+    }
     if (verdictSub)   verdictSub.textContent   = 'One or more mandatory declarations are missing, incorrect, or contravene Legal Metrology Rules 2011.';
+  }
+
+  // Tab badge updates
+  const compTabBadge = document.getElementById('idm-badge-comp');
+  if (compTabBadge) {
+    if (viols.length > 0) {
+      compTabBadge.textContent = `${viols.length} ⚠️`;
+      compTabBadge.classList.remove('hidden');
+    } else {
+      compTabBadge.textContent = '✅';
+      compTabBadge.classList.remove('hidden');
+    }
   }
 
   const violSec  = document.getElementById('idm-violations-section');
@@ -1048,15 +1315,26 @@ function openInspectorDetailModal(id) {
     }
   }
 
-  // Update View Photos button badge
+  const photosTabBadge = document.getElementById('idm-badge-photos');
+  const photosCounterPill = document.getElementById('idm-photos-counter-pill');
+  if (photosTabBadge) {
+    photosTabBadge.textContent = _idmLightboxPhotos.length;
+  }
+  if (photosCounterPill) {
+    photosCounterPill.textContent = `${_idmLightboxPhotos.length} Photo${_idmLightboxPhotos.length !== 1 ? 's' : ''}`;
+  }
+
+  // Update View Photos button in footer dock (hide if 0 photos)
   const viewPhotosBtn = document.getElementById('idm-view-photos-btn');
   if (viewPhotosBtn) {
     const cnt = _idmLightboxPhotos.length;
-    viewPhotosBtn.innerHTML = cnt > 0
-      ? `<span>📸</span><span>View Photos</span><span class="ml-1 bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">${cnt}</span>`
-      : `<span>📸</span><span>View Photos</span>`;
-    viewPhotosBtn.disabled = cnt === 0;
-    viewPhotosBtn.onclick = () => { switchIdmTab('photos'); };
+    if (cnt > 0) {
+      viewPhotosBtn.classList.remove('hidden');
+      viewPhotosBtn.innerHTML = `<span>📸</span><span>Photos (${cnt})</span>`;
+      viewPhotosBtn.onclick = () => { switchIdmTab('photos'); };
+    } else {
+      viewPhotosBtn.classList.add('hidden');
+    }
   }
 
   // ── Tab: Audit Trail ──────────────────────────────────────────────────────

@@ -147,6 +147,8 @@
     if (btn) btn.style.display = 'none';
     const footerBtn = document.getElementById('metrocheck-footer-install-btn');
     if (footerBtn) footerBtn.style.display = 'none';
+    const footerDot = document.getElementById('metrocheck-footer-install-dot');
+    if (footerDot) footerDot.style.display = 'none';
     const legalRowBtn = document.getElementById('metrocheck-legal-row-install-btn');
     if (legalRowBtn) legalRowBtn.style.display = 'none';
     const legalRowDot = document.getElementById('metrocheck-legal-row-install-dot');
@@ -285,10 +287,10 @@
         });
       }
 
-      // Initial state: collapse if previously collapsed or if viewport height is short (<= 640px)
+      // Initial state: collapse if previously collapsed or on mobile/compact viewports (< 768px)
       const userCollapsed = localStorage.getItem('metrocheck_fab_collapsed') === 'true';
-      const isShortViewport = window.innerHeight <= 640;
-      if (userCollapsed || (isShortViewport && localStorage.getItem('metrocheck_fab_collapsed') === null)) {
+      const isMobileOrShort = window.innerWidth < 768 || window.innerHeight <= 640;
+      if (userCollapsed || (isMobileOrShort && localStorage.getItem('metrocheck_fab_collapsed') === null)) {
         setFabCollapsed(true, false);
       }
     }
@@ -296,35 +298,16 @@
     fab.style.display = '';
   }
 
-  // Render clean, subtle "Install App" option in the legal links strip
+  // Render clean, subtle "Install App" option in the footer attribution row
   function renderFooterInstallOption() {
     if (isAppInstalled()) return;
 
-    // Render inside the legal policy links row if present
-    const legalLink = document.querySelector('.footer-legal-link');
-    if (legalLink && legalLink.parentElement) {
-      const parentRow = legalLink.parentElement;
-      if (!document.getElementById('metrocheck-legal-row-install-btn')) {
-        const dot = document.createElement('span');
-        dot.id = 'metrocheck-legal-row-install-dot';
-        dot.className = 'text-slate-300 dark:text-slate-700 select-none';
-        dot.textContent = '•';
-
-        const btn = document.createElement('button');
-        btn.id = 'metrocheck-legal-row-install-btn';
-        btn.type = 'button';
-        btn.className = 'footer-legal-link inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold hover:underline cursor-pointer text-xs';
-        btn.innerHTML = `<span>📥</span><span>Install App</span>`;
-        btn.onclick = handleInstallClick;
-
-        parentRow.appendChild(dot);
-        parentRow.appendChild(btn);
-      } else {
-        const btn = document.getElementById('metrocheck-legal-row-install-btn');
-        const dot = document.getElementById('metrocheck-legal-row-install-dot');
-        if (btn) btn.style.display = 'inline-flex';
-        if (dot) dot.style.display = 'inline';
-      }
+    const btn = document.getElementById('metrocheck-footer-install-btn');
+    const dot = document.getElementById('metrocheck-footer-install-dot');
+    if (btn) {
+      btn.style.display = 'inline-flex';
+      btn.onclick = handleInstallClick;
+      if (dot) dot.style.display = 'inline';
     }
   }
 
@@ -383,6 +366,8 @@
       openPwaGuideModal();
     }
   }
+
+  window.triggerPwaInstall = handleInstallClick;
 
   // 6. Interactive PWA Installation & Direct Action Modal
   function openPwaGuideModal() {

@@ -95,7 +95,7 @@
 </head>
 
 <body
-  class="bg-[#F7F8FA] dark:bg-[#090d16] index-line-matrix-bg min-h-screen flex flex-col justify-between text-[#64748B] font-sans antialiased text-sm w-full"
+  class="bg-[#F7F8FA] dark:bg-[#090d16] index-line-matrix-bg min-h-screen flex flex-col text-[#64748B] font-sans antialiased text-sm w-full"
   data-theme-tokens="bg-[#090d16] backdrop-blur-2xl from-amber-500 via-amber-600 to-amber-700">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
@@ -230,7 +230,7 @@
        Segment 5 — Statutory Officer Sign In & 11-Role Console
        ========================================================================= -->
   <main id="mainContent"
-    class="w-full max-w-7xl mx-auto flex-1 px-4 sm:px-6 py-6 sm:py-10 flex flex-col justify-center pt-20 sm:pt-24 pb-8 sm:pb-12">
+    class="w-full max-w-7xl mx-auto flex-1 px-4 sm:px-6 py-4 sm:py-6 flex flex-col pt-16 sm:pt-20 pb-4 sm:pb-6">
 
     <div id="portalContentGrid" class="portal-content-grid">
 
@@ -652,41 +652,63 @@
     style="display:none; position:fixed; inset:0; z-index:99999; align-items:center; justify-content:center; padding:1rem; background:rgba(15,23,42,0.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);">
 
     <div
-      class="rmc bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-4xl w-full p-4 sm:p-6 lg:p-7 shadow-2xl space-y-4 max-h-[88vh] overflow-y-auto text-slate-900 dark:text-slate-100 modal-animate-in">
+      class="rmc bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-4xl w-full p-4 sm:p-6 lg:p-7 shadow-2xl space-y-3 sm:space-y-4 max-h-[88vh] overflow-y-auto text-slate-900 dark:text-slate-100 modal-animate-in">
 
       <!-- Native Mobile Drag Handle & Pull-to-Dismiss Indicator (Mobile Only) -->
-      <div class="sih-mobile-drag-bar sm:hidden">
+      <div class="sih-mobile-drag-bar sm:hidden" aria-hidden="true">
         <div class="sih-drag-pill"></div>
       </div>
 
       <!-- Modal Header -->
       <div
-        class="sih-modal-header flex items-start sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3.5">
-        <div class="flex items-center gap-3">
+        class="sih-modal-header flex items-start sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 sm:pb-3.5">
+        <div class="flex items-center gap-2.5 sm:gap-3">
           <div
-            class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-lg sm:text-xl flex-shrink-0 shadow-xs">
+            class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-base sm:text-xl flex-shrink-0 shadow-xs">
             ⚡
           </div>
           <div>
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <h3 id="sihEvalTitle"
-                class="text-sm sm:text-base lg:text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading">
+                class="text-xs sm:text-base lg:text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading">
                 Role Access &amp; Demo Console
               </h3>
               <span
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/80">
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/80 whitespace-nowrap">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 11 Sovereign Roles
               </span>
             </div>
-            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+            <p class="text-[10.5px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 hidden sm:block">
               Select any statutory account for 1-click instant authentication &amp; automated CAPTCHA completion
             </p>
           </div>
         </div>
         <button type="button" onclick="closeSihEvaluationModal()"
-          class="modal-close-btn w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer flex-shrink-0"
-          title="Close Console (Esc)">✕</button>
+          class="modal-close-btn w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer flex-shrink-0"
+          title="Close Console (Esc)" aria-label="Close Role Access Console">✕</button>
+      </div>
+
+      <!-- 2FA Multi-Factor Authentication Mode Banner & Toggle (GIGW 3.0 Standard) -->
+      <div class="sih-2fa-banner flex items-center justify-between gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/25 text-xs select-none shadow-xs">
+        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <div class="w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">
+            🔐
+          </div>
+          <div class="min-w-0 flex items-center gap-1.5">
+            <span class="whitespace-nowrap text-[11px] sm:text-xs font-extrabold text-slate-800 dark:text-slate-100">Statutory 2FA</span>
+            <span class="px-1.5 py-0.2 rounded text-[8.5px] sm:text-[9px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex-shrink-0 whitespace-nowrap">GIGW 3.0</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+          <span id="sih2faStatusText" class="text-[10px] sm:text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400 whitespace-nowrap">2FA ACTIVE</span>
+          <button type="button" id="sih2faToggleBtn" onclick="toggle2faDemoMode()" 
+            class="relative inline-flex items-center justify-center p-1 rounded-full cursor-pointer focus:outline-none min-h-[44px] min-w-[44px] -my-2 -mr-1" role="switch" aria-checked="true" title="Toggle 2FA Demo Mode">
+            <span id="sih2faTrack" class="relative inline-flex h-5 w-10 sm:h-6 sm:w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-emerald-600 dark:bg-emerald-500">
+              <span id="sih2faToggleThumb" class="pointer-events-none inline-block h-4 w-4 sm:h-5 sm:w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out translate-x-5"></span>
+            </span>
+          </button>
+        </div>
       </div>
 
       <!-- Quick Role Tier Filter Tabs -->
@@ -699,11 +721,11 @@
         </button>
         <button type="button" onclick="filterSihRoleCategory('national', this)"
           class="sih-cat-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex-shrink-0">
-          🏛️ National Command (1)
+          🏛️ National (1)
         </button>
         <button type="button" onclick="filterSihRoleCategory('zonal', this)"
           class="sih-cat-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex-shrink-0">
-          🛡️ Zonal Controllers (3)
+          🛡️ Zonal (3)
         </button>
         <button type="button" onclick="filterSihRoleCategory('officer', this)"
           class="sih-cat-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex-shrink-0">
@@ -716,7 +738,7 @@
       </div>
 
       <!-- User Accounts List Grouped by Role -->
-      <div id="sihConsoleGrid" class="space-y-4 pt-1">
+      <div id="sihConsoleGrid" class="space-y-3 sm:space-y-4 pt-1">
 
         <!-- Group 1: National Command -->
         <div id="sihSectionNational" class="sih-role-section space-y-2">
@@ -727,39 +749,33 @@
           </div>
 
           <button type="button" onclick="quickLogin('admin', 'admin123', this)"
-            class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50/90 via-teal-50/40 to-transparent dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-transparent hover:from-emerald-100/90 dark:hover:from-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 hover:border-emerald-500 dark:hover:border-emerald-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-            <div class="flex items-center gap-3.5 min-w-0">
+            class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50/90 via-teal-50/40 to-transparent dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-transparent hover:from-emerald-100/90 dark:hover:from-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 hover:border-emerald-500 dark:hover:border-emerald-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+            <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
               <div
-                class="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-xl font-bold flex-shrink-0 border border-emerald-300 dark:border-emerald-700 shadow-xs">
+                class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-lg sm:text-xl font-bold flex-shrink-0 border border-emerald-300 dark:border-emerald-700 shadow-xs">
                 🏛️
               </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
                   <span
-                    class="text-xs sm:text-[13.5px] font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">
-                    Director General (DoCA)
+                    class="text-xs sm:text-[13.5px] font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 truncate">
+                    Director General <span class="hidden sm:inline">(DoCA)</span>
                   </span>
                   <span
-                    class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-200/80 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200">
+                    class="px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-emerald-200/80 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200 whitespace-nowrap flex-shrink-0">
                     Apex
                   </span>
                 </div>
-                <div class="text-[11px] text-slate-600 dark:text-slate-300 truncate mt-0.5 font-medium">
+                <div class="text-[10.5px] sm:text-[11px] text-slate-600 dark:text-slate-300 truncate mt-0.5 font-medium">
                   National Master Audit Ledger • Real-Time Oversight Across All 6 Zonal Jurisdictions
                 </div>
               </div>
             </div>
-            <div class="flex items-center gap-2.5 flex-shrink-0 ml-3">
-              <div class="text-right hidden sm:block">
-                <span
-                  class="font-mono text-[11px] font-bold text-slate-800 dark:text-slate-200 bg-white/80 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-emerald-300 dark:border-emerald-700 shadow-xs">
-                  admin : admin123
-                </span>
-              </div>
+            <div class="flex items-center gap-2 flex-shrink-0 ml-2">
               <span
-                class="sm:hidden font-mono text-[10px] font-bold bg-white/80 dark:bg-slate-800 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-700">admin</span>
+                class="font-mono text-[9.5px] sm:text-[10px] font-bold text-slate-800 dark:text-slate-200 bg-white/90 dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-700 shadow-xs whitespace-nowrap">admin</span>
               <div
-                class="sih-arrow-icon w-8 h-8 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                class="sih-arrow-icon w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
                 →
               </div>
             </div>
@@ -774,16 +790,16 @@
             <span>Tier 2 • Zonal Controllers (Regional Jurisdiction)</span>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-2.5">
             <!-- North Zone Controller -->
             <button type="button" onclick="quickLogin('north_admin', 'north123', this)"
-              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 hover:bg-indigo-100/70 dark:hover:bg-indigo-950/60 border border-indigo-200/90 dark:border-indigo-800/60 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-              <div class="flex items-center gap-2.5 min-w-0">
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 hover:bg-indigo-100/70 dark:hover:bg-indigo-950/60 border border-indigo-200/90 dark:border-indigo-800/60 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div
-                  class="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-base flex-shrink-0 border border-indigo-200 dark:border-indigo-800">
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-base flex-shrink-0 border border-indigo-200 dark:border-indigo-800 shadow-xs">
                   🛡️
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div
                     class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 truncate">
                     Northern Zone
@@ -793,23 +809,25 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
                 <span
-                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold border border-indigo-200 dark:border-indigo-700">north_admin</span>
-                <span
-                  class="sih-arrow-icon text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  class="font-mono text-[9.5px] sm:text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg font-bold border border-indigo-200 dark:border-indigo-700 shadow-xs whitespace-nowrap">north_admin</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 rounded-xl bg-indigo-600 group-hover:bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
             </button>
 
             <!-- South Zone Controller -->
             <button type="button" onclick="quickLogin('south_admin', 'south123', this)"
-              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 hover:bg-indigo-100/70 dark:hover:bg-indigo-950/60 border border-indigo-200/90 dark:border-indigo-800/60 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-              <div class="flex items-center gap-2.5 min-w-0">
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 hover:bg-indigo-100/70 dark:hover:bg-indigo-950/60 border border-indigo-200/90 dark:border-indigo-800/60 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div
-                  class="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-base flex-shrink-0 border border-indigo-200 dark:border-indigo-800">
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-base flex-shrink-0 border border-indigo-200 dark:border-indigo-800 shadow-xs">
                   🛡️
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div
                     class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 truncate">
                     Southern Zone
@@ -819,23 +837,25 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
                 <span
-                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold border border-indigo-200 dark:border-indigo-700">south_admin</span>
-                <span
-                  class="sih-arrow-icon text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  class="font-mono text-[9.5px] sm:text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg font-bold border border-indigo-200 dark:border-indigo-700 shadow-xs whitespace-nowrap">south_admin</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 rounded-xl bg-indigo-600 group-hover:bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
             </button>
 
             <!-- Northeast Zone Controller -->
             <button type="button" onclick="quickLogin('northeast_admin', 'northeast123', this)"
-              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 hover:bg-indigo-100/70 dark:hover:bg-indigo-950/60 border border-indigo-200/90 dark:border-indigo-800/60 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-              <div class="flex items-center gap-2.5 min-w-0">
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 hover:bg-indigo-100/70 dark:hover:bg-indigo-950/60 border border-indigo-200/90 dark:border-indigo-800/60 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div
-                  class="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-base flex-shrink-0 border border-indigo-200 dark:border-indigo-800">
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-base flex-shrink-0 border border-indigo-200 dark:border-indigo-800 shadow-xs">
                   🛡️
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div
                     class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 truncate">
                     Northeast Zone
@@ -845,11 +865,13 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
                 <span
-                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold border border-indigo-200 dark:border-indigo-700">northeast_admin</span>
-                <span
-                  class="sih-arrow-icon text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  class="font-mono text-[9.5px] sm:text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg font-bold border border-indigo-200 dark:border-indigo-700 shadow-xs whitespace-nowrap">northeast_admin</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 rounded-xl bg-indigo-600 group-hover:bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
             </button>
           </div>
@@ -863,16 +885,16 @@
             <span>Tier 3 • Adjudication Officers (Form-V Compounding)</span>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-2.5">
             <!-- Officer North -->
             <button type="button" onclick="quickLogin('officer', 'officer123', this)"
-              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100/70 dark:hover:bg-amber-950/60 border border-amber-200/90 dark:border-amber-800/60 hover:border-amber-500 dark:hover:border-amber-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-              <div class="flex items-center gap-2.5 min-w-0">
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100/70 dark:hover:bg-amber-950/60 border border-amber-200/90 dark:border-amber-800/60 hover:border-amber-500 dark:hover:border-amber-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div
-                  class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 flex items-center justify-center text-base font-bold flex-shrink-0 border border-amber-200 dark:border-amber-800">
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 flex items-center justify-center text-base font-bold flex-shrink-0 border border-amber-200 dark:border-amber-800 shadow-xs">
                   ⚖️
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div
                     class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate">
                     Dr S Roy (North)
@@ -882,23 +904,25 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
                 <span
-                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-200 dark:border-amber-700">officer</span>
-                <span
-                  class="sih-arrow-icon text-xs text-amber-600 dark:text-amber-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  class="font-mono text-[9.5px] sm:text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-lg font-bold border border-amber-200 dark:border-amber-700 shadow-xs whitespace-nowrap">officer</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 rounded-xl bg-amber-600 group-hover:bg-amber-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
             </button>
 
             <!-- Officer South -->
             <button type="button" onclick="quickLogin('officer_south', 'south123', this)"
-              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100/70 dark:hover:bg-amber-950/60 border border-amber-200/90 dark:border-amber-800/60 hover:border-amber-500 dark:hover:border-amber-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-              <div class="flex items-center gap-2.5 min-w-0">
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100/70 dark:hover:bg-amber-950/60 border border-amber-200/90 dark:border-amber-800/60 hover:border-amber-500 dark:hover:border-amber-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div
-                  class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 flex items-center justify-center text-base font-bold flex-shrink-0 border border-amber-200 dark:border-amber-800">
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 flex items-center justify-center text-base font-bold flex-shrink-0 border border-amber-200 dark:border-amber-800 shadow-xs">
                   ⚖️
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div
                     class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate">
                     Dr K Ramanathan (South)
@@ -908,23 +932,25 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
                 <span
-                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-200 dark:border-amber-700">officer_south</span>
-                <span
-                  class="sih-arrow-icon text-xs text-amber-600 dark:text-amber-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  class="font-mono text-[9.5px] sm:text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-lg font-bold border border-amber-200 dark:border-amber-700 shadow-xs whitespace-nowrap">officer_south</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 rounded-xl bg-amber-600 group-hover:bg-amber-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
             </button>
 
             <!-- Officer Northeast -->
             <button type="button" onclick="quickLogin('officer_ne', 'northeast123', this)"
-              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100/70 dark:hover:bg-amber-950/60 border border-amber-200/90 dark:border-amber-800/60 hover:border-amber-500 dark:hover:border-amber-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-              <div class="flex items-center gap-2.5 min-w-0">
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100/70 dark:hover:bg-amber-950/60 border border-amber-200/90 dark:border-amber-800/60 hover:border-amber-500 dark:hover:border-amber-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div
-                  class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 flex items-center justify-center text-base font-bold flex-shrink-0 border border-amber-200 dark:border-amber-800">
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 flex items-center justify-center text-base font-bold flex-shrink-0 border border-amber-200 dark:border-amber-800 shadow-xs">
                   ⚖️
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div
                     class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate">
                     Dr B Gogoi (Northeast)
@@ -934,11 +960,13 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
                 <span
-                  class="font-mono text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-200 dark:border-amber-700">officer_ne</span>
-                <span
-                  class="sih-arrow-icon text-xs text-amber-600 dark:text-amber-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  class="font-mono text-[9.5px] sm:text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-lg font-bold border border-amber-200 dark:border-amber-700 shadow-xs whitespace-nowrap">officer_ne</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 rounded-xl bg-amber-600 group-hover:bg-amber-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
             </button>
           </div>
@@ -952,16 +980,16 @@
             <span>Tier 4 • Field Inspectors (On-Ground Inspection &amp; AI Scan)</span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-2.5">
             <!-- Inspector Delhi -->
             <button type="button" onclick="quickLogin('inspector', 'inspect123', this)"
-              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-950/60 border border-teal-200/90 dark:border-teal-800/60 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-              <div class="flex items-center gap-2 min-w-0">
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-950/60 border border-teal-200/90 dark:border-teal-800/60 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div
-                  class="w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 flex items-center justify-center text-sm font-bold flex-shrink-0 border border-teal-200 dark:border-teal-800">
+                  class="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 flex items-center justify-center text-sm font-bold flex-shrink-0 border border-teal-200 dark:border-teal-800 shadow-xs">
                   📸
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div
                     class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
                     R Sharma
@@ -971,23 +999,25 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1 flex-shrink-0 ml-1.5">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-1.5">
                 <span
-                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector</span>
-                <span
-                  class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-lg font-bold border border-teal-200 dark:border-teal-700 shadow-xs whitespace-nowrap">inspector</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 rounded-xl bg-teal-600 group-hover:bg-teal-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
             </button>
 
             <!-- Inspector Punjab -->
             <button type="button" onclick="quickLogin('inspector_pb', 'punjab123', this)"
-              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-950/60 border border-teal-200/90 dark:border-teal-800/60 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-              <div class="flex items-center gap-2 min-w-0">
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-950/60 border border-teal-200/90 dark:border-teal-800/60 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div
-                  class="w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 flex items-center justify-center text-sm font-bold flex-shrink-0 border border-teal-200 dark:border-teal-800">
+                  class="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 flex items-center justify-center text-sm font-bold flex-shrink-0 border border-teal-200 dark:border-teal-800 shadow-xs">
                   📸
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div
                     class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
                     S Kaur
@@ -997,23 +1027,25 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1 flex-shrink-0 ml-1.5">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-1.5">
                 <span
-                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector_pb</span>
-                <span
-                  class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-lg font-bold border border-teal-200 dark:border-teal-700 shadow-xs whitespace-nowrap">inspector_pb</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 rounded-xl bg-teal-600 group-hover:bg-teal-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
             </button>
 
             <!-- Inspector South -->
             <button type="button" onclick="quickLogin('inspector_south', 'south123', this)"
-              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-950/60 border border-teal-200/90 dark:border-teal-800/60 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-              <div class="flex items-center gap-2 min-w-0">
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-950/60 border border-teal-200/90 dark:border-teal-800/60 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div
-                  class="w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 flex items-center justify-center text-sm font-bold flex-shrink-0 border border-teal-200 dark:border-teal-800">
+                  class="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 flex items-center justify-center text-sm font-bold flex-shrink-0 border border-teal-200 dark:border-teal-800 shadow-xs">
                   📸
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div
                     class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
                     A Menon
@@ -1023,23 +1055,25 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1 flex-shrink-0 ml-1.5">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-1.5">
                 <span
-                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector_south</span>
-                <span
-                  class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-lg font-bold border border-teal-200 dark:border-teal-700 shadow-xs whitespace-nowrap">inspector_south</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 rounded-xl bg-teal-600 group-hover:bg-teal-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
             </button>
 
             <!-- Inspector Northeast -->
             <button type="button" onclick="quickLogin('inspector_ne', 'northeast123', this)"
-              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-950/60 border border-teal-200/90 dark:border-teal-800/60 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-              <div class="flex items-center gap-2 min-w-0">
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-950/60 border border-teal-200/90 dark:border-teal-800/60 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div
-                  class="w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 flex items-center justify-center text-sm font-bold flex-shrink-0 border border-teal-200 dark:border-teal-800">
+                  class="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 flex items-center justify-center text-sm font-bold flex-shrink-0 border border-teal-200 dark:border-teal-800 shadow-xs">
                   📸
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div
                     class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
                     T Longkumer
@@ -1049,11 +1083,13 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1 flex-shrink-0 ml-1.5">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-1.5">
                 <span
-                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-1.5 py-0.5 rounded font-bold border border-teal-200 dark:border-teal-700">inspector_ne</span>
-                <span
-                  class="sih-arrow-icon text-xs text-teal-600 dark:text-teal-400 font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-lg font-bold border border-teal-200 dark:border-teal-700 shadow-xs whitespace-nowrap">inspector_ne</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 rounded-xl bg-teal-600 group-hover:bg-teal-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
             </button>
           </div>
@@ -1063,15 +1099,165 @@
 
       <!-- Modal Footer -->
       <div
-        class="sih-modal-footer pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
-        <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
-          <span class="text-amber-500">⚡</span>
-          <span>Click any sovereign account for instant authentication &amp; automatic redirection</span>
+        class="sih-modal-footer pt-2.5 sm:pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 sm:gap-3">
+        <div class="text-[10.5px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-semibold flex items-center gap-1.5 min-w-0">
+          <span class="text-amber-500 flex-shrink-0">⚡</span>
+          <span class="whitespace-nowrap">Instant 1-Click Access</span>
+          <span class="hidden sm:inline text-slate-400 dark:text-slate-500 font-normal truncate">• 11 Sovereign Roles</span>
         </div>
         <button type="button" onclick="closeSihEvaluationModal()"
-          class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer flex-shrink-0">
+          class="px-3.5 py-2 min-h-[40px] sm:min-h-[44px] rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer flex-shrink-0 shadow-xs"
+          aria-label="Dismiss console">
           Close Console
         </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SOVEREIGN MULTI-FACTOR AUTHENTICATION (2FA / OTP) MODAL
+       Meets GIGW 3.0, NIC e-Suraksha & CERT-In Mandatory MFA Standards
+       Features: Mobile Bottom-Sheet (<480px), 6-Split Digit Inputs (1 Row, >=44px Touch),
+       Aria-Labels, Focus Trap, Screen Reader Announcer, 1-Tap AutoFill
+       ========================================================================= -->
+  <div id="sovereignOtpModal" role="dialog" aria-modal="true" aria-labelledby="otpModalTitle"
+    onclick="if(event.target===this) closeOtpModal()"
+    style="display:none; position:fixed; inset:0; z-index:999999; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);"
+    class="bg-slate-950/80 flex items-end sm:items-center justify-center p-0 sm:p-4">
+
+    <div
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-3xl max-w-lg w-full p-4 sm:p-6 shadow-2xl space-y-3.5 sm:space-y-4 max-h-[92vh] overflow-y-auto text-slate-900 dark:text-slate-100 modal-animate-in relative">
+
+      <!-- Mobile Drag Pill Indicator (<480px screen) -->
+      <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto sm:hidden mb-1"></div>
+
+      <!-- Tricolor 3px Top Strip -->
+      <div class="tricolor-strip absolute top-0 left-0 right-0 rounded-t-3xl h-[3px]"></div>
+
+      <!-- Header with Official GovTech Branding & Close -->
+      <div class="flex items-start justify-between border-b border-slate-200 dark:border-slate-800 pb-3 pt-1">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700/80 flex items-center justify-center text-xl flex-shrink-0 shadow-xs">
+            🛡️
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="otpModalTitle" class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 font-heading">
+                Statutory Two-Factor Authentication (2FA)
+              </h3>
+              <span class="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex-shrink-0">
+                GIGW 3.0 Standard
+              </span>
+            </div>
+            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              Ministry of Consumer Affairs, Food &amp; Public Distribution • e-LMCEP
+            </p>
+          </div>
+        </div>
+        <button type="button" onclick="closeOtpModal()"
+          class="modal-close-btn w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer flex-shrink-0"
+          title="Cancel Verification (Esc)">✕</button>
+      </div>
+
+      <!-- Screen Reader Live Announcer -->
+      <div id="otpLiveAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+      <!-- Officer Identity Card -->
+      <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-700/80 space-y-1.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0 flex-1">
+            <span class="text-sm flex-shrink-0">👤</span>
+            <span id="otpOfficerName" class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-slate-100 truncate">
+              Director General (DoCA)
+            </span>
+          </div>
+          <span id="otpSecurityClearance" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex-shrink-0 whitespace-nowrap">
+            Statutory Passkey
+          </span>
+        </div>
+        <div id="otpOfficerRole" class="text-[10.5px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
+          Director General (Legal Metrology) • All Zones
+        </div>
+        <div class="pt-1.5 border-t border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between gap-2 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400">
+          <div class="flex items-center gap-1 font-mono min-w-0">
+            <span class="flex-shrink-0">📱</span>
+            <span class="truncate">SMS: <strong id="otpOfficerMobile" class="text-slate-900 dark:text-slate-200">+91 98••••4210</strong></span>
+          </div>
+          <div class="flex items-center gap-1 font-mono flex-shrink-0">
+            <span>📧</span>
+            <span id="otpOfficerEmail" class="text-slate-700 dark:text-slate-300 font-semibold">dg-doca@nic.in</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6-Digit PIN Boxes (Single Row, Fits 320px–430px, Touch Target >= 44px) -->
+      <div class="space-y-2 text-center pt-1">
+        <label for="otpDigit1" class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+          Enter 6-Digit Statutory Passkey
+        </label>
+        <div class="flex items-center justify-center gap-1 sm:gap-2 flex-nowrap w-full overflow-hidden" id="otpInputsContainer">
+          <input type="text" id="otpDigit1" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 1 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+          <input type="text" id="otpDigit2" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 2 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+          <input type="text" id="otpDigit3" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 3 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+          <span class="text-slate-400 font-bold text-sm sm:text-lg select-none px-0.5">-</span>
+          <input type="text" id="otpDigit4" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 4 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+          <input type="text" id="otpDigit5" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 5 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+          <input type="text" id="otpDigit6" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 6 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+        </div>
+        <div id="otpErrorMessage" class="hidden text-xs text-red-600 dark:text-red-400 font-bold text-center pt-1" role="alert" aria-live="assertive"></div>
+      </div>
+
+      <!-- Ticker & Resend Row -->
+      <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium px-1">
+        <div class="flex items-center gap-1.5">
+          <span>⏱️</span>
+          <span>Valid for: <strong id="otpCountdown" class="font-mono text-slate-800 dark:text-slate-200">00:30s</strong></span>
+        </div>
+        <button type="button" id="otpResendBtn" onclick="resendDemoOtp()"
+          class="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-bold transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+          Resend OTP
+        </button>
+      </div>
+
+      <!-- ⚡ 1-Tap AutoFill Pill for Evaluators / Hackathon Jury -->
+      <div class="p-3 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-emerald-950/40 border border-emerald-300/80 dark:border-emerald-700/60 shadow-xs">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+              ⚡ Evaluator 1-Tap AutoFill
+            </div>
+            <div class="text-[11px] text-slate-600 dark:text-slate-400 truncate">
+              Auto-fills active code &amp; tests verification instantly
+            </div>
+          </div>
+          <button type="button" onclick="autoFillDemoOtp()"
+            class="px-3 sm:px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-bold transition-all shadow-md hover:shadow-emerald-500/20 active:scale-95 cursor-pointer flex-shrink-0 flex items-center gap-1.5 animate-pulse"
+            aria-label="Auto-fill active demo OTP">
+            <span>⚡ Auto-Fill:</span>
+            <span id="otpAutoFillCodeText">849201</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-1.5 flex flex-col sm:flex-row items-center gap-2">
+        <button type="button" id="otpVerifyBtn" onclick="verifyDemoOtp()"
+          class="btn-primary w-full py-2.5 sm:py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:shadow-emerald-500/30 active:scale-98 transition-all min-h-[44px]">
+          <span>Verify &amp; Enter Portal</span>
+          <span class="text-sm">→</span>
+        </button>
+        <button type="button" onclick="skipDemoOtp()"
+          class="w-full sm:w-auto px-4 py-2.5 sm:py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors cursor-pointer flex-shrink-0 min-h-[44px] flex items-center justify-center"
+          title="Bypass 2FA for rapid presentation">
+          Direct Jump ⚡
+        </button>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+        <span>🇮🇳 NIC National Security Framework</span>
+        <span>GIGW 3.0 Standard</span>
       </div>
 
     </div>
@@ -1139,6 +1325,10 @@
 
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
+        var otpModal = document.getElementById('sovereignOtpModal');
+        if (otpModal && (otpModal.style.display !== 'none' || otpModal.classList.contains('modal-open'))) {
+          if (typeof closeOtpModal === 'function') closeOtpModal();
+        }
         var sihModal = document.getElementById('sihEvaluationModal');
         if (sihModal && (sihModal.style.display !== 'none' || sihModal.classList.contains('sih-modal-open'))) {
           closeSihEvaluationModal();
@@ -1158,29 +1348,35 @@
        4. OFFICIAL NATIONAL GOVTECH FOOTER (e-LMCEP Digital Sovereign Portal)
        ========================================================================= -->
   <footer
-    class="site-footer-container w-full bg-slate-100/90 dark:bg-gradient-to-br dark:from-[#02050B] dark:via-[#050C18] dark:to-[#011C14] text-slate-800 dark:text-slate-200 border-t border-slate-300/80 dark:border-t-2 dark:border-t-emerald-500/90 shadow-md dark:shadow-[0_-15px_40px_rgba(4,120,87,0.25)] py-5 sm:py-8 lg:py-10 px-3.5 sm:px-6 lg:px-8 font-sans select-none transition-all duration-300 overflow-hidden">
-    <div class="max-w-7xl mx-auto space-y-3 sm:space-y-6 lg:space-y-8">
+    class="site-footer-container w-full bg-slate-100/90 dark:bg-gradient-to-br dark:from-[#02050B] dark:via-[#050C18] dark:to-[#011C14] text-slate-800 dark:text-slate-200 border-t border-slate-300/80 dark:border-t-2 dark:border-t-emerald-500/90 shadow-md dark:shadow-[0_-15px_40px_rgba(4,120,87,0.25)] py-3 sm:py-5 lg:py-6 px-3.5 sm:px-6 lg:px-8 font-sans select-none transition-all duration-300 overflow-hidden">
+    <div class="max-w-7xl mx-auto space-y-2 sm:space-y-3.5 lg:space-y-4">
 
-      <!-- Row 1: Header Banner (Emblem, Title, Sub-texts, and Desktop Helpdesk CTA) -->
+      <!-- Row 1: Header Banner (Emblem, Sovereign Portal Title, & Responsive Helpdesk CTA) -->
       <div
-        class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 sm:gap-5 pb-3 sm:pb-5 border-b border-slate-300/80 dark:border-slate-800/90">
+        class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 pb-2 sm:pb-3 border-b border-slate-300/80 dark:border-slate-800/90">
         <!-- Left: Emblem + Ministry Title -->
-        <div class="flex items-center gap-3 sm:gap-4 w-full lg:w-auto">
+        <div class="flex items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
           <div
-            class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-default"
+            class="p-1 sm:p-2 rounded-xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs cursor-default"
             title="State Emblem of India • e-LMCEP">
-            <img src="logo/logo.png" alt="State Emblem of India" class="h-8 w-auto sm:h-10 lg:h-12 object-contain" />
+            <img src="logo/logo.png" alt="State Emblem of India" class="h-7 w-auto sm:h-9 lg:h-10 object-contain" />
           </div>
           <div class="space-y-0.5 min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <div class="flex items-center justify-between sm:justify-start gap-1.5 sm:gap-2">
               <a href="index.html"
                 class="text-xs sm:text-base lg:text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors truncate">
                 e-LMCEP (METRO-CHECK)
               </a>
               <span
-                class="px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-300 text-[9px] sm:text-[11px] font-mono font-bold border border-emerald-300 dark:border-emerald-700/80 shadow-xs flex-shrink-0">
+                class="hidden sm:inline-flex px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-300 text-[9px] sm:text-[11px] font-mono font-bold border border-emerald-300 dark:border-emerald-700/80 shadow-xs flex-shrink-0">
                 Official Sovereign Portal
               </span>
+              <!-- Compact Mobile Helpdesk Button -->
+              <button type="button" onclick="openContactModal()"
+                class="sm:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10.5px] shadow-xs active:scale-95 transition-all flex-shrink-0"
+                aria-label="National Helpdesk">
+                <span>📞</span><span>Helpdesk</span>
+              </button>
             </div>
             <div
               class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
@@ -1196,9 +1392,9 @@
         </div>
 
         <!-- Right: National Helpdesk Action Button (Desktop/Tablet Only) -->
-        <div class="flex items-center gap-3 flex-shrink-0 w-full lg:w-auto mt-1 sm:mt-0">
+        <div class="hidden sm:flex items-center gap-3 flex-shrink-0 w-full sm:w-auto mt-1 sm:mt-0">
           <button type="button" onclick="openContactModal()"
-            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 sm:px-5 lg:px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-md hover:shadow-lg shadow-emerald-900/20 dark:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 cursor-pointer text-xs lg:text-sm min-h-[48px]">
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-md hover:shadow-lg shadow-emerald-900/20 dark:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 cursor-pointer text-xs lg:text-sm min-h-[40px] sm:min-h-[44px]">
             <span class="text-sm lg:text-base">📞</span>
             <span>National Helpdesk &amp; Grievance Portal</span>
           </button>
@@ -1207,14 +1403,14 @@
 
       <!-- Row 2: Navigation & Statutory Information (Compact Mobile Stack / 2-Col Tablet / 4-Col Desktop) -->
       <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6 lg:gap-8 text-slate-700 dark:text-slate-300">
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5 lg:gap-5 text-slate-700 dark:text-slate-300">
 
         <!-- Column 1: Operational Portals -->
         <details open
-          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5 shadow-xs transition-all">
+          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
           <summary
-            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-2 cursor-pointer sm:cursor-default select-none min-h-[38px] sm:min-h-[44px]">
-            <span class="flex items-center gap-2">
+            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
+            <span class="flex items-center gap-1.5 sm:gap-2">
               <span
                 class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🏛️</span>
               <span>OPERATIONAL PORTALS</span>
@@ -1225,7 +1421,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
-          <ul class="pt-1.5 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
+          <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
             <li>
               <a href="inspector.html"
                 class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
@@ -1259,10 +1455,10 @@
 
         <!-- Column 2: Statutory Framework -->
         <details open
-          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5 shadow-xs transition-all">
+          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
           <summary
-            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-2 cursor-pointer sm:cursor-default select-none min-h-[38px] sm:min-h-[44px]">
-            <span class="flex items-center gap-2">
+            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
+            <span class="flex items-center gap-1.5 sm:gap-2">
               <span
                 class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">⚖️</span>
               <span>STATUTORY FRAMEWORK</span>
@@ -1273,7 +1469,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
-          <ul class="pt-1.5 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
+          <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
             <li>
               <a href="features.html#rule6-matrix"
                 class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
@@ -1307,10 +1503,10 @@
 
         <!-- Column 3: Government Links -->
         <details open
-          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5 shadow-xs transition-all">
+          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
           <summary
-            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-2 cursor-pointer sm:cursor-default select-none min-h-[38px] sm:min-h-[44px]">
-            <span class="flex items-center gap-2">
+            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
+            <span class="flex items-center gap-1.5 sm:gap-2">
               <span
                 class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🔗</span>
               <span>GOVERNMENT LINKS</span>
@@ -1321,7 +1517,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
-          <ul class="pt-1.5 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
+          <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
             <li>
               <a href="https://consumeraffairs.nic.in" target="_blank" rel="noopener noreferrer"
                 class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
@@ -1370,41 +1566,34 @@
             <span>National Metrology Toll-Free</span>
           </h4>
           <div
-            class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gradient-to-br dark:from-[#061D17] dark:to-[#020B09] border border-emerald-500/30 dark:border-emerald-800/80 space-y-2 sm:space-y-2.5 shadow-sm dark:shadow-[0_4px_25px_rgba(16,185,129,0.2)] hover:border-emerald-500/60 transition-all duration-200">
+            class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gradient-to-br dark:from-[#061D17] dark:to-[#020B09] border border-emerald-500/30 dark:border-emerald-800/80 space-y-1.5 sm:space-y-2 shadow-sm dark:shadow-[0_4px_25px_rgba(16,185,129,0.2)] hover:border-emerald-500/60 transition-all duration-200">
             <div class="flex items-center justify-between">
               <div
-                class="text-[10.5px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                class="text-[10px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>National Consumer Helpline</span>
               </div>
               <span
-                class="text-[9px] sm:text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Toll-Free</span>
+                class="text-[8.5px] sm:text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Toll-Free</span>
             </div>
 
             <!-- Dual 1-Tap Dial Action Grid -->
-            <div class="grid grid-cols-2 gap-2 pt-0.5">
+            <div class="grid grid-cols-2 gap-1.5 sm:gap-2 pt-0.5">
               <a href="tel:1915"
-                class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-black text-xs sm:text-base shadow-sm active:scale-95 transition-all min-h-[44px] sm:min-h-[46px]"
+                class="flex items-center justify-center gap-1.5 py-1.5 sm:py-2 px-2.5 rounded-lg sm:rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-black text-xs sm:text-sm shadow-sm active:scale-95 transition-all min-h-[34px] sm:min-h-[40px]"
                 title="Call Toll-Free Helpline 1915">
                 <span>📞</span>
                 <span>1915</span>
               </a>
               <a href="tel:1800114000"
-                class="flex items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-mono font-bold text-[11px] sm:text-xs tracking-tight shadow-sm active:scale-95 transition-all min-h-[44px] sm:min-h-[46px]"
+                class="flex items-center justify-center gap-1 py-1.5 sm:py-2 px-2 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-mono font-bold text-[10.5px] sm:text-xs tracking-tight shadow-sm active:scale-95 transition-all min-h-[34px] sm:min-h-[40px]"
                 title="Call Toll-Free 1800-11-4000">
                 <span>1800-11-4000</span>
               </a>
             </div>
 
-            <!-- Mobile Grievance Helpdesk Action -->
-            <button type="button" onclick="openContactModal()"
-              class="sm:hidden w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/70 dark:border-emerald-700/60 font-semibold text-[11px] transition-colors min-h-[36px]">
-              <span>📝</span>
-              <span>Online Helpdesk &amp; Grievance Portal</span>
-            </button>
-
             <div
-              class="text-[9.5px] sm:text-[11px] lg:text-xs text-slate-500 dark:text-slate-400 pt-1 sm:pt-1.5 border-t border-slate-200 dark:border-slate-800 leading-tight font-normal">
+              class="text-[9px] sm:text-[10.5px] lg:text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800 leading-tight font-normal">
               Available daily except national holidays, 08:00 AM – 08:00 PM IST
             </div>
           </div>
@@ -1412,44 +1601,50 @@
 
       </div>
 
-      <!-- Row 3: Statutory Policy & Compliance Links Strip (WCAG AAA High-Contrast & Wrapped Chips) -->
+      <!-- Row 3: Statutory Policy & Compliance Links Strip (WCAG AAA High-Contrast & Clean Wrap) -->
       <div
-        class="pt-2.5 sm:pt-4 lg:pt-5 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-wrap items-center justify-center gap-y-1.5 sm:gap-y-2 gap-x-2 sm:gap-x-4 lg:gap-x-6 text-[10.5px] sm:text-xs lg:text-[13.5px] leading-relaxed text-slate-700 dark:text-slate-300 text-center">
-        <button type="button" onclick="openPolicyModal('terms')"
-          class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-          Terms of Service
-        </button>
-        <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-        <button type="button" onclick="openPolicyModal('privacy')"
-          class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-          Privacy Policy
-        </button>
-        <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-        <button type="button" onclick="openPolicyModal('copyright')"
-          class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-          Copyright Policy
-        </button>
-        <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-        <button type="button" onclick="openPolicyModal('hyperlinking')"
-          class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-          Hyperlinking Policy
-        </button>
-        <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-        <button type="button" onclick="openPolicyModal('accessibility')"
-          class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-          Accessibility Statement
-        </button>
-        <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-        <button type="button" onclick="openPolicyModal('gigw')"
-          class="footer-legal-link w-full sm:w-auto mt-0.5 sm:mt-0 inline-flex items-center justify-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:underline cursor-pointer">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>GIGW 3.0 &amp; WCAG 2.1 AAA Certified</span>
-        </button>
+        class="pt-2 sm:pt-2.5 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col sm:flex-row items-center justify-between gap-y-1.5 gap-x-2 sm:gap-x-4 text-[10px] sm:text-xs lg:text-[12.5px] leading-normal text-slate-700 dark:text-slate-300 text-center">
+        <!-- Policies Group (Unbreakable flex items) -->
+        <div class="flex flex-wrap items-center justify-center gap-x-2.5 sm:gap-x-3 gap-y-1">
+          <button type="button" onclick="openPolicyModal('terms')"
+            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+            Terms of Service
+          </button>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button type="button" onclick="openPolicyModal('privacy')"
+            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+            Privacy Policy
+          </button>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button type="button" onclick="openPolicyModal('copyright')"
+            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+            Copyright Policy
+          </button>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button type="button" onclick="openPolicyModal('hyperlinking')"
+            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+            Hyperlinking Policy
+          </button>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button type="button" onclick="openPolicyModal('accessibility')"
+            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+            Accessibility Statement
+          </button>
+        </div>
+
+        <!-- Certification Pill -->
+        <div class="flex items-center justify-center">
+          <button type="button" onclick="openPolicyModal('gigw')"
+            class="footer-legal-link inline-flex items-center justify-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:bg-emerald-500/20 border border-emerald-500/20 cursor-pointer text-[10px] sm:text-[11px] transition-colors">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>GIGW 3.0 &amp; WCAG 2.1 AAA Certified</span>
+          </button>
+        </div>
       </div>
 
       <!-- Row 4: Credits, Infrastructure & Sovereign Copyright Attribution -->
       <div
-        class="pt-2 sm:pt-3.5 lg:pt-4 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col md:flex-row items-center justify-between gap-1.5 sm:gap-3 lg:gap-3.5 text-[10px] sm:text-xs lg:text-[13px] leading-tight sm:leading-relaxed text-slate-600 dark:text-slate-400 text-center md:text-left">
+        class="pt-1.5 sm:pt-2 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col md:flex-row items-center justify-between gap-1 sm:gap-2 text-[9.5px] sm:text-xs lg:text-[12px] leading-tight text-slate-600 dark:text-slate-400 text-center md:text-left">
         <div class="flex items-center justify-center md:justify-start gap-1.5 text-center md:text-left">
           <span>Website Content &amp; Infrastructure Managed by <strong
               class="font-semibold text-slate-800 dark:text-slate-200">Dept. of Consumer Affairs, Govt. of
@@ -1457,14 +1652,19 @@
         </div>
 
         <div
-          class="flex flex-wrap items-center justify-center md:justify-end gap-1.5 sm:gap-2 lg:gap-2.5 font-mono text-[9.5px] sm:text-xs lg:text-[12.5px]">
+          class="flex flex-wrap items-center justify-center md:justify-end gap-x-2 sm:gap-x-2.5 gap-y-1 font-mono text-[9px] sm:text-xs lg:text-[11.5px]">
           <span>Designed &amp; Developed by <strong class="text-slate-800 dark:text-slate-200">NIC</strong></span>
-          <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
           <span
-            class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[9px] sm:text-[11px]">Build
+            class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[8.5px] sm:text-[10.5px]">Build
             v8.1.0</span>
-          <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-          <span class="font-medium">© 2026 Government of India</span>
+          <span id="metrocheck-footer-install-dot" class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button id="metrocheck-footer-install-btn" type="button" onclick="if (typeof triggerPwaInstall === 'function') triggerPwaInstall();"
+            class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold hover:underline cursor-pointer text-[9px] sm:text-xs lg:text-[11.5px] font-mono transition-colors">
+            <span>📥</span><span>Install App</span>
+          </button>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <span class="font-medium block sm:inline w-full sm:w-auto text-center mt-0.5 sm:mt-0">© 2026 Government of India</span>
         </div>
       </div>
 

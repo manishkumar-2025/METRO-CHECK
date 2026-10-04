@@ -332,15 +332,26 @@
     }
   }
 
+  function updateMastheadMfaBadge() {
+    try {
+      const existing = document.getElementById('mastheadMfaBadge');
+      if (existing) existing.remove();
+    } catch (e) {
+      console.warn('[METRO-CHECK Masthead] MFA badge update error:', e);
+    }
+  }
+
   window.renderNationalMasthead = renderNationalMasthead;
   window.CANONICAL_MASTHEAD_INNER_HTML = CANONICAL_MASTHEAD_INNER_HTML;
   window.CANONICAL_MASTHEAD_CLASS = CANONICAL_MASTHEAD_CLASS;
+  window.updateMastheadMfaBadge = updateMastheadMfaBadge;
 
   /**
    * 5. Self-Initialization on DOM Ready
    */
   function initMasthead() {
     renderNationalMasthead();
+    updateMastheadMfaBadge();
 
     updateISTClock();
     setInterval(updateISTClock, 1000);

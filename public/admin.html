@@ -857,141 +857,154 @@
 
           <!-- LEDGER COMMAND BAR -->
           <div class="ledger-command-bar">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 relative z-10">
               <!-- Left: Title Block -->
-              <div class="flex items-center gap-3 min-w-0">
+              <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 <div
-                  class="flex-shrink-0 w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  class="flex-shrink-0 w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+                  <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"
                       d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
                 <div class="min-w-0">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <h3 class="text-white font-bold text-base tracking-tight">Master Inspection Ledger</h3>
+                    <h3 class="text-white font-bold text-sm sm:text-base tracking-tight truncate">Master Inspection Ledger</h3>
                     <span class="ledger-verified-chip text-emerald-400 bg-emerald-500/10 border-emerald-500/25"
                       style="color:#34d399;background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.3);">
                       ✓ IMMUTABLE
                     </span>
                   </div>
-                  <p class="text-slate-400 text-xs mt-0.5">Cryptographically verified, tamper-resistant audit trail of
-                    all legal metrology inspections</p>
+                  <p class="text-slate-400 text-[11px] sm:text-xs mt-0.5 truncate">Cryptographically verified audit trail of all legal metrology inspections</p>
                 </div>
               </div>
               <!-- Right: Action Cluster -->
-              <div class="flex items-center gap-2.5 flex-shrink-0">
+              <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end">
                 <span id="ledgerRecordCountBadge"
-                  class="px-2.5 py-1 rounded-lg bg-white/10 text-white text-xs font-mono font-semibold border border-white/10">0
-                  records</span>
-                <button type="button" onclick="printMasterLedger()"
-                  class="ledger-print-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 border border-white/15 hover:border-white/30 hover:text-white bg-white/5 hover:bg-white/10 transition cursor-pointer"
-                  title="Print Ledger">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                  </svg>
-                  Print
-                </button>
-                <button type="button" onclick="exportInspectionsToCSV()"
-                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-white transition active:scale-95 cursor-pointer shadow-lg shadow-emerald-500/20"
-                  title="Export Official MIS Dossier (CSV)">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  Export CSV
-                </button>
+                  class="px-2.5 py-1 rounded-lg bg-white/10 text-white text-xs font-mono font-semibold border border-white/10 whitespace-nowrap">0 records</span>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="printMasterLedger()"
+                    class="ledger-print-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 border border-white/15 hover:border-white/30 hover:text-white bg-white/5 hover:bg-white/10 transition cursor-pointer"
+                    title="Print Ledger">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print
+                  </button>
+                  <button type="button" onclick="exportInspectionsToCSV()"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-white transition active:scale-95 cursor-pointer shadow-lg shadow-emerald-500/20"
+                    title="Export Official MIS Dossier (CSV)">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Export CSV
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- INTELLIGENT FILTER RAIL -->
           <div class="ledger-filter-rail">
-            <!-- Search -->
-            <div class="relative flex-1 min-w-[180px]">
-              <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input type="text" id="masterLedgerSearchInput" oninput="debouncedRenderMasterLedgerTable()"
-                placeholder="Search case ID, product, inspector..." class="w-full pl-8 pr-8"
-                style="height:34px;font-size:12px;border:1px solid #CBD5E1;border-radius:8px;background:#F8FAFC;color:#334155;outline:none;font-family:inherit;transition:border-color .15s,box-shadow .15s;">
-              <button
-                onclick="document.getElementById('masterLedgerSearchInput').value='';debouncedRenderMasterLedgerTable();"
-                class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
-                title="Clear search">✕</button>
+            <!-- Search & Mobile Filter Toggle Header -->
+            <div class="flex items-center gap-2 w-full md:w-auto flex-1 min-w-[200px]">
+              <div class="ledger-search-box relative flex-1">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="masterLedgerSearchInput" oninput="debouncedRenderMasterLedgerTable()"
+                  placeholder="Search case ID, product, inspector..." class="w-full"
+                  style="height:36px;font-size:12px;border:1px solid #CBD5E1;border-radius:10px;background:#F8FAFC;color:#334155;outline:none;font-family:inherit;padding-left:34px;padding-right:28px;">
+                <button
+                  onclick="document.getElementById('masterLedgerSearchInput').value='';debouncedRenderMasterLedgerTable();"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer p-0.5"
+                  title="Clear search">✕</button>
+              </div>
+
+              <!-- Mobile Quick Filter Toggle Button -->
+              <button type="button" id="ledgerMobileFilterBtn" onclick="toggleLedgerMobileFilters()"
+                class="md:hidden flex items-center justify-center gap-1.5 px-3 h-[36px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold whitespace-nowrap cursor-pointer transition active:scale-95 shadow-2xs">
+                <span>🎛️</span>
+                <span>Filters</span>
+                <span id="ledgerFilterBadgeCount" class="hidden px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-emerald-500 text-white">0</span>
+              </button>
             </div>
 
-            <div class="ledger-filter-divider"></div>
+            <!-- Collapsible on Mobile (< md), Flex Inline on Desktop (>= md) -->
+            <div id="ledgerFilterTray" class="ledger-filter-tray hidden md:flex items-center flex-wrap gap-2.5 w-full md:w-auto">
+              <div class="ledger-filter-divider hidden md:block"></div>
 
-            <!-- Status Filter -->
-            <div class="flex items-center gap-1.5">
-              <label
-                class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Status</label>
-              <select id="ledgerStatusFilter" onchange="onLedgerFilterChange()" style="width:150px;">
-                <option value="all">All Statuses</option>
-                <option value="compliant">✓ Compliant</option>
-                <option value="pending">⏳ Pending Review</option>
-                <option value="notice">⚖ Notice Issued</option>
-                <option value="dismissed">— Dismissed</option>
-                <option value="escalated">🚨 Escalated</option>
-              </select>
+              <!-- Status Filter -->
+              <div class="flex items-center gap-1.5 ledger-filter-item">
+                <label
+                  class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Status</label>
+                <select id="ledgerStatusFilter" onchange="onLedgerFilterChange()" style="width:145px;">
+                  <option value="all">All Statuses</option>
+                  <option value="compliant">✓ Compliant</option>
+                  <option value="pending">⏳ Pending Review</option>
+                  <option value="notice">⚖ Notice Issued</option>
+                  <option value="dismissed">— Dismissed</option>
+                  <option value="escalated">🚨 Escalated</option>
+                </select>
+              </div>
+
+              <div class="ledger-filter-divider hidden md:block"></div>
+
+              <!-- Zone Filter -->
+              <div class="flex items-center gap-1.5 ledger-filter-item">
+                <label
+                  class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Zone</label>
+                <select id="ledgerZoneFilter" onchange="onLedgerFilterChange()" style="width:125px;">
+                  <option value="all">All Zones</option>
+                  <option value="North">North</option>
+                  <option value="South">South</option>
+                  <option value="East">East</option>
+                  <option value="West">West</option>
+                  <option value="Central">Central</option>
+                  <option value="Northeast">Northeast</option>
+                </select>
+              </div>
+
+              <div class="ledger-filter-divider hidden md:block"></div>
+
+              <!-- Inspector Filter -->
+              <div class="flex items-center gap-1.5 ledger-filter-item">
+                <label
+                  class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Inspector</label>
+                <select id="ledgerInspectorFilter" onchange="onLedgerFilterChange()" style="width:135px;">
+                  <option value="all">All Inspectors</option>
+                </select>
+              </div>
+
+              <div class="ledger-filter-divider hidden md:block"></div>
+
+              <!-- Date Range -->
+              <div class="flex items-center gap-1.5 flex-wrap ledger-filter-item">
+                <label
+                  class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">From</label>
+                <input type="date" id="ledgerDateFrom" onchange="onLedgerFilterChange()" style="width:130px;">
+                <label
+                  class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">To</label>
+                <input type="date" id="ledgerDateTo" onchange="onLedgerFilterChange()" style="width:130px;">
+              </div>
+
+              <div class="ledger-filter-divider hidden md:block"></div>
+
+              <!-- Clear Filters -->
+              <button type="button" onclick="resetLedgerFilters()"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-700 bg-white hover:bg-slate-50 transition cursor-pointer whitespace-nowrap"
+                title="Clear all filters">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Reset
+              </button>
             </div>
-
-            <div class="ledger-filter-divider"></div>
-
-            <!-- Zone Filter -->
-            <div class="flex items-center gap-1.5">
-              <label
-                class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Zone</label>
-              <select id="ledgerZoneFilter" onchange="onLedgerFilterChange()" style="width:130px;">
-                <option value="all">All Zones</option>
-                <option value="North">North</option>
-                <option value="South">South</option>
-                <option value="East">East</option>
-                <option value="West">West</option>
-                <option value="Central">Central</option>
-                <option value="Northeast">Northeast</option>
-              </select>
-            </div>
-
-            <div class="ledger-filter-divider"></div>
-
-            <!-- Inspector Filter -->
-            <div class="flex items-center gap-1.5">
-              <label
-                class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Inspector</label>
-              <select id="ledgerInspectorFilter" onchange="onLedgerFilterChange()" style="width:140px;">
-                <option value="all">All Inspectors</option>
-              </select>
-            </div>
-
-            <div class="ledger-filter-divider"></div>
-
-            <!-- Date Range -->
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <label
-                class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">From</label>
-              <input type="date" id="ledgerDateFrom" onchange="onLedgerFilterChange()" style="width:130px;">
-              <label
-                class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">To</label>
-              <input type="date" id="ledgerDateTo" onchange="onLedgerFilterChange()" style="width:130px;">
-            </div>
-
-            <div class="ledger-filter-divider"></div>
-
-            <!-- Clear Filters -->
-            <button type="button" onclick="resetLedgerFilters()"
-              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-700 bg-white hover:bg-slate-50 transition cursor-pointer whitespace-nowrap"
-              title="Clear all filters">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Reset
-            </button>
           </div>
 
           <!-- LIVE SUMMARY STAT STRIP -->
@@ -1076,6 +1089,12 @@
 
           <!-- MOBILE CARD DECK (< md) -->
           <div id="masterLedgerCards" class="grid grid-cols-1 md:hidden gap-3 mt-1" aria-live="polite"></div>
+
+          <!-- MOBILE PAGINATION FOOTER (< md) -->
+          <div class="md:hidden ledger-pagination-mobile mt-3 bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col items-center gap-2.5" id="ledgerPaginationMobile">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium" id="ledgerPaginationInfoMobile">Showing 0 records</p>
+            <div class="flex items-center gap-1.5 flex-wrap justify-center" id="ledgerPaginationBtnsMobile"></div>
+          </div>
 
         </section>
 
@@ -1502,323 +1521,331 @@
 
         <!-- Official National GovTech Footer -->
         <footer
-          class="site-footer-container w-full bg-slate-100/90 dark:bg-gradient-to-br dark:from-[#02050B] dark:via-[#050C18] dark:to-[#011C14] text-slate-800 dark:text-slate-200 border-t border-slate-300/80 dark:border-t-2 dark:border-t-emerald-500/90 shadow-md dark:shadow-[0_-15px_40px_rgba(4,120,87,0.25)] py-5 sm:py-8 lg:py-10 px-3.5 sm:px-6 lg:px-8 font-sans select-none transition-all duration-300 overflow-hidden">
-          <div class="max-w-7xl mx-auto space-y-3 sm:space-y-6 lg:space-y-8">
+    class="site-footer-container w-full bg-slate-100/90 dark:bg-gradient-to-br dark:from-[#02050B] dark:via-[#050C18] dark:to-[#011C14] text-slate-800 dark:text-slate-200 border-t border-slate-300/80 dark:border-t-2 dark:border-t-emerald-500/90 shadow-md dark:shadow-[0_-15px_40px_rgba(4,120,87,0.25)] py-3 sm:py-5 lg:py-6 px-3.5 sm:px-6 lg:px-8 font-sans select-none transition-all duration-300 overflow-hidden">
+    <div class="max-w-7xl mx-auto space-y-2 sm:space-y-3.5 lg:space-y-4">
 
-            <!-- Row 1: Header Banner (Emblem, Title, Sub-texts, and Desktop Helpdesk CTA) -->
-            <div
-              class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 sm:gap-5 pb-3 sm:pb-5 border-b border-slate-300/80 dark:border-slate-800/90">
-              <!-- Left: Emblem + Ministry Title -->
-              <div class="flex items-center gap-3 sm:gap-4 w-full lg:w-auto">
-                <div
-                  class="p-1 sm:p-2 lg:p-2.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-default"
-                  title="State Emblem of India • e-LMCEP">
-                  <img src="logo/logo.png" alt="State Emblem of India"
-                    class="h-8 w-auto sm:h-10 lg:h-12 object-contain" />
-                </div>
-                <div class="space-y-0.5 min-w-0 flex-1">
-                  <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                    <a href="index.html"
-                      class="text-xs sm:text-base lg:text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors truncate">
-                      e-LMCEP (METRO-CHECK)
-                    </a>
-                    <span
-                      class="px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-300 text-[9px] sm:text-[11px] font-mono font-bold border border-emerald-300 dark:border-emerald-700/80 shadow-xs flex-shrink-0">
-                      Official Sovereign Portal
-                    </span>
-                  </div>
-                  <div
-                    class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
-                    Legal Metrology Compliance &amp; Enforcement Platform
-                  </div>
-                  <div
-                    class="text-[9.5px] sm:text-xs lg:text-[12.5px] text-slate-600 dark:text-slate-400 font-medium leading-tight">
-                    <span class="sm:hidden">Dept. of Consumer Affairs • Govt. of India</span>
-                    <span class="hidden sm:inline">Department of Consumer Affairs • Ministry of Consumer Affairs, Food
-                      &amp;
-                      Public Distribution • Govt. of India</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right: National Helpdesk Action Button (Desktop/Tablet Only) -->
-              <div class="flex items-center gap-3 flex-shrink-0 w-full lg:w-auto mt-1 sm:mt-0">
-                <button type="button" onclick="openContactModal()"
-                  class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 sm:px-5 lg:px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-md hover:shadow-lg shadow-emerald-900/20 dark:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 cursor-pointer text-xs lg:text-sm min-h-[48px]">
-                  <span class="text-sm lg:text-base">📞</span>
-                  <span>National Helpdesk &amp; Grievance Portal</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Row 2: Navigation & Statutory Information (Compact Mobile Stack / 2-Col Tablet / 4-Col Desktop) -->
-            <div
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6 lg:gap-8 text-slate-700 dark:text-slate-300">
-
-              <!-- Column 1: Operational Portals -->
-              <details open
-                class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5 shadow-xs transition-all">
-                <summary
-                  class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-2 cursor-pointer sm:cursor-default select-none min-h-[38px] sm:min-h-[44px]">
-                  <span class="flex items-center gap-2">
-                    <span
-                      class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🏛️</span>
-                    <span>OPERATIONAL PORTALS</span>
-                  </span>
-                  <svg
-                    class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </summary>
-                <ul class="pt-1.5 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
-                  <li>
-                    <a href="inspector.html"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>Field Inspector Optical Capture</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="officer.html"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>Zonal Officer Adjudication Console</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="admin.html"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>Pan-India Master Audit Ledger</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="features.html"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>System Capabilities &amp; Mandates</span>
-                    </a>
-                  </li>
-                </ul>
-              </details>
-
-              <!-- Column 2: Statutory Framework -->
-              <details open
-                class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5 shadow-xs transition-all">
-                <summary
-                  class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-2 cursor-pointer sm:cursor-default select-none min-h-[38px] sm:min-h-[44px]">
-                  <span class="flex items-center gap-2">
-                    <span
-                      class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">⚖️</span>
-                    <span>STATUTORY FRAMEWORK</span>
-                  </span>
-                  <svg
-                    class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </summary>
-                <ul class="pt-1.5 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
-                  <li>
-                    <a href="features.html#rule6-matrix"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>Rule 6 Mandatory Declarations</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="features.html#penalties"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>Section 18 / 36 Penalty Schedule</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="features.html#core-modules"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>Schedule II MAV Tolerance Limits</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="features.html#pipeline"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>Form-V PDF Seizure Notices</span>
-                    </a>
-                  </li>
-                </ul>
-              </details>
-
-              <!-- Column 3: Government Links -->
-              <details open
-                class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2.5 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-2 lg:space-y-2.5 shadow-xs transition-all">
-                <summary
-                  class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-2 cursor-pointer sm:cursor-default select-none min-h-[38px] sm:min-h-[44px]">
-                  <span class="flex items-center gap-2">
-                    <span
-                      class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🔗</span>
-                    <span>GOVERNMENT LINKS</span>
-                  </span>
-                  <svg
-                    class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </summary>
-                <ul class="pt-1.5 sm:pt-0 space-y-0.5 sm:space-y-1.5 lg:space-y-2 text-xs lg:text-[13px]">
-                  <li>
-                    <a href="https://consumeraffairs.nic.in" target="_blank" rel="noopener noreferrer"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>Dept. of Consumer Affairs</span>
-                      <span
-                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://consumerhelpline.gov.in" target="_blank" rel="noopener noreferrer"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>National Consumer Helpline (NCH)</span>
-                      <span
-                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://pgportal.gov.in" target="_blank" rel="noopener noreferrer"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>CPGRAMS Public Grievance</span>
-                      <span
-                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://india.gov.in" target="_blank" rel="noopener noreferrer"
-                      class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
-                      <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                      <span>National Portal of India</span>
-                      <span
-                        class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
-                    </a>
-                  </li>
-                </ul>
-              </details>
-
-              <!-- Column 4: Redefined National Metrology Toll-Free Hotline Card -->
-              <div class="space-y-1.5 sm:space-y-2">
-                <h4
-                  class="hidden sm:flex text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-300/80 dark:border-emerald-900/60 pb-1.5 sm:pb-2 items-center gap-2">
-                  <span
-                    class="w-6 h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">📞</span>
-                  <span>National Metrology Toll-Free</span>
-                </h4>
-                <div
-                  class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gradient-to-br dark:from-[#061D17] dark:to-[#020B09] border border-emerald-500/30 dark:border-emerald-800/80 space-y-2 sm:space-y-2.5 shadow-sm dark:shadow-[0_4px_25px_rgba(16,185,129,0.2)] hover:border-emerald-500/60 transition-all duration-200">
-                  <div class="flex items-center justify-between">
-                    <div
-                      class="text-[10.5px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1.5">
-                      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      <span>National Consumer Helpline</span>
-                    </div>
-                    <span
-                      class="text-[9px] sm:text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Toll-Free</span>
-                  </div>
-
-                  <!-- Dual 1-Tap Dial Action Grid -->
-                  <div class="grid grid-cols-2 gap-2 pt-0.5">
-                    <a href="tel:1915"
-                      class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-black text-xs sm:text-base shadow-sm active:scale-95 transition-all min-h-[44px] sm:min-h-[46px]"
-                      title="Call Toll-Free Helpline 1915">
-                      <span>📞</span>
-                      <span>1915</span>
-                    </a>
-                    <a href="tel:1800114000"
-                      class="flex items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-mono font-bold text-[11px] sm:text-xs tracking-tight shadow-sm active:scale-95 transition-all min-h-[44px] sm:min-h-[46px]"
-                      title="Call Toll-Free 1800-11-4000">
-                      <span>1800-11-4000</span>
-                    </a>
-                  </div>
-
-                  <!-- Mobile Grievance Helpdesk Action -->
-                  <button type="button" onclick="openContactModal()"
-                    class="sm:hidden w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/70 dark:border-emerald-700/60 font-semibold text-[11px] transition-colors min-h-[36px]">
-                    <span>📝</span>
-                    <span>Online Helpdesk &amp; Grievance Portal</span>
-                  </button>
-
-                  <div
-                    class="text-[9.5px] sm:text-[11px] lg:text-xs text-slate-500 dark:text-slate-400 pt-1 sm:pt-1.5 border-t border-slate-200 dark:border-slate-800 leading-tight font-normal">
-                    Available daily except national holidays, 08:00 AM – 08:00 PM IST
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Row 3: Statutory Policy & Compliance Links Strip (WCAG AAA High-Contrast & Wrapped Chips) -->
-            <div
-              class="pt-2.5 sm:pt-4 lg:pt-5 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-wrap items-center justify-center gap-y-1.5 sm:gap-y-2 gap-x-2 sm:gap-x-4 lg:gap-x-6 text-[10.5px] sm:text-xs lg:text-[13.5px] leading-relaxed text-slate-700 dark:text-slate-300 text-center">
-              <button type="button" onclick="openPolicyModal('terms')"
-                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-                Terms of Service
-              </button>
-              <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('privacy')"
-                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-                Privacy Policy
-              </button>
-              <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('copyright')"
-                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-                Copyright Policy
-              </button>
-              <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('hyperlinking')"
-                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-                Hyperlinking Policy
-              </button>
-              <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('accessibility')"
-                class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-                Accessibility Statement
-              </button>
-              <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-              <button type="button" onclick="openPolicyModal('gigw')"
-                class="footer-legal-link w-full sm:w-auto mt-0.5 sm:mt-0 inline-flex items-center justify-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:underline cursor-pointer">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>GIGW 3.0 &amp; WCAG 2.1 AAA Certified</span>
-              </button>
-            </div>
-
-            <!-- Row 4: Credits, Infrastructure & Sovereign Copyright Attribution -->
-            <div
-              class="pt-2 sm:pt-3.5 lg:pt-4 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col md:flex-row items-center justify-between gap-1.5 sm:gap-3 lg:gap-3.5 text-[10px] sm:text-xs lg:text-[13px] leading-tight sm:leading-relaxed text-slate-600 dark:text-slate-400 text-center md:text-left">
-              <div class="flex items-center justify-center md:justify-start gap-1.5 text-center md:text-left">
-                <span>Website Content &amp; Infrastructure Managed by <strong
-                    class="font-semibold text-slate-800 dark:text-slate-200">Dept. of Consumer Affairs, Govt. of
-                    India</strong></span>
-              </div>
-
-              <div
-                class="flex flex-wrap items-center justify-center md:justify-end gap-1.5 sm:gap-2 lg:gap-2.5 font-mono text-[9.5px] sm:text-xs lg:text-[12.5px]">
-                <span>Designed &amp; Developed by <strong class="text-slate-800 dark:text-slate-200">NIC</strong></span>
-                <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-                <span
-                  class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[9px] sm:text-[11px]">Build
-                  v8.1.0</span>
-                <span class="text-slate-300 dark:text-slate-700 select-none">•</span>
-                <span class="font-medium">© 2026 Government of India</span>
-              </div>
-            </div>
-
-            <!-- PWA Target Anchor for dynamic mounting fallback -->
-            <div id="pwa-install-container" class="hidden"></div>
-
+      <!-- Row 1: Header Banner (Emblem, Sovereign Portal Title, & Responsive Helpdesk CTA) -->
+      <div
+        class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 pb-2 sm:pb-3 border-b border-slate-300/80 dark:border-slate-800/90">
+        <!-- Left: Emblem + Ministry Title -->
+        <div class="flex items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
+          <div
+            class="p-1 sm:p-2 rounded-xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs cursor-default"
+            title="State Emblem of India • e-LMCEP">
+            <img src="logo/logo.png" alt="State Emblem of India" class="h-7 w-auto sm:h-9 lg:h-10 object-contain" />
           </div>
-        </footer>
+          <div class="space-y-0.5 min-w-0 flex-1">
+            <div class="flex items-center justify-between sm:justify-start gap-1.5 sm:gap-2">
+              <a href="index.html"
+                class="text-xs sm:text-base lg:text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors truncate">
+                e-LMCEP (METRO-CHECK)
+              </a>
+              <span
+                class="hidden sm:inline-flex px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-300 text-[9px] sm:text-[11px] font-mono font-bold border border-emerald-300 dark:border-emerald-700/80 shadow-xs flex-shrink-0">
+                Official Sovereign Portal
+              </span>
+              <!-- Compact Mobile Helpdesk Button -->
+              <button type="button" onclick="openContactModal()"
+                class="sm:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10.5px] shadow-xs active:scale-95 transition-all flex-shrink-0"
+                aria-label="National Helpdesk">
+                <span>📞</span><span>Helpdesk</span>
+              </button>
+            </div>
+            <div
+              class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
+              Legal Metrology Compliance &amp; Enforcement Platform
+            </div>
+            <div
+              class="text-[9.5px] sm:text-xs lg:text-[12.5px] text-slate-600 dark:text-slate-400 font-medium leading-tight">
+              <span class="sm:hidden">Dept. of Consumer Affairs • Govt. of India</span>
+              <span class="hidden sm:inline">Department of Consumer Affairs • Ministry of Consumer Affairs, Food &amp;
+                Public Distribution • Govt. of India</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: National Helpdesk Action Button (Desktop/Tablet Only) -->
+        <div class="hidden sm:flex items-center gap-3 flex-shrink-0 w-full sm:w-auto mt-1 sm:mt-0">
+          <button type="button" onclick="openContactModal()"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-md hover:shadow-lg shadow-emerald-900/20 dark:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 cursor-pointer text-xs lg:text-sm min-h-[40px] sm:min-h-[44px]">
+            <span class="text-sm lg:text-base">📞</span>
+            <span>National Helpdesk &amp; Grievance Portal</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 2: Navigation & Statutory Information (Compact Mobile Stack / 2-Col Tablet / 4-Col Desktop) -->
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5 lg:gap-5 text-slate-700 dark:text-slate-300">
+
+        <!-- Column 1: Operational Portals -->
+        <details open
+          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
+          <summary
+            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
+            <span class="flex items-center gap-1.5 sm:gap-2">
+              <span
+                class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🏛️</span>
+              <span>OPERATIONAL PORTALS</span>
+            </span>
+            <svg
+              class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
+            <li>
+              <a href="inspector.html"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>Field Inspector Optical Capture</span>
+              </a>
+            </li>
+            <li>
+              <a href="officer.html"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>Zonal Officer Adjudication Console</span>
+              </a>
+            </li>
+            <li>
+              <a href="admin.html"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>Pan-India Master Audit Ledger</span>
+              </a>
+            </li>
+            <li>
+              <a href="features.html"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>System Capabilities &amp; Mandates</span>
+              </a>
+            </li>
+          </ul>
+        </details>
+
+        <!-- Column 2: Statutory Framework -->
+        <details open
+          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
+          <summary
+            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
+            <span class="flex items-center gap-1.5 sm:gap-2">
+              <span
+                class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">⚖️</span>
+              <span>STATUTORY FRAMEWORK</span>
+            </span>
+            <svg
+              class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
+            <li>
+              <a href="features.html#rule6-matrix"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>Rule 6 Mandatory Declarations</span>
+              </a>
+            </li>
+            <li>
+              <a href="features.html#penalties"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>Section 18 / 36 Penalty Schedule</span>
+              </a>
+            </li>
+            <li>
+              <a href="features.html#core-modules"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>Schedule II MAV Tolerance Limits</span>
+              </a>
+            </li>
+            <li>
+              <a href="features.html#pipeline"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>Form-V PDF Seizure Notices</span>
+              </a>
+            </li>
+          </ul>
+        </details>
+
+        <!-- Column 3: Government Links -->
+        <details open
+          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
+          <summary
+            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
+            <span class="flex items-center gap-1.5 sm:gap-2">
+              <span
+                class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🔗</span>
+              <span>GOVERNMENT LINKS</span>
+            </span>
+            <svg
+              class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
+            <li>
+              <a href="https://consumeraffairs.nic.in" target="_blank" rel="noopener noreferrer"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>Dept. of Consumer Affairs</span>
+                <span
+                  class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://consumerhelpline.gov.in" target="_blank" rel="noopener noreferrer"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>National Consumer Helpline (NCH)</span>
+                <span
+                  class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://pgportal.gov.in" target="_blank" rel="noopener noreferrer"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>CPGRAMS Public Grievance</span>
+                <span
+                  class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://india.gov.in" target="_blank" rel="noopener noreferrer"
+                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
+                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                <span>National Portal of India</span>
+                <span
+                  class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+              </a>
+            </li>
+          </ul>
+        </details>
+
+        <!-- Column 4: Redefined National Metrology Toll-Free Hotline Card -->
+        <div class="space-y-1.5 sm:space-y-2">
+          <h4
+            class="hidden sm:flex text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-300/80 dark:border-emerald-900/60 pb-1.5 sm:pb-2 items-center gap-2">
+            <span
+              class="w-6 h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">📞</span>
+            <span>National Metrology Toll-Free</span>
+          </h4>
+          <div
+            class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gradient-to-br dark:from-[#061D17] dark:to-[#020B09] border border-emerald-500/30 dark:border-emerald-800/80 space-y-1.5 sm:space-y-2 shadow-sm dark:shadow-[0_4px_25px_rgba(16,185,129,0.2)] hover:border-emerald-500/60 transition-all duration-200">
+            <div class="flex items-center justify-between">
+              <div
+                class="text-[10px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>National Consumer Helpline</span>
+              </div>
+              <span
+                class="text-[8.5px] sm:text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Toll-Free</span>
+            </div>
+
+            <!-- Dual 1-Tap Dial Action Grid -->
+            <div class="grid grid-cols-2 gap-1.5 sm:gap-2 pt-0.5">
+              <a href="tel:1915"
+                class="flex items-center justify-center gap-1.5 py-1.5 sm:py-2 px-2.5 rounded-lg sm:rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-black text-xs sm:text-sm shadow-sm active:scale-95 transition-all min-h-[34px] sm:min-h-[40px]"
+                title="Call Toll-Free Helpline 1915">
+                <span>📞</span>
+                <span>1915</span>
+              </a>
+              <a href="tel:1800114000"
+                class="flex items-center justify-center gap-1 py-1.5 sm:py-2 px-2 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-mono font-bold text-[10.5px] sm:text-xs tracking-tight shadow-sm active:scale-95 transition-all min-h-[34px] sm:min-h-[40px]"
+                title="Call Toll-Free 1800-11-4000">
+                <span>1800-11-4000</span>
+              </a>
+            </div>
+
+            <div
+              class="text-[9px] sm:text-[10.5px] lg:text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800 leading-tight font-normal">
+              Available daily except national holidays, 08:00 AM – 08:00 PM IST
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Row 3: Statutory Policy & Compliance Links Strip (WCAG AAA High-Contrast & Clean Wrap) -->
+      <div
+        class="pt-2 sm:pt-2.5 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col sm:flex-row items-center justify-between gap-y-1.5 gap-x-2 sm:gap-x-4 text-[10px] sm:text-xs lg:text-[12.5px] leading-normal text-slate-700 dark:text-slate-300 text-center">
+        <!-- Policies Group (Unbreakable flex items) -->
+        <div class="flex flex-wrap items-center justify-center gap-x-2.5 sm:gap-x-3 gap-y-1">
+          <button type="button" onclick="openPolicyModal('terms')"
+            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+            Terms of Service
+          </button>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button type="button" onclick="openPolicyModal('privacy')"
+            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+            Privacy Policy
+          </button>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button type="button" onclick="openPolicyModal('copyright')"
+            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+            Copyright Policy
+          </button>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button type="button" onclick="openPolicyModal('hyperlinking')"
+            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+            Hyperlinking Policy
+          </button>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button type="button" onclick="openPolicyModal('accessibility')"
+            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+            Accessibility Statement
+          </button>
+        </div>
+
+        <!-- Certification Pill -->
+        <div class="flex items-center justify-center">
+          <button type="button" onclick="openPolicyModal('gigw')"
+            class="footer-legal-link inline-flex items-center justify-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:bg-emerald-500/20 border border-emerald-500/20 cursor-pointer text-[10px] sm:text-[11px] transition-colors">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>GIGW 3.0 &amp; WCAG 2.1 AAA Certified</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 4: Credits, Infrastructure & Sovereign Copyright Attribution -->
+      <div
+        class="pt-1.5 sm:pt-2 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col md:flex-row items-center justify-between gap-1 sm:gap-2 text-[9.5px] sm:text-xs lg:text-[12px] leading-tight text-slate-600 dark:text-slate-400 text-center md:text-left">
+        <div class="flex items-center justify-center md:justify-start gap-1.5 text-center md:text-left">
+          <span>Website Content &amp; Infrastructure Managed by <strong
+              class="font-semibold text-slate-800 dark:text-slate-200">Dept. of Consumer Affairs, Govt. of
+              India</strong></span>
+        </div>
+
+        <div
+          class="flex flex-wrap items-center justify-center md:justify-end gap-x-2 sm:gap-x-2.5 gap-y-1 font-mono text-[9px] sm:text-xs lg:text-[11.5px]">
+          <span>Designed &amp; Developed by <strong class="text-slate-800 dark:text-slate-200">NIC</strong></span>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <span
+            class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[8.5px] sm:text-[10.5px]">Build
+            v8.1.0</span>
+          <span id="metrocheck-footer-install-dot" class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button id="metrocheck-footer-install-btn" type="button" onclick="if (typeof triggerPwaInstall === 'function') triggerPwaInstall();"
+            class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold hover:underline cursor-pointer text-[9px] sm:text-xs lg:text-[11.5px] font-mono transition-colors">
+            <span>📥</span><span>Install App</span>
+          </button>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <span class="font-medium block sm:inline w-full sm:w-auto text-center mt-0.5 sm:mt-0">© 2026 Government of India</span>
+        </div>
+      </div>
+
+      <!-- PWA Target Anchor for dynamic mounting fallback -->
+      <div id="pwa-install-container" class="hidden"></div>
+
+    </div>
+  </footer>
 
       </main>
     </div>

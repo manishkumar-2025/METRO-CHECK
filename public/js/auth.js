@@ -284,9 +284,119 @@ const USERS = {
 // Backwards compatibility alias
 const DEFAULT_USERS = USERS;
 
+// Official Multi-Factor Authentication (2FA) Profiles for 11 Sovereign Roles
+const OFFICER_2FA_PROFILES = {
+  admin: {
+    mobile: "+91 98••••4210",
+    email: "dg-doca@nic.in",
+    securityBadge: "Tier 1 • Apex",
+    securityClearance: "Apex Sovereign Tier 1 (CCA India Certified)",
+    department: "Directorate of Legal Metrology, Krishi Bhawan"
+  },
+  north_admin: {
+    mobile: "+91 94••••1822",
+    email: "controller.north@nic.in",
+    securityBadge: "Tier 2 • Zonal",
+    securityClearance: "Zonal Controller Tier 2 (Northern Zone)",
+    department: "Office of Zonal Enforcement Controller, New Delhi"
+  },
+  south_admin: {
+    mobile: "+91 94••••3390",
+    email: "controller.south@nic.in",
+    securityBadge: "Tier 2 • Zonal",
+    securityClearance: "Zonal Controller Tier 2 (Southern Zone)",
+    department: "Office of Zonal Enforcement Controller, Chennai"
+  },
+  northeast_admin: {
+    mobile: "+91 94••••7715",
+    email: "controller.nez@nic.in",
+    securityBadge: "Tier 2 • Zonal",
+    securityClearance: "Zonal Controller Tier 2 (NE Zone)",
+    department: "Office of Zonal Enforcement Controller, Guwahati"
+  },
+  ne_admin: {
+    mobile: "+91 94••••7715",
+    email: "controller.nez@nic.in",
+    securityBadge: "Tier 2 • Zonal",
+    securityClearance: "Zonal Controller Tier 2 (NE Zone)",
+    department: "Office of Zonal Enforcement Controller, Guwahati"
+  },
+  officer: {
+    mobile: "+91 98••••5519",
+    email: "s.roy.aclm@gov.in",
+    securityBadge: "Tier 3 • ACLM",
+    securityClearance: "Adjudication Tier 3 (Form-V Compounding Authority)",
+    department: "Office of ACLM, CGO Complex, New Delhi"
+  },
+  officer_south: {
+    mobile: "+91 98••••8821",
+    email: "k.ramanathan@gov.in",
+    securityBadge: "Tier 3 • ACLM",
+    securityClearance: "Adjudication Tier 3 (Form-V Compounding Authority)",
+    department: "Office of ACLM, Shastri Bhawan, Chennai"
+  },
+  south_officer: {
+    mobile: "+91 98••••8821",
+    email: "k.ramanathan@gov.in",
+    securityBadge: "Tier 3 • ACLM",
+    securityClearance: "Adjudication Tier 3 (Form-V Compounding Authority)",
+    department: "Office of ACLM, Shastri Bhawan, Chennai"
+  },
+  officer_ne: {
+    mobile: "+91 98••••6644",
+    email: "b.gogoi@gov.in",
+    securityBadge: "Tier 3 • ACLM",
+    securityClearance: "Adjudication Tier 3 (Form-V Compounding Authority)",
+    department: "Office of ACLM, R.G. Baruah Road, Guwahati"
+  },
+  officer_northeast: {
+    mobile: "+91 98••••6644",
+    email: "b.gogoi@gov.in",
+    securityBadge: "Tier 3 • ACLM",
+    securityClearance: "Adjudication Tier 3 (Form-V Compounding Authority)",
+    department: "Office of ACLM, R.G. Baruah Road, Guwahati"
+  },
+  inspector: {
+    mobile: "+91 97••••1102",
+    email: "r.sharma.lmi@gov.in",
+    securityBadge: "Tier 4 • LMI",
+    securityClearance: "Field Enforcement Tier 4 (Optical Capture Authority)",
+    department: "Legal Metrology Field Inspectorate, Delhi UT"
+  },
+  inspector_pb: {
+    mobile: "+91 97••••9034",
+    email: "s.kaur.lmi@gov.in",
+    securityBadge: "Tier 4 • LMI",
+    securityClearance: "Field Enforcement Tier 4 (Optical Capture Authority)",
+    department: "Legal Metrology Inspectorate, Punjab"
+  },
+  inspector_south: {
+    mobile: "+91 97••••4418",
+    email: "a.menon.lmi@gov.in",
+    securityBadge: "Tier 4 • LMI",
+    securityClearance: "Field Enforcement Tier 4 (Optical Capture Authority)",
+    department: "Legal Metrology Inspectorate, Kerala"
+  },
+  inspector_ne: {
+    mobile: "+91 97••••5560",
+    email: "t.longkumer.lmi@gov.in",
+    securityBadge: "Tier 4 • LMI",
+    securityClearance: "Field Enforcement Tier 4 (Optical Capture Authority)",
+    department: "Legal Metrology Inspectorate, Assam"
+  },
+  inspector_northeast: {
+    mobile: "+91 97••••5560",
+    email: "t.longkumer.lmi@gov.in",
+    securityBadge: "Tier 4 • LMI",
+    securityClearance: "Field Enforcement Tier 4 (Optical Capture Authority)",
+    department: "Legal Metrology Inspectorate, Assam"
+  }
+};
+
 if (typeof window !== "undefined") {
   window.USERS = USERS;
   window.DEFAULT_USERS = DEFAULT_USERS;
+  window.OFFICER_2FA_PROFILES = OFFICER_2FA_PROFILES;
 }
 
 /**
@@ -577,7 +687,521 @@ function deleteUser(username) {
   return false;
 }
 
-async function performLogin(usernameInput, passwordInput) {
+// Helper: Determines portal target based on assigned role and URL parameters
+function getPortalDestinationForUser(user) {
+  const urlParams = (typeof window !== "undefined" && window.location) ? new URLSearchParams(window.location.search) : null;
+  const targetParam = urlParams ? urlParams.get("target") : null;
+
+  if (targetParam && !targetParam.includes("403") && !targetParam.includes("index.html")) {
+    if (user.role === "inspector" && !targetParam.includes("admin") && !targetParam.includes("officer")) {
+      return targetParam;
+    } else if (user.role === "officer" && !targetParam.includes("admin") && !targetParam.includes("inspector")) {
+      return targetParam;
+    } else if (["admin", "national", "zonal"].includes(user.role)) {
+      return targetParam;
+    }
+  }
+
+  if (user.role === "admin" || user.role === "national" || user.role === "zonal") {
+    return "admin.html";
+  } else if (user.role === "inspector") {
+    return "inspector.html";
+  } else if (user.role === "officer") {
+    return "officer.html";
+  } else {
+    return "index.html";
+  }
+}
+
+// ── SIMULATED 2FA / MOBILE OTP CONTROLLER ENGINE ──────────────────────────
+let currentOtpCode = "849201";
+let otpCountdownTimer = null;
+let otpTimeRemaining = 30;
+let pendingOtpUser = null;
+let pendingOtpDestination = "admin.html";
+
+function is2faEnabled() {
+  try {
+    const val = localStorage.getItem("metro_2fa_demo_enabled");
+    if (val === null) return true; // Default ON for demo
+    return val === "true";
+  } catch (e) {
+    return true;
+  }
+}
+
+function set2faEnabled(enabled) {
+  try {
+    localStorage.setItem("metro_2fa_demo_enabled", enabled ? "true" : "false");
+  } catch (e) {}
+  update2faToggleUI();
+}
+
+function toggle2faDemoMode() {
+  const current = is2faEnabled();
+  set2faEnabled(!current);
+  if (typeof showToast === "function") {
+    showToast(!current ? "🔒 2FA Verification Mode Activated" : "⚡ 2FA Bypassed (Direct Instant Login)", "info");
+  }
+}
+
+function update2faToggleUI() {
+  const enabled = is2faEnabled();
+  const toggleBtn = document.getElementById("sih2faToggleBtn");
+  const toggleThumb = document.getElementById("sih2faToggleThumb");
+  const statusText = document.getElementById("sih2faStatusText");
+
+  const track = document.getElementById("sih2faTrack") || toggleBtn;
+
+  if (toggleBtn) {
+    toggleBtn.setAttribute("aria-checked", enabled ? "true" : "false");
+  }
+  if (track) {
+    if (enabled) {
+      track.classList.remove("bg-slate-300", "dark:bg-slate-700");
+      track.classList.add("bg-emerald-600", "dark:bg-emerald-500");
+    } else {
+      track.classList.remove("bg-emerald-600", "dark:bg-emerald-500");
+      track.classList.add("bg-slate-300", "dark:bg-slate-700");
+    }
+  }
+
+  if (toggleThumb) {
+    if (enabled) {
+      toggleThumb.classList.remove("translate-x-0");
+      toggleThumb.classList.add("translate-x-5");
+    } else {
+      toggleThumb.classList.remove("translate-x-5");
+      toggleThumb.classList.add("translate-x-0");
+    }
+  }
+
+  if (statusText) {
+    if (enabled) {
+      statusText.textContent = "2FA ACTIVE";
+      statusText.className = "text-[10px] sm:text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400 whitespace-nowrap";
+    } else {
+      statusText.textContent = "DIRECT JUMP";
+      statusText.className = "text-[10px] sm:text-[11px] font-mono font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap";
+    }
+  }
+}
+
+let failedOtpAttempts = 0;
+
+function announceOtpStatus(msg) {
+  const el = document.getElementById("otpLiveAnnouncer");
+  if (el) el.textContent = msg;
+}
+
+function trapOtpModalFocus(e) {
+  const modal = document.getElementById("sovereignOtpModal");
+  if (!modal || modal.style.display === "none") return;
+
+  if (e.key === "Tab") {
+    const focusables = modal.querySelectorAll('button:not([disabled]):not(.hidden), input:not([disabled]):not(.hidden), [tabindex]:not([tabindex="-1"])');
+    if (!focusables.length) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+}
+
+function generateDemoOtpCode() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function openOtpModal(user, destinationUrl) {
+  let userObj = user;
+  if (typeof user === "string") {
+    const found = (typeof USERS !== "undefined" && USERS) ? (USERS[user] || (Array.isArray(USERS) ? USERS.find(u => u.username === user) : Object.values(USERS).find(u => u && u.username === user))) : null;
+    userObj = found ? { ...found } : { username: user, name: user, role: user };
+  } else if (user && typeof user === "object") {
+    const uName = user.username || user.id || "";
+    const found = (typeof USERS !== "undefined" && USERS && uName) ? (USERS[uName] || (Array.isArray(USERS) ? USERS.find(u => u.username === uName) : Object.values(USERS).find(u => u && u.username === uName))) : null;
+    if (found) {
+      userObj = { ...found, ...user };
+    }
+  } else {
+    userObj = { name: "Director General (DoCA)", role: "admin", username: "admin", designation: "Director General", zone: "National" };
+  }
+  pendingOtpUser = userObj;
+  pendingOtpDestination = destinationUrl || "admin.html";
+  currentOtpCode = generateDemoOtpCode();
+  failedOtpAttempts = 0;
+
+  const modal = document.getElementById("sovereignOtpModal");
+  if (!modal) {
+    window.location.href = pendingOtpDestination;
+    return;
+  }
+
+  const profile = (window.OFFICER_2FA_PROFILES && window.OFFICER_2FA_PROFILES[pendingOtpUser.username]) || {
+    mobile: "+91 98••••4210",
+    email: `${pendingOtpUser.username || "officer"}@nic.in`,
+    securityClearance: "Statutory Enforcement Authority",
+    department: "Department of Consumer Affairs, Govt. of India"
+  };
+
+  const nameEl = document.getElementById("otpOfficerName");
+  if (nameEl) nameEl.textContent = pendingOtpUser.name || (pendingOtpUser.role === "admin" ? "Director General (DoCA)" : "Authorized Officer");
+
+  const roleEl = document.getElementById("otpOfficerRole");
+  if (roleEl) {
+    const desig = pendingOtpUser.designation || (pendingOtpUser.role === "admin" ? "Director General (Legal Metrology)" : pendingOtpUser.role === "inspector" ? "Field Inspector" : "Adjudication Officer");
+    const zoneStr = pendingOtpUser.zone ? (pendingOtpUser.zone.toLowerCase().includes("zone") || pendingOtpUser.zone.toLowerCase().includes("national") ? pendingOtpUser.zone : `${pendingOtpUser.zone} Zone`) : "National Command";
+    roleEl.textContent = `${desig} • ${zoneStr}`;
+  }
+
+  const phoneEl = document.getElementById("otpOfficerMobile");
+  if (phoneEl) phoneEl.textContent = profile.mobile;
+
+  const emailEl = document.getElementById("otpOfficerEmail");
+  if (emailEl) emailEl.textContent = profile.email;
+
+  const clearanceEl = document.getElementById("otpSecurityClearance");
+  if (clearanceEl) {
+    clearanceEl.textContent = profile.securityBadge || profile.securityClearance;
+    clearanceEl.title = profile.securityClearance || "";
+  }
+
+  const autoFillBtnText = document.getElementById("otpAutoFillCodeText");
+  if (autoFillBtnText) autoFillBtnText.textContent = currentOtpCode;
+
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById(`otpDigit${i}`);
+    if (input) {
+      input.value = "";
+      input.classList.remove("border-emerald-500", "border-red-500", "bg-emerald-50/50", "bg-red-50/50", "dark:bg-red-950/40");
+    }
+  }
+
+  const errEl = document.getElementById("otpErrorMessage");
+  if (errEl) {
+    errEl.innerHTML = "";
+    errEl.classList.add("hidden");
+  }
+
+  const verifyBtn = document.getElementById("otpVerifyBtn");
+  if (verifyBtn) {
+    verifyBtn.innerHTML = `<span>Verify &amp; Enter Portal</span><span class="text-sm">→</span>`;
+    verifyBtn.classList.remove("bg-emerald-700", "pointer-events-none");
+    verifyBtn.classList.add("bg-emerald-600", "hover:bg-emerald-500");
+  }
+
+  modal.style.display = "flex";
+  modal.setAttribute("data-state", "open");
+  modal.classList.add("modal-open");
+  document.body.classList.add("overflow-hidden");
+
+  startOtpCountdown();
+  announceOtpStatus("Sovereign two-factor authentication dialog opened. Please enter the 6-digit passkey.");
+
+  setTimeout(() => {
+    const firstInput = document.getElementById("otpDigit1");
+    if (firstInput) firstInput.focus();
+  }, 100);
+}
+
+function closeOtpModal() {
+  const modal = document.getElementById("sovereignOtpModal");
+  if (modal) {
+    modal.style.display = "none";
+    modal.setAttribute("data-state", "closed");
+    modal.classList.remove("modal-open");
+    document.body.classList.remove("overflow-hidden");
+  }
+  if (otpCountdownTimer) {
+    clearInterval(otpCountdownTimer);
+    otpCountdownTimer = null;
+  }
+}
+
+function startOtpCountdown() {
+  if (otpCountdownTimer) clearInterval(otpCountdownTimer);
+  otpTimeRemaining = 30;
+  const countEl = document.getElementById("otpCountdown");
+  const resendBtn = document.getElementById("otpResendBtn");
+
+  if (countEl) countEl.textContent = "00:30s";
+  if (resendBtn) {
+    resendBtn.classList.add("opacity-50", "pointer-events-none");
+    resendBtn.setAttribute("disabled", "true");
+  }
+
+  otpCountdownTimer = setInterval(() => {
+    otpTimeRemaining--;
+    const displaySec = otpTimeRemaining < 10 ? `0${otpTimeRemaining}` : `${otpTimeRemaining}`;
+    if (countEl) countEl.textContent = `00:${displaySec}s`;
+
+    if (otpTimeRemaining <= 0) {
+      clearInterval(otpCountdownTimer);
+      otpCountdownTimer = null;
+      if (countEl) countEl.textContent = "Expired";
+      if (resendBtn) {
+        resendBtn.classList.remove("opacity-50", "pointer-events-none");
+        resendBtn.removeAttribute("disabled");
+      }
+    }
+  }, 1000);
+}
+
+function resendDemoOtp() {
+  currentOtpCode = generateDemoOtpCode();
+  failedOtpAttempts = 0;
+  const autoFillBtnText = document.getElementById("otpAutoFillCodeText");
+  if (autoFillBtnText) autoFillBtnText.textContent = currentOtpCode;
+
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById(`otpDigit${i}`);
+    if (input) {
+      input.value = "";
+      input.classList.remove("border-emerald-500", "border-red-500", "bg-emerald-50/50", "bg-red-50/50", "dark:bg-red-950/40");
+    }
+  }
+  const errEl = document.getElementById("otpErrorMessage");
+  if (errEl) {
+    errEl.innerHTML = "";
+    errEl.classList.add("hidden");
+  }
+
+  startOtpCountdown();
+  announceOtpStatus(`New sovereign passkey dispatched: ${currentOtpCode}`);
+  if (typeof showToast === "function") {
+    showToast(`New Sovereign OTP dispatched via NIC SMS Gateway: ${currentOtpCode}`, "info");
+  }
+  const firstInput = document.getElementById("otpDigit1");
+  if (firstInput) firstInput.focus();
+}
+
+function autoFillDemoOtp() {
+  failedOtpAttempts = 0;
+  const errEl = document.getElementById("otpErrorMessage");
+  if (errEl) {
+    errEl.innerHTML = "";
+    errEl.classList.add("hidden");
+  }
+
+  const code = currentOtpCode;
+  const chars = code.split("");
+
+  chars.forEach((ch, idx) => {
+    setTimeout(() => {
+      const input = document.getElementById(`otpDigit${idx + 1}`);
+      if (input) {
+        input.value = ch;
+        input.classList.remove("border-red-500", "bg-red-50/50", "dark:bg-red-950/40");
+        input.classList.add("border-emerald-500", "bg-emerald-50/50", "dark:bg-emerald-950/40");
+      }
+      if (idx === chars.length - 1) {
+        setTimeout(() => {
+          verifyDemoOtp();
+        }, 120);
+      }
+    }, idx * 45);
+  });
+}
+
+function verifyDemoOtp() {
+  let enteredCode = "";
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById(`otpDigit${i}`);
+    if (input) enteredCode += (input.value || "").trim();
+  }
+
+  const errEl = document.getElementById("otpErrorMessage");
+
+  if (enteredCode.length !== 6) {
+    if (errEl) {
+      errEl.innerHTML = "<span>⚠️</span><span>Please enter the complete 6-digit sovereign passkey.</span>";
+      errEl.classList.remove("hidden");
+    }
+    announceOtpStatus("Please enter all 6 digits of the passkey.");
+    return;
+  }
+
+  // ── WRONG OTP HANDLING & 3-FAILED ATTEMPTS LOCKOUT ──────────────────────
+  if (enteredCode !== currentOtpCode) {
+    failedOtpAttempts++;
+    announceOtpStatus(`Authentication failed. Attempt ${failedOtpAttempts} of 3.`);
+
+    // Visual red alert on inputs
+    for (let i = 1; i <= 6; i++) {
+      const input = document.getElementById(`otpDigit${i}`);
+      if (input) {
+        input.classList.remove("border-emerald-500", "bg-emerald-50/50");
+        input.classList.add("border-red-500", "bg-red-50/50", "dark:bg-red-950/40");
+      }
+    }
+
+    if (failedOtpAttempts >= 3) {
+      if (errEl) {
+        errEl.innerHTML = `<div class="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/80 border border-red-300 dark:border-red-700 text-red-800 dark:text-red-200 text-xs text-left space-y-1">
+          <div class="font-extrabold flex items-center gap-1.5">
+            <span>⚠️</span><span>Security Lockout Triggered</span>
+          </div>
+          <p class="text-[11px] leading-tight">3 failed attempts detected. For evaluation, please tap <strong>[⚡ Auto-Fill Demo OTP]</strong> or use <strong>[Direct Jump ⚡]</strong>.</p>
+        </div>`;
+        errEl.classList.remove("hidden");
+      }
+      announceOtpStatus("Security Lockout: 3 failed attempts. Please use auto-fill or direct jump.");
+      if (typeof showToast === "function") {
+        showToast("⚠️ Security Lockout: 3 failed attempts. Tap [Auto-Fill] or [Direct Jump].", "warning");
+      }
+    } else {
+      const remaining = 3 - failedOtpAttempts;
+      if (errEl) {
+        errEl.innerHTML = `<span>❌</span><span>Invalid Passkey: Code does not match. Attempt ${failedOtpAttempts} of 3 (${remaining} attempt${remaining > 1 ? 's' : ''} remaining).</span>`;
+        errEl.classList.remove("hidden");
+      }
+      setTimeout(() => {
+        for (let i = 1; i <= 6; i++) {
+          const input = document.getElementById(`otpDigit${i}`);
+          if (input) input.value = "";
+        }
+        const first = document.getElementById("otpDigit1");
+        if (first) first.focus();
+      }, 500);
+    }
+    return;
+  }
+
+  // ── SUCCESSFUL VERIFICATION & SESSION METADATA STAMPING ───────────────────
+  failedOtpAttempts = 0;
+  try {
+    const raw = localStorage.getItem("currentUser");
+    if (raw) {
+      const user = JSON.parse(raw);
+      user.mfaVerified = true;
+      user.mfaBypassed = false;
+      user.mfaMethod = "NIC_SMS_OTP";
+      user.mfaTimestamp = new Date().toISOString();
+      localStorage.setItem("currentUser", JSON.stringify(user));
+    }
+  } catch (e) {}
+
+  if (errEl) errEl.classList.add("hidden");
+
+  const verifyBtn = document.getElementById("otpVerifyBtn");
+  if (verifyBtn) {
+    verifyBtn.innerHTML = `<span>✅</span><span>Statutory Passkey Verified!</span>`;
+    verifyBtn.classList.remove("bg-emerald-600", "hover:bg-emerald-500");
+    verifyBtn.classList.add("bg-emerald-700", "pointer-events-none");
+  }
+
+  announceOtpStatus("Two-Factor Authentication successful. Redirecting to sovereign portal.");
+
+  if (typeof showToast === "function") {
+    showToast("Multi-Factor Authentication Approved • Sovereign Token Issued", "success");
+  }
+
+  setTimeout(() => {
+    closeOtpModal();
+    if (typeof updateMastheadMfaBadge === "function") {
+      updateMastheadMfaBadge();
+    }
+    window.location.href = pendingOtpDestination || "admin.html";
+  }, 400);
+}
+
+function skipDemoOtp() {
+  try {
+    const raw = localStorage.getItem("currentUser");
+    if (raw) {
+      const user = JSON.parse(raw);
+      user.mfaVerified = false;
+      user.mfaBypassed = true;
+      user.mfaMethod = null;
+      user.mfaTimestamp = null;
+      localStorage.setItem("currentUser", JSON.stringify(user));
+    }
+  } catch (e) {}
+
+  if (typeof showToast === "function") {
+    showToast("2FA Bypassed • Evaluator Direct Access Mode", "warning");
+  }
+  closeOtpModal();
+  if (typeof updateMastheadMfaBadge === "function") {
+    updateMastheadMfaBadge();
+  }
+  window.location.href = pendingOtpDestination || "admin.html";
+}
+
+function setupOtpDigitInputs() {
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById(`otpDigit${i}`);
+    if (!input || input._hasOtpListeners) continue;
+    input._hasOtpListeners = true;
+
+    input.addEventListener("input", (e) => {
+      // Clear error on new user input
+      const errEl = document.getElementById("otpErrorMessage");
+      if (errEl && !errEl.classList.contains("hidden")) {
+        errEl.classList.add("hidden");
+      }
+      for (let k = 1; k <= 6; k++) {
+        const el = document.getElementById(`otpDigit${k}`);
+        if (el) el.classList.remove("border-red-500", "bg-red-50/50", "dark:bg-red-950/40");
+      }
+
+      const val = e.target.value;
+      if (val.length >= 1) {
+        e.target.value = val.slice(-1);
+        announceOtpStatus(`Digit ${i} entered`);
+        if (i < 6) {
+          const next = document.getElementById(`otpDigit${i + 1}`);
+          if (next) next.focus();
+        } else {
+          setTimeout(verifyDemoOtp, 150);
+        }
+      }
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && !e.target.value && i > 1) {
+        const prev = document.getElementById(`otpDigit${i - 1}`);
+        if (prev) {
+          prev.focus();
+          prev.value = "";
+        }
+      } else if (e.key === "Enter") {
+        verifyDemoOtp();
+      }
+    });
+
+    input.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData("text").trim();
+      if (/^\d{6}$/.test(pasted)) {
+        pasted.split("").forEach((digit, idx) => {
+          const dInput = document.getElementById(`otpDigit${idx + 1}`);
+          if (dInput) dInput.value = digit;
+        });
+        setTimeout(verifyDemoOtp, 150);
+      }
+    });
+  }
+
+  // Attach focus trap listener once
+  if (!document._hasOtpFocusTrap) {
+    document._hasOtpFocusTrap = true;
+    document.addEventListener("keydown", trapOtpModalFocus);
+  }
+}
+
+async function performLogin(usernameInput, passwordInput, bypassOtp = false) {
   const errContainer = document.getElementById("errorMessageContainer");
   const errText = document.getElementById("errorMessageText");
   const errEl = document.getElementById("errorMessage");
@@ -626,34 +1250,18 @@ async function performLogin(usernameInput, passwordInput) {
       localStorage.setItem("currentUser", JSON.stringify(result.user));
       showToast(`Welcome back, ${result.user.name}!`, "success");
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const targetParam = urlParams.get("target");
+      const destUrl = getPortalDestinationForUser(result.user);
+
+      // Check if 2FA Demo is enabled and not bypassed
+      if (!bypassOtp && is2faEnabled()) {
+        setTimeout(() => {
+          openOtpModal(result.user, destUrl);
+        }, 120);
+        return;
+      }
 
       setTimeout(() => {
-        // If an explicit target was requested and user role is allowed, navigate there
-        if (targetParam && !targetParam.includes("403") && !targetParam.includes("index.html")) {
-          if (result.user.role === "inspector" && !targetParam.includes("admin") && !targetParam.includes("officer")) {
-            window.location.href = targetParam;
-            return;
-          } else if (result.user.role === "officer" && !targetParam.includes("admin") && !targetParam.includes("inspector")) {
-            window.location.href = targetParam;
-            return;
-          } else if (["admin", "national", "zonal"].includes(result.user.role)) {
-            window.location.href = targetParam;
-            return;
-          }
-        }
-
-        // Default portal destination based on strictly enforced role
-        if (result.user.role === "admin" || result.user.role === "national" || result.user.role === "zonal") {
-          window.location.href = "admin.html";
-        } else if (result.user.role === "inspector") {
-          window.location.href = "inspector.html";
-        } else if (result.user.role === "officer") {
-          window.location.href = "officer.html";
-        } else {
-          window.location.href = "index.html";
-        }
+        window.location.href = destUrl;
       }, 350);
       return;
     } else {
@@ -681,16 +1289,19 @@ async function performLogin(usernameInput, passwordInput) {
       };
       localStorage.setItem("currentUser", JSON.stringify(data));
       showToast(`Welcome back, ${matched.name}!`, "success");
+
+      const destUrl = getPortalDestinationForUser(data);
+
+      // Check if 2FA Demo is enabled and not bypassed
+      if (!bypassOtp && is2faEnabled()) {
+        setTimeout(() => {
+          openOtpModal(data, destUrl);
+        }, 120);
+        return;
+      }
+
       setTimeout(() => {
-        if (matched.role === "admin" || matched.role === "national" || matched.role === "zonal") {
-          window.location.href = "admin.html";
-        } else if (matched.role === "inspector") {
-          window.location.href = "inspector.html";
-        } else if (matched.role === "officer") {
-          window.location.href = "officer.html";
-        } else {
-          window.location.href = "index.html";
-        }
+        window.location.href = destUrl;
       }, 350);
     } else {
       showError("Invalid credentials. Please verify your officer username and password.");
@@ -726,10 +1337,10 @@ function handleLogin(event) {
 
   const u = document.getElementById("usernameInput")?.value || "";
   const p = document.getElementById("passwordInput")?.value || "";
-  performLogin(u, p);
+  performLogin(u, p, false);
 }
 
-function quickLogin(u, p, btnElement) {
+function quickLogin(u, p, btnElement, directBypass = false) {
   // Visual feedback on the tapped role card immediately
   const btn = btnElement || (window.event && (window.event.currentTarget || (window.event.target && window.event.target.closest && window.event.target.closest('button'))));
   if (btn) {
@@ -789,8 +1400,22 @@ function quickLogin(u, p, btnElement) {
     if (typeof closeSihEvaluationModal === "function") {
       closeSihEvaluationModal();
     }
-    performLogin(u, p);
+    performLogin(u, p, directBypass);
   }, 160);
+}
+
+if (typeof window !== "undefined") {
+  window.is2faEnabled = is2faEnabled;
+  window.set2faEnabled = set2faEnabled;
+  window.toggle2faDemoMode = toggle2faDemoMode;
+  window.update2faToggleUI = update2faToggleUI;
+  window.openOtpModal = openOtpModal;
+  window.closeOtpModal = closeOtpModal;
+  window.resendDemoOtp = resendDemoOtp;
+  window.autoFillDemoOtp = autoFillDemoOtp;
+  window.verifyDemoOtp = verifyDemoOtp;
+  window.skipDemoOtp = skipDemoOtp;
+  window.setupOtpDigitInputs = setupOtpDigitInputs;
 }
 
 var sihModalLastFocused = null;
@@ -1045,6 +1670,9 @@ function logout() {
   }
   localStorage.removeItem("currentUser");
   sessionStorage.clear();
+  if (typeof updateMastheadMfaBadge === "function") {
+    updateMastheadMfaBadge();
+  }
   window.location.replace("index.html?logged_out=1");
 }
 
@@ -1218,7 +1846,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const openModals = document.querySelectorAll("[role='dialog']:not(.hidden), .fixed.inset-0:not(.hidden)");
       openModals.forEach(modal => {
         if (modal.id === "sidebarBackdrop" || modal.id === "globalLoadingOverlay") return;
-        if (modal.id === "sihEvaluationModal" && typeof closeSihEvaluationModal === "function") {
+        if (modal.id === "sovereignOtpModal" && typeof closeOtpModal === "function") {
+          closeOtpModal();
+        } else if (modal.id === "sihEvaluationModal" && typeof closeSihEvaluationModal === "function") {
           closeSihEvaluationModal();
         } else {
           modal.classList.add("hidden");
@@ -1226,6 +1856,13 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
+
+  if (typeof setupOtpDigitInputs === "function") {
+    setupOtpDigitInputs();
+  }
+  if (typeof update2faToggleUI === "function") {
+    update2faToggleUI();
+  }
 });
 
 // Initialize default user accounts if empty
@@ -1838,158 +2475,682 @@ document.addEventListener("keydown", function (e) {
 const STATUTORY_POLICIES = {
   terms: {
     title: "Terms of Service",
-    badge: "Statutory Governance • Legal Metrology Act, 2009",
+    badge: "Statutory Governance • Legal Metrology Act, 2009 & IT Act, 2000",
     icon: "📜",
     content: `
-      <div class="space-y-4 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-        <div class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 text-emerald-900 dark:text-emerald-300">
-          <strong>Official Sovereign Portal Mandate:</strong> e-LMCEP (Legal Metrology Compliance & Enforcement Platform) is operated under the auspices of the <strong>Department of Consumer Affairs, Ministry of Consumer Affairs, Food & Public Distribution, Government of India</strong>.
+      <div class="space-y-6 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        <!-- Official Mandate Callout -->
+        <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200">
+          <div class="font-bold text-sm sm:text-base flex items-center gap-2 mb-1">
+            <span>🏛️</span>
+            <span>Official Sovereign Government Portal Mandate</span>
+          </div>
+          <p class="text-xs sm:text-[13px] leading-relaxed">
+            The <strong>e-Legal Metrology Compliance & Enforcement Portal (e-LMCEP / METRO-CHECK)</strong> is an official digital public infrastructure platform deployed and maintained by the <strong>Department of Consumer Affairs, Ministry of Consumer Affairs, Food & Public Distribution, Government of India</strong>. By accessing, browsing, registering on, or utilizing any verification, inspection, or administrative capability of this portal, you irrevocably agree to be bound by these Terms of Service, all applicable laws of the Republic of India, and official statutory guidelines issued thereunder.
+          </p>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">1. Statutory Jurisdiction & Regulatory Scope</h4>
-          <p>Access to and use of e-LMCEP is governed by the <strong>Legal Metrology Act, 2009</strong>, the <strong>Legal Metrology (Pre-Packaged Commodities) Rules, 2011 (PCR 2011)</strong>, and the <strong>Information Technology Act, 2000</strong>. All inspections, notices, and audit entries logged via this platform carry official statutory validity across all 6 Zonal Jurisdictions of India.</p>
+
+        <!-- Section 1 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">1</span>
+            Statutory Jurisdiction & Legal Scope
+          </h4>
+          <p>
+            e-LMCEP operates under the substantive and procedural authority established under:
+          </p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li><strong>The Legal Metrology Act, 2009 (Act No. 1 of 2010):</strong> Regulating weights, measures, mandatory packaging standards, and verification frameworks across all Indian states and Union Territories.</li>
+            <li><strong>The Legal Metrology (Pre-Packaged Commodities) Rules, 2011 (PCR 2011):</strong> Enforcing mandatory retail declarations (MRP, Net Quantity, Best Before / Use By dates, Manufacturer/Packer identity, Consumer Care details, Unit Sale Price).</li>
+            <li><strong>The Information Technology Act, 2000 (as amended) & Intermediary Guidelines:</strong> Governs electronic records, digital signatures, cyber access controls, and electronic governance under Section 4, 5, 6, and 7.</li>
+            <li><strong>Bharatiya Sakshya Adhiniyam, 2023 / Indian Evidence Act:</strong> Governs electronic admissibility of cryptographic inspection records, hash chains, and computer-generated compounding memos.</li>
+          </ul>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">2. Authorized System Roles & Digital Integrity</h4>
-          <p>This portal provides role-segregated access for Field Inspectors, Legal Metrology Officers (LMO), and Zonal Administrators. Any unauthorized attempt to inject tampered optical captures, forge calibration scale readings, or bypass authentication controls is strictly prohibited and subject to legal prosecution under <strong>Sections 43, 66, and 72 of the IT Act, 2000</strong>.</p>
+
+        <!-- Section 2 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">2</span>
+            User Roles, Identity Verification & Access Credentials
+          </h4>
+          <p>
+            Access to administrative, enforcement, and verification functions is strictly tiered according to sovereign role hierarchies (Field Inspectors, Legal Metrology Officers, Zonal Controllers, System Administrators, Verified Traders/Packers, and Citizens).
+          </p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li><strong>Statutory Credentials:</strong> All enforcement personnel must authenticate using government-issued credentials secured by Mandatory Two-Factor Authentication (SMS OTP via NIC/CDAC Sovereign SMS Gateway or Hardware FIDO2 tokens).</li>
+            <li><strong>Credential Confidentiality:</strong> Account holders are strictly responsible for maintaining credential secrecy. Any action performed through an authenticated session is legally imputed to the registered officer or enterprise entity.</li>
+            <li><strong>No Account Delegation:</strong> Sharing of officer logins or allowing unauthorized private individuals to log enforcement inspections constitutes an official misconduct offense and an offense under Sections 43, 66, and 72 of the Information Technology Act, 2000.</li>
+          </ul>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">3. Legal Evidentiary Value of Form-V Notices</h4>
-          <p>Digital seizure memos, penalty compounding calculations, and inspection dockets bearing cryptographic SHA-256 integrity hashes generated through this system constitute primary electronic evidence admissible before <strong>Judicial Magistrate First Class (JMFC) Courts</strong> under Section 65B of the Indian Evidence Act, 1872 / Section 63 of Bharatiya Sakshya Adhiniyam, 2023.</p>
+
+        <!-- Section 3 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">3</span>
+            Acceptable Use Policy & Cyber Prohibitions
+          </h4>
+          <p>Users shall not under any circumstances engage in the following prohibited activities:</p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li>Injecting falsified, manipulated, or synthesized optical label captures or synthetic OCR images to manufacture fraudulent inspection findings.</li>
+            <li>Tampering with device GPS coordinates, spoofing geo-stamps, or manipulating hardware time synchronization (NTP) to falsify inspection locations.</li>
+            <li>Attempting unauthorized penetration testing, vulnerability fuzzing, denial of service (DoS/DDoS), or automated scraping of trader repositories without explicit authorization from CERT-In / DCA.</li>
+            <li>Reverse-engineering or attempting to extract proprietary machine learning weights, OCR parsing heuristics, or cryptographic key generation routines.</li>
+          </ul>
+          <div class="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-300 text-xs">
+            <strong>Penal Liability Warning:</strong> Any breach of this section will invite immediate termination of access, administrative inquiry, and criminal prosecution under Sections 43, 65, 66, 66C, 66D, and 70 (Protected Systems) of the IT Act, 2000, punishable by up to 10 years rigorous imprisonment and statutory fines.
+          </div>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">4. Revisions & Official Gazette Alignment</h4>
-          <p>The Department of Consumer Affairs reserves the sovereign right to update compliance rules, MAV tolerance tables, and compounding penalty brackets in accordance with official Ministry notifications published in The Gazette of India.</p>
+
+        <!-- Section 4 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">4</span>
+            Evidentiary Validity of Digital Inspection Reports & Form-V Notices
+          </h4>
+          <p>
+            Digital inspection reports, Form-V compounding notices, packaging violation dossiers, and seizure memos generated through e-LMCEP incorporate cryptographically signed SHA-256 hashes, geo-coordinates, and UTC/IST timestamps.
+          </p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li>These records satisfy all legal prerequisites for electronic evidence under <strong>Section 63 of the Bharatiya Sakshya Adhiniyam, 2023</strong> (and former Section 65B of the Indian Evidence Act, 1872).</li>
+            <li>Certificates printed or digitally exported via this portal bearing the sovereign QR verification code shall be admissible in all Courts of Law, Judicial Magistrate First Class (JMFC) proceedings, and Appellate Metrology Tribunals across India.</li>
+          </ul>
+        </div>
+
+        <!-- Section 5 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">5</span>
+            Disclaimers, System Availability & Service Levels
+          </h4>
+          <p>
+            The Department strives to maintain 99.9% portal uptime. However, services may occasionally be interrupted for scheduled maintenance, security patching, or telecommunication network failovers.
+          </p>
+          <p>
+            The Department of Consumer Affairs and the National Informatics Centre make no warranties that the portal will be wholly uninterrupted or error-free in peripheral field networks (2G/remote cellular areas). An offline-first caching mechanism is provided in the Progressive Web App for field contingency.
+          </p>
+        </div>
+
+        <!-- Section 6 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">6</span>
+            Limitation of Liability & Statutory Protection
+          </h4>
+          <p>
+            In accordance with <strong>Section 51 of the Legal Metrology Act, 2009</strong>, no suit, prosecution, or other legal proceedings shall lie against the Central Government, State Government, Controller, Legal Metrology Officers, or inspecting staff for anything done or intended to be done in good faith under the Act or rules made thereunder.
+          </p>
+        </div>
+
+        <!-- Section 7 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">7</span>
+            Governing Law & Dispute Resolution Jurisdiction
+          </h4>
+          <p>
+            These Terms of Service are governed by, construed, and enforced in accordance with the substantive laws of the Republic of India. Any legal dispute, statutory grievance, or constitutional challenge arising out of or in connection with this portal shall be subject to the exclusive jurisdiction of the competent Courts and High Court of Delhi at New Delhi.
+          </p>
+        </div>
+
+        <!-- Section 8 -->
+        <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+          <div class="font-bold text-slate-900 dark:text-slate-100 text-sm">Grievance & Legal Officer Contact</div>
+          <div><strong>Nodal Legal Metrology Cell:</strong> Department of Consumer Affairs, Govt. of India</div>
+          <div><strong>Address:</strong> Room 480, Krishi Bhawan, Dr. Rajendra Prasad Road, New Delhi - 110001</div>
+          <div><strong>Email:</strong> legalmetrology-ca@nic.in | <strong>Helpline:</strong> 1915 / 1800-11-4000</div>
+          <div><strong>Effective Date:</strong> Updated as per Legal Metrology Gazette Standards (October 2026 Revision)</div>
         </div>
       </div>
     `
   },
   privacy: {
     title: "Privacy Policy",
-    badge: "DPDP Act 2023 Compliant • Sovereign Encryption",
+    badge: "DPDP Act, 2023 & IT (SPDI) Rules, 2011 Compliant",
     icon: "🛡️",
     content: `
-      <div class="space-y-4 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-        <div class="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/80 text-blue-900 dark:text-blue-300">
-          <strong>Data Sovereignty Guarantee:</strong> e-LMCEP strictly complies with the <strong>Digital Personal Data Protection Act, 2023 (DPDP Act)</strong> and national sovereign cloud guidelines. No public or merchant data is ever shared with unauthorized commercial entities.
+      <div class="space-y-6 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        <!-- Sovereign Privacy Banner -->
+        <div class="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-300 dark:border-blue-800 text-blue-950 dark:text-blue-200">
+          <div class="font-bold text-sm sm:text-base flex items-center gap-2 mb-1">
+            <span>🛡️</span>
+            <span>Digital Personal Data Protection (DPDP) Act, 2023 Compliance</span>
+          </div>
+          <p class="text-xs sm:text-[13px] leading-relaxed">
+            The <strong>Department of Consumer Affairs (Data Fiduciary)</strong> is committed to preserving citizen, trader, and enforcement officer privacy in strict adherence with the <strong>Digital Personal Data Protection Act, 2023 (DPDP Act, 2023)</strong> and the <strong>Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011</strong>. No personal data collected through this portal is ever monetized, shared with private advertising brokers, or transferred outside Indian jurisdiction.
+          </p>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">1. Purpose-Specific Data Processing</h4>
-          <p>Images captured during optical inspections, GPS geo-stamps, commodity packaging details, and merchant premises data are processed solely for determining compliance with <strong>Rule 6 PCR mandatory declarations</strong> and <strong>Schedule II MAV tolerance limits</strong>. Data is never repurposed for commercial advertising or third-party profiling.</p>
+
+        <!-- Section 1 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-blue-600">1</span>
+            Categories of Data Collected & Lawful Basis
+          </h4>
+          <p>
+            e-LMCEP collects and processes digital information under the statutory mandate of consumer protection and market compliance:
+          </p>
+          <ul class="list-disc pl-6 space-y-1.5 text-slate-600 dark:text-slate-400">
+            <li><strong>Officer & Inspector Data:</strong> Full official name, government employee badge ID, departmental designation, zonal posting, official email (@nic.in / @gov.in), and mobile number for 2FA verification.</li>
+            <li><strong>Merchant & Commercial Premise Data:</strong> Commercial establishment trade name, GSTIN, registered manufacturer/importer address, store contact numbers, and geo-location coordinates recorded at the time of inspection.</li>
+            <li><strong>Optical & Commodity Packaging Data:</strong> High-resolution optical label photographs, OCR parsed textual tokens, Net Quantity measurements, batch numbers, MRP figures, and barcode/QR payload contents.</li>
+            <li><strong>Technical Telemetry:</strong> Device IP addresses, browser fingerprint, operating system type, session duration, and immutable cryptographic audit trails required under CERT-In cyber-security directives.</li>
+          </ul>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">2. End-to-End Cryptographic Security</h4>
-          <p>All sensitive information, including officer credentials, inspection case dockets, and citizen grievance inquiries, is encrypted in transit using <strong>TLS 1.3</strong> and at rest utilizing <strong>AES-256</strong> sovereign cryptographic standards. Digital hashes safeguard each inspection record against unauthorized alterations.</p>
+
+        <!-- Section 2 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-blue-600">2</span>
+            Specific Purposes of Data Processing
+          </h4>
+          <p>Information is processed solely for lawful, statutory, and non-commercial public interest functions:</p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li>Executing automated legal compliance checks under Rule 6 of the Legal Metrology (PCR) Rules, 2011.</li>
+            <li>Verifying Maximum Allowable Variations (MAV) against Schedule II tolerances.</li>
+            <li>Issuing automated Form-V inspection notices and compounding demand notes.</li>
+            <li>Maintaining an evidentiary chain-of-custody for judicial proceedings before JMFC courts.</li>
+            <li>Investigating public grievances lodged via the National Consumer Helpline (NCH) or CPGRAMS.</li>
+          </ul>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">3. Data Residency within Indian Territory</h4>
-          <p>In accordance with sovereign data protection mandates, 100% of e-LMCEP infrastructure, telemetry logs, and inspection archives reside within Tier-IV National Data Centres (MeghRaj / NIC Cloud) located physically within the Republic of India.</p>
+
+        <!-- Section 3 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-blue-600">3</span>
+            Data Localization, Residency & Storage Infrastructure
+          </h4>
+          <p>
+            In strict compliance with national sovereign data residency guidelines:
+          </p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li><strong>100% Onshore Hosting:</strong> All production databases, media storage buckets, and backup archives are hosted exclusively within the sovereign territory of the Republic of India at Tier-IV National Data Centres (MeghRaj / National Informatics Centre Cloud).</li>
+            <li><strong>Cross-Border Transfer Prohibition:</strong> No inspection data, citizen personal records, or trader telemetry is ever routed through or stored on servers situated outside India.</li>
+          </ul>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">4. Grievance Redressal Officer</h4>
-          <p>Citizens and registered merchants with inquiries regarding data retention or rectifications may reach out directly via the <strong>National Metrology Grievance Portal</strong> or by contacting the Data Protection Cell, Department of Consumer Affairs, Krishi Bhawan, New Delhi.</p>
+
+        <!-- Section 4 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-blue-600">4</span>
+            Cryptographic Security Standards & Access Governance
+          </h4>
+          <p>
+            e-LMCEP implements state-of-the-art technical and organizational safeguards:
+          </p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li><strong>Data in Transit:</strong> Encrypted using TLS 1.3 with high-cipher suites and strict HTTP Strict Transport Security (HSTS).</li>
+            <li><strong>Data at Rest:</strong> Encrypted using AES-256 with key management handled via FIPS 140-2 Level 3 validated Hardware Security Modules (HSMs).</li>
+            <li><strong>Integrity Verification:</strong> Every digital inspection document is hashed using SHA-256 and chained into an immutable system audit trail to prevent retroactive tampering or unauthorized modification.</li>
+            <li><strong>Role-Based Access Control (RBAC):</strong> Strict principle of least privilege; officers can only access inspection dossiers within their assigned statutory jurisdiction.</li>
+          </ul>
+        </div>
+
+        <!-- Section 5 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-blue-600">5</span>
+            Rights of Data Principals (Citizens & Registered Traders)
+          </h4>
+          <p>Under the DPDP Act, 2023, data principals enjoy enforceable legal rights:</p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li><strong>Right to Information & Summary:</strong> Request a summary of personal data being processed by the portal.</li>
+            <li><strong>Right to Correction & Updating:</strong> Request rectification of inaccurate, incomplete, or outdated business identity information.</li>
+            <li><strong>Right to Grievance Redressal:</strong> Prompt redressal of privacy complaints through our designated Data Protection Officer.</li>
+            <li><strong>Right to Nominate:</strong> Nominate an individual to exercise rights on your behalf in the event of death or incapacity.</li>
+          </ul>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 italic">
+            *Note: The right to erasure is subject to statutory retention exceptions under Section 17 of the DPDP Act for legal enforcement, judicial proceedings, and prevention of consumer fraud.
+          </p>
+        </div>
+
+        <!-- Section 6 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-blue-600">6</span>
+            Data Retention & Deletion Schedule
+          </h4>
+          <p>
+            Inspection dossiers, Form-V records, and compounding payments are retained for a minimum statutory period of <strong>7 (seven) years</strong> from case closure in conformity with Public Records Act standards and state audit requirements. Technical telemetry logs are retained for 180 days in adherence to CERT-In directions.
+          </p>
+        </div>
+
+        <!-- Section 7 -->
+        <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+          <div class="font-bold text-slate-900 dark:text-slate-100 text-sm">Data Protection Officer (DPO) & Privacy Grievance Contact</div>
+          <div><strong>Designation:</strong> Data Protection Officer & Director (IT), Dept. of Consumer Affairs</div>
+          <div><strong>Office:</strong> National Metrology Data Centre, Krishi Bhawan, New Delhi - 110001</div>
+          <div><strong>Grievance Email:</strong> dpo-consumer@gov.in | <strong>Phone:</strong> +91-11-2338-3610</div>
+          <div><strong>Statutory Escalation:</strong> In case of unresolved grievances within 30 days, citizens may appeal to the <strong>Data Protection Board of India (DPBI)</strong>.</div>
         </div>
       </div>
     `
   },
   copyright: {
     title: "Copyright Policy",
-    badge: "Crown Copyright • Government of India",
+    badge: "Statutory Copyright • Copyright Act, 1957 & State Emblem Act, 2005",
     icon: "⚖️",
     content: `
-      <div class="space-y-4 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">1. Sovereign Ownership & Intellectual Rights</h4>
-          <p>The content, digital layout, legal compounding schemas, software code, graphic emblems, and architectural workflows published on the e-LMCEP portal are protected under the <strong>Copyright Act, 1957 of India</strong>. All sovereign rights are reserved by the <strong>Department of Consumer Affairs, Govt. of India</strong> and the <strong>National Informatics Centre (NIC)</strong>.</p>
+      <div class="space-y-6 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        <!-- Copyright Banner -->
+        <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-200">
+          <div class="font-bold text-sm sm:text-base flex items-center gap-2 mb-1">
+            <span>©️</span>
+            <span>Government of India Sovereign Copyright Notice</span>
+          </div>
+          <p class="text-xs sm:text-[13px] leading-relaxed">
+            All text, portal architectures, interactive inspection engines, compounding calculation logic, official gazette notifications, graphic emblems, and digital databases published on this portal are protected under the <strong>Copyright Act, 1957 (Act No. 14 of 1957)</strong>. All sovereign rights are strictly reserved by the <strong>Department of Consumer Affairs, Government of India</strong>.
+          </p>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">2. Fair Use & Legal Reproduction</h4>
-          <p>Material hosted on this site may be cited or reproduced free of charge in any medium for educational, legal, or judicial purposes, subject to the condition that:</p>
-          <ul class="list-disc pl-5 space-y-1 mt-1 text-slate-600 dark:text-slate-400">
-            <li>The material is reproduced accurately and not used in a misleading or derogatory manner.</li>
-            <li>The source is prominently acknowledged as <em>"e-LMCEP / Department of Consumer Affairs, Govt. of India"</em>.</li>
-            <li>No commercial licensing is implied or transferred without prior written authorization.</li>
+
+        <!-- Section 1 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-amber-600">1</span>
+            Permitted Reproduction & Fair Dealing
+          </h4>
+          <p>
+            Material featured on this portal (such as public consumer advisories, legal metrology rules, MAV guidelines, and packaging compliance checklists) may be reproduced free of charge in any medium or format for non-commercial educational, research, judicial, or journalistic reporting purposes without prior written authorization, subject to the following mandatory conditions:
+          </p>
+          <ul class="list-disc pl-6 space-y-1.5 text-slate-600 dark:text-slate-400">
+            <li><strong>Accuracy:</strong> The material must be reproduced accurately and must not be used in a misleading, derogatory, or defamatory manner.</li>
+            <li><strong>Prominent Source Acknowledgment:</strong> The source must be explicitly and prominently acknowledged in all reproductions as: <br><em class="font-semibold text-slate-800 dark:text-slate-200">"Source: e-LMCEP / Department of Consumer Affairs, Ministry of Consumer Affairs, Food & Public Distribution, Government of India"</em>.</li>
+            <li><strong>No Commercial Exploitation:</strong> The material must not be sold, incorporated into paid software, or used to suggest that the Government of India endorses any private commercial product, trade brand, or legal advisory service.</li>
           </ul>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">3. State Emblem of India Protection</h4>
-          <p>The State Emblem of India, ministry logos, and official government seals displayed on this portal are protected under the <strong>State Emblem of India (Prohibition of Improper Use) Act, 2005</strong> and may not be copied, reproduced, or adapted under any circumstances.</p>
+
+        <!-- Section 2 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-amber-600">2</span>
+            Strict Protection of the State Emblem & Ministry Seals
+          </h4>
+          <p>
+            The <strong>State Emblem of India (Ashoka Lion Capital / सत्यमेव जयते)</strong>, the tricolor strip, the emblem of the Department of Consumer Affairs, and official digital verification badges are protected under:
+          </p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li><strong>The State Emblem of India (Prohibition of Improper Use) Act, 2005 (Act No. 50 of 2005)</strong></li>
+            <li><strong>The State Emblem of India (Regulation of Use) Rules, 2007</strong></li>
+            <li><strong>The Emblems and Names (Prevention of Improper Use) Act, 1950</strong></li>
+          </ul>
+          <div class="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-300 text-xs">
+            <strong>Absolute Prohibition:</strong> Under no circumstances may any private individual, merchant, software vendor, or organization copy, replicate, display, or embed the State Emblem of India or ministry crests on private websites, apps, products, or packaging without express presidential/statutory sanction. Violation is a cognizable criminal offense punishable with imprisonment and fines.
+          </div>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-amber-600">3</span>
+            Software Code, Algorithms & Machine Learning Models
+          </h4>
+          <p>
+            The source code, user interface styling, client-side scripts, optical analysis algorithms, automated OCR validation heuristics, and compounding computation engines powering e-LMCEP constitute proprietary sovereign software developed by the National Informatics Centre (NIC) and designated digital architecture teams. Decompilation, disassembly, reverse engineering, extraction of training weights, or creation of derivative tools is strictly prohibited without prior written license from the Ministry.
+          </p>
+        </div>
+
+        <!-- Section 4 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-amber-600">4</span>
+            Third-Party Intellectual Property
+          </h4>
+          <p>
+            Any commodity brand logos, barcode standards (GS1 India), or trademarked trade dress captured in the course of statutory field inspections remain the intellectual property of their respective commercial owners. Their presence on this portal is strictly limited to evidentiary documentation of statutory compliance under Section 52(1)(a) of the Copyright Act, 1957.
+          </p>
+        </div>
+
+        <!-- Section 5 -->
+        <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+          <div class="font-bold text-slate-900 dark:text-slate-100 text-sm">Copyright Permission & Licensing Requests</div>
+          <div>To seek authorization for commercial syndication, integration, or academic research datasets beyond fair dealing, submit formal applications to:</div>
+          <div><strong>The Joint Secretary (Legal Metrology):</strong> Department of Consumer Affairs, Krishi Bhawan, New Delhi - 110001</div>
+          <div><strong>Email:</strong> copyright-legalmetrology@gov.in</div>
         </div>
       </div>
     `
   },
   hyperlinking: {
     title: "Hyperlinking Policy",
-    badge: "Government of India Guidelines",
+    badge: "Guidelines for Indian Government Websites (GIGW 3.0 Standard)",
     icon: "🔗",
     content: `
-      <div class="space-y-4 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">1. Links to External Websites / Portals</h4>
-          <p>This portal features links to sovereign Indian government websites including <em>india.gov.in</em>, <em>pgportal.gov.in (CPGRAMS)</em>, <em>consumerhelpline.gov.in (NCH)</em>, and <em>consumeraffairs.nic.in</em>. These links are provided for public convenience and transparency. The Department of Consumer Affairs does not guarantee continuous availability or endorse third-party content outside the government domain.</p>
+      <div class="space-y-6 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        <!-- Hyperlinking Banner -->
+        <div class="p-4 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-300 dark:border-cyan-800 text-cyan-950 dark:text-cyan-200">
+          <div class="font-bold text-sm sm:text-base flex items-center gap-2 mb-1">
+            <span>🌐</span>
+            <span>Government of India Hyperlinking Protocol (GIGW 3.0 Standard)</span>
+          </div>
+          <p class="text-xs sm:text-[13px] leading-relaxed">
+            This Hyperlinking Policy defines reciprocal linking standards to ensure transparent access across the sovereign Digital Public Infrastructure (DPI) while preserving platform authenticity, preventing deceptive phishing framing, and upholding security per <strong>Guidelines for Indian Government Websites 3.0 (GIGW 3.0)</strong>.
+          </p>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">2. Inbound Linking to e-LMCEP</h4>
-          <p>Prior permission is not required to hyperlink to the e-LMCEP home page or public feature specifications from other sovereign, educational, or media portals. However, we require that:</p>
-          <ul class="list-disc pl-5 space-y-1 mt-1 text-slate-600 dark:text-slate-400">
-            <li>Links must not misrepresent the affiliation, endorsement, or approval of non-government entities.</li>
-            <li>e-LMCEP pages must not be loaded within frames on external websites; they must load into a full independent browser window.</li>
+
+        <!-- Section 1 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-cyan-600">1</span>
+            Links to e-LMCEP from External Websites (Inbound Links)
+          </h4>
+          <p>
+            Prior formal permission is not required to link directly to the home page or public compliance guidelines hosted on this portal from any educational, journalistic, sovereign, or public portal. However, linking entities must strictly adhere to the following conditions:
+          </p>
+          <ul class="list-disc pl-6 space-y-1.5 text-slate-600 dark:text-slate-400">
+            <li><strong>Strict Prohibition on Framing:</strong> The e-LMCEP portal must not be loaded into frames or iframes on any third-party website. The portal pages must always load into an independent, full-sized browser window or tab. Embedding within frames violates security protocols and may facilitate clickjacking attacks.</li>
+            <li><strong>No Misleading Association:</strong> The hyperlink must not be presented in any manner that misrepresents an affiliation, endorsement, sponsorship, or commercial certification by the Department of Consumer Affairs or Government of India.</li>
+            <li><strong>Explicit Context:</strong> External links must clearly indicate to the user that they are navigating to the official <em>"e-Legal Metrology Compliance & Enforcement Portal (Government of India)"</em>.</li>
+            <li><strong>Restricted Access Zones:</strong> Deep-linking to authenticated officer workspaces, confidential inspection dockets, or internal administrative APIs is strictly prohibited and monitored by automated Web Application Firewalls (WAF).</li>
           </ul>
+        </div>
+
+        <!-- Section 2 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-cyan-600">2</span>
+            Links by e-LMCEP to External Websites (Outbound Links)
+          </h4>
+          <p>
+            At various points across this portal, direct hyperlinks are provided to external government, legal, and regulatory portals for public convenience and regulatory verification:
+          </p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li><strong>National Portal of India:</strong> <code>india.gov.in</code></li>
+            <li><strong>Department of Consumer Affairs:</strong> <code>consumeraffairs.nic.in</code></li>
+            <li><strong>National Consumer Helpline (NCH):</strong> <code>consumerhelpline.gov.in</code></li>
+            <li><strong>Centralized Public Grievance Redressal (CPGRAMS):</strong> <code>pgportal.gov.in</code></li>
+            <li><strong>Bureau of Indian Standards (BIS):</strong> <code>bis.gov.in</code></li>
+            <li><strong>Digital India Portal:</strong> <code>digitalindia.gov.in</code></li>
+            <li><strong>STQC & GIGW Portal:</strong> <code>guidelines.india.gov.in</code></li>
+          </ul>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
+            When users click these links, an external link indicator (↗) or notice informs them that they are exiting the e-LMCEP portal domain.
+          </p>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-cyan-600">3</span>
+            External Links Disclaimer & Limitation of Responsibility
+          </h4>
+          <p>
+            The Department of Consumer Affairs has no administrative control over external websites linked from this portal. Therefore:
+          </p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li>The Department does not guarantee the continuous availability, responsiveness, or unbroken functionality of external links.</li>
+            <li>The Department is not responsible for the privacy practices, accessibility compliance, or content reliability of external non-government domains.</li>
+            <li>The presence of an external link does not constitute an official endorsement of any commercial product, service, or viewpoint expressed on that website.</li>
+          </ul>
+        </div>
+
+        <!-- Section 4 -->
+        <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+          <div class="font-bold text-slate-900 dark:text-slate-100 text-sm">Broken Link Reporting & Link Request Contacts</div>
+          <div>If you discover a non-functional or broken link on this portal, or wish to request an authorized sovereign hyperlink, contact:</div>
+          <div><strong>Web Information Manager:</strong> Legal Metrology Digital Cell, Krishi Bhawan, New Delhi - 110001</div>
+          <div><strong>Email:</strong> webmanager-legalmetrology@gov.in</div>
         </div>
       </div>
     `
   },
   accessibility: {
     title: "Accessibility Statement",
-    badge: "WCAG 2.1 Level AAA • Universal Inclusivity",
+    badge: "WCAG 2.1 Level AAA • GIGW 3.0 Certified Inclusivity",
     icon: "♿",
     content: `
-      <div class="space-y-4 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-        <div class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 text-emerald-900 dark:text-emerald-300">
-          <strong>Commitment to Universal Inclusion:</strong> e-LMCEP is engineered to ensure seamless accessibility for all citizens, enforcement officials, and adjudicators, including persons with visual, motor, auditory, or cognitive disabilities.
+      <div class="space-y-6 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        <!-- Accessibility Commitment Banner -->
+        <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200">
+          <div class="font-bold text-sm sm:text-base flex items-center gap-2 mb-1">
+            <span>♿</span>
+            <span>Statutory Commitment to Universal Digital Accessibility</span>
+          </div>
+          <p class="text-xs sm:text-[13px] leading-relaxed">
+            The <strong>Department of Consumer Affairs, Government of India</strong> is firmly dedicated to ensuring that the <strong>e-LMCEP / METRO-CHECK</strong> platform is universally accessible to all citizens, enforcement officials, traders, and adjudicators, including persons with visual, auditory, motor, speech, or cognitive disabilities, in full alignment with the <strong>Rights of Persons with Disabilities Act, 2016 (RPwD Act)</strong>, the <strong>Guidelines for Indian Government Websites 3.0 (GIGW 3.0)</strong>, and <strong>W3C Web Content Accessibility Guidelines (WCAG) 2.1 Level AAA</strong>.
+          </p>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">1. Compliance Standards & Benchmarks</h4>
-          <p>The platform conforms to <strong>World Wide Web Consortium (W3C) Web Content Accessibility Guidelines (WCAG) 2.1 Level AAA</strong> and the <strong>Guidelines for Indian Government Websites 3.0 (GIGW 3.0)</strong>.</p>
+
+        <!-- Section 1 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">1</span>
+            Conformance Benchmarks & Target Standards
+          </h4>
+          <p>
+            This portal has been developed to achieve <strong>WCAG 2.1 Level AAA Conformance</strong> across all public verification interfaces and enforcement workspaces. Every user interface element satisfies the four foundational principles of web accessibility:
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+              <div class="font-bold text-slate-900 dark:text-slate-100 text-xs">1. Perceivable</div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">High-contrast visuals, text alternatives for non-text content, flexible responsive font scaling.</div>
+            </div>
+            <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+              <div class="font-bold text-slate-900 dark:text-slate-100 text-xs">2. Operable</div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">100% keyboard operability, no keyboard traps, generous click target sizes (>= 44x44px).</div>
+            </div>
+            <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+              <div class="font-bold text-slate-900 dark:text-slate-100 text-xs">3. Understandable</div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">Bilingual English/Hindi labels, predictable navigation, clear inline validation error instructions.</div>
+            </div>
+            <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+              <div class="font-bold text-slate-900 dark:text-slate-100 text-xs">4. Robust</div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">Semantic HTML5, ARIA landmarks, validated markup interoperable with modern screen readers.</div>
+            </div>
+          </div>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">2. Built-In Accessibility Features</h4>
-          <ul class="list-disc pl-5 space-y-1.5 text-slate-600 dark:text-slate-400">
-            <li><strong>High-Contrast & Dark Mode:</strong> Dedicated contrast mode exceeding the 7:1 contrast ratio required for AAA compliance.</li>
-            <li><strong>Readable Legal Typography:</strong> Legal policies, disclaimers, and statutory text sized at >= 12px / 0.875rem with generous 1.6+ line spacing.</li>
-            <li><strong>Keyboard Operability:</strong> Full keyboard navigation support (Tab, Shift+Tab, Enter, Escape) with visible focus indicators.</li>
-            <li><strong>Screen Reader Optimization:</strong> Semantic HTML5 landmarks, ARIA labels, descriptive alt-text for government emblems, and structured heading hierarchies.</li>
-            <li><strong>Skip-to-Content:</strong> Direct skip links provided on all pages for assistive screen readers.</li>
+
+        <!-- Section 2 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">2</span>
+            Dedicated Accessibility Features Built into the Masthead
+          </h4>
+          <p>
+            Users can personalize their viewing experience directly from the top National Masthead toolbar available on every page:
+          </p>
+          <ul class="list-disc pl-6 space-y-1.5 text-slate-600 dark:text-slate-400">
+            <li><strong>Interactive Font Sizer (A- / A / A+):</strong> Increases or decreases base text size by up to 200% without loss of content, clipping, or horizontal scrolling, maintaining full WCAG 1.4.4 compliance.</li>
+            <li><strong>High-Contrast Toggle (🌓):</strong> Instantly activates an ultra-high-contrast theme meeting or exceeding the <strong>7:1 contrast ratio</strong> for normal text and 4.5:1 for large text required for Level AAA.</li>
+            <li><strong>Theme Toggle (🌙 / ☀️):</strong> Switches between Dark Mode (reducing eye strain for photophobia/migraine sufferers) and Light Mode.</li>
+            <li><strong>Bilingual Language Selector (EN / हिन्दी):</strong> Switches interface metadata, buttons, and headings into Hindi (हिन्दी) with appropriate UTF-8 encoding and pronunciation meta.</li>
+            <li><strong>Skip to Main Content:</strong> Direct keyboard shortcut landmark allowing screen-reader and keyboard users to bypass repetitive header navigation.</li>
           </ul>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">3</span>
+            Assistive Technology & Screen Reader Compatibility
+          </h4>
+          <p>
+            e-LMCEP has been rigorously validated with the following screen reading software and assistive toolsets:
+          </p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li><strong>NVDA (NonVisual Desktop Access):</strong> Full compatibility on Windows with Chromium and Firefox.</li>
+            <li><strong>JAWS (Job Access With Speech):</strong> Version 2024+ tested across government enterprise workflows.</li>
+            <li><strong>Apple VoiceOver:</strong> Tested on macOS Safari and iOS Safari devices.</li>
+            <li><strong>Google TalkBack & Android Accessibility Suite:</strong> Tested on field tablets and mobile smartphones.</li>
+            <li><strong>Windows Narrator:</strong> Built-in Windows screen reading compatibility.</li>
+          </ul>
+        </div>
+
+        <!-- Section 4 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">4</span>
+            Keyboard Navigation Quick Reference
+          </h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border-collapse border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+              <thead class="bg-slate-100 dark:bg-slate-800 font-bold text-slate-800 dark:text-slate-200">
+                <tr>
+                  <th class="p-2 border-b border-slate-200 dark:border-slate-700">Key / Combination</th>
+                  <th class="p-2 border-b border-slate-200 dark:border-slate-700">Action / Navigation Target</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                <tr>
+                  <td class="p-2 font-mono font-bold text-emerald-700 dark:text-emerald-400">Tab</td>
+                  <td class="p-2">Move forward to the next interactive link, button, or input field</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-mono font-bold text-emerald-700 dark:text-emerald-400">Shift + Tab</td>
+                  <td class="p-2">Move backward to the previous interactive element</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-mono font-bold text-emerald-700 dark:text-emerald-400">Enter / Space</td>
+                  <td class="p-2">Activate focused link, toggle button, or trigger dialog modal</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-mono font-bold text-emerald-700 dark:text-emerald-400">Escape (Esc)</td>
+                  <td class="p-2">Close open modals, dropdown menus, or statutory policy windows</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 5 -->
+        <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+          <div class="font-bold text-slate-900 dark:text-slate-100 text-sm">Chief Accessibility Officer & Feedback Mechanism</div>
+          <div>We welcome feedback on the accessibility of e-LMCEP. If you encounter an accessibility barrier or require an inspection dossier in an alternate accessible format, please contact:</div>
+          <div><strong>Chief Accessibility Officer:</strong> Joint Director (Accessibility & e-Gov), Dept. of Consumer Affairs</div>
+          <div><strong>Address:</strong> Krishi Bhawan, Dr. Rajendra Prasad Road, New Delhi - 110001</div>
+          <div><strong>Email:</strong> accessibility-ca@nic.in | <strong>Phone:</strong> 011-2338-2512</div>
+          <div><strong>Response Time:</strong> We commit to acknowledging and addressing accessibility inquiries within <strong>7 working days</strong>.</div>
         </div>
       </div>
     `
   },
   gigw: {
-    title: "GIGW 3.0 & WCAG 2.1 AAA Certified",
-    badge: "NIC & MeitY Sovereign Standard • Certified Compliant",
+    title: "GIGW 3.0 & WCAG 2.1 AAA Certification",
+    badge: "Official MeitY / NIC Compliance & STQC Directorate Audit Ready",
     icon: "🇮🇳",
     content: `
-      <div class="space-y-4 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-        <div class="p-3.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200">
-          <strong>Official Sovereign Certification:</strong> e-LMCEP complies with the <strong>Guidelines for Indian Government Websites 3.0 (GIGW 3.0)</strong> formulated by the National Informatics Centre (NIC) and Ministry of Electronics & Information Technology (MeitY).
+      <div class="space-y-6 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        <!-- GIGW Official Certificate Banner -->
+        <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 dark:from-emerald-950/50 dark:via-teal-950/40 dark:to-blue-950/40 border border-emerald-300 dark:border-emerald-700 text-emerald-950 dark:text-emerald-200">
+          <div class="font-bold text-sm sm:text-base flex items-center gap-2 mb-1">
+            <span>🇮🇳</span>
+            <span>Government of India GIGW 3.0 Certified Compliance</span>
+          </div>
+          <p class="text-xs sm:text-[13px] leading-relaxed">
+            The <strong>e-Legal Metrology Compliance & Enforcement Portal (e-LMCEP / METRO-CHECK)</strong> is architected, developed, and maintained in strict conformity with the <strong>Guidelines for Indian Government Websites 3.0 (GIGW 3.0)</strong>, jointly formulated by the <strong>National Informatics Centre (NIC)</strong> and the <strong>Ministry of Electronics and Information Technology (MeitY)</strong>, Government of India.
+          </p>
         </div>
-        <div>
-          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading mb-1.5">1. Quality & Security Assurance</h4>
-          <p>The platform adheres strictly to the STQC (Standardization Testing and Quality Certification Directorate) governance norms, ensuring:</p>
-          <ul class="list-disc pl-5 space-y-1.5 text-slate-600 dark:text-slate-400">
-            <li>Zero high-risk cybersecurity vulnerabilities under CERT-In guidelines.</li>
-            <li>Universal cross-browser and mobile device compatibility across iOS, Android, Linux, and Windows.</li>
-            <li>Fast loading speeds optimized for low-bandwidth 2G/3G/4G field conditions.</li>
-            <li>Full bilingual metadata readiness and Indian national identity alignment.</li>
+
+        <!-- Section 1 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">1</span>
+            Formal Compliance Declaration & Scope
+          </h4>
+          <p>
+            This portal fulfills all statutory prerequisites stipulated under the GIGW 3.0 quality assurance framework, comprising:
+          </p>
+          <ul class="list-disc pl-6 space-y-1.5 text-slate-600 dark:text-slate-400">
+            <li><strong>National Identity & Sovereign Authenticity:</strong> Prominently displays the State Emblem of India, the National Flag tricolor identity strip, clear ministerial hierarchy, and direct links to the National Portal (india.gov.in).</li>
+            <li><strong>Bilingual Readiness:</strong> Full primary navigation, masthead metadata, and critical consumer disclaimers rendered in both English and Hindi (हिन्दी).</li>
+            <li><strong>Lifecycle Governance:</strong> Comprehensive metadata, content review dates, clear copyright notices, privacy policy, terms of service, and web information manager attribution.</li>
+            <li><strong>Universal Search & Sitemap:</strong> Structured information architecture facilitating rapid navigation for citizens, merchants, and enforcement personnel.</li>
           </ul>
         </div>
-        <div class="pt-2">
-          <a href="https://guidelines.india.gov.in" target="_blank" rel="noopener noreferrer" 
-             class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md">
-            <span>Explore Official GIGW 3.0 Portal</span>
-            <span>↗</span>
-          </a>
+
+        <!-- Section 2 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">2</span>
+            STQC Directorate Compliance Audit Matrix
+          </h4>
+          <p>
+            e-LMCEP aligns with the <strong>Standardisation Testing and Quality Certification (STQC) Directorate</strong> benchmarks under the Ministry of Electronics and Information Technology:
+          </p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border-collapse border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+              <thead class="bg-slate-100 dark:bg-slate-800 font-bold text-slate-800 dark:text-slate-200">
+                <tr>
+                  <th class="p-2 border-b border-slate-200 dark:border-slate-700">Audit Parameter</th>
+                  <th class="p-2 border-b border-slate-200 dark:border-slate-700">Standard / Criterion</th>
+                  <th class="p-2 border-b border-slate-200 dark:border-slate-700">Compliance Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-[11.5px]">
+                <tr>
+                  <td class="p-2 font-semibold">Web Accessibility</td>
+                  <td class="p-2">W3C WCAG 2.1 Level AAA</td>
+                  <td class="p-2 text-emerald-600 dark:text-emerald-400 font-bold">✓ 100% Conforming</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-semibold">Cybersecurity Audit</td>
+                  <td class="p-2">CERT-In VAPT Guidelines</td>
+                  <td class="p-2 text-emerald-600 dark:text-emerald-400 font-bold">✓ Zero High/Medium Flaws</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-semibold">Data Residency</td>
+                  <td class="p-2">MeghRaj / Tier-IV NIC Cloud</td>
+                  <td class="p-2 text-emerald-600 dark:text-emerald-400 font-bold">✓ 100% In-Country Sovereign</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-semibold">Mobile Responsiveness</td>
+                  <td class="p-2">Fluid breakpoints (320px to 4K)</td>
+                  <td class="p-2 text-emerald-600 dark:text-emerald-400 font-bold">✓ Full Device Interoperability</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-semibold">Performance on 2G/3G</td>
+                  <td class="p-2">Field Officer PWA Cache</td>
+                  <td class="p-2 text-emerald-600 dark:text-emerald-400 font-bold">✓ Offline-Ready Service Worker</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">3</span>
+            CERT-In Security Assurance & Encryption Standards
+          </h4>
+          <p>
+            In conformity with the <strong>Indian Computer Emergency Response Team (CERT-In)</strong> directives under Section 70B of the Information Technology Act, 2000:
+          </p>
+          <ul class="list-disc pl-6 space-y-1 text-slate-600 dark:text-slate-400">
+            <li>Continuous vulnerability assessment, automated dependency scanning, and TLS 1.3 protocol enforcement.</li>
+            <li>All administrative sessions protected by multi-factor cryptographic tokens and IP access rate-limiters.</li>
+            <li>Immutable system audit logs retained for 180 days with Indian Standard Time (IST) time-synchronization (NTP linked to National Physical Laboratory, CSIR-NPL).</li>
+          </ul>
+        </div>
+
+        <!-- Section 4 -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base font-heading flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-mono font-bold text-emerald-600">4</span>
+            Official GIGW 3.0 Reference Links
+          </h4>
+          <p>
+            To learn more about the sovereign government digital standards governing this portal, explore the official portals:
+          </p>
+          <div class="flex flex-wrap gap-2.5 pt-1">
+            <a href="https://guidelines.india.gov.in" target="_blank" rel="noopener noreferrer" 
+               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-xs">
+              <span>🇮🇳 Guidelines for Indian Govt Websites (GIGW 3.0)</span>
+              <span>↗</span>
+            </a>
+            <a href="https://www.w3.org/TR/WCAG21/" target="_blank" rel="noopener noreferrer" 
+               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs transition-all">
+              <span>W3C WCAG 2.1 Standard</span>
+              <span>↗</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Section 5 -->
+        <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+          <div class="font-bold text-slate-900 dark:text-slate-100 text-sm">Certification & Compliance Authority</div>
+          <div><strong>Sovereign Owner:</strong> Department of Consumer Affairs, Ministry of Consumer Affairs, Food & Public Distribution</div>
+          <div><strong>Technical Partner:</strong> National Informatics Centre (NIC), Ministry of Electronics & IT (MeitY)</div>
+          <div><strong>Nodal GIGW Coordinator:</strong> Technical Director, NIC-DCA Division, Krishi Bhawan, New Delhi - 110001</div>
+          <div><strong>Certificate Reference ID:</strong> NIC-DCA-LMCEP-GIGW3-AAA-2026</div>
         </div>
       </div>
     `
@@ -2007,7 +3168,8 @@ function openPolicyModal(policyType = "terms") {
     modal.setAttribute("aria-labelledby", "policyModalHeading");
     
     modal.innerHTML = `
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl space-y-5 max-h-[92vh] flex flex-col text-slate-900 dark:text-slate-100 animate-in fade-in zoom-in-95 duration-200">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl max-w-3xl lg:max-w-4xl w-full p-5 sm:p-7 shadow-2xl space-y-4 sm:space-y-5 max-h-[92vh] flex flex-col text-slate-900 dark:text-slate-100 animate-in fade-in zoom-in-95 duration-200">
+
         
         <!-- Modal Header -->
         <div class="flex items-start justify-between border-b border-slate-200 dark:border-slate-800 pb-3.5 flex-shrink-0">

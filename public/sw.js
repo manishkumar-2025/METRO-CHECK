@@ -3,7 +3,7 @@
    Provides Offline Inspection Support & Cache Management for Field Officers
    ========================================================================== */
 
-const CACHE_NAME = 'metrocheck-pwa-v2';
+const CACHE_NAME = 'metrocheck-pwa-v5';
 
 // Static assets to pre-cache on Service Worker installation (unauthenticated public + offline core)
 const STATIC_ASSETS = [

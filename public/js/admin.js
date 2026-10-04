@@ -39,8 +39,20 @@ let _ledgerSelected = new Set();
 const _sessionStart = Date.now();
 
 /* --------------------------------------------------------------------------
-   HELPERS — Status Classification
+   HELPERS — Status Classification & Sanitization
    -------------------------------------------------------------------------- */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str).replace(/[&<>"']/g, c => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[c]));
+}
+window.escapeHtml = escapeHtml;
+
 function classifyStatus(item) {
   const s = String(item.status || item.overallStatus || "").toUpperCase();
   if (s === "COMPLIANT_LOGGED" || s === "APPROVED" || s === "COMPLIANT" || item.isCompliant === true) return "compliant";
@@ -725,8 +737,40 @@ function sortLedger(col) {
 }
 window.sortLedger = sortLedger;
 
+function toggleLedgerMobileFilters() {
+  const tray = document.getElementById("ledgerFilterTray");
+  if (!tray) return;
+  tray.classList.toggle("hidden");
+}
+window.toggleLedgerMobileFilters = toggleLedgerMobileFilters;
+
+function _updateLedgerFilterBadge() {
+  const badge = document.getElementById("ledgerFilterBadgeCount");
+  if (!badge) return;
+  let count = 0;
+  const status = document.getElementById("ledgerStatusFilter")?.value;
+  const zone   = document.getElementById("ledgerZoneFilter")?.value;
+  const insp   = document.getElementById("ledgerInspectorFilter")?.value;
+  const from   = document.getElementById("ledgerDateFrom")?.value;
+  const to     = document.getElementById("ledgerDateTo")?.value;
+
+  if (status && status !== "all") count++;
+  if (zone && zone !== "all") count++;
+  if (insp && insp !== "all") count++;
+  if (from) count++;
+  if (to) count++;
+
+  if (count > 0) {
+    badge.textContent = count;
+    badge.classList.remove("hidden");
+  } else {
+    badge.classList.add("hidden");
+  }
+}
+
 function onLedgerFilterChange() {
   ledgerCurrentPage = 1;
+  _updateLedgerFilterBadge();
   renderMasterLedgerTable();
 }
 window.onLedgerFilterChange = onLedgerFilterChange;
@@ -750,6 +794,7 @@ function resetLedgerFilters() {
   ledgerStatFilter  = "all";
   ledgerCurrentPage = 1;
   _syncLedgerStatChips("all");
+  _updateLedgerFilterBadge();
   renderMasterLedgerTable();
 }
 window.resetLedgerFilters = resetLedgerFilters;
@@ -926,11 +971,11 @@ function renderMasterLedgerTable() {
     }).join("");
   }
 
-  // Mobile card view
+  // Mobile card view — Modern, touch-friendly GovTech cards
   const cards = document.getElementById("masterLedgerCards");
   if (cards) {
     if (page.length === 0) {
-      cards.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-xl border border-slate-200 text-xs">No records match your filters.</div>`;
+      cards.innerHTML = `<div class="p-8 text-center text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs">No records match your filters.</div>`;
     } else {
       cards.innerHTML = page.map(item => {
         const ext       = item.extractedData || {};
@@ -938,41 +983,92 @@ function renderMasterLedgerTable() {
         const label     = getStatusLabel(item);
         const badgeCls  = getBadgeClass(cls);
         const violCount = (item.violations || []).length;
+        const hasHash   = item.docketHash && item.docketHash !== "COMPUTING...";
+        const dt        = shortDate(item.createdAt || item.date);
+        const zone      = item.zone || "—";
+        const inspName  = item.inspectorName || item.inspector || "Field Inspector";
+        const safeId    = item.id.replace(/'/g, "\\'");
+
         return `
-          <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs space-y-2.5 text-xs">
-            <div class="flex items-start justify-between gap-2">
+          <div class="ledger-mobile-card bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-md transition-all active:scale-[0.99] flex flex-col justify-between gap-3"
+            onclick="if(!event.target.closest('button')) openInspectDrawer('${safeId}')">
+            <!-- Card Header: Case ID + Status -->
+            <div class="flex items-start justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2.5">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-mono font-bold text-amber-700 dark:text-amber-400 text-xs tracking-wide">${item.id}</span>
+                  ${item.sequenceNumber ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">#${item.sequenceNumber}</span>` : ''}
+                </div>
+                <div class="flex items-center gap-1.5 mt-1 text-[10px] text-slate-400 font-mono">
+                  <span>📅 ${dt}</span>
+                  <span>•</span>
+                  <span class="text-slate-600 dark:text-slate-300 font-medium">📍 ${zone}</span>
+                </div>
+              </div>
+              <span class="${badgeCls} whitespace-nowrap">${label}</span>
+            </div>
+
+            <!-- Product Name & Inspector -->
+            <div class="space-y-1">
+              <h4 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm line-clamp-1 leading-snug">${item.product || "Packaged Specimen"}</h4>
+              <div class="flex items-center gap-2 text-[10.5px] text-slate-500 dark:text-slate-400 flex-wrap">
+                <span>👤 ${escapeHtml(inspName)}</span>
+                ${hasHash ? `<span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-800">✓ SHA-256</span>` : ''}
+              </div>
+            </div>
+
+            <!-- Specs Grid (Net Qty, MRP) -->
+            <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
               <div>
-                <div class="font-mono font-bold text-amber-700">${item.id}</div>
-                <div class="text-[10px] text-slate-400 mt-0.5">${shortDate(item.createdAt || item.date)} · ${item.zone || ""}</div>
+                <span class="text-[9.5px] uppercase font-semibold text-slate-400 block">Net Qty</span>
+                <strong class="text-slate-800 dark:text-slate-200 font-semibold">${ext.net_quantity || "—"}</strong>
               </div>
-              <span class="${badgeCls}">${label}</span>
-            </div>
-            <p class="font-bold text-slate-900">${item.product || "—"}</p>
-            <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2 rounded-lg border border-slate-100">
-              <div><span class="text-slate-400">Net Qty:</span> <strong>${ext.net_quantity || "—"}</strong></div>
-              <div><span class="text-slate-400">MRP:</span> <strong>${ext.mrp ? "₹"+ext.mrp : "—"}</strong></div>
-            </div>
-            <div class="flex items-center justify-between">
-              <span>${violCount > 0 ? `<span class="text-rose-600 font-bold">⚠ ${violCount} defect${violCount>1?"s":""}</span>` : `<span class="text-emerald-600 font-bold">✓ Compliant</span>`}</span>
-              <div class="flex gap-1">
-                <button onclick="openInspectDrawer('${item.id.replace(/'/g,"\\'")}');" class="ledger-row-action action-inspect">Inspect</button>
-                <button onclick="navigateToReport('${item.id.replace(/'/g,"\\'")}','admin.html#ledger');" class="ledger-row-action action-sheet">Sheet</button>
+              <div>
+                <span class="text-[9.5px] uppercase font-semibold text-slate-400 block">MRP</span>
+                <strong class="text-slate-800 dark:text-slate-200 font-semibold">${ext.mrp ? "₹ " + ext.mrp : "—"}</strong>
               </div>
+            </div>
+
+            <!-- Defect / Compliance Banner -->
+            <div class="flex items-center justify-between text-[11px] pt-0.5">
+              <div>
+                ${violCount > 0 
+                  ? `<span class="inline-flex items-center gap-1 text-rose-700 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-md border border-rose-200/60 dark:border-rose-800">⚠️ ${violCount} Defect${violCount > 1 ? "s" : ""}</span>`
+                  : `<span class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800">✓ Rule 6 Compliant</span>`}
+              </div>
+              ${item.reviewComments ? `<span class="text-[10px] text-slate-400 italic truncate max-w-[130px]" title="${escapeHtml(item.reviewComments)}">💬 ${escapeHtml(item.reviewComments)}</span>` : ''}
+            </div>
+
+            <!-- Action Buttons: 40px touch targets -->
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800" onclick="event.stopPropagation()">
+              <button type="button" onclick="openInspectDrawer('${safeId}'); event.stopPropagation();"
+                class="h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-400 font-bold text-xs border border-slate-200 dark:border-slate-700 transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95">
+                <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <span>Inspect</span>
+              </button>
+              <button type="button" onclick="navigateToReport('${safeId}','admin.html#ledger'); event.stopPropagation();"
+                class="h-10 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span>Sheet</span>
+              </button>
             </div>
           </div>`;
       }).join("");
     }
   }
 
-  // Pagination
+  // Pagination (Desktop & Mobile)
   renderLedgerPagination(filtered.length, totalPages);
 
-  // Pagination info
+  // Pagination info (Desktop & Mobile)
+  const s = start + 1, e = Math.min(start + ledgerPageSize, filtered.length);
+  const infoText = filtered.length > 0 ? `Showing ${s}–${e} of ${filtered.length} records` : "No records";
+  
   const info = document.getElementById("ledgerPaginationInfo");
-  if (info) {
-    const s = start + 1, e = Math.min(start + ledgerPageSize, filtered.length);
-    info.textContent = filtered.length > 0 ? `Showing ${s}–${e} of ${filtered.length} records` : "No records";
-  }
+  if (info) info.textContent = infoText;
+
+  const infoMobile = document.getElementById("ledgerPaginationInfoMobile");
+  if (infoMobile) infoMobile.textContent = infoText;
 }
 
 function _populateInspectorFilter(all) {
@@ -1003,6 +1099,11 @@ function renderLedgerPagination(total, totalPages) {
   // Next
   btns.push(`<button class="ledger-page-btn" onclick="gotoLedgerPage(${ledgerCurrentPage+1})" ${ledgerCurrentPage===totalPages?"disabled":""}>›</button>`);
   btnCont.innerHTML = btns.join("");
+
+  const btnContMobile = document.getElementById("ledgerPaginationBtnsMobile");
+  if (btnContMobile) {
+    btnContMobile.innerHTML = btns.join("");
+  }
 }
 
 function gotoLedgerPage(p) {
