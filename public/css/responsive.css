@@ -3964,49 +3964,29 @@ body.theme-dark .sticky-frosted-nav {
 /* ── 7F. FEATURES PAGE: Quick nav tab bar — native pill dock on mobile ── */
 @media (max-width: 767px) {
 
-  /* Reveal the nav bar on mobile (it has hidden md:block) */
-  nav.hidden {
+  /* Keep the features sticky nav bar active and visible on mobile */
+  #featuresStickyNav {
     display: block !important;
   }
 
   /* Make the features quick-nav bar scrollable with native pill dock */
-  nav.border-t > div > div.flex.items-center {
+  #featuresStickyNav .features-nav-scroll-container {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
     flex-wrap: nowrap !important;
     scrollbar-width: none !important;
-    padding: 0.35rem 0.5rem !important;
-    gap: 0.5rem !important;
+    padding: 0.25rem 0.25rem !important;
+    gap: 0.35rem !important;
   }
-  nav.border-t > div > div.flex.items-center::-webkit-scrollbar {
+  #featuresStickyNav .features-nav-scroll-container::-webkit-scrollbar {
     display: none !important;
   }
-  nav.border-t > div > div.flex.items-center a {
+  #featuresStickyNav .features-nav-link {
     flex-shrink: 0 !important;
     white-space: nowrap !important;
-    font-size: 11.5px !important;
+    font-size: 11px !important;
     font-weight: 600 !important;
-    padding: 0.35rem 0.75rem !important;
-    border-radius: 9999px !important;
-    background: #F1F5F9 !important;
-    color: #475569 !important;
-    border: 1px solid #E2E8F0 !important;
-    transition: all 0.15s ease !important;
-  }
-  .dark nav.border-t > div > div.flex.items-center a {
-    background: #1E293B !important;
-    color: #CBD5E1 !important;
-    border-color: #334155 !important;
-  }
-  nav.border-t > div > div.flex.items-center a:active {
-    transform: scale(0.95) !important;
-    background: #10B981 !important;
-    color: #ffffff !important;
-  }
-
-  /* Hide the right-side mono badge on mobile */
-  nav.border-t > div > div.text-\[11px\] {
-    display: none !important;
+    padding: 0.3rem 0.6rem !important;
   }
 
   /* Features hero: compact heading */
@@ -4261,12 +4241,8 @@ body.theme-dark .sticky-frosted-nav {
   }
 
   /* Features quick nav: visible on tablet and desktop */
-  nav.hidden.md\:block {
+  #featuresStickyNav {
     display: block !important;
-  }
-  nav.border-t > div > div.flex.items-center {
-    flex-wrap: wrap !important;
-    gap: 1rem !important;
   }
 
   /* Officer docket filter tabs — readable on tablet */

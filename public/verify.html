@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>National Legal Metrology Portal | Personnel Identity Verification &amp; KYC</title>
+  <link rel="icon" type="image/png" href="logo/logo.png">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              DEFAULT: '#059669',
+              50: '#ECFDF5',
+              100: '#D1FAE5',
+              500: '#10B981',
+              600: '#059669',
+              700: '#047857'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- National Masthead & Tricolor Strip -->
+  <header class="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 select-none shadow-xs sticky top-0 z-50">
+    <div class="h-1.5 w-full bg-gradient-to-r from-[#FF9933] via-white to-[#128807]"></div>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <img src="logo/header-logo-emblem.png" alt="State Emblem of India" class="h-10 sm:h-12 w-auto object-contain drop-shadow-xs">
+        <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
+        <div>
+          <p class="text-[11px] sm:text-xs font-bold text-slate-900 dark:text-white tracking-tight uppercase leading-tight">
+            Ministry of Consumer Affairs, Food &amp; Public Distribution
+          </p>
+          <p class="text-[10px] sm:text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+            Directorate of Legal Metrology • National Personnel Identity &amp; KYC Gateway
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Secured by 2FA / TLS 1.3</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 my-4 sm:my-8">
+
+    <!-- Loading State Card -->
+    <div id="verifyLoadingCard" class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-xl text-center space-y-4">
+      <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Validating Cryptographic Verification Token...</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Querying National Command registry for statutory officer dossier.</p>
+    </div>
+
+    <!-- Error State Card (Invalid / Expired Token) -->
+    <div id="verifyErrorCard" class="hidden bg-white dark:bg-slate-900 rounded-3xl p-8 border border-rose-200 dark:border-rose-900/60 shadow-xl text-center space-y-4">
+      <div class="w-14 h-14 bg-rose-50 dark:bg-rose-950/60 text-rose-600 rounded-full flex items-center justify-center mx-auto text-2xl border border-rose-200 dark:border-rose-800">
+        ✕
+      </div>
+      <h2 id="verifyErrorTitle" class="text-lg font-extrabold text-slate-900 dark:text-white">Verification Link Expired or Invalid</h2>
+      <p id="verifyErrorMessage" class="text-xs text-slate-600 dark:text-slate-300 max-w-md mx-auto leading-relaxed">
+        This single-use identity verification token is not recognized, has already been redeemed, or has exceeded its statutory expiration window.
+      </p>
+      <div class="pt-2">
+        <a href="/" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-xs font-bold text-slate-700 dark:text-slate-200 transition">
+          <span>← Return to Portal Homepage</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Active Verification Portal Flow -->
+    <div id="verifyActiveCard" class="hidden space-y-6">
+
+      <!-- Multi-Step Wizard Indicator (5 Steps) -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="grid grid-cols-5 gap-2 text-center text-[10px] sm:text-xs font-bold select-none">
+          
+          <!-- Step 1 -->
+          <div id="stepIndicator1" class="flex flex-col items-center gap-1">
+            <span class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-mono shadow-sm">1</span>
+            <span class="text-emerald-700 dark:text-emerald-400 font-extrabold truncate w-full">1. Invitation</span>
+          </div>
+
+          <!-- Step 2 -->
+          <div id="stepIndicator2" class="flex flex-col items-center gap-1 opacity-40">
+            <span class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-mono">2</span>
+            <span class="text-slate-600 dark:text-slate-400 truncate w-full">2. 2FA OTP</span>
+          </div>
+
+          <!-- Step 3 -->
+          <div id="stepIndicator3" class="flex flex-col items-center gap-1 opacity-40">
+            <span class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-mono">3</span>
+            <span class="text-slate-600 dark:text-slate-400 truncate w-full">3. KYC Form</span>
+          </div>
+
+          <!-- Step 4 -->
+          <div id="stepIndicator4" class="flex flex-col items-center gap-1 opacity-40">
+            <span class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-mono">4</span>
+            <span class="text-slate-600 dark:text-slate-400 truncate w-full">4. Review</span>
+          </div>
+
+          <!-- Step 5 -->
+          <div id="stepIndicator5" class="flex flex-col items-center gap-1 opacity-40">
+            <span class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-mono">5</span>
+            <span class="text-slate-600 dark:text-slate-400 truncate w-full">5. Status</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar Line -->
+        <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+          <div id="wizardProgressBar" class="h-full bg-emerald-500 transition-all duration-300 ease-out" style="width: 20%;"></div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- STEP 1: VERIFY INVITATION -->
+      <!-- ================================================================= -->
+      <div id="verifyStep1" class="space-y-6">
+        <!-- Officer Profile Banner -->
+        <div class="bg-gradient-to-r from-emerald-900 via-slate-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-emerald-800/40 shadow-xl space-y-4">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Official Appointment &amp; Identity Gateway
+              </span>
+              <h1 class="text-xl sm:text-2xl font-black text-white mt-1.5" id="step1OfficerName">Officer Name</h1>
+              <p class="text-xs text-slate-300 mt-0.5" id="step1OfficerDesignation">Designation • Zone</p>
+            </div>
+            <div class="text-right">
+              <span class="px-3 py-1 rounded-lg text-xs font-bold font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30 inline-block">
+                🔒 PROVISIONALLY LOCKED
+              </span>
+              <p class="text-[10px] text-slate-400 font-mono mt-1" id="step1Username">@username</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 pt-2 border-t border-white/10 leading-relaxed">
+            Pursuant to the Legal Metrology Act, 2009, this appointment link was provisioned by your Zonal Enforcement Controller. In accordance with strict administrative security controls, this account remains <strong>LOCKED</strong> until you confirm your invitation, verify 2FA contact, and submit verified KYC documentation for statutory approval.
+          </p>
+        </div>
+
+        <!-- Appointment Particulars Card -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+          <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+            <h2 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <span>📋</span> <span>Step 1: Confirm Official Invitation Details</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Please inspect the non-sensitive appointment credentials configured by your administrative office.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80">
+              <span class="text-slate-400 block text-[10px] font-bold uppercase tracking-wider">Candidate / Officer Name</span>
+              <span id="cardName" class="font-bold text-slate-800 dark:text-slate-100 text-sm mt-0.5 block">—</span>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80">
+              <span class="text-slate-400 block text-[10px] font-bold uppercase tracking-wider">Statutory Cadre &amp; Role</span>
+              <span id="cardRole" class="font-bold text-slate-800 dark:text-slate-100 text-sm mt-0.5 block capitalize">—</span>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80">
+              <span class="text-slate-400 block text-[10px] font-bold uppercase tracking-wider">Designation</span>
+              <span id="cardDesignation" class="font-bold text-slate-800 dark:text-slate-100 text-sm mt-0.5 block">—</span>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80">
+              <span class="text-slate-400 block text-[10px] font-bold uppercase tracking-wider">Jurisdiction Zone &amp; State</span>
+              <span id="cardJurisdiction" class="font-bold text-emerald-700 dark:text-emerald-400 text-sm mt-0.5 block">—</span>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 sm:col-span-2">
+              <span class="text-slate-400 block text-[10px] font-bold uppercase tracking-wider">2FA Contact Channel (Masked)</span>
+              <span id="cardMaskedContact" class="font-mono font-bold text-slate-800 dark:text-slate-100 text-sm mt-0.5 block">—</span>
+            </div>
+          </div>
+
+          <!-- Confirmation Checkbox -->
+          <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-4">
+            <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 cursor-pointer select-none">
+              <input type="checkbox" id="confirmInvitationCheck" onchange="toggleStep1Button()" class="mt-0.5 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+              <span class="text-xs text-slate-700 dark:text-slate-200 font-medium leading-relaxed">
+                I solemnly confirm that I am the designated officer identified in this statutory appointment notice, and I wish to proceed with identity verification and KYC submission.
+              </span>
+            </label>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+              <button type="button" id="btnStep1Continue" onclick="goToStep2()" disabled class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:dark:bg-slate-700 disabled:cursor-not-allowed text-white text-xs font-bold shadow-md transition active:scale-95 cursor-pointer flex items-center gap-1.5">
+                <span>Continue to Contact 2FA</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- STEP 2: MOBILE / EMAIL OTP VERIFICATION -->
+      <!-- ================================================================= -->
+      <div id="verifyStep2" class="hidden bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">
+            <span>🛡️ STEP 2 OF 5</span>
+            <span>•</span>
+            <span id="otpChannelTypeLabel">Mobile Number Verification</span>
+          </div>
+          <h2 class="text-lg font-black text-slate-900 dark:text-white">Verify Registered Contact Channel</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            To prevent unauthorized account provisioning, a 6-digit One-Time Password must be validated against your registered contact.
+          </p>
+        </div>
+
+        <!-- Contact Method Card -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-lg" id="otpChannelIcon">
+              📱
+            </div>
+            <div>
+              <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400" id="otpChannelDesc">Registered Mobile Phone</p>
+              <p class="text-sm font-bold font-mono text-slate-900 dark:text-slate-100" id="otpMaskedContact">+91 ••••• •••••</p>
+            </div>
+          </div>
+          <button type="button" id="sendOtpBtn" onclick="handleSendOtp()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold shadow-md transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+            <span>Send OTP Code</span>
+            <span>→</span>
+          </button>
+        </div>
+
+        <!-- OTP Input Area (Revealed after Send OTP) -->
+        <div id="otpInputArea" class="hidden space-y-4 pt-2">
+          
+          <!-- Sandbox / Evaluator Demo Box -->
+          <div id="demoCodeHelper" class="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-center space-y-2">
+            <div class="flex items-center justify-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-300">
+              <span>⚡ Prototype Evaluator Sandbox</span>
+              <span>•</span>
+              <span>No SMS/Email Dependency</span>
+            </div>
+            <p class="text-xs text-amber-700 dark:text-amber-400">
+              Generated Cryptographic OTP: <strong id="demoCodeValue" class="font-mono text-base px-2 py-0.5 bg-amber-100 dark:bg-amber-900 rounded font-black tracking-widest">000000</strong>
+            </p>
+            <button type="button" onclick="autoFillDemoOtp()" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition active:scale-95 cursor-pointer">
+              <span>⚡ Click to Auto-Fill Code</span>
+            </button>
+          </div>
+
+          <div class="text-center space-y-1">
+            <p class="text-xs font-semibold text-slate-700 dark:text-slate-200">Enter the 6-Digit Verification Code</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400" id="otpDispatchNotification">Code dispatched. Valid for 10 minutes.</p>
+          </div>
+
+          <!-- 6 Digit Input Boxes -->
+          <div class="flex items-center justify-center gap-2 sm:gap-3 py-2" id="otpBoxesContainer">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs" data-index="0" autofocus>
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs" data-index="1">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs" data-index="2">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs" data-index="3">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs" data-index="4">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-box w-11 h-13 sm:w-12 sm:h-14 text-center font-mono text-xl font-black rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs" data-index="5">
+          </div>
+
+          <!-- Error Alert Banner -->
+          <div id="otpErrorAlert" class="hidden p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-700 dark:text-rose-300 font-medium text-center"></div>
+
+          <!-- Actions & Resend Timer -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div class="text-xs text-slate-500">
+              <span id="resendCountdownText">Resend available in <span id="resendSeconds" class="font-bold font-mono">60</span>s</span>
+              <button type="button" id="resendOtpBtn" onclick="handleSendOtp()" class="hidden font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
+                Resend Code Now
+              </button>
+            </div>
+            <button type="button" id="confirmOtpBtn" onclick="handleConfirmOtp()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-lg transition active:scale-95 cursor-pointer">
+              Verify Code &amp; Continue to KYC →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- STEP 3: STATUTORY KYC & CREDENTIAL FORM -->
+      <!-- ================================================================= -->
+      <form id="verifyStep3" onsubmit="handleProceedToReview(event)" class="hidden bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">
+            <span>✓ OTP VERIFIED</span>
+            <span>•</span>
+            <span>STEP 3 OF 5: COMPLETE KYC DOSSIER</span>
+          </div>
+          <h2 class="text-lg font-black text-slate-900 dark:text-white">Statutory KYC &amp; Identity Documentation</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Submit verified identity numbers, personal profile, and official appointment orders.
+          </p>
+        </div>
+
+        <!-- SECTION A: PERSONAL PARTICULARS -->
+        <div class="space-y-4">
+          <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+            <span>👤</span> <span>Section A: Personal Particulars</span>
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Full Legal Name (as per Govt ID) <span class="text-rose-500">*</span></label>
+              <input type="text" id="kycFullName" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-medium focus:bg-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Father's / Guardian's Legal Name <span class="text-rose-500">*</span></label>
+              <input type="text" id="kycGuardianName" required placeholder="e.g. Shri R. K. Sharma" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Date of Birth <span class="text-rose-500">*</span></label>
+              <input type="date" id="kycDob" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Gender <span class="text-rose-500">*</span></label>
+              <select id="kycGender" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium focus:outline-none focus:border-emerald-500">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Residential Address <span class="text-rose-500">*</span></label>
+              <textarea id="kycResidentialAddress" rows="2" required placeholder="Official quarters or residential address..." class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+            </div>
+            <div class="sm:col-span-2">
+              <div class="flex items-center justify-between mb-1">
+                <label class="font-semibold text-slate-700 dark:text-slate-200">Permanent Address <span class="text-rose-500">*</span></label>
+                <button type="button" onclick="copyResidentialToPermanent()" class="text-[11px] font-bold text-emerald-600 hover:underline cursor-pointer">Same as Residential</button>
+              </div>
+              <textarea id="kycPermanentAddress" rows="2" required placeholder="Permanent domicile address..." class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION B: STATUTORY IDENTITY VERIFICATION -->
+        <div class="space-y-4 pt-2">
+          <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+            <span>🪪</span> <span>Section B: Statutory Identity Credentials</span>
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Identity Proof Type <span class="text-rose-500">*</span></label>
+              <select id="kycIdType" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium focus:outline-none focus:border-emerald-500">
+                <option value="Aadhaar Card">Aadhaar Card (UIDAI)</option>
+                <option value="PAN Card">Permanent Account Number (PAN)</option>
+                <option value="Passport">Indian Passport</option>
+                <option value="Service Identity Card">Official Departmental ID Card</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Identity Document Number <span class="text-rose-500">*</span></label>
+              <input type="text" id="kycIdNumber" required placeholder="e.g. 12-digit Aadhaar / 10-char PAN" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono font-bold focus:outline-none focus:border-emerald-500">
+              <p class="text-[10px] text-slate-400 mt-1">🔒 Stored in cryptographic masked format at rest.</p>
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">PAN Card Number <span class="text-rose-500">*</span></label>
+              <input type="text" id="kycPanNumber" required placeholder="e.g. ABCDE1234F" maxlength="10" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono font-bold uppercase focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Attach Identity Proof Document <span class="text-rose-500">*</span></label>
+              <div class="flex items-center gap-2">
+                <input type="file" id="kycIdDocFile" class="hidden" accept=".pdf,.png,.jpg,.jpeg" onchange="onKycFileSelected(this, 'idDocFileNameDisplay')">
+                <button type="button" onclick="document.getElementById('kycIdDocFile').click()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-bold transition cursor-pointer whitespace-nowrap">
+                  📎 Upload File
+                </button>
+                <button type="button" onclick="useSampleGovtIdDoc()" class="px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold transition cursor-pointer whitespace-nowrap">
+                  ⚡ Use Sample ID
+                </button>
+              </div>
+              <p id="idDocFileNameDisplay" class="text-[11px] text-slate-500 font-mono mt-1 truncate">No file attached</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION C: OFFICIAL SERVICE & APPOINTMENT ORDER -->
+        <div class="space-y-4 pt-2">
+          <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+            <span>🏛️</span> <span>Section C: Official Service &amp; Posting Details</span>
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Employee / Service Badge ID <span class="text-rose-500">*</span></label>
+              <input type="text" id="kycServiceId" required placeholder="e.g. LMI-DL-2026-088" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono font-bold focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Department / Directorate</label>
+              <input type="text" id="kycDepartment" value="Directorate of Legal Metrology" readonly class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 font-medium text-slate-500">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Cadre Designation</label>
+              <input type="text" id="kycDesignation" readonly class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 font-medium text-slate-500">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Jurisdiction Posting Zone</label>
+              <input type="text" id="kycPostingZone" readonly class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 font-medium text-slate-500">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Official Gazetted Appointment Order / Joining Memo <span class="text-rose-500">*</span></label>
+              <div class="flex items-center gap-2">
+                <input type="file" id="kycAppointmentFile" class="hidden" accept=".pdf,.png,.jpg,.jpeg" onchange="onKycFileSelected(this, 'appointmentFileNameDisplay')">
+                <button type="button" onclick="document.getElementById('kycAppointmentFile').click()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-bold transition cursor-pointer whitespace-nowrap">
+                  📄 Attach Order PDF
+                </button>
+                <button type="button" onclick="useSampleAppointmentDoc()" class="px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold transition cursor-pointer whitespace-nowrap">
+                  ⚡ Use Sample Appointment Order
+                </button>
+              </div>
+              <p id="appointmentFileNameDisplay" class="text-[11px] text-slate-500 font-mono mt-1 truncate">No order attached</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md active:scale-95 transition cursor-pointer">
+            Proceed to Final Review →
+          </button>
+        </div>
+      </form>
+
+      <!-- ================================================================= -->
+      <!-- STEP 4: REVIEW & LEGAL DECLARATION -->
+      <!-- ================================================================= -->
+      <div id="verifyStep4" class="hidden bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">
+            <span>🛡️ STEP 4 OF 5</span>
+            <span>•</span>
+            <span>FINAL DOSSIER REVIEW</span>
+          </div>
+          <h2 class="text-lg font-black text-slate-900 dark:text-white">Review Dossier &amp; Submit for Approval</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Please verify all details before submitting. Once submitted, this dossier is sealed and routed to the administrative approval hierarchy.
+          </p>
+        </div>
+
+        <!-- Review Summary Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <!-- Card 1: Personal Particulars -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 border-b border-slate-200/80 dark:border-slate-700 pb-1.5">
+              <span>👤</span> <span>Personal Profile</span>
+            </h4>
+            <div>
+              <span class="text-slate-400 block text-[10px]">Full Name:</span>
+              <span id="revFullName" class="font-bold text-slate-800 dark:text-slate-200">—</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px]">Father / Guardian:</span>
+              <span id="revGuardian" class="font-medium text-slate-700 dark:text-slate-300">—</span>
+            </div>
+            <div class="flex gap-4">
+              <div>
+                <span class="text-slate-400 block text-[10px]">DOB:</span>
+                <span id="revDob" class="font-medium text-slate-700 dark:text-slate-300">—</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px]">Gender:</span>
+                <span id="revGender" class="font-medium text-slate-700 dark:text-slate-300">—</span>
+              </div>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px]">Residential Address:</span>
+              <span id="revAddress" class="font-medium text-slate-700 dark:text-slate-300 leading-tight block truncate">—</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Identity Credentials -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 border-b border-slate-200/80 dark:border-slate-700 pb-1.5">
+              <span>🪪</span> <span>Identity &amp; 2FA Status</span>
+            </h4>
+            <div>
+              <span class="text-slate-400 block text-[10px]">2FA Verification:</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                <span>✓</span> <span id="rev2faChannel">Mobile OTP Confirmed</span>
+              </span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px]" id="revIdTypeLabel">Identity Number:</span>
+              <span id="revIdNumber" class="font-mono font-bold text-slate-800 dark:text-slate-200">—</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px]">PAN Card:</span>
+              <span id="revPan" class="font-mono font-bold text-slate-800 dark:text-slate-200">—</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px]">Statutory Status:</span>
+              <span class="font-semibold text-amber-600 dark:text-amber-400">🔒 Account Locked Until Approval</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Service & Posting Details -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 border-b border-slate-200/80 dark:border-slate-700 pb-1.5">
+              <span>🏛️</span> <span>Official Service Particulars</span>
+            </h4>
+            <div>
+              <span class="text-slate-400 block text-[10px]">Service Badge ID:</span>
+              <span id="revServiceId" class="font-mono font-bold text-slate-800 dark:text-slate-200">—</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px]">Cadre &amp; Designation:</span>
+              <span id="revDesignation" class="font-bold text-slate-800 dark:text-slate-200">—</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px]">Jurisdiction Jurisdiction:</span>
+              <span id="revZoneState" class="font-medium text-emerald-700 dark:text-emerald-400">—</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Documents Attached -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 border-b border-slate-200/80 dark:border-slate-700 pb-1.5">
+              <span>📎</span> <span>Attached Documents (Encrypted)</span>
+            </h4>
+            <div class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <span class="font-mono text-[11px] truncate" id="revIdDocFileName">identity_proof.pdf</span>
+              <span class="text-[10px] text-emerald-600 font-bold px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950 rounded">✓ Valid</span>
+            </div>
+            <div class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <span class="font-mono text-[11px] truncate" id="revApptDocFileName">appointment_order.pdf</span>
+              <span class="text-[10px] text-emerald-600 font-bold px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950 rounded">✓ Valid</span>
+            </div>
+            <p class="text-[10px] text-slate-400 pt-1">🔒 SHA-256 seal integrity generated upon submission.</p>
+          </div>
+        </div>
+
+        <!-- Statutory Legal Declaration -->
+        <div class="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 space-y-3">
+          <label class="flex items-start gap-3 cursor-pointer select-none">
+            <input type="checkbox" id="revLegalDeclaration" class="mt-0.5 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+            <span class="text-xs text-slate-700 dark:text-slate-200 font-medium leading-relaxed">
+              I hereby solemnly declare under the Legal Metrology Act, 2009 and Bharatiya Sakshya Adhiniyam (BSA), 2023 that all personal particulars, identification proofs, and appointment documents submitted herein are genuine, valid, and authentic.
+            </span>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <button type="button" onclick="goToStep3()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition cursor-pointer">
+            ← Back to Edit KYC
+          </button>
+          <button type="button" id="submitKycBtn" onclick="submitKycDossier()" class="px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xl active:scale-95 transition cursor-pointer flex items-center gap-2">
+            <span>Submit Verification Dossier for Approval</span>
+            <span>✓</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- STEP 5: APPLICATION SUBMITTED & LIVE STATUS TRACKER -->
+      <!-- ================================================================= -->
+      <div id="verifyStep5" class="hidden bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-2xl text-center space-y-6">
+        <div class="w-16 h-16 rounded-3xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-3xl mx-auto shadow-sm">
+          ✓
+        </div>
+        <div class="space-y-2">
+          <span class="px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-mono inline-block">
+            Verification Completed → Pending Administrative Approval
+          </span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Dossier Forwarded to Administrative Command</h2>
+          <p class="text-xs text-slate-600 dark:text-slate-300 max-w-lg mx-auto leading-relaxed">
+            Your 2FA identity has been confirmed and statutory KYC credentials have been sealed into the National Enforcement Registry.
+          </p>
+        </div>
+
+        <!-- Lock Warning Callout -->
+        <div class="max-w-lg mx-auto p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/80 text-left text-xs space-y-1.5">
+          <div class="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+            <span>🔒</span> <span>Account Remains Locked (Login Prohibited)</span>
+          </div>
+          <p class="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
+            In compliance with strict administrative governance rules, your account cannot log in yet. Access will remain blocked until the Zonal Controller and National Administrator review and approve this case.
+          </p>
+        </div>
+
+        <!-- Live Case Tracking Card -->
+        <div class="max-w-md mx-auto p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-left space-y-3 font-mono text-xs">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
+            <span class="text-slate-500">Case Docket ID:</span>
+            <span id="finalRequestId" class="font-bold text-emerald-600 dark:text-emerald-400">CASE-2026-••••••</span>
+          </div>
+          <div class="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
+            <span class="text-slate-500">Review Stage:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">Zonal Review → National Approval</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">Account Access:</span>
+            <span class="font-bold text-amber-600 dark:text-amber-400">🔒 Locked (HTTP 403)</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="pt-4 flex flex-wrap justify-center gap-3">
+          <a href="/" class="px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition">
+            Portal Homepage
+          </a>
+          <button type="button" onclick="window.print()" class="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold shadow-md transition cursor-pointer">
+            Print Acknowledgment Slip 🖨️
+          </button>
+          <a href="/index.html?test_locked=1" class="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-md transition">
+            Test Officer Login (Demonstrates 403 Lock) 🔒
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-xs text-slate-500">
+    <p>© 2026 Directorate of Legal Metrology • Department of Consumer Affairs • Government of India</p>
+  </footer>
+
+  <script src="js/verify.js"></script>
+</body>
+</html>

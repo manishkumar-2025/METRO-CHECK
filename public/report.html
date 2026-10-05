@@ -75,7 +75,9 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="alternate" hreflang="en" href="/report.html" />
   <link rel="alternate" hreflang="hi" href="/hi/report.html" />
   <link rel="stylesheet" href="css/style.css">
@@ -100,6 +102,14 @@
     }
 
     /* Executive Sovereign Masthead & Top Action Bar Layout */
+    html {
+      scroll-padding-top: 5rem;
+    }
+
+    body {
+      padding-top: 4.5rem !important;
+    }
+
     #nationalGovMasthead {
       position: sticky;
       top: 0;
@@ -115,11 +125,14 @@
       background: transparent;
       border: none;
       box-shadow: none;
+      scroll-margin-top: 5rem;
+      z-index: 20;
     }
 
     /* Strict Statutory Clean Print Styles */
     @media print {
       body {
+        padding-top: 0 !important;
         background: #FFFFFF !important;
         color: #000000 !important;
       }
@@ -148,7 +161,7 @@
 </head>
 
 <body
-  class="bg-slate-100 dark:bg-slate-950 report-ruler-matrix-bg min-h-screen text-slate-800 dark:text-slate-200 antialiased p-0"
+  class="bg-slate-100 dark:bg-slate-950 report-ruler-matrix-bg min-h-screen text-slate-800 dark:text-slate-200 antialiased pt-16 sm:pt-20 px-0 pb-0"
   onload="initReportView()">
 
   <!-- GIGW Mandatory Accessibility Skip Link -->
@@ -159,7 +172,7 @@
 
   <!-- 1. OFFICIAL NATIONAL MASTHEAD & TRICOLOR HEADER BAR (Screen Only) -->
   <header id="nationalGovMasthead"
-    class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-[#E4E7EC] dark:border-slate-800 z-50 flex-shrink-0 select-none text-[#0F172A] glass-header fixed top-0 left-0 right-0 shadow-xs">
+    class="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-[#E4E7EC] dark:border-slate-800 z-50 flex-shrink-0 select-none text-[#0F172A] glass-header sticky top-0 left-0 right-0 z-50 shadow-xs">
     <div class="tricolor-strip"></div>
     <div class="w-full px-2.5 sm:px-6 py-1.5 sm:py-2 flex items-center justify-between gap-2 sm:gap-3">
 
@@ -487,474 +500,478 @@
 
     <!-- Section 7: Document Official Footer -->
     <footer
-    class="site-footer-container print:hidden w-full bg-slate-100/90 dark:bg-gradient-to-br dark:from-[#02050B] dark:via-[#050C18] dark:to-[#011C14] text-slate-800 dark:text-slate-200 border-t border-slate-300/80 dark:border-t-2 dark:border-t-emerald-500/90 shadow-md dark:shadow-[0_-15px_40px_rgba(4,120,87,0.25)] py-3 sm:py-5 lg:py-6 px-3.5 sm:px-6 lg:px-8 font-sans select-none transition-all duration-300 overflow-hidden">
-    <div class="max-w-7xl mx-auto space-y-2 sm:space-y-3.5 lg:space-y-4">
+      class="site-footer-container print:hidden w-full bg-slate-100/90 dark:bg-gradient-to-br dark:from-[#02050B] dark:via-[#050C18] dark:to-[#011C14] text-slate-800 dark:text-slate-200 border-t border-slate-300/80 dark:border-t-2 dark:border-t-emerald-500/90 shadow-md dark:shadow-[0_-15px_40px_rgba(4,120,87,0.25)] py-3 sm:py-5 lg:py-6 px-3.5 sm:px-6 lg:px-8 font-sans select-none transition-all duration-300 overflow-hidden">
+      <div class="max-w-7xl mx-auto space-y-2 sm:space-y-3.5 lg:space-y-4">
 
-      <!-- Row 1: Header Banner (Emblem, Sovereign Portal Title, & Responsive Helpdesk CTA) -->
-      <div
-        class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 pb-2 sm:pb-3 border-b border-slate-300/80 dark:border-slate-800/90">
-        <!-- Left: Emblem + Ministry Title -->
-        <div class="flex items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
-          <div
-            class="p-1 sm:p-2 rounded-xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs cursor-default"
-            title="State Emblem of India • e-LMCEP">
-            <img src="logo/logo.png" alt="State Emblem of India" class="h-7 w-auto sm:h-9 lg:h-10 object-contain" />
-          </div>
-          <div class="space-y-0.5 min-w-0 flex-1">
-            <div class="flex items-center justify-between sm:justify-start gap-1.5 sm:gap-2">
-              <a href="index.html"
-                class="text-xs sm:text-base lg:text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors truncate">
-                e-LMCEP (METRO-CHECK)
-              </a>
-              <span
-                class="hidden sm:inline-flex px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-300 text-[9px] sm:text-[11px] font-mono font-bold border border-emerald-300 dark:border-emerald-700/80 shadow-xs flex-shrink-0">
-                Official Sovereign Portal
-              </span>
-              <!-- Compact Mobile Helpdesk Button -->
-              <button type="button" onclick="openContactModal()"
-                class="sm:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10.5px] shadow-xs active:scale-95 transition-all flex-shrink-0"
-                aria-label="National Helpdesk">
-                <span>📞</span><span>Helpdesk</span>
-              </button>
-            </div>
-            <div
-              class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
-              Legal Metrology Compliance &amp; Enforcement Platform
-            </div>
-            <div
-              class="text-[9.5px] sm:text-xs lg:text-[12.5px] text-slate-600 dark:text-slate-400 font-medium leading-tight">
-              <span class="sm:hidden">Dept. of Consumer Affairs • Govt. of India</span>
-              <span class="hidden sm:inline">Department of Consumer Affairs • Ministry of Consumer Affairs, Food &amp;
-                Public Distribution • Govt. of India</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: National Helpdesk Action Button (Desktop/Tablet Only) -->
-        <div class="hidden sm:flex items-center gap-3 flex-shrink-0 w-full sm:w-auto mt-1 sm:mt-0">
-          <button type="button" onclick="openContactModal()"
-            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-md hover:shadow-lg shadow-emerald-900/20 dark:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 cursor-pointer text-xs lg:text-sm min-h-[40px] sm:min-h-[44px]">
-            <span class="text-sm lg:text-base">📞</span>
-            <span>National Helpdesk &amp; Grievance Portal</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Row 2: Navigation & Statutory Information (Compact Mobile Stack / 2-Col Tablet / 4-Col Desktop) -->
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5 lg:gap-5 text-slate-700 dark:text-slate-300">
-
-        <!-- Column 1: Operational Portals -->
-        <details open
-          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
-          <summary
-            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
-            <span class="flex items-center gap-1.5 sm:gap-2">
-              <span
-                class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🏛️</span>
-              <span>OPERATIONAL PORTALS</span>
-            </span>
-            <svg
-              class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </summary>
-          <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
-            <li>
-              <a href="inspector.html"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>Field Inspector Optical Capture</span>
-              </a>
-            </li>
-            <li>
-              <a href="officer.html"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>Zonal Officer Adjudication Console</span>
-              </a>
-            </li>
-            <li>
-              <a href="admin.html"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>Pan-India Master Audit Ledger</span>
-              </a>
-            </li>
-            <li>
-              <a href="features.html"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>System Capabilities &amp; Mandates</span>
-              </a>
-            </li>
-          </ul>
-        </details>
-
-        <!-- Column 2: Statutory Framework -->
-        <details open
-          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
-          <summary
-            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
-            <span class="flex items-center gap-1.5 sm:gap-2">
-              <span
-                class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">⚖️</span>
-              <span>STATUTORY FRAMEWORK</span>
-            </span>
-            <svg
-              class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </summary>
-          <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
-            <li>
-              <a href="features.html#rule6-matrix"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>Rule 6 Mandatory Declarations</span>
-              </a>
-            </li>
-            <li>
-              <a href="features.html#penalties"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>Section 18 / 36 Penalty Schedule</span>
-              </a>
-            </li>
-            <li>
-              <a href="features.html#core-modules"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>Schedule II MAV Tolerance Limits</span>
-              </a>
-            </li>
-            <li>
-              <a href="features.html#pipeline"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>Form-V PDF Seizure Notices</span>
-              </a>
-            </li>
-          </ul>
-        </details>
-
-        <!-- Column 3: Government Links -->
-        <details open
-          class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
-          <summary
-            class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
-            <span class="flex items-center gap-1.5 sm:gap-2">
-              <span
-                class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🔗</span>
-              <span>GOVERNMENT LINKS</span>
-            </span>
-            <svg
-              class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </summary>
-          <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
-            <li>
-              <a href="https://consumeraffairs.nic.in" target="_blank" rel="noopener noreferrer"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>Dept. of Consumer Affairs</span>
-                <span
-                  class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://consumerhelpline.gov.in" target="_blank" rel="noopener noreferrer"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>National Consumer Helpline (NCH)</span>
-                <span
-                  class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://pgportal.gov.in" target="_blank" rel="noopener noreferrer"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>CPGRAMS Public Grievance</span>
-                <span
-                  class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://india.gov.in" target="_blank" rel="noopener noreferrer"
-                class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
-                <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
-                <span>National Portal of India</span>
-                <span
-                  class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
-              </a>
-            </li>
-          </ul>
-        </details>
-
-        <!-- Column 4: Redefined National Metrology Toll-Free Hotline Card -->
-        <div class="space-y-1.5 sm:space-y-2">
-          <h4
-            class="hidden sm:flex text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-300/80 dark:border-emerald-900/60 pb-1.5 sm:pb-2 items-center gap-2">
-            <span
-              class="w-6 h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">📞</span>
-            <span>National Metrology Toll-Free</span>
-          </h4>
-          <div
-            class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gradient-to-br dark:from-[#061D17] dark:to-[#020B09] border border-emerald-500/30 dark:border-emerald-800/80 space-y-1.5 sm:space-y-2 shadow-sm dark:shadow-[0_4px_25px_rgba(16,185,129,0.2)] hover:border-emerald-500/60 transition-all duration-200">
-            <div class="flex items-center justify-between">
-              <div
-                class="text-[10px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>National Consumer Helpline</span>
-              </div>
-              <span
-                class="text-[8.5px] sm:text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Toll-Free</span>
-            </div>
-
-            <!-- Dual 1-Tap Dial Action Grid -->
-            <div class="grid grid-cols-2 gap-1.5 sm:gap-2 pt-0.5">
-              <a href="tel:1915"
-                class="flex items-center justify-center gap-1.5 py-1.5 sm:py-2 px-2.5 rounded-lg sm:rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-black text-xs sm:text-sm shadow-sm active:scale-95 transition-all min-h-[34px] sm:min-h-[40px]"
-                title="Call Toll-Free Helpline 1915">
-                <span>📞</span>
-                <span>1915</span>
-              </a>
-              <a href="tel:1800114000"
-                class="flex items-center justify-center gap-1 py-1.5 sm:py-2 px-2 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-mono font-bold text-[10.5px] sm:text-xs tracking-tight shadow-sm active:scale-95 transition-all min-h-[34px] sm:min-h-[40px]"
-                title="Call Toll-Free 1800-11-4000">
-                <span>1800-11-4000</span>
-              </a>
-            </div>
-
-            <div
-              class="text-[9px] sm:text-[10.5px] lg:text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800 leading-tight font-normal">
-              Available daily except national holidays, 08:00 AM – 08:00 PM IST
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Row 3: Statutory Policy & Compliance Links Strip (WCAG AAA High-Contrast & Clean Wrap) -->
-      <div
-        class="pt-2 sm:pt-2.5 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col sm:flex-row items-center justify-between gap-y-1.5 gap-x-2 sm:gap-x-4 text-[10px] sm:text-xs lg:text-[12.5px] leading-normal text-slate-700 dark:text-slate-300 text-center">
-        <!-- Policies Group (Unbreakable flex items) -->
-        <div class="flex flex-wrap items-center justify-center gap-x-2.5 sm:gap-x-3 gap-y-1">
-          <button type="button" onclick="openPolicyModal('terms')"
-            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-            Terms of Service
-          </button>
-          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <button type="button" onclick="openPolicyModal('privacy')"
-            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-            Privacy Policy
-          </button>
-          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <button type="button" onclick="openPolicyModal('copyright')"
-            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-            Copyright Policy
-          </button>
-          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <button type="button" onclick="openPolicyModal('hyperlinking')"
-            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-            Hyperlinking Policy
-          </button>
-          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <button type="button" onclick="openPolicyModal('accessibility')"
-            class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
-            Accessibility Statement
-          </button>
-        </div>
-
-        <!-- Certification Pill -->
-        <div class="flex items-center justify-center">
-          <button type="button" onclick="openPolicyModal('gigw')"
-            class="footer-legal-link inline-flex items-center justify-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:bg-emerald-500/20 border border-emerald-500/20 cursor-pointer text-[10px] sm:text-[11px] transition-colors">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>GIGW 3.0 &amp; WCAG 2.1 AAA Certified</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Row 4: Credits, Infrastructure & Sovereign Copyright Attribution -->
-      <div
-        class="pt-1.5 sm:pt-2 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col md:flex-row items-center justify-between gap-1 sm:gap-2 text-[9.5px] sm:text-xs lg:text-[12px] leading-tight text-slate-600 dark:text-slate-400 text-center md:text-left">
-        <div class="flex items-center justify-center md:justify-start gap-1.5 text-center md:text-left">
-          <span>Website Content &amp; Infrastructure Managed by <strong
-              class="font-semibold text-slate-800 dark:text-slate-200">Dept. of Consumer Affairs, Govt. of
-              India</strong></span>
-        </div>
-
+        <!-- Row 1: Header Banner (Emblem, Sovereign Portal Title, & Responsive Helpdesk CTA) -->
         <div
-          class="flex flex-wrap items-center justify-center md:justify-end gap-x-2 sm:gap-x-2.5 gap-y-1 font-mono text-[9px] sm:text-xs lg:text-[11.5px]">
-          <span>Designed &amp; Developed by <strong class="text-slate-800 dark:text-slate-200">NIC</strong></span>
-          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <span
-            class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[8.5px] sm:text-[10.5px]">Build
-            v8.1.0</span>
-          <span id="metrocheck-footer-install-dot" class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <button id="metrocheck-footer-install-btn" type="button" onclick="if (typeof triggerPwaInstall === 'function') triggerPwaInstall();"
-            class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold hover:underline cursor-pointer text-[9px] sm:text-xs lg:text-[11.5px] font-mono transition-colors">
-            <span>📥</span><span>Install App</span>
-          </button>
-          <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <span class="font-medium block sm:inline w-full sm:w-auto text-center mt-0.5 sm:mt-0">© 2026 Government of India</span>
+          class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 pb-2 sm:pb-3 border-b border-slate-300/80 dark:border-slate-800/90">
+          <!-- Left: Emblem + Ministry Title -->
+          <div class="flex items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
+            <div
+              class="p-1 sm:p-2 rounded-xl bg-white/95 dark:bg-emerald-950/60 border border-slate-300/90 dark:border-emerald-800/80 flex-shrink-0 shadow-xs cursor-default"
+              title="State Emblem of India • e-LMCEP">
+              <img src="logo/logo.png" alt="State Emblem of India" class="h-7 w-auto sm:h-9 lg:h-10 object-contain" />
+            </div>
+            <div class="space-y-0.5 min-w-0 flex-1">
+              <div class="flex items-center justify-between sm:justify-start gap-1.5 sm:gap-2">
+                <a href="index.html"
+                  class="text-xs sm:text-base lg:text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors truncate">
+                  e-LMCEP (METRO-CHECK)
+                </a>
+                <span
+                  class="hidden sm:inline-flex px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-300 text-[9px] sm:text-[11px] font-mono font-bold border border-emerald-300 dark:border-emerald-700/80 shadow-xs flex-shrink-0">
+                  Official Sovereign Portal
+                </span>
+                <!-- Compact Mobile Helpdesk Button -->
+                <button type="button" onclick="openContactModal()"
+                  class="sm:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10.5px] shadow-xs active:scale-95 transition-all flex-shrink-0"
+                  aria-label="National Helpdesk">
+                  <span>📞</span><span>Helpdesk</span>
+                </button>
+              </div>
+              <div
+                class="text-[11px] sm:text-xs lg:text-[13.5px] text-slate-700 dark:text-slate-300 font-semibold leading-tight truncate sm:whitespace-normal">
+                Legal Metrology Compliance &amp; Enforcement Platform
+              </div>
+              <div
+                class="text-[9.5px] sm:text-xs lg:text-[12.5px] text-slate-600 dark:text-slate-400 font-medium leading-tight">
+                <span class="sm:hidden">Dept. of Consumer Affairs • Govt. of India</span>
+                <span class="hidden sm:inline">Department of Consumer Affairs • Ministry of Consumer Affairs, Food &amp;
+                  Public Distribution • Govt. of India</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: National Helpdesk Action Button (Desktop/Tablet Only) -->
+          <div class="hidden sm:flex items-center gap-3 flex-shrink-0 w-full sm:w-auto mt-1 sm:mt-0">
+            <button type="button" onclick="openContactModal()"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-md hover:shadow-lg shadow-emerald-900/20 dark:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 cursor-pointer text-xs lg:text-sm min-h-[40px] sm:min-h-[44px]">
+              <span class="text-sm lg:text-base">📞</span>
+              <span>National Helpdesk &amp; Grievance Portal</span>
+            </button>
+          </div>
         </div>
+
+        <!-- Row 2: Navigation & Statutory Information (Compact Mobile Stack / 2-Col Tablet / 4-Col Desktop) -->
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5 lg:gap-5 text-slate-700 dark:text-slate-300">
+
+          <!-- Column 1: Operational Portals -->
+          <details open
+            class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
+            <summary
+              class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
+              <span class="flex items-center gap-1.5 sm:gap-2">
+                <span
+                  class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🏛️</span>
+                <span>OPERATIONAL PORTALS</span>
+              </span>
+              <svg
+                class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </summary>
+            <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
+              <li>
+                <a href="inspector.html"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>Field Inspector Optical Capture</span>
+                </a>
+              </li>
+              <li>
+                <a href="officer.html"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>Zonal Officer Adjudication Console</span>
+                </a>
+              </li>
+              <li>
+                <a href="admin.html"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>Pan-India Master Audit Ledger</span>
+                </a>
+              </li>
+              <li>
+                <a href="features.html"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>System Capabilities &amp; Mandates</span>
+                </a>
+              </li>
+            </ul>
+          </details>
+
+          <!-- Column 2: Statutory Framework -->
+          <details open
+            class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
+            <summary
+              class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
+              <span class="flex items-center gap-1.5 sm:gap-2">
+                <span
+                  class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">⚖️</span>
+                <span>STATUTORY FRAMEWORK</span>
+              </span>
+              <svg
+                class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </summary>
+            <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
+              <li>
+                <a href="features.html#rule6-matrix"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>Rule 6 Mandatory Declarations</span>
+                </a>
+              </li>
+              <li>
+                <a href="features.html#penalties"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>Section 18 / 36 Penalty Schedule</span>
+                </a>
+              </li>
+              <li>
+                <a href="features.html#core-modules"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>Schedule II MAV Tolerance Limits</span>
+                </a>
+              </li>
+              <li>
+                <a href="features.html#pipeline"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>Form-V PDF Seizure Notices</span>
+                </a>
+              </li>
+            </ul>
+          </details>
+
+          <!-- Column 3: Government Links -->
+          <details open
+            class="footer-mobile-accordion group rounded-xl sm:rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-2 sm:p-0 sm:border-0 sm:bg-transparent space-y-1 sm:space-y-1.5 lg:space-y-2 shadow-xs transition-all">
+            <summary
+              class="flex items-center justify-between text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-transparent group-open:border-slate-200/80 group-open:dark:border-slate-800 sm:border-slate-300/80 sm:dark:border-emerald-900/60 pb-1 sm:pb-1.5 cursor-pointer sm:cursor-default select-none min-h-[34px] sm:min-h-[40px]">
+              <span class="flex items-center gap-1.5 sm:gap-2">
+                <span
+                  class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">🔗</span>
+                <span>GOVERNMENT LINKS</span>
+              </span>
+              <svg
+                class="w-3.5 h-3.5 sm:hidden text-slate-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </summary>
+            <ul class="pt-1 sm:pt-0 space-y-0.5 sm:space-y-1 lg:space-y-1.5 text-xs lg:text-[13px]">
+              <li>
+                <a href="https://consumeraffairs.nic.in" target="_blank" rel="noopener noreferrer"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>Dept. of Consumer Affairs</span>
+                  <span
+                    class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://consumerhelpline.gov.in" target="_blank" rel="noopener noreferrer"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>National Consumer Helpline (NCH)</span>
+                  <span
+                    class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://pgportal.gov.in" target="_blank" rel="noopener noreferrer"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>CPGRAMS Public Grievance</span>
+                  <span
+                    class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://india.gov.in" target="_blank" rel="noopener noreferrer"
+                  class="footer-nav-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium group">
+                  <span class="link-arrow text-emerald-600 dark:text-emerald-400 font-bold">›</span>
+                  <span>National Portal of India</span>
+                  <span
+                    class="text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">↗</span>
+                </a>
+              </li>
+            </ul>
+          </details>
+
+          <!-- Column 4: Redefined National Metrology Toll-Free Hotline Card -->
+          <div class="space-y-1.5 sm:space-y-2">
+            <h4
+              class="hidden sm:flex text-xs lg:text-[13px] font-bold text-slate-900 dark:text-emerald-400 uppercase tracking-wider font-mono border-b border-slate-300/80 dark:border-emerald-900/60 pb-1.5 sm:pb-2 items-center gap-2">
+              <span
+                class="w-6 h-6 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">📞</span>
+              <span>National Metrology Toll-Free</span>
+            </h4>
+            <div
+              class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-gradient-to-br dark:from-[#061D17] dark:to-[#020B09] border border-emerald-500/30 dark:border-emerald-800/80 space-y-1.5 sm:space-y-2 shadow-sm dark:shadow-[0_4px_25px_rgba(16,185,129,0.2)] hover:border-emerald-500/60 transition-all duration-200">
+              <div class="flex items-center justify-between">
+                <div
+                  class="text-[10px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>National Consumer Helpline</span>
+                </div>
+                <span
+                  class="text-[8.5px] sm:text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Toll-Free</span>
+              </div>
+
+              <!-- Dual 1-Tap Dial Action Grid -->
+              <div class="grid grid-cols-2 gap-1.5 sm:gap-2 pt-0.5">
+                <a href="tel:1915"
+                  class="flex items-center justify-center gap-1.5 py-1.5 sm:py-2 px-2.5 rounded-lg sm:rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-black text-xs sm:text-sm shadow-sm active:scale-95 transition-all min-h-[34px] sm:min-h-[40px]"
+                  title="Call Toll-Free Helpline 1915">
+                  <span>📞</span>
+                  <span>1915</span>
+                </a>
+                <a href="tel:1800114000"
+                  class="flex items-center justify-center gap-1 py-1.5 sm:py-2 px-2 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-mono font-bold text-[10.5px] sm:text-xs tracking-tight shadow-sm active:scale-95 transition-all min-h-[34px] sm:min-h-[40px]"
+                  title="Call Toll-Free 1800-11-4000">
+                  <span>1800-11-4000</span>
+                </a>
+              </div>
+
+              <div
+                class="text-[9px] sm:text-[10.5px] lg:text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800 leading-tight font-normal">
+                Available daily except national holidays, 08:00 AM – 08:00 PM IST
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Row 3: Statutory Policy & Compliance Links Strip (WCAG AAA High-Contrast & Clean Wrap) -->
+        <div
+          class="pt-2 sm:pt-2.5 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col sm:flex-row items-center justify-between gap-y-1.5 gap-x-2 sm:gap-x-4 text-[10px] sm:text-xs lg:text-[12.5px] leading-normal text-slate-700 dark:text-slate-300 text-center">
+          <!-- Policies Group (Unbreakable flex items) -->
+          <div class="flex flex-wrap items-center justify-center gap-x-2.5 sm:gap-x-3 gap-y-1">
+            <button type="button" onclick="openPolicyModal('terms')"
+              class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              Terms of Service
+            </button>
+            <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+            <button type="button" onclick="openPolicyModal('privacy')"
+              class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              Privacy Policy
+            </button>
+            <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+            <button type="button" onclick="openPolicyModal('copyright')"
+              class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              Copyright Policy
+            </button>
+            <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+            <button type="button" onclick="openPolicyModal('hyperlinking')"
+              class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              Hyperlinking Policy
+            </button>
+            <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+            <button type="button" onclick="openPolicyModal('accessibility')"
+              class="footer-legal-link text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer">
+              Accessibility Statement
+            </button>
+          </div>
+
+          <!-- Certification Pill -->
+          <div class="flex items-center justify-center">
+            <button type="button" onclick="openPolicyModal('gigw')"
+              class="footer-legal-link inline-flex items-center justify-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 font-mono font-bold hover:bg-emerald-500/20 border border-emerald-500/20 cursor-pointer text-[10px] sm:text-[11px] transition-colors">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>GIGW 3.0 &amp; WCAG 2.1 AAA Certified</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Row 4: Credits, Infrastructure & Sovereign Copyright Attribution -->
+        <div
+          class="pt-1.5 sm:pt-2 border-t border-slate-300/80 dark:border-slate-800/90 flex flex-col md:flex-row items-center justify-between gap-1 sm:gap-2 text-[9.5px] sm:text-xs lg:text-[12px] leading-tight text-slate-600 dark:text-slate-400 text-center md:text-left">
+          <div class="flex items-center justify-center md:justify-start gap-1.5 text-center md:text-left">
+            <span>Website Content &amp; Infrastructure Managed by <strong
+                class="font-semibold text-slate-800 dark:text-slate-200">Dept. of Consumer Affairs, Govt. of
+                India</strong></span>
+          </div>
+
+          <div
+            class="flex flex-wrap items-center justify-center md:justify-end gap-x-2 sm:gap-x-2.5 gap-y-1 font-mono text-[9px] sm:text-xs lg:text-[11.5px]">
+            <span>Designed &amp; Developed by <strong class="text-slate-800 dark:text-slate-200">NIC</strong></span>
+            <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+            <span
+              class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[8.5px] sm:text-[10.5px]">Build
+              v8.4.0</span>
+            <span id="metrocheck-footer-install-dot"
+              class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+            <button id="metrocheck-footer-install-btn" type="button"
+              onclick="if (typeof triggerPwaInstall === 'function') triggerPwaInstall();"
+              class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold hover:underline cursor-pointer text-[9px] sm:text-xs lg:text-[11.5px] font-mono transition-colors">
+              <span>📥</span><span>Install App</span>
+            </button>
+            <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+            <span class="font-medium block sm:inline w-full sm:w-auto text-center mt-0.5 sm:mt-0">© 2026 Government of
+              India</span>
+          </div>
+        </div>
+
+        <!-- PWA Target Anchor for dynamic mounting fallback -->
+        <div id="pwa-install-container" class="hidden"></div>
+
       </div>
-
-      <!-- PWA Target Anchor for dynamic mounting fallback -->
-      <div id="pwa-install-container" class="hidden"></div>
-
-    </div>
-  </footer>
-  <!-- =========================================================================
+    </footer>
+    <!-- =========================================================================
        CONTACT SUPPORT & GRIEVANCE MODAL (WCAG AA Compliant)
        ========================================================================= -->
-  <div id="contactSupportModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle"
-    onclick="if (event.target === this) closeContactModal()"
-    class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
-    <div
-      class="bg-white dark:bg-slate-900 border border-[#E4E7EC] dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-[#0F172A] dark:text-slate-100 modal-animate-in">
+    <div id="contactSupportModal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle"
+      onclick="if (event.target === this) closeContactModal()"
+      class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 transition-opacity">
+      <div
+        class="bg-white dark:bg-slate-900 border border-[#E4E7EC] dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-[#0F172A] dark:text-slate-100 modal-animate-in">
 
-      <div class="flex items-center justify-between border-b border-[#E4E7EC] dark:border-slate-800 pb-3.5">
-        <div class="flex items-center gap-3">
-          <div
-            class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#10B981] dark:text-emerald-400 flex items-center justify-center text-xl border border-emerald-100 dark:border-emerald-800">
-            📞
-          </div>
-          <div>
-            <h3 class="text-base font-semibold text-[#0F172A] dark:text-slate-100">National Metrology Helpdesk</h3>
-            <p class="text-xs text-[#64748B] dark:text-slate-400">Department of Consumer Affairs • Grievance Redressal
-            </p>
-          </div>
-        </div>
-        <button type="button" onclick="closeContactModal()"
-          class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
-          title="Close Modal">✕</button>
-      </div>
-
-      <form id="contactForm" onsubmit="handleContactSubmit(event)" class="space-y-3.5 text-xs">
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label for="contactNameInput"
-              class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Your Full Name <span
-                class="text-red-500">*</span></label>
-            <input type="text" id="contactNameInput" required placeholder="e.g. Officer R. Sharma"
-              class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
-          </div>
-          <div>
-            <label for="contactEmailInput"
-              class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Official Email /
-              Mobile <span class="text-red-500">*</span></label>
-            <input type="text" id="contactEmailInput" required placeholder="name@nic.in or phone"
-              class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
-          </div>
-        </div>
-
-        <div>
-          <label for="contactCategorySelect"
-            class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Inquiry / Grievance
-            Category <span class="text-red-500">*</span></label>
-          <select id="contactCategorySelect" required
-            class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
-            <option value="Packaged Commodity Violation Report">Report Packaged Commodity Violation (Rule 6/MAV)
-            </option>
-            <option value="AI Scanner & Mobile OCR Technical Support">AI Vision & OCR Scanner Technical Support</option>
-            <option value="Officer Review Docket & PDF Notice Query">Officer Review Docket & Statutory Notice Question
-            </option>
-            <option value="User Credential & System Access Issue">System Access & User Credential Support</option>
-            <option value="General Legal Metrology Inquiries">General Legal Metrology Act & Rules Inquiry</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="contactMessageInput"
-            class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Grievance Description
-            / Details <span class="text-red-500">*</span></label>
-          <textarea id="contactMessageInput" rows="3" required
-            placeholder="Describe the issue, commodity batch, or technical inquiry..."
-            class="w-full p-3 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 resize-none"></textarea>
-        </div>
-
-        <!-- Mandatory Security CAPTCHA -->
-        <div
-          class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-[#E4E7EC] dark:border-slate-700 space-y-2">
-          <div class="flex items-center justify-between text-xs font-semibold text-[#0F172A] dark:text-slate-200">
-            <span class="flex items-center gap-1.5">
-              <span>🛡️</span> <span>Mandatory Security Verification</span>
-            </span>
-            <span
-              class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-100 dark:border-emerald-800">Anti-Spam
-              Code</span>
-          </div>
-
-          <div class="flex items-center gap-2">
+        <div class="flex items-center justify-between border-b border-[#E4E7EC] dark:border-slate-800 pb-3.5">
+          <div class="flex items-center gap-3">
             <div
-              class="relative bg-slate-950 rounded-lg border border-[#E4E7EC] dark:border-slate-700 p-0.5 flex items-center justify-center overflow-hidden shadow-xs flex-shrink-0"
-              style="width: 140px; height: 38px;">
-              <canvas id="contactCaptchaCanvas" width="140" height="38" class="rounded select-none"
-                aria-label="Contact Verification CAPTCHA"></canvas>
+              class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#10B981] dark:text-emerald-400 flex items-center justify-center text-xl border border-emerald-100 dark:border-emerald-800">
+              📞
             </div>
-
-            <div class="flex items-center gap-1">
-              <button type="button"
-                onclick="refreshCaptcha('contactCaptchaCanvas', 'contactCaptchaInput', 'contactCaptchaError')"
-                title="Refresh CAPTCHA"
-                class="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[#64748B] dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-slate-100 border border-[#E4E7EC] dark:border-slate-700 transition">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </button>
-              <button type="button" onclick="speakCaptcha('contactCaptchaCanvas')" title="Audio Challenge (Listen)"
-                class="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[#64748B] dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-slate-100 border border-[#E4E7EC] dark:border-slate-700 transition">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                </svg>
-              </button>
-            </div>
-
-            <div class="flex-1 min-w-0">
-              <input type="text" id="contactCaptchaInput" aria-label="Enter Grievance Verification Captcha Code"
-                maxlength="6" autocomplete="off" placeholder="Enter Code" required
-                class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm font-mono tracking-widest uppercase text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] text-center font-bold">
+            <div>
+              <h3 class="text-base font-semibold text-[#0F172A] dark:text-slate-100">National Metrology Helpdesk</h3>
+              <p class="text-xs text-[#64748B] dark:text-slate-400">Department of Consumer Affairs • Grievance Redressal
+              </p>
             </div>
           </div>
-          <p id="contactCaptchaError" class="hidden text-xs text-red-600 font-medium pl-1"></p>
-        </div>
-
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#E4E7EC] dark:border-slate-800">
           <button type="button" onclick="closeContactModal()"
-            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0F172A] dark:text-slate-200 font-medium rounded-lg transition">
-            Cancel
-          </button>
-          <button type="submit"
-            class="px-5 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95 transition-transform duration-100">
-            <span>✉️ Submit Grievance Ticket</span>
-          </button>
+            class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+            title="Close Modal">✕</button>
         </div>
-      </form>
-    </div>
-  </div>
 
-  <!-- Scripts -->
-  <script src="js/auth.js"></script>
-  <script src="js/storage.js"></script>
-  <script src="js/demo-mode.js"></script>
-  <script src="js/jspdf.umd.min.js"></script>
-  <script src="js/qrcode.min.js"></script>
-  <script src="js/pdfService.js"></script>
-  <script src="js/report.js"></script>
-  <script src="js/masthead.js"></script>
-  <script src="js/i18n.js"></script>
-  <script src="js/footer.js"></script>
+        <form id="contactForm" onsubmit="handleContactSubmit(event)" class="space-y-3.5 text-xs">
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="contactNameInput"
+                class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Your Full Name <span
+                  class="text-red-500">*</span></label>
+              <input type="text" id="contactNameInput" required placeholder="e.g. Officer R. Sharma"
+                class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
+            </div>
+            <div>
+              <label for="contactEmailInput"
+                class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Official Email /
+                Mobile <span class="text-red-500">*</span></label>
+              <input type="text" id="contactEmailInput" required placeholder="name@nic.in or phone"
+                class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
+            </div>
+          </div>
+
+          <div>
+            <label for="contactCategorySelect"
+              class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Inquiry / Grievance
+              Category <span class="text-red-500">*</span></label>
+            <select id="contactCategorySelect" required
+              class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20">
+              <option value="Packaged Commodity Violation Report">Report Packaged Commodity Violation (Rule 6/MAV)
+              </option>
+              <option value="AI Scanner & Mobile OCR Technical Support">AI Vision & OCR Scanner Technical Support
+              </option>
+              <option value="Officer Review Docket & PDF Notice Query">Officer Review Docket & Statutory Notice Question
+              </option>
+              <option value="User Credential & System Access Issue">System Access & User Credential Support</option>
+              <option value="General Legal Metrology Inquiries">General Legal Metrology Act & Rules Inquiry</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="contactMessageInput"
+              class="block text-xs font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Grievance Description
+              / Details <span class="text-red-500">*</span></label>
+            <textarea id="contactMessageInput" rows="3" required
+              placeholder="Describe the issue, commodity batch, or technical inquiry..."
+              class="w-full p-3 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 resize-none"></textarea>
+          </div>
+
+          <!-- Mandatory Security CAPTCHA -->
+          <div
+            class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-[#E4E7EC] dark:border-slate-700 space-y-2">
+            <div class="flex items-center justify-between text-xs font-semibold text-[#0F172A] dark:text-slate-200">
+              <span class="flex items-center gap-1.5">
+                <span>🛡️</span> <span>Mandatory Security Verification</span>
+              </span>
+              <span
+                class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-100 dark:border-emerald-800">Anti-Spam
+                Code</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <div
+                class="relative bg-slate-950 rounded-lg border border-[#E4E7EC] dark:border-slate-700 p-0.5 flex items-center justify-center overflow-hidden shadow-xs flex-shrink-0"
+                style="width: 140px; height: 38px;">
+                <canvas id="contactCaptchaCanvas" width="140" height="38" class="rounded select-none"
+                  aria-label="Contact Verification CAPTCHA"></canvas>
+              </div>
+
+              <div class="flex items-center gap-1">
+                <button type="button"
+                  onclick="refreshCaptcha('contactCaptchaCanvas', 'contactCaptchaInput', 'contactCaptchaError')"
+                  title="Refresh CAPTCHA"
+                  class="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[#64748B] dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-slate-100 border border-[#E4E7EC] dark:border-slate-700 transition">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+                <button type="button" onclick="speakCaptcha('contactCaptchaCanvas')" title="Audio Challenge (Listen)"
+                  class="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[#64748B] dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-slate-100 border border-[#E4E7EC] dark:border-slate-700 transition">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <input type="text" id="contactCaptchaInput" aria-label="Enter Grievance Verification Captcha Code"
+                  maxlength="6" autocomplete="off" placeholder="Enter Code" required
+                  class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-[#E4E7EC] dark:border-slate-700 text-sm font-mono tracking-widest uppercase text-[#0F172A] dark:text-slate-100 placeholder-[#94A3B8] focus:outline-none focus:border-[#10B981] text-center font-bold">
+              </div>
+            </div>
+            <p id="contactCaptchaError" class="hidden text-xs text-red-600 font-medium pl-1"></p>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#E4E7EC] dark:border-slate-800">
+            <button type="button" onclick="closeContactModal()"
+              class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0F172A] dark:text-slate-200 font-medium rounded-lg transition">
+              Cancel
+            </button>
+            <button type="submit"
+              class="px-5 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95 transition-transform duration-100">
+              <span>✉️ Submit Grievance Ticket</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/demo-mode.js"></script>
+    <script src="js/jspdf.umd.min.js"></script>
+    <script src="js/qrcode.min.js"></script>
+    <script src="js/pdfService.js"></script>
+    <script src="js/report.js"></script>
+    <script src="js/masthead.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/footer.js"></script>
 </body>
 
 </html>

@@ -15,6 +15,8 @@ const rateLimit = require("express-rate-limit");
 const multer = require("multer");
 const { GoogleGenAI } = require("@google/genai");
 const { z } = require("zod");
+const repo = require("./repository");
+const { db: sqliteDb, migrateFromJson } = require("./db");
 
 // =========================================================================
 // ZOD STRICT SCHEMA VALIDATION DEFINITIONS
@@ -175,6 +177,18 @@ function saveJsonFile(filePath, data) {
 }
 
 const USERS_FILE = path.join(DATA_DIR, "users.json");
+
+// Run SQLite Database Sync Migration
+try {
+  migrateFromJson(
+    path.join(DATA_DIR, "users.json"),
+    path.join(DATA_DIR, "approval_requests.json"),
+    path.join(DATA_DIR, "verification_tokens.json"),
+    path.join(DATA_DIR, "user_audit.json")
+  );
+} catch (migErr) {
+  console.warn("[METRO-CHECK] SQLite migration warning:", migErr.message);
+}
 
 // Sovereign RBAC System Users Registry
 const DEFAULT_SYSTEM_USERS = {
@@ -361,8 +375,44 @@ const DEFAULT_SYSTEM_USERS = {
 };
 
 function getAllUsers() {
-  const stored = loadJsonFile(USERS_FILE, {});
-  return { ...DEFAULT_SYSTEM_USERS, ...stored };
+  const merged = {};
+  for (const [k, u] of Object.entries(DEFAULT_SYSTEM_USERS)) {
+    merged[k] = { ...u };
+  }
+  try {
+    const sqliteUsers = repo.getAllUsers();
+    for (const [k, u] of Object.entries(sqliteUsers)) {
+      merged[k] = { ...(merged[k] || {}), ...u };
+    }
+  } catch (e) {
+    const stored = loadJsonFile(USERS_FILE, {});
+    for (const [k, u] of Object.entries(stored)) {
+      merged[k] = { ...(merged[k] || {}), ...u };
+    }
+  }
+  for (const [k, u] of Object.entries(merged)) {
+    if (typeof u.isLocked === "undefined") {
+      u.isLocked = (u.accountStatus === "Locked" || u.status === "Suspended" || u.status === "Inactive" || u.status === "Draft" || u.status === "Pending Verification" || u.status === "Pending Approval" || u.status === "Deleted");
+    }
+    if (!u.verificationStatus) {
+      u.verificationStatus = (u.accountStatus === "Active" || u.status === "Active" || u.role === "national" || u.role === "admin") ? "Verified" : "Pending Verification";
+    }
+    if (!u.approvalStatus) {
+      u.approvalStatus = (u.accountStatus === "Active" || u.status === "Active" || u.role === "national" || u.role === "admin") ? "Approved" : "Pending Approval";
+    }
+    if (!u.contact) {
+      u.contact = {
+        mobile: "+91 98•••• 4210",
+        mobileVerified: true,
+        email: `${u.username}@nic.in`,
+        emailVerified: true
+      };
+    }
+    if (!u.kyc) {
+      u.kyc = { submitted: true, submittedAt: u.createdAt || "2026-01-01T00:00:00.000Z" };
+    }
+  }
+  return merged;
 }
 
 // Sovereign Session Management & Token Engine (HMAC-SHA256)
@@ -454,6 +504,23 @@ app.post("/api/auth/login", (req, res) => {
     return res.status(403).json({ success: false, error: "Account deactivated. Please contact your system administrator." });
   }
 
+  if (matched.status === "Suspended") {
+    return res.status(403).json({ success: false, error: "Account suspended by administrative order. Please contact your zonal/national authority." });
+  }
+
+  if (matched.status === "Deleted") {
+    return res.status(404).json({ success: false, error: "Account record not found or has been revoked." });
+  }
+
+  if (matched.isLocked || matched.status === "Draft" || matched.status === "Pending Verification" || matched.status === "Pending Approval" || matched.status === "Correction Required") {
+    return res.status(403).json({
+      success: false,
+      error: `Account is locked (${matched.status || "Pending Verification"}). First-time identity verification and administrative approval required before operational portal activation.`,
+      status: matched.status,
+      isLocked: true
+    });
+  }
+
   // 24-hour signed session token
   const exp = Date.now() + 24 * 60 * 60 * 1000;
   const payload = {
@@ -465,6 +532,9 @@ app.post("/api/auth/login", (req, res) => {
     officeAddress: matched.officeAddress || "",
     zone: matched.zone || "All",
     state: matched.state || "All",
+    status: matched.accountStatus || matched.status || "Active",
+    accountStatus: matched.accountStatus || "Active",
+    isLocked: Boolean(matched.isLocked),
     exp
   };
   const token = signToken(payload);
@@ -496,6 +566,74 @@ app.get("/api/auth/me", (req, res) => {
     return res.status(401).json({ authenticated: false, error: "No active session." });
   }
   return res.json({ authenticated: true, user });
+});
+
+// 4. Quick Access Roles (Public Directory for 1-Click Evaluation Console)
+// Automatically reflects all default personnel and dynamically added Inspectors, Officers, and Zonal Admins
+app.get("/api/auth/quick-access-roles", (req, res) => {
+  setNoCacheHeaders(res);
+  const allUsers = getAllUsers();
+  const list = [];
+  
+  const DEFAULT_ORDER = [
+    "admin",
+    "north_admin", "south_admin", "northeast_admin",
+    "officer", "officer_south", "officer_ne",
+    "inspector", "inspector_pb", "inspector_south", "inspector_ne"
+  ];
+  const defaultKeys = new Set(DEFAULT_ORDER);
+
+  // Canonical default roles first in established sequence
+  for (const uname of DEFAULT_ORDER) {
+    const u = allUsers[uname];
+    if (u && u.status !== "Deleted") {
+      list.push({
+        username: uname,
+        name: u.name,
+        role: u.role,
+        designation: u.designation || "Statutory Official",
+        badgeNumber: u.badgeNumber || "",
+        officeAddress: u.officeAddress || "",
+        zone: u.zone || "All",
+        state: u.state || "All",
+        status: u.accountStatus || u.status || "Active",
+        accountStatus: u.accountStatus || u.status || "Active",
+        isLocked: Boolean(u.isLocked),
+        password: u.password || "Password@123",
+        isDefault: true
+      });
+    }
+  }
+
+  // Dynamically append newly added personnel (Inspectors, Officers, Zonal Admins, National Admins)
+  const SYSTEM_ALIASES = new Set(["ne_admin", "south_officer", "officer_northeast", "inspector_northeast"]);
+  for (const [uname, u] of Object.entries(allUsers)) {
+    if (defaultKeys.has(uname)) continue;
+    if (SYSTEM_ALIASES.has(uname)) continue;
+    if (u.status === "Deleted" || u.accountStatus === "Deleted") continue;
+
+    list.push({
+      username: uname,
+      name: u.name || uname,
+      role: u.role || "inspector",
+      designation: u.designation || (u.role === "zonal" ? "Zonal Enforcement Controller" : (u.role === "officer" ? "Assistant Controller of Metrology" : "Legal Metrology Inspector")),
+      badgeNumber: u.badgeNumber || "",
+      officeAddress: u.officeAddress || "",
+      zone: u.zone || "North",
+      state: u.state || "All",
+      status: u.accountStatus || u.status || "Active",
+      accountStatus: u.accountStatus || u.status || "Active",
+      isLocked: Boolean(u.isLocked),
+      password: u.password || "Password@123",
+      isDefault: false
+    });
+  }
+
+  return res.json({
+    success: true,
+    total: list.length,
+    roles: list
+  });
 });
 
 // =========================================================================
@@ -801,7 +939,10 @@ function generateDocketDigitalSignature(record) {
  * Re-computes the SHA-256 hash server-side and compares against the stored hash.
  * Returns { verified, storedHash, computedHash, algorithm, reason }
  */
-app.get(["/api/verify/:id", /^\/api\/verify\/(.+)$/], (req, res) => {
+app.get(["/api/verify/:id", /^\/api\/verify\/(.+)$/], (req, res, next) => {
+  if (req.path.startsWith("/api/verify/session") || req.path.startsWith("/api/verify/send-otp") || req.path.startsWith("/api/verify/confirm-otp") || req.path.startsWith("/api/verify/submit-kyc") || req.path.startsWith("/api/verify/link")) {
+    return next();
+  }
   const rawId = req.params.id || req.params[0];
   const id = rawId ? decodeURIComponent(rawId) : "";
   const inspections = loadJsonFile(INSPECTIONS_FILE, []);
@@ -991,13 +1132,55 @@ function requireApiAuth(allowedRoles = null) {
 // =========================================================================
 // USER PROVISIONING & REGISTRY REST API (WITH STRICT ZONE-BASED ACCESS CONTROL)
 // =========================================================================
+// =========================================================================
+// SOVEREIGN RBAC, APPROVAL WORKFLOW & VERIFICATION SYSTEM (ZBAC ENFORCED)
+// =========================================================================
 const USER_AUDIT_FILE = path.join(DATA_DIR, "user_audit.json");
+const APPROVALS_FILE = path.join(DATA_DIR, "approval_requests.json");
+const VERIFICATION_TOKENS_FILE = path.join(DATA_DIR, "verification_tokens.json");
+const KYC_POLICIES_FILE = path.join(DATA_DIR, "kyc_policies.json");
 
-function logServerUserAudit(action, actor, targetUsername, targetZone, outcome, details = "") {
+function normalizeZoneStr(zoneStr) {
+  if (!zoneStr) return "";
+  let z = String(zoneStr).trim().toLowerCase();
+  z = z.replace(/\bzone\b/g, "").trim();
+  z = z.replace(/[\s_-]+/g, "");
+  if (z === "northeast" || z === "north-east" || z === "northeastzone") return "north east";
+  if (z === "south" || z === "southern") return "south";
+  if (z === "north" || z === "northern") return "north";
+  if (z === "east" || z === "eastern") return "east";
+  if (z === "west" || z === "western") return "west";
+  if (z === "central") return "central";
+  return z;
+}
+
+function generateVerificationToken() {
+  return "vtok_" + crypto.randomBytes(24).toString("hex");
+}
+
+function maskContactString(contactStr, type = "mobile") {
+  if (!contactStr) return "Not Provided";
+  const s = String(contactStr).trim();
+  if (type === "email" || s.includes("@")) {
+    const parts = s.split("@");
+    const name = parts[0];
+    const domain = parts[1] || "nic.in";
+    if (name.length <= 2) return name.charAt(0) + "••••@" + domain;
+    return name.charAt(0) + "••••" + name.slice(-1) + "@" + domain;
+  } else {
+    const digits = s.replace(/\s+/g, "");
+    if (digits.length >= 10) {
+      return digits.slice(0, 4) + " •••• " + digits.slice(-2);
+    }
+    return s.slice(0, 2) + "••••" + s.slice(-2);
+  }
+}
+
+function logServerUserAudit(action, actor, targetUsername, targetZone, outcome, details = "", extra = {}) {
   try {
     const logs = loadJsonFile(USER_AUDIT_FILE, []);
     const entry = {
-      id: `UAUD-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      id: `UAUD-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`.toUpperCase(),
       timestamp: new Date().toISOString(),
       action: String(action || "UNKNOWN").toUpperCase(),
       actorUsername: actor ? (actor.username || "unknown") : "system",
@@ -1006,75 +1189,1301 @@ function logServerUserAudit(action, actor, targetUsername, targetZone, outcome, 
       targetUsername: String(targetUsername || ""),
       targetZone: String(targetZone || "Unknown"),
       outcome: String(outcome || "SUCCESS").toUpperCase(),
-      details: String(details || "")
+      details: String(details || ""),
+      oldValues: extra.oldValues || null,
+      newValues: extra.newValues || null,
+      reason: extra.reason || null,
+      approver: extra.approver || null,
+      approvalId: extra.approvalId || null,
+      clientIp: extra.clientIp || null
     };
     logs.unshift(entry);
-    if (logs.length > 200) logs.length = 200;
+    if (logs.length > 500) logs.length = 500;
     saveJsonFile(USER_AUDIT_FILE, logs);
+
+    try {
+      repo.logAudit({
+        action: entry.action,
+        actor: { username: entry.actorUsername, role: entry.actorRole, zone: entry.actorZone },
+        targetUsername: entry.targetUsername,
+        targetZone: entry.targetZone,
+        caseId: entry.approvalId,
+        outcome: entry.outcome,
+        details: entry.details,
+        diff: entry.newValues || entry.oldValues,
+        ip: entry.clientIp || "127.0.0.1"
+      });
+    } catch (dbLogErr) {}
+
     return entry;
   } catch (e) {
     console.warn("[METRO-CHECK] Server user audit logging failed:", e.message);
   }
 }
 
+// Rate limiting for public identity verification and OTP endpoints
+const verifyRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: "Too many verification attempts from this network. Please try again after 15 minutes." }
+});
+
+// -------------------------------------------------------------------------
+// 1. FIRST-TIME IDENTITY VERIFICATION & KYC PORTAL REST APIs
+// -------------------------------------------------------------------------
+
+// Retrieve active verification link for a locked user (admin only)
+app.get("/api/verify/link/:username", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  setNoCacheHeaders(res);
+  const targetUsername = String(req.params.username || "").toLowerCase();
+  const actor = req.user;
+  const users = getAllUsers();
+  const targetUser = users[targetUsername];
+
+  if (!targetUser) {
+    return res.status(404).json({ success: false, error: "User not found." });
+  }
+
+  // ZBAC check: Zonal admin can only view personnel in their zone
+  if (actor.role === "zonal" && targetUser.zone !== actor.zone) {
+    return res.status(403).json({ success: false, error: "Cannot access verification link for personnel outside your zone." });
+  }
+
+  const tokens = loadJsonFile(VERIFICATION_TOKENS_FILE, {});
+  const activeTokenEntry = Object.entries(tokens).find(([tok, sess]) => {
+    const sessUser = String(sess.targetUsername || sess.username || "").toLowerCase();
+    return sessUser === targetUsername && !sess.used && Date.now() < (sess.tokenExpiresAt || Infinity);
+  });
+
+  if (!activeTokenEntry) {
+    return res.status(404).json({ success: false, error: "No active verification token found for this user." });
+  }
+
+  const [token, session] = activeTokenEntry;
+  return res.json({
+    success: true,
+    token,
+    verificationUrl: `/verify.html?token=${token}`,
+    user: {
+      username: targetUser.username,
+      name: targetUser.name,
+      zone: targetUser.zone,
+      contact: session.contact || targetUser.contact
+    }
+  });
+});
+
+// Retrieve verification session by secure opaque token
+app.get("/api/verify/session/:token", verifyRateLimiter, (req, res) => {
+  setNoCacheHeaders(res);
+  const rawToken = String(req.params.token || "").trim();
+  if (!rawToken || rawToken.length < 16) {
+    return res.status(400).json({ success: false, error: "Invalid verification token format." });
+  }
+
+  const tokens = loadJsonFile(VERIFICATION_TOKENS_FILE, {});
+  const session = tokens[rawToken];
+
+  if (!session) {
+    return res.status(404).json({
+      success: false,
+      error: "Verification link not found, expired, or previously completed. Please contact your administrative office."
+    });
+  }
+
+  if (session.used) {
+    return res.status(410).json({
+      success: false,
+      error: "This verification token has already been used and is no longer valid."
+    });
+  }
+
+  if (Date.now() > session.tokenExpiresAt) {
+    return res.status(410).json({
+      success: false,
+      error: "Verification link has expired. Please ask your administrator to issue a new verification request."
+    });
+  }
+
+  if (session.isLockedOut) {
+    return res.status(403).json({
+      success: false,
+      error: "Verification session locked due to excessive failed attempts. Please contact your administrator."
+    });
+  }
+
+  const kycPolicies = loadJsonFile(KYC_POLICIES_FILE, {
+    requireAadhaar: true,
+    requirePAN: true,
+    requirePassport: false,
+    requireAppointmentLetter: true,
+    requirePhoto: true
+  });
+
+  return res.json({
+    success: true,
+    session: {
+      token: rawToken,
+      username: session.targetUsername,
+      name: session.targetName,
+      role: session.targetRole,
+      designation: session.targetDesignation,
+      zone: session.targetZone,
+      state: session.targetState,
+      channel: session.channel, // "mobile" | "email"
+      maskedContact: session.maskedContact,
+      otpVerified: !!session.otpVerified,
+      kycSubmitted: !!session.kycSubmitted,
+      status: session.status,
+      cooldownSeconds: session.lastOtpSentAt ? Math.max(0, Math.ceil((session.lastOtpSentAt + 60000 - Date.now()) / 1000)) : 0,
+      expiresInSeconds: Math.max(0, Math.floor((session.tokenExpiresAt - Date.now()) / 1000))
+    },
+    kycPolicies
+  });
+});
+
+// Send OTP to registered Mobile Number or Email Address
+app.post("/api/verify/send-otp", verifyRateLimiter, (req, res) => {
+  setNoCacheHeaders(res);
+  const { token } = req.body || {};
+  if (!token) {
+    return res.status(400).json({ success: false, error: "Verification token is required." });
+  }
+
+  const tokens = loadJsonFile(VERIFICATION_TOKENS_FILE, {});
+  const session = tokens[token];
+
+  if (!session || session.used || Date.now() > session.tokenExpiresAt) {
+    return res.status(404).json({ success: false, error: "Verification session invalid or expired." });
+  }
+
+  if (session.isLockedOut) {
+    return res.status(403).json({ success: false, error: "Verification session is locked due to too many failed attempts." });
+  }
+
+  // Enforce 60-second resend cooldown
+  const now = Date.now();
+  if (session.lastOtpSentAt && (now - session.lastOtpSentAt < 60000)) {
+    const waitSec = Math.ceil((session.lastOtpSentAt + 60000 - now) / 1000);
+    return res.status(429).json({
+      success: false,
+      error: `Please wait ${waitSec} second(s) before requesting another OTP code.`,
+      secondsRemaining: waitSec
+    });
+  }
+
+  // Generate 6-digit cryptographic OTP code
+  const otpCode = String(Math.floor(100000 + Math.random() * 900000));
+  const otpHash = crypto.createHash("sha256").update(otpCode).digest("hex");
+
+  session.otpHash = otpHash;
+  session.lastOtpSentAt = now;
+  session.otpExpiresAt = now + 10 * 60 * 1000; // 10 minutes expiry
+  session.status = "OTP_SENT";
+  tokens[token] = session;
+  saveJsonFile(VERIFICATION_TOKENS_FILE, tokens);
+
+  try {
+    repo.setSessionOtp(token, otpCode);
+  } catch(e) {}
+
+  logServerUserAudit(
+    "OTP_DISPATCHED",
+    { username: "verification_gateway", role: "system", zone: session.targetZone },
+    session.targetUsername,
+    session.targetZone,
+    "SUCCESS",
+    `One-Time Password dispatched via ${session.channel.toUpperCase()} to ${session.maskedContact}`
+  );
+
+  return res.json({
+    success: true,
+    message: `Secure 6-digit OTP dispatched to ${session.maskedContact}`,
+    channel: session.channel,
+    maskedContact: session.maskedContact,
+    expiresInSeconds: 600,
+    cooldownSeconds: 60,
+    demoCode: otpCode // Available for local testing / SIH evaluation demonstration
+  });
+});
+
+// Validate 6-digit OTP
+app.post("/api/verify/confirm-otp", verifyRateLimiter, (req, res) => {
+  setNoCacheHeaders(res);
+  const { token, otp } = req.body || {};
+  if (!token || !otp) {
+    return res.status(400).json({ success: false, error: "Token and 6-digit OTP code are required." });
+  }
+
+  const tokens = loadJsonFile(VERIFICATION_TOKENS_FILE, {});
+  const session = tokens[token];
+
+  if (!session || session.used || Date.now() > session.tokenExpiresAt) {
+    return res.status(404).json({ success: false, error: "Verification session invalid or expired." });
+  }
+
+  if (session.isLockedOut) {
+    return res.status(403).json({ success: false, error: "Verification session locked due to excessive failed attempts." });
+  }
+
+  if (now = Date.now(), session.otpExpiresAt && now > session.otpExpiresAt) {
+    return res.status(400).json({ success: false, error: "The entered OTP has expired. Please request a new verification code." });
+  }
+
+  const cleanOtp = String(otp).trim();
+  const inputHash = crypto.createHash("sha256").update(cleanOtp).digest("hex");
+
+  if (!session.otpHash || session.otpHash !== inputHash) {
+    session.attempts = (session.attempts || 0) + 1;
+    const maxAttempts = session.maxAttempts || 5;
+
+    try {
+      repo.recordOtpAttempt(token, false);
+    } catch(e) {}
+
+    if (session.attempts >= maxAttempts) {
+      session.isLockedOut = true;
+      tokens[token] = session;
+      saveJsonFile(VERIFICATION_TOKENS_FILE, tokens);
+
+      logServerUserAudit(
+        "OTP_MAX_ATTEMPTS_EXCEEDED",
+        { username: "applicant", role: "public", zone: session.targetZone },
+        session.targetUsername,
+        session.targetZone,
+        "LOCKED",
+        `Session locked after ${maxAttempts} consecutive failed OTP attempts.`
+      );
+
+      return res.status(403).json({
+        success: false,
+        error: "Maximum verification attempts exceeded. Your verification session has been locked for security."
+      });
+    }
+
+    tokens[token] = session;
+    saveJsonFile(VERIFICATION_TOKENS_FILE, tokens);
+
+    return res.status(400).json({
+      success: false,
+      error: `Invalid OTP code. ${maxAttempts - session.attempts} attempt(s) remaining.`,
+      attemptsRemaining: maxAttempts - session.attempts
+    });
+  }
+
+  // OTP is correct - clear OTP hash, mark verified
+  session.otpVerified = true;
+  session.status = "OTP_VERIFIED";
+  tokens[token] = session;
+  saveJsonFile(VERIFICATION_TOKENS_FILE, tokens);
+
+  try {
+    repo.recordOtpAttempt(token, true);
+    repo.markOtpVerified(token);
+  } catch(e) {}
+
+  // Update target user record in users.json
+  const users = loadJsonFile(USERS_FILE, {});
+  if (users[session.targetUsername]) {
+    users[session.targetUsername].verificationStatus = `${session.channel === 'mobile' ? 'Mobile' : 'Email'} Verified`;
+    if (!users[session.targetUsername].contact) users[session.targetUsername].contact = {};
+    if (session.channel === 'mobile') users[session.targetUsername].contact.mobileVerified = true;
+    if (session.channel === 'email') users[session.targetUsername].contact.emailVerified = true;
+    users[session.targetUsername].updatedAt = new Date().toISOString();
+    saveJsonFile(USERS_FILE, users);
+  }
+
+  logServerUserAudit(
+    "OTP_VERIFIED_SUCCESS",
+    { username: session.targetUsername, role: session.targetRole, zone: session.targetZone },
+    session.targetUsername,
+    session.targetZone,
+    "SUCCESS",
+    `Identity verified successfully via ${session.channel.toUpperCase()} (${session.maskedContact})`
+  );
+
+  return res.json({
+    success: true,
+    message: "Identity verified successfully. You may now complete the KYC credential dossier.",
+    session: {
+      otpVerified: true,
+      status: "OTP_VERIFIED"
+    }
+  });
+});
+
+// Submit KYC Credentials & Supporting Identity Documents
+app.post("/api/verify/submit-kyc", verifyRateLimiter, (req, res) => {
+  setNoCacheHeaders(res);
+  const { token, personalInfo, identityInfo, employmentInfo, documents } = req.body || {};
+
+  if (!token) {
+    return res.status(400).json({ success: false, error: "Verification token is required." });
+  }
+
+  const tokens = loadJsonFile(VERIFICATION_TOKENS_FILE, {});
+  const session = tokens[token];
+
+  if (!session || session.used || Date.now() > session.tokenExpiresAt) {
+    return res.status(404).json({ success: false, error: "Verification session invalid or expired." });
+  }
+
+  if (!session.otpVerified) {
+    return res.status(403).json({ success: false, error: "You must complete OTP verification before submitting KYC information." });
+  }
+
+  const targetUname = session.targetUsername;
+  const users = loadJsonFile(USERS_FILE, {});
+  const user = users[targetUname] || DEFAULT_SYSTEM_USERS[targetUname] || { username: targetUname };
+
+  // Mask sensitive identity document numbers at rest (e.g. Aadhaar / PAN)
+  const rawIdNum = String(identityInfo?.idNumber || "").trim();
+  let maskedIdNum = "";
+  if (rawIdNum.length >= 8) {
+    maskedIdNum = "•••• •••• " + rawIdNum.slice(-4);
+  } else if (rawIdNum) {
+    maskedIdNum = "•••• " + rawIdNum.slice(-2);
+  }
+
+  const kycDossier = {
+    submitted: true,
+    submittedAt: new Date().toISOString(),
+    personal: {
+      fullName: personalInfo?.fullName || user.name || session.targetName,
+      guardianName: personalInfo?.guardianName || "",
+      dob: personalInfo?.dob || "",
+      gender: personalInfo?.gender || "Unspecified",
+      residentialAddress: personalInfo?.residentialAddress || "",
+      permanentAddress: personalInfo?.permanentAddress || ""
+    },
+    identity: {
+      idType: identityInfo?.idType || "Aadhaar Card",
+      idNumberMasked: maskedIdNum,
+      documentFileName: identityInfo?.documentFileName || "govt_id_proof.pdf"
+    },
+    employment: {
+      serviceId: employmentInfo?.serviceId || user.badgeNumber || "",
+      designation: employmentInfo?.designation || user.designation || session.targetDesignation,
+      department: employmentInfo?.department || "Legal Metrology Enforcement",
+      rank: employmentInfo?.rank || "Officer Grade A",
+      joiningDate: employmentInfo?.joiningDate || new Date().toISOString().split("T")[0],
+      currentPosting: employmentInfo?.currentPosting || user.state || session.targetState,
+      appointmentLetterDoc: employmentInfo?.appointmentLetterDoc || "appointment_order.pdf"
+    },
+    documents: Array.isArray(documents) ? documents : []
+  };
+
+  // Update target user: status moves to Pending Approval, record remains locked
+  users[targetUname] = {
+    ...user,
+    username: targetUname,
+    name: personalInfo?.fullName || user.name || session.targetName,
+    designation: employmentInfo?.designation || user.designation || session.targetDesignation,
+    badgeNumber: employmentInfo?.serviceId || user.badgeNumber || "",
+    status: "Pending Approval",
+    approvalStatus: "Pending National Approval",
+    verificationStatus: "Verification Completed",
+    isLocked: true,
+    kyc: kycDossier,
+    updatedAt: new Date().toISOString()
+  };
+  saveJsonFile(USERS_FILE, users);
+
+  // Invalidate single-use verification token
+  session.used = true;
+  session.kycSubmitted = true;
+  session.status = "COMPLETED";
+  tokens[token] = session;
+  saveJsonFile(VERIFICATION_TOKENS_FILE, tokens);
+
+  // Sync with SQLite repository
+  let kycRes = null;
+  try {
+    kycRes = repo.submitKycRecord({
+      token,
+      caseId: session.caseId,
+      username: targetUname,
+      aadhaarMasked: maskedIdNum,
+      panMasked: identityInfo?.panMasked || "ABCDE••••F",
+      appointmentDocName: identityInfo?.documentFileName || "govt_id_proof.pdf",
+      personalInfo: kycDossier.personal,
+      employmentInfo: kycDossier.employment
+    });
+  } catch(e) {
+    console.warn("[KYC] SQLite submitKycRecord error:", e.message);
+  }
+
+  // Create or update Approval Request for National Command
+  const approvals = loadJsonFile(APPROVALS_FILE, []);
+  const reqId = session.caseId || `REQ-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+  const approvalReq = {
+    id: reqId,
+    caseId: reqId,
+    type: "NEW_REGISTRATION",
+    requestType: "NEW_REGISTRATION",
+    riskLevel: "Medium",
+    initiatedBy: session.initiatedBy || { username: "system", role: "zonal", zone: session.targetZone },
+    targetUsername: targetUname,
+    targetName: users[targetUname].name,
+    targetRole: users[targetUname].role,
+    targetZone: session.targetZone,
+    zone: session.targetZone,
+    targetDesignation: users[targetUname].designation,
+    workflow: "ZONAL_TO_NATIONAL",
+    status: "PENDING_NATIONAL",
+    approvalStatus: "Pending National",
+    accountStatus: "Locked",
+    verificationStatus: "KYC Submitted",
+    oldValues: null,
+    newValues: {
+      username: targetUname,
+      name: users[targetUname].name,
+      role: users[targetUname].role,
+      zone: session.targetZone,
+      state: users[targetUname].state,
+      designation: users[targetUname].designation,
+      badgeNumber: users[targetUname].badgeNumber,
+      contact: users[targetUname].contact,
+      kyc: kycDossier
+    },
+    reason: "New Officer / Inspector onboarding registration with verified 2FA and KYC credentials.",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  const existingIdx = approvals.findIndex(a => a.id === reqId);
+  if (existingIdx !== -1) {
+    approvals[existingIdx] = { ...approvals[existingIdx], ...approvalReq };
+  } else {
+    approvals.unshift(approvalReq);
+  }
+  saveJsonFile(APPROVALS_FILE, approvals);
+
+  logServerUserAudit(
+    "KYC_DOSSIER_SUBMITTED",
+    { username: targetUname, role: users[targetUname].role, zone: session.targetZone },
+    targetUname,
+    session.targetZone,
+    "SUCCESS",
+    `Identity verification complete and KYC submitted. Docket #${reqId} forwarded to National Command.`,
+    { approvalId: reqId }
+  );
+
+  return res.json({
+    success: true,
+    message: "KYC credentials and identity documents successfully submitted. Your dossier is now pending National Administrator review.",
+    approvalRequestId: reqId,
+    status: "Pending National Approval"
+  });
+});
+
+// Fast-Track / Direct 2FA Verification & KYC by Administrator
+app.post("/api/verify/admin-verify-2fa", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  setNoCacheHeaders(res);
+  const actor = req.user;
+  const { username, token, caseId } = req.body || {};
+
+  const targetUname = String(username || "").toLowerCase();
+  const allUsers = getAllUsers();
+  const targetUser = allUsers[targetUname];
+
+  if (!targetUser) {
+    return res.status(404).json({ success: false, error: `Target user @${targetUname} not found.` });
+  }
+
+  // ZBAC check for Zonal Admin
+  if (actor.role === "zonal") {
+    const userZoneNorm = normalizeZoneStr(targetUser.zone);
+    const actorZoneNorm = normalizeZoneStr(actor.zone);
+    if (userZoneNorm !== actorZoneNorm) {
+      return res.status(403).json({ success: false, error: "Access Denied: Zonal Admins cannot verify personnel outside their zone." });
+    }
+  }
+
+  const tokens = loadJsonFile(VERIFICATION_TOKENS_FILE, {});
+  let activeTok = token;
+  let session = token ? tokens[token] : null;
+
+  if (!session) {
+    const entry = Object.entries(tokens).find(([tok, sess]) => {
+      const sessUser = String(sess.targetUsername || sess.username || "").toLowerCase();
+      return sessUser === targetUname && (!caseId || sess.caseId === caseId);
+    });
+    if (entry) {
+      activeTok = entry[0];
+      session = entry[1];
+    }
+  }
+
+  const now = new Date().toISOString();
+  if (session) {
+    session.otpVerified = true;
+    session.otpVerifiedAt = now;
+    session.kycSubmitted = true;
+    session.used = true;
+    session.status = "COMPLETED";
+    tokens[activeTok] = session;
+    saveJsonFile(VERIFICATION_TOKENS_FILE, tokens);
+  }
+
+  // Update target user record in JSON
+  const users = loadJsonFile(USERS_FILE, {});
+  if (users[targetUname]) {
+    users[targetUname].verificationStatus = "Verification Completed";
+    users[targetUname].approvalStatus = "Pending National Approval";
+    users[targetUname].updatedAt = now;
+    saveJsonFile(USERS_FILE, users);
+  }
+
+  // Update SQLite repository
+  const targetCaseId = caseId || (session ? session.caseId : null);
+  try {
+    if (targetCaseId) {
+      sqliteDb.prepare(`
+        UPDATE approval_requests 
+        SET verification_status = 'Verified', approval_status = 'Pending National', updated_at = ?
+        WHERE case_id = ?
+      `).run(now, targetCaseId);
+
+      sqliteDb.prepare(`
+        UPDATE approval_steps
+        SET status = 'APPROVED', action_by = ?, action_role = ?, action_at = ?, remarks = '2FA & KYC verified by administrator'
+        WHERE case_id = ? AND step_order = 1
+      `).run(actor.username, actor.role, now, targetCaseId);
+    }
+
+    sqliteDb.prepare(`
+      UPDATE users 
+      SET verification_status = 'Verified', updated_at = ?
+      WHERE LOWER(username) = LOWER(?)
+    `).run(now, targetUname);
+  } catch (err) {
+    console.warn("[Admin 2FA Verify] SQLite update warning:", err.message);
+  }
+
+  logServerUserAudit(
+    "ADMIN_2FA_VERIFICATION_COMPLETED",
+    actor,
+    targetUname,
+    targetUser.zone,
+    "SUCCESS",
+    `Identity 2FA & KYC fast-tracked and verified by @${actor.username} (${actor.role}).`,
+    { caseId: targetCaseId, targetUsername: targetUname }
+  );
+
+  return res.json({
+    success: true,
+    message: `2FA identity verification completed for @${targetUname}. Workflow updated in real time.`,
+    caseId: targetCaseId,
+    username: targetUname
+  });
+});
+
+// -------------------------------------------------------------------------
+// 2. APPROVAL WORKFLOW ENGINE REST APIs (ZBAC ENFORCED)
+// -------------------------------------------------------------------------
+
+// List approval requests (Zonal Admin strictly scoped to their assigned zone)
+app.get("/api/admin/approvals", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const reqUser = req.user;
+  const isZonal = reqUser && reqUser.role === "zonal";
+  const userZoneNorm = normalizeZoneStr(reqUser ? reqUser.zone : "");
+  const queryStatus = String(req.query.status || "").trim().toUpperCase();
+  const queryRisk = String(req.query.risk_level || req.query.riskLevel || "").trim();
+
+  let sqliteCases = [];
+  try {
+    sqliteCases = repo.listApprovalCases(reqUser, { status: queryStatus, riskLevel: queryRisk });
+  } catch (err) {
+    console.warn("[Approvals] SQLite list error:", err.message);
+  }
+
+  // Also include any JSON cases not already in SQLite for backward compatibility
+  const jsonApprovals = loadJsonFile(APPROVALS_FILE, []);
+  const seenIds = new Set(sqliteCases.map(c => c.caseId || c.id));
+  const mappedJson = [];
+  for (const j of jsonApprovals) {
+    if (!seenIds.has(j.id)) {
+      if (isZonal) {
+        const itemZoneNorm = normalizeZoneStr(j.targetZone || (j.initiatedBy ? j.initiatedBy.zone : ""));
+        if (itemZoneNorm !== userZoneNorm) continue;
+      }
+      mappedJson.push({
+        id: j.id,
+        caseId: j.id,
+        type: j.type,
+        requestType: j.type,
+        targetUsername: j.targetUsername,
+        targetName: j.targetName || j.targetUsername,
+        targetRole: j.targetRole || "inspector",
+        targetZone: j.targetZone,
+        zone: j.targetZone,
+        targetDesignation: j.targetDesignation || "Officer",
+        initiatorUsername: j.initiatedBy ? j.initiatedBy.username : (j.initiatorUsername || "system"),
+        initiatorRole: j.initiatedBy ? j.initiatedBy.role : (j.initiatorRole || "zonal"),
+        riskLevel: j.riskLevel || "Medium",
+        accountStatus: "Locked",
+        verificationStatus: j.verificationStatus || "Pending",
+        approvalStatus: j.status === "PENDING_NATIONAL" ? "Pending National" : (j.status === "PENDING_ZONAL" ? "Pending Zonal" : (j.status === "APPROVED" ? "Approved" : (j.status === "REJECTED" ? "Rejected" : "Correction Required"))),
+        status: j.status,
+        oldValues: j.oldValues || {},
+        newValues: j.newValues || {},
+        reason: j.reason || "",
+        createdAt: j.createdAt || new Date().toISOString()
+      });
+    }
+  }
+
+  let combined = [...sqliteCases, ...mappedJson];
+  if (queryStatus && queryStatus !== "ALL") {
+    if (queryStatus === "PENDING") {
+      combined = combined.filter(i => (i.approvalStatus && i.approvalStatus.includes("Pending")) || (i.status && i.status.startsWith("PENDING")));
+    } else {
+      combined = combined.filter(i => (i.approvalStatus && i.approvalStatus.toUpperCase() === queryStatus) || (i.status && i.status.toUpperCase() === queryStatus));
+    }
+  }
+
+  // Compute breakdown metrics
+  const stats = {
+    total: combined.length,
+    pending: combined.filter(i => (i.approvalStatus && i.approvalStatus.includes("Pending")) || (i.status && i.status.startsWith("PENDING"))).length,
+    approved: combined.filter(i => i.approvalStatus === "Approved" || i.status === "APPROVED").length,
+    rejected: combined.filter(i => i.approvalStatus === "Rejected" || i.status === "REJECTED").length,
+    correctionRequired: combined.filter(i => i.approvalStatus === "Correction Required" || i.status === "CORRECTION_REQUIRED").length,
+    criticalCount: combined.filter(i => i.riskLevel === "Critical").length,
+    highRiskCount: combined.filter(i => i.riskLevel === "High").length
+  };
+
+  return res.json({
+    success: true,
+    count: combined.length,
+    stats,
+    approvals: combined,
+    requests: combined
+  });
+});
+
+// Get detailed approval docket with Old Values vs New Values diff
+app.get("/api/admin/approvals/:id", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const reqUser = req.user;
+  const reqId = String(req.params.id || "").trim();
+
+  // Try SQLite first
+  let docket = null;
+  try {
+    docket = repo.getApprovalCase(reqId);
+  } catch (err) {}
+
+  if (!docket) {
+    const approvals = loadJsonFile(APPROVALS_FILE, []);
+    docket = approvals.find(a => a.id === reqId);
+  }
+
+  if (!docket) {
+    return res.status(404).json({ success: false, error: `Approval Request #${reqId} not found.` });
+  }
+
+  // Strict Zone-Level Isolation Check
+  if (reqUser && reqUser.role === "zonal") {
+    const itemZoneNorm = normalizeZoneStr(docket.targetZone || docket.zone || (docket.initiatedBy ? docket.initiatedBy.zone : ""));
+    const userZoneNorm = normalizeZoneStr(reqUser.zone);
+    if (itemZoneNorm !== userZoneNorm) {
+      logServerUserAudit("APPROVAL_VIEW_BLOCKED", reqUser, docket.targetUsername, docket.targetZone || docket.zone, "BLOCKED", `Zonal Admin @${reqUser.username} tried to view docket in ${docket.targetZone || docket.zone}`);
+      return res.status(403).json({ success: false, error: "Access Denied: You cannot view approval dockets outside your assigned zone." });
+    }
+  }
+
+  return res.json({ success: true, docket, approvalCase: docket, case: docket });
+});
+
+// Review Action: Approve, Reject, or Request Revision
+app.post("/api/admin/approvals/:id/review", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const reqUser = req.user;
+  const reqId = String(req.params.id || "").trim();
+  const { action, remarks, reason } = req.body || {};
+
+  const VALID_ACTIONS = ["APPROVE", "REJECT", "REQUEST_CORRECTION"];
+  if (!action || !VALID_ACTIONS.includes(action.toUpperCase())) {
+    return res.status(400).json({ success: false, error: `Invalid action. Must be one of: ${VALID_ACTIONS.join(", ")}` });
+  }
+
+  // If case exists in SQLite repo, route through the repository state machine engine
+  const sqliteCase = repo.getApprovalCase(reqId);
+  if (sqliteCase) {
+    const reviewRes = repo.reviewApprovalCaseStep({
+      caseId: reqId,
+      action: action.toUpperCase(),
+      remarks: remarks || reason,
+      actor: reqUser
+    });
+
+    if (!reviewRes.success) {
+      const isForbidden = reviewRes.error.includes("Four-Eyes") || reviewRes.error.includes("Jurisdiction") || reviewRes.error.includes("Authority");
+      return res.status(isForbidden ? 403 : 400).json({ success: false, error: reviewRes.error });
+    }
+
+    // Mirror to JSON for legacy compatibility
+    const approvals = loadJsonFile(APPROVALS_FILE, []);
+    const idx = approvals.findIndex(a => a.id === reqId);
+    if (idx !== -1) {
+      approvals[idx].status = reviewRes.case.approvalStatus === "Approved" ? "APPROVED" : (reviewRes.case.approvalStatus === "Rejected" ? "REJECTED" : "CORRECTION_REQUIRED");
+      approvals[idx].review = {
+        reviewedBy: reqUser.username,
+        reviewerRole: reqUser.role,
+        reviewedAt: new Date().toISOString(),
+        remarks: remarks || reason || ""
+      };
+      saveJsonFile(APPROVALS_FILE, approvals);
+    }
+
+    return res.json({
+      success: true,
+      message: `Docket ${reqId} reviewed successfully (${reviewRes.case.approvalStatus}).`,
+      docket: reviewRes.case,
+      approvalCase: reviewRes.case
+    });
+  }
+
+  // Fallback for legacy JSON-only dockets
+  const approvals = loadJsonFile(APPROVALS_FILE, []);
+  const docketIndex = approvals.findIndex(a => a.id === reqId);
+  if (docketIndex === -1) {
+    return res.status(404).json({ success: false, error: `Approval Request #${reqId} not found.` });
+  }
+
+  const docket = approvals[docketIndex];
+
+  // Rejection/Correction requires mandatory explanation
+  if ((action.toUpperCase() === "REJECT" || action.toUpperCase() === "REQUEST_CORRECTION") && !remarks && !reason) {
+    return res.status(400).json({ success: false, error: "A clear justification reason is mandatory when rejecting or requesting correction." });
+  }
+
+  // Four-Eyes Principle / Self-Approval Prevention Check
+  const initiatorUname = (docket.initiatorUsername || (docket.initiatedBy ? docket.initiatedBy.username : "")).toLowerCase();
+  if (reqUser && reqUser.username.toLowerCase() === initiatorUname) {
+    logServerUserAudit("AUTHORITY_HIERARCHY_VIOLATION", reqUser, docket.targetUsername, docket.targetZone, "BLOCKED", `Initiator @${reqUser.username} attempted to self-approve request.`);
+    return res.status(403).json({
+      success: false,
+      error: `Security Rule Violation: Four-Eyes Principle strictly prevents initiator (@${reqUser.username}) from reviewing or approving their own request.`
+    });
+  }
+
+  // Statutory Authority Check
+  const isNational = reqUser && (reqUser.role === "national" || reqUser.role === "admin");
+  const isZonal = reqUser && reqUser.role === "zonal";
+  const userZoneNorm = normalizeZoneStr(reqUser ? reqUser.zone : "");
+  const docketZoneNorm = normalizeZoneStr(docket.targetZone || (docket.initiatedBy ? docket.initiatedBy.zone : ""));
+
+  if (isZonal) {
+    if (docketZoneNorm !== userZoneNorm) {
+      logServerUserAudit("APPROVAL_REVIEW_BLOCKED", reqUser, docket.targetUsername, docket.targetZone, "BLOCKED", `Zonal Admin attempted to review docket in ${docket.targetZone}`);
+      return res.status(403).json({ success: false, error: "Access Denied: Zonal Admins cannot review dockets belonging to another zone." });
+    }
+    // Zonal Admins cannot approve requests that require National Approval!
+    if (docket.status === "PENDING_NATIONAL") {
+      logServerUserAudit("AUTHORITY_HIERARCHY_VIOLATION", reqUser, docket.targetUsername, docket.targetZone, "BLOCKED", `Zonal Admin attempted to self-approve National level request.`);
+      return res.status(403).json({ success: false, error: "Access Denied: This operation requires supreme National Admin approval." });
+    }
+  }
+
+  const targetUname = docket.targetUsername;
+  const users = loadJsonFile(USERS_FILE, {});
+  const user = users[targetUname] || DEFAULT_SYSTEM_USERS[targetUname];
+
+  const reviewTimestamp = new Date().toISOString();
+  const reviewMeta = {
+    reviewedBy: reqUser.username,
+    reviewerRole: reqUser.role,
+    reviewerZone: reqUser.zone,
+    reviewedAt: reviewTimestamp,
+    remarks: remarks || reason || ""
+  };
+
+  if (action.toUpperCase() === "APPROVE") {
+    docket.status = "APPROVED";
+    docket.review = reviewMeta;
+    docket.updatedAt = reviewTimestamp;
+
+    // Apply approved payload to target user
+    if (docket.type === "NEW_REGISTRATION") {
+      users[targetUname] = {
+        ...(users[targetUname] || user || {}),
+        ...docket.newValues,
+        status: "Active",
+        approvalStatus: "Approved",
+        isLocked: false,
+        approvedBy: reqUser.username,
+        approvedAt: reviewTimestamp,
+        updatedAt: reviewTimestamp
+      };
+    } else if (docket.type === "PROFILE_EDIT") {
+      users[targetUname] = {
+        ...(users[targetUname] || user || {}),
+        ...docket.newValues,
+        isLocked: false,
+        updatedAt: reviewTimestamp
+      };
+    } else if (docket.type === "SUSPENSION") {
+      users[targetUname] = {
+        ...(users[targetUname] || user || {}),
+        status: "Suspended",
+        isLocked: true,
+        suspensionReason: docket.reason,
+        updatedAt: reviewTimestamp
+      };
+    } else if (docket.type === "DEACTIVATION") {
+      users[targetUname] = {
+        ...(users[targetUname] || user || {}),
+        status: "Inactive",
+        isLocked: true,
+        deactivationReason: docket.reason,
+        updatedAt: reviewTimestamp
+      };
+    } else if (docket.type === "REACTIVATION") {
+      users[targetUname] = {
+        ...(users[targetUname] || user || {}),
+        status: "Active",
+        isLocked: false,
+        updatedAt: reviewTimestamp
+      };
+    } else if (docket.type === "DELETION") {
+      users[targetUname] = {
+        ...(users[targetUname] || user || {}),
+        status: "Deleted",
+        isLocked: true,
+        deletedAt: reviewTimestamp,
+        deletedBy: reqUser.username,
+        deletionReason: docket.reason
+      };
+    } else if (docket.type === "ZONE_TRANSFER") {
+      users[targetUname] = {
+        ...(users[targetUname] || user || {}),
+        zone: docket.newValues.zone,
+        state: docket.newValues.state || users[targetUname].state,
+        isLocked: false,
+        updatedAt: reviewTimestamp
+      };
+    }
+
+    saveJsonFile(USERS_FILE, users);
+    approvals[docketIndex] = docket;
+    saveJsonFile(APPROVALS_FILE, approvals);
+
+    logServerUserAudit(
+      `APPROVAL_${docket.type}_APPROVED`,
+      reqUser,
+      targetUname,
+      docket.targetZone,
+      "SUCCESS",
+      `Request #${reqId} (${docket.type}) approved by @${reqUser.username}. Changes are now active.`,
+      { approver: reqUser.username, approvalId: reqId, oldValues: docket.oldValues, newValues: docket.newValues }
+    );
+
+    return res.json({
+      success: true,
+      message: `Request #${reqId} successfully approved. Target user @${targetUname} record is now active and updated.`,
+      docket
+    });
+
+  } else if (action.toUpperCase() === "REJECT") {
+    docket.status = "REJECTED";
+    docket.review = reviewMeta;
+    docket.updatedAt = reviewTimestamp;
+
+    if (users[targetUname]) {
+      if (docket.type === "NEW_REGISTRATION") {
+        users[targetUname].status = "Rejected";
+        users[targetUname].approvalStatus = "Rejected";
+        users[targetUname].isLocked = true;
+      } else {
+        // Unlock user from pending edit
+        users[targetUname].isLocked = (users[targetUname].status !== "Active");
+      }
+      saveJsonFile(USERS_FILE, users);
+    }
+
+    approvals[docketIndex] = docket;
+    saveJsonFile(APPROVALS_FILE, approvals);
+
+    logServerUserAudit(
+      `APPROVAL_${docket.type}_REJECTED`,
+      reqUser,
+      targetUname,
+      docket.targetZone,
+      "REJECTED",
+      `Request #${reqId} rejected by @${reqUser.username}. Reason: ${reviewMeta.remarks}`,
+      { approver: reqUser.username, reason: reviewMeta.remarks, approvalId: reqId }
+    );
+
+    return res.json({
+      success: true,
+      message: `Request #${reqId} was rejected. Justification has been logged in the immutable audit trail.`,
+      docket
+    });
+
+  } else if (action.toUpperCase() === "REQUEST_CORRECTION") {
+    docket.status = "CORRECTION_REQUIRED";
+    docket.review = reviewMeta;
+    docket.updatedAt = reviewTimestamp;
+
+    if (users[targetUname]) {
+      users[targetUname].status = "Correction Required";
+      users[targetUname].approvalStatus = "Correction Required";
+      saveJsonFile(USERS_FILE, users);
+    }
+
+    approvals[docketIndex] = docket;
+    saveJsonFile(APPROVALS_FILE, approvals);
+
+    logServerUserAudit(
+      `APPROVAL_${docket.type}_CORRECTION_REQUESTED`,
+      reqUser,
+      targetUname,
+      docket.targetZone,
+      "CORRECTION_REQUIRED",
+      `Revision requested for Request #${reqId} by @${reqUser.username}: ${reviewMeta.remarks}`,
+      { approver: reqUser.username, reason: reviewMeta.remarks, approvalId: reqId }
+    );
+
+    return res.json({
+      success: true,
+      message: `Revision request sent for Request #${reqId}. User must provide specified updates.`,
+      docket
+    });
+  }
+});
+
+// Get Detailed Action Timeline for a Case / Docket
+app.get("/api/admin/approvals/:id/timeline", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const reqId = String(req.params.id || "").trim();
+  const timeline = repo.getCaseTimeline(reqId);
+  return res.json({ success: true, timeline });
+});
+
+// National Admin Command Dashboard Statistics
+app.get("/api/admin/dashboard-stats", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const stats = repo.getNationalDashboardStats(req.user);
+  return res.json({ success: true, stats });
+});
+
+// Internal Notifications System
+app.get("/api/admin/notifications", requireApiAuth(["admin", "national", "zonal", "officer", "inspector"]), (req, res) => {
+  const notifications = repo.getNotifications(req.user);
+  return res.json({ success: true, notifications });
+});
+
+app.patch("/api/admin/notifications/:id/read", requireApiAuth(["admin", "national", "zonal", "officer", "inspector"]), (req, res) => {
+  repo.markNotificationAsRead(req.params.id);
+  return res.json({ success: true });
+});
+
+// Explicit endpoint to submit sensitive operational change requests
+app.post("/api/admin/approvals/create", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const reqUser = req.user;
+  const { type, targetUsername, newValues, reason } = req.body || {};
+
+  const VALID_TYPES = ["PROFILE_EDIT", "SUSPENSION", "DEACTIVATION", "REACTIVATION", "DELETION", "ZONE_TRANSFER"];
+  if (!type || !VALID_TYPES.includes(type.toUpperCase())) {
+    return res.status(400).json({ success: false, error: `Invalid request type. Must be one of: ${VALID_TYPES.join(", ")}` });
+  }
+
+  if (!targetUsername) {
+    return res.status(400).json({ success: false, error: "Target username is required." });
+  }
+
+  if (!reason) {
+    return res.status(400).json({ success: false, error: "A statutory reason is required for administrative requests." });
+  }
+
+  const u = String(targetUsername).trim().toLowerCase();
+  const allUsers = getAllUsers();
+  const target = allUsers[u];
+
+  if (!target) {
+    return res.status(404).json({ success: false, error: `Target user @${u} not found.` });
+  }
+
+  // Zone isolation check
+  if (reqUser && reqUser.role === "zonal") {
+    const userZoneNorm = normalizeZoneStr(reqUser.zone);
+    const targetZoneNorm = normalizeZoneStr(target.zone);
+    if (userZoneNorm !== targetZoneNorm) {
+      logServerUserAudit("APPROVAL_CREATE_BLOCKED", reqUser, u, target.zone, "BLOCKED", `Zonal Admin attempted action on user in ${target.zone}`);
+      return res.status(403).json({ success: false, error: `Access Denied: You can only initiate actions for personnel in your assigned zone (${reqUser.zone}).` });
+    }
+  }
+
+  const isNational = reqUser && (reqUser.role === "national" || reqUser.role === "admin");
+  const workflow = isNational ? "NATIONAL_TO_ZONAL" : "ZONAL_TO_NATIONAL";
+  const status = isNational ? "PENDING_ZONAL" : "PENDING_NATIONAL";
+
+  const approvals = loadJsonFile(APPROVALS_FILE, []);
+  const reqId = `REQ-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+  const approvalReq = {
+    id: reqId,
+    type: type.toUpperCase(),
+    initiatedBy: { username: reqUser.username, role: reqUser.role, zone: reqUser.zone || "All" },
+    targetUsername: u,
+    targetName: target.name || u,
+    targetRole: target.role || "inspector",
+    targetZone: target.zone || "North",
+    targetDesignation: target.designation || "",
+    workflow,
+    status,
+    oldValues: {
+      designation: target.designation,
+      role: target.role,
+      zone: target.zone,
+      state: target.state,
+      status: target.status,
+      badgeNumber: target.badgeNumber
+    },
+    newValues: newValues || {},
+    reason: String(reason).trim(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  approvals.unshift(approvalReq);
+  saveJsonFile(APPROVALS_FILE, approvals);
+
+  // Lock user record while approval is pending
+  const stored = loadJsonFile(USERS_FILE, {});
+  stored[u] = {
+    ...(stored[u] || target),
+    isLocked: true,
+    pendingApprovalId: reqId,
+    updatedAt: new Date().toISOString()
+  };
+  saveJsonFile(USERS_FILE, stored);
+
+  logServerUserAudit(
+    `APPROVAL_REQUEST_SUBMITTED`,
+    reqUser,
+    u,
+    target.zone,
+    "PENDING",
+    `Administrative request #${reqId} (${type}) submitted by @${reqUser.username}. Awaiting review.`,
+    { approvalId: reqId, reason }
+  );
+
+  return res.json({
+    success: true,
+    message: `Administrative request #${reqId} (${type}) recorded and submitted for approval.`,
+    approvalRequest: approvalReq
+  });
+});
+
+// -------------------------------------------------------------------------
+// 3. SYSTEM KYC & SECURITY POLICIES REST APIs
+// -------------------------------------------------------------------------
+app.get("/api/admin/kyc-policies", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
+  const policies = loadJsonFile(KYC_POLICIES_FILE, {
+    requireAadhaar: true,
+    requirePAN: true,
+    requirePassport: false,
+    requireAppointmentLetter: true,
+    requirePhoto: true,
+    otpExpiryMinutes: 10,
+    maxOtpAttempts: 5,
+    resendCooldownSeconds: 60,
+    tokenExpiryHours: 48
+  });
+  return res.json({ success: true, policies });
+});
+
+app.post("/api/admin/kyc-policies", requireApiAuth(["admin", "national"]), (req, res) => {
+  const reqUser = req.user;
+  const updates = req.body || {};
+  const current = loadJsonFile(KYC_POLICIES_FILE, {});
+  const updated = {
+    ...current,
+    ...updates,
+    updatedAt: new Date().toISOString(),
+    updatedBy: reqUser.username
+  };
+  saveJsonFile(KYC_POLICIES_FILE, updated);
+  logServerUserAudit("KYC_POLICIES_UPDATED", reqUser, "SYSTEM_CONFIG", "All", "SUCCESS", "National Admin updated KYC and verification security policies.");
+  return res.json({ success: true, policies: updated });
+});
+
+// -------------------------------------------------------------------------
+// 4. USER DIRECTORY & REGISTRATION APIS (WITH ZBAC & APPROVAL WORKFLOW)
+// -------------------------------------------------------------------------
+
 app.get("/api/users", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
   const users = getAllUsers();
   const reqUser = req.user;
   const isZonalAdmin = reqUser && reqUser.role === "zonal";
-  const reqZoneNorm = reqUser && reqUser.zone ? (reqUser.zone.trim().toLowerCase().replace(/\bzone\b/g, "").trim()) : "";
+  const reqZoneNorm = reqUser && reqUser.zone ? normalizeZoneStr(reqUser.zone) : "";
+  const includeDeleted = req.query.includeDeleted === "true";
 
   const sanitized = {};
   for (const [k, u] of Object.entries(users)) {
-    const uZoneNorm = (u.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+    // Hide soft deleted users unless requested by National Admin
+    if (!includeDeleted && u.status === "Deleted") continue;
+
+    const uZoneNorm = normalizeZoneStr(u.zone || "");
     const canManage = !isZonalAdmin || (reqZoneNorm && uZoneNorm === reqZoneNorm);
-    
+
+    // If Zonal Admin, only disclose personnel within their zone
+    if (isZonalAdmin && uZoneNorm !== reqZoneNorm) {
+      continue;
+    }
+
     sanitized[k] = { ...u, canManage };
     delete sanitized[k].password;
   }
   res.json({ success: true, users: sanitized });
 });
 
+// Register or edit a user (Zonal Admin creates LOCKED record + Single-Use Verification Token)
 app.post("/api/users", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
   const reqUser = req.user;
-  const { username, password, role, name, designation, badgeNumber, officeAddress, zone, state, status } = req.body || {};
+  const { username, password, role, name, designation, badgeNumber, officeAddress, zone, state, status, mobile, email, channel } = req.body || {};
+
   if (!username) {
     return res.status(400).json({ success: false, error: "Username is required." });
   }
+
   const u = String(username).trim().toLowerCase();
   const allUsers = getAllUsers();
   const existing = allUsers[u];
+  const isZonal = reqUser && reqUser.role === "zonal";
+  const reqZoneNorm = normalizeZoneStr(reqUser ? reqUser.zone : "");
 
-  // Enforce Zone-Based Access Control for Zonal Admins
-  if (reqUser && reqUser.role === "zonal") {
-    const reqZoneNorm = (reqUser.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
-    
-    // 1. Cannot modify existing user outside assigned zone
+  // Zone Isolation Guards for Zonal Admin
+  if (isZonal) {
     if (existing && existing.zone) {
-      const extZoneNorm = existing.zone.trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+      const extZoneNorm = normalizeZoneStr(existing.zone);
       if (extZoneNorm !== reqZoneNorm) {
-        logServerUserAudit("USER_MODIFY_BLOCKED", reqUser, u, existing.zone, "BLOCKED_UNAUTHORIZED", `Zonal Admin @${reqUser.username} (${reqUser.zone}) attempted to modify user @${u} in ${existing.zone} Zone.`);
+        logServerUserAudit("USER_MODIFY_BLOCKED", reqUser, u, existing.zone, "BLOCKED", `Zonal Admin @${reqUser.username} (${reqUser.zone}) attempted to modify user @${u} in ${existing.zone}`);
         return res.status(403).json({
           success: false,
-          error: `Access Denied: Zonal Admins cannot modify users outside their assigned zone (${reqUser.zone}). Target user @${u} belongs to ${existing.zone} Zone.`
+          error: `Access Denied: Zonal Admins cannot modify users outside their assigned zone (${reqUser.zone}).`
         });
       }
     }
 
-    // 2. Cannot assign National Admin / Superuser roles
     const requestedRole = String(role || (existing ? existing.role : "inspector")).toLowerCase();
     if (requestedRole === "national" || requestedRole === "admin") {
-      logServerUserAudit("ROLE_ASSIGN_BLOCKED", reqUser, u, reqUser.zone, "BLOCKED_UNAUTHORIZED", `Zonal Admin @${reqUser.username} attempted to assign National role to @${u}.`);
+      logServerUserAudit("ROLE_ASSIGN_BLOCKED", reqUser, u, reqUser.zone, "BLOCKED", `Zonal Admin attempted to assign National role.`);
       return res.status(403).json({
         success: false,
-        error: "Access Denied: Zonal Admins cannot assign National Director / Superuser roles."
+        error: "Access Denied: Zonal Admins cannot assign National Director or Superuser roles."
       });
     }
   }
 
+  const assignedZone = isZonal ? reqUser.zone : (zone || (existing ? existing.zone : "North"));
+
+  // SENSITIVE EDIT ON EXISTING USER -> Creates Approval Request!
+  if (existing) {
+    if (isZonal) {
+      // Check if sensitive fields are being changed
+      const isSensitiveChange = (role && role !== existing.role) ||
+                                (designation && designation !== existing.designation) ||
+                                (status && status !== existing.status) ||
+                                (zone && normalizeZoneStr(zone) !== normalizeZoneStr(existing.zone));
+
+      if (isSensitiveChange) {
+        // Record as Pending Approval Request
+        const approvals = loadJsonFile(APPROVALS_FILE, []);
+        const reqId = `REQ-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+        const editRequest = {
+          id: reqId,
+          type: "PROFILE_EDIT",
+          initiatedBy: { username: reqUser.username, role: reqUser.role, zone: reqUser.zone },
+          targetUsername: u,
+          targetName: existing.name || u,
+          targetRole: role || existing.role,
+          targetZone: assignedZone,
+          targetDesignation: designation || existing.designation,
+          workflow: "ZONAL_TO_NATIONAL",
+          status: "PENDING_NATIONAL",
+          oldValues: {
+            name: existing.name,
+            designation: existing.designation,
+            role: existing.role,
+            zone: existing.zone,
+            status: existing.status
+          },
+          newValues: {
+            name: name || existing.name,
+            designation: designation || existing.designation,
+            role: role || existing.role,
+            zone: assignedZone,
+            status: status || existing.status,
+            officeAddress: officeAddress || existing.officeAddress
+          },
+          reason: "Zonal Admin updated sensitive personnel attributes; awaiting National review.",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        approvals.unshift(editRequest);
+        saveJsonFile(APPROVALS_FILE, approvals);
+
+        // Lock existing record
+        const stored = loadJsonFile(USERS_FILE, {});
+        stored[u] = {
+          ...(stored[u] || existing),
+          isLocked: true,
+          pendingApprovalId: reqId,
+          updatedAt: new Date().toISOString()
+        };
+        saveJsonFile(USERS_FILE, stored);
+
+        logServerUserAudit(
+          "PROFILE_EDIT_REQUESTED",
+          reqUser,
+          u,
+          assignedZone,
+          "PENDING",
+          `Sensitive profile edit for @${u} recorded as Request #${reqId}. Changes pending National Admin approval.`,
+          { approvalId: reqId, oldValues: editRequest.oldValues, newValues: editRequest.newValues }
+        );
+
+        return res.json({
+          success: true,
+          approvalPending: true,
+          message: `Profile edit for @${u} submitted as Pending Approval Request #${reqId}. Changes will take effect upon National Admin approval.`,
+          approvalRequest: editRequest
+        });
+      }
+    }
+  }
+
+  // NEW USER ONBOARDING: Must be created in LOCKED state with verification link if Zonal Admin
+  const isNewRegistration = !existing;
+  const isNational = reqUser && (reqUser.role === "admin" || reqUser.role === "national");
+  const directActivate = isNational && (status === "Active" || status === "active" || req.body.directActivate);
+
+  const userStatus = isNewRegistration
+    ? (directActivate ? "Active" : "Draft")
+    : (status || existing.status || "Active");
+  const isLocked = isNewRegistration
+    ? (directActivate ? false : true)
+    : (typeof existing.isLocked !== "undefined" ? existing.isLocked : false);
+  const verifStatus = isNewRegistration
+    ? (directActivate ? "Verified" : "Pending Verification")
+    : (existing.verificationStatus || "Verified");
+  const apprvStatus = isNewRegistration
+    ? (directActivate ? "Approved" : "Pending Verification")
+    : (existing.approvalStatus || "Approved");
+
+  const chosenContactChannel = (channel && channel.toLowerCase() === "email") ? "email" : "mobile";
+  const contactMobile = mobile || (existing && existing.contact ? existing.contact.mobile : "+91 98765 43210");
+  const contactEmail = email || (existing && existing.contact ? existing.contact.email : `${u}@nic.in`);
+  const chosenContactStr = chosenContactChannel === "email" ? contactEmail : contactMobile;
+
   const stored = loadJsonFile(USERS_FILE, {});
   const baseExisting = stored[u] || DEFAULT_SYSTEM_USERS[u] || {};
-
-  const assignedZone = (reqUser && reqUser.role === "zonal") ? reqUser.zone : (zone || baseExisting.zone || "North");
 
   stored[u] = {
     ...baseExisting,
@@ -1087,34 +2496,205 @@ app.post("/api/users", requireApiAuth(["admin", "national", "zonal"]), (req, res
     officeAddress: officeAddress || baseExisting.officeAddress || "",
     zone: assignedZone,
     state: state || baseExisting.state || "Delhi UT",
-    status: status || baseExisting.status || "Active",
+    status: userStatus,
+    isLocked: isLocked,
+    verificationStatus: verifStatus,
+    approvalStatus: apprvStatus,
+    contact: {
+      mobile: contactMobile,
+      mobileVerified: !isNewRegistration || directActivate,
+      email: contactEmail,
+      emailVerified: !isNewRegistration || directActivate
+    },
+    kyc: (existing || directActivate) ? (existing ? (existing.kyc || { submitted: true }) : { submitted: true, verified: true }) : { submitted: false },
+    createdAt: (existing && existing.createdAt) ? existing.createdAt : new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
 
   saveJsonFile(USERS_FILE, stored);
-  logServerUserAudit(
-    existing ? "USER_MODIFIED" : "USER_REGISTERED",
-    reqUser,
-    u,
-    assignedZone,
-    "SUCCESS",
-    `User @${u} (${stored[u].role}) updated in ${assignedZone} Zone with status '${stored[u].status}'.`
-  );
+
+  let verificationToken = null;
+  let verificationUrl = null;
+  let approvalCase = null;
+
+  // Generate single-use opaque verification token for new user if not directly activated
+  if (isNewRegistration && !directActivate) {
+    verificationToken = generateVerificationToken();
+    const tokenStore = loadJsonFile(VERIFICATION_TOKENS_FILE, {});
+    const now = Date.now();
+
+    // Create explicit case in SQLite with sequential CASE-YYYY-XXXXXX
+    try {
+      approvalCase = repo.createApprovalCase({
+        requestType: "OFFICER_REGISTRATION",
+        targetUsername: u,
+        zone: assignedZone,
+        initiatorUsername: reqUser.username,
+        initiatorRole: reqUser.role,
+        reason: "New officer onboarding registration requiring 2FA identity verification and National statutory approval.",
+        oldValues: null,
+        newValues: {
+          name: stored[u].name,
+          role: stored[u].role,
+          zone: assignedZone,
+          state: stored[u].state,
+          designation: stored[u].designation,
+          badgeNumber: stored[u].badgeNumber
+        },
+        verificationToken,
+        workflowType: "ZONAL_TO_NATIONAL"
+      });
+    } catch (caseErr) {
+      console.warn("[METRO-CHECK] SQLite createApprovalCase warn:", caseErr.message);
+    }
+
+    tokenStore[verificationToken] = {
+      token: verificationToken,
+      caseId: approvalCase ? approvalCase.id : null,
+      targetUsername: u,
+      targetName: stored[u].name,
+      targetRole: stored[u].role,
+      targetDesignation: stored[u].designation,
+      targetZone: assignedZone,
+      targetState: stored[u].state,
+      channel: chosenContactChannel,
+      contactTarget: chosenContactStr,
+      maskedContact: maskContactString(chosenContactStr, chosenContactChannel),
+      initiatedBy: { username: reqUser.username, role: reqUser.role, zone: reqUser.zone || "All" },
+      attempts: 0,
+      maxAttempts: 5,
+      tokenExpiresAt: now + 48 * 60 * 60 * 1000, // 48 hours validity
+      otpVerified: false,
+      kycSubmitted: false,
+      used: false,
+      status: "ISSUED",
+      createdAt: new Date().toISOString()
+    };
+
+    saveJsonFile(VERIFICATION_TOKENS_FILE, tokenStore);
+    verificationUrl = `/verify.html?token=${verificationToken}`;
+
+    // Mirror to SQLite verification_sessions
+    try {
+      repo.db.prepare(`
+        INSERT OR REPLACE INTO verification_sessions (
+          token, case_id, username, channel, contact_target, masked_contact,
+          attempts, max_attempts, otp_expires_at, token_expires_at, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, 0, 5, ?, ?, ?)
+      `).run(
+        verificationToken,
+        approvalCase ? approvalCase.id : null,
+        u,
+        chosenContactChannel,
+        chosenContactStr,
+        maskContactString(chosenContactStr, chosenContactChannel),
+        now + 600000,
+        now + 48 * 3600 * 1000,
+        new Date().toISOString()
+      );
+    } catch(e) {}
+
+    // Save user to SQLite
+    try {
+      repo.saveUserRecord({
+        username: u,
+        name: stored[u].name,
+        role: stored[u].role,
+        zone: assignedZone,
+        state: stored[u].state,
+        designation: stored[u].designation,
+        badgeNumber: stored[u].badgeNumber,
+        officeAddress: stored[u].officeAddress,
+        password: stored[u].password,
+        accountStatus: "Locked",
+        verificationStatus: "Pending",
+        approvalStatus: "Pending National",
+        isLocked: 1,
+        contact: stored[u].contact
+      });
+    } catch(e) {}
+
+    logServerUserAudit(
+      "USER_REGISTRATION_LOCKED",
+      reqUser,
+      u,
+      assignedZone,
+      "SUCCESS",
+      `New user @${u} registered in locked state under ${assignedZone} Zone. Case ${approvalCase ? approvalCase.id : "N/A"} created. Secure verification link generated for ${chosenContactChannel.toUpperCase()} (${tokenStore[verificationToken].maskedContact}).`,
+      { approvalId: approvalCase ? approvalCase.id : null }
+    );
+  } else if (isNewRegistration && directActivate) {
+    try {
+      repo.saveUserRecord({
+        username: u,
+        name: stored[u].name,
+        role: stored[u].role,
+        zone: assignedZone,
+        state: stored[u].state,
+        designation: stored[u].designation,
+        badgeNumber: stored[u].badgeNumber,
+        officeAddress: stored[u].officeAddress,
+        password: stored[u].password,
+        accountStatus: "Active",
+        verificationStatus: "Verified",
+        approvalStatus: "Approved",
+        isLocked: 0,
+        contact: stored[u].contact
+      });
+    } catch(e) {}
+
+    logServerUserAudit(
+      "USER_PROVISIONED_ACTIVE",
+      reqUser,
+      u,
+      assignedZone,
+      "SUCCESS",
+      `New user @${u} (${stored[u].role}) directly provisioned and activated under ${assignedZone} Zone by National Administrator @${reqUser.username}.`
+    );
+  } else {
+    try {
+      repo.saveUserRecord(stored[u]);
+    } catch(e) {}
+    logServerUserAudit(
+      "USER_MODIFIED",
+      reqUser,
+      u,
+      assignedZone,
+      "SUCCESS",
+      `User @${u} profile updated by @${reqUser.username}.`
+    );
+  }
 
   const result = { ...stored[u] };
   delete result.password;
-  res.json({ success: true, user: result });
+
+  return res.json({
+    success: true,
+    user: result,
+    isNewRegistration,
+    verificationToken,
+    verificationUrl,
+    caseId: approvalCase ? approvalCase.id : null,
+    approvalRequest: approvalCase || null,
+    approvalCase: approvalCase || null,
+    maskedContact: maskContactString(chosenContactStr, chosenContactChannel),
+    channel: chosenContactChannel,
+    message: isNewRegistration
+      ? `User @${u} registered in LOCKED state. Case ${approvalCase ? approvalCase.id : ""} opened. Please dispatch the single-use verification link.`
+      : `User @${u} updated successfully.`
+  });
 });
 
+// Alter user status (Zonal Admin creates SUSPENSION/DEACTIVATION Approval Request)
 app.patch(["/api/users/:username/status", /^\/api\/users\/(.+)\/status$/], requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
   const reqUser = req.user;
   const rawId = req.params.username || req.params[0];
   const u = rawId ? decodeURIComponent(rawId).trim().toLowerCase() : "";
   if (u === "admin") {
-    return res.status(403).json({ success: false, error: "The primary administrator account status cannot be altered." });
+    return res.status(403).json({ success: false, error: "The primary supreme administrator account status cannot be altered." });
   }
 
-  const { status } = req.body || {};
+  const { status, reason } = req.body || {};
   const VALID_STATUSES = ["Active", "Inactive", "Suspended"];
   if (!status || !VALID_STATUSES.includes(status)) {
     return res.status(400).json({ success: false, error: `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}` });
@@ -1126,85 +2706,285 @@ app.patch(["/api/users/:username/status", /^\/api\/users\/(.+)\/status$/], requi
     return res.status(404).json({ success: false, error: `User @${u} not found.` });
   }
 
-  if (reqUser && reqUser.role === "zonal") {
-    const reqZoneNorm = (reqUser.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
-    const tgtZoneNorm = (target.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
-    if (tgtZoneNorm !== reqZoneNorm) {
-      logServerUserAudit("STATUS_CHANGE_BLOCKED", reqUser, u, target.zone, "BLOCKED_UNAUTHORIZED", `Zonal Admin @${reqUser.username} (${reqUser.zone}) attempted to change status of user @${u} in ${target.zone} Zone.`);
-      return res.status(403).json({
-        success: false,
-        error: `Access Denied: Zonal Admins cannot alter status of users outside their assigned zone (${reqUser.zone}). Target @${u} is in ${target.zone} Zone.`
-      });
+  const isZonal = reqUser && reqUser.role === "zonal";
+  if (isZonal) {
+    const userZoneNorm = normalizeZoneStr(reqUser.zone);
+    const targetZoneNorm = normalizeZoneStr(target.zone);
+    if (userZoneNorm !== targetZoneNorm) {
+      logServerUserAudit("STATUS_CHANGE_BLOCKED", reqUser, u, target.zone, "BLOCKED", `Zonal Admin @${reqUser.username} attempted status change on user in ${target.zone}`);
+      return res.status(403).json({ success: false, error: `Access Denied: Zonal Admins cannot alter status of users outside their assigned zone.` });
     }
+
+    // Zonal Admin sensitive action: Must create an Approval Request!
+    if (!reason) {
+      return res.status(400).json({ success: false, error: "A clear statutory justification reason is required for status alterations." });
+    }
+
+    const actionType = status === "Suspended" ? "SUSPENSION" : (status === "Inactive" ? "DEACTIVATION" : "REACTIVATION");
+    
+    // Create Approval Case docket in SQLite with sequential CASE-YYYY-XXXXXX
+    let approvalCase = null;
+    try {
+      approvalCase = repo.createApprovalCase({
+        requestType: actionType,
+        targetUsername: u,
+        zone: target.zone,
+        initiatorUsername: reqUser.username,
+        initiatorRole: reqUser.role,
+        reason: String(reason).trim(),
+        oldValues: { status: target.status, accountStatus: target.accountStatus || "Active" },
+        newValues: { status: status, accountStatus: status === "Suspended" ? "Suspended" : (status === "Inactive" ? "Deactivated" : "Active") },
+        workflowType: "ZONAL_TO_NATIONAL"
+      });
+    } catch (e) {
+      console.warn("[Status Change] SQLite createApprovalCase error:", e.message);
+    }
+
+    const reqId = approvalCase ? approvalCase.id : `REQ-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const approvals = loadJsonFile(APPROVALS_FILE, []);
+
+    const approvalReq = {
+      id: reqId,
+      caseId: reqId,
+      type: actionType,
+      requestType: actionType,
+      riskLevel: approvalCase ? approvalCase.riskLevel : (status === "Suspended" || status === "Inactive" ? "High" : "Medium"),
+      initiatedBy: { username: reqUser.username, role: reqUser.role, zone: reqUser.zone },
+      targetUsername: u,
+      targetName: target.name || u,
+      targetRole: target.role,
+      targetZone: target.zone,
+      zone: target.zone,
+      targetDesignation: target.designation,
+      workflow: "ZONAL_TO_NATIONAL",
+      status: "PENDING_NATIONAL",
+      approvalStatus: "Pending National",
+      oldValues: { status: target.status },
+      newValues: { status: status },
+      reason: String(reason).trim(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    approvals.unshift(approvalReq);
+    saveJsonFile(APPROVALS_FILE, approvals);
+
+    // Lock user in SQLite and JSON
+    try {
+      repo.saveUserRecord({
+        ...target,
+        isLocked: 1
+      });
+    } catch(e) {}
+
+    logServerUserAudit(
+      `STATUS_CHANGE_REQUESTED`,
+      reqUser,
+      u,
+      target.zone,
+      "PENDING",
+      `Zonal Admin @${reqUser.username} requested ${actionType} for user @${u}. Docket #${reqId} (${approvalReq.riskLevel} Risk) submitted for National review.`,
+      { approvalId: reqId, reason }
+    );
+
+    return res.json({
+      success: true,
+      approvalPending: true,
+      caseId: reqId,
+      message: `Status change for @${u} submitted as Docket #${reqId} (${approvalReq.riskLevel} Risk). Will take effect upon National Admin approval.`,
+      approvalRequest: approvalReq,
+      approvalCase: approvalCase || approvalReq
+    });
   }
 
+  // National Admin can apply status change directly
   const stored = loadJsonFile(USERS_FILE, {});
+  const newAccountStatus = status === "Suspended" ? "Suspended" : (status === "Inactive" ? "Deactivated" : "Active");
+  const isLocked = (status === "Suspended" || status === "Inactive");
+
   stored[u] = {
     ...(stored[u] || target),
     status: status,
+    accountStatus: newAccountStatus,
+    isLocked: isLocked,
     updatedAt: new Date().toISOString()
   };
 
   saveJsonFile(USERS_FILE, stored);
+
+  try {
+    repo.saveUserRecord({
+      ...(target || {}),
+      username: u,
+      status: status,
+      accountStatus: newAccountStatus,
+      isLocked: isLocked ? 1 : 0
+    });
+  } catch(e) {}
+
   logServerUserAudit(
     `USER_${status.toUpperCase()}`,
     reqUser,
     u,
     target.zone,
     "SUCCESS",
-    `User @${u} account status set to '${status}' by @${reqUser.username}.`
+    `User @${u} status set to '${status}' by National Administrator @${reqUser.username}.`
   );
 
   const result = { ...stored[u] };
   delete result.password;
-  res.json({ success: true, user: result });
+  return res.json({ success: true, user: result });
 });
 
+// Soft-Delete user (Zonal Admin creates DELETION Approval Request)
 app.delete(["/api/users/:username", /^\/api\/users\/(.+)$/], requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
   const reqUser = req.user;
   const rawId = req.params.username || req.params[0];
   const u = rawId ? decodeURIComponent(rawId).trim().toLowerCase() : "";
   if (u === "admin") {
-    return res.status(403).json({ success: false, error: "The primary administrator account cannot be removed." });
+    return res.status(403).json({ success: false, error: "The primary supreme administrator account cannot be deleted." });
   }
 
   const allUsers = getAllUsers();
   const target = allUsers[u];
+  if (!target) {
+    return res.status(404).json({ success: false, error: `User @${u} not found.` });
+  }
 
-  if (reqUser && reqUser.role === "zonal" && target) {
-    const reqZoneNorm = (reqUser.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
-    const tgtZoneNorm = (target.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
-    if (tgtZoneNorm !== reqZoneNorm) {
-      logServerUserAudit("USER_DELETE_BLOCKED", reqUser, u, target.zone, "BLOCKED_UNAUTHORIZED", `Zonal Admin @${reqUser.username} (${reqUser.zone}) attempted to delete user @${u} in ${target.zone} Zone.`);
-      return res.status(403).json({
-        success: false,
-        error: `Access Denied: Zonal Admins cannot delete users outside their assigned zone (${reqUser.zone}). Target @${u} belongs to ${target.zone} Zone.`
-      });
+  const isZonal = reqUser && reqUser.role === "zonal";
+  if (isZonal) {
+    const userZoneNorm = normalizeZoneStr(reqUser.zone);
+    const targetZoneNorm = normalizeZoneStr(target.zone);
+    if (userZoneNorm !== targetZoneNorm) {
+      logServerUserAudit("USER_DELETE_BLOCKED", reqUser, u, target.zone, "BLOCKED", `Zonal Admin @${reqUser.username} attempted deletion on user in ${target.zone}`);
+      return res.status(403).json({ success: false, error: `Access Denied: Zonal Admins cannot delete users outside their assigned zone.` });
     }
+
+    // Zonal Admin sensitive action: Must create a DELETION Approval Request!
+    const { reason } = req.body || {};
+    let approvalCase = null;
+    try {
+      approvalCase = repo.createApprovalCase({
+        requestType: "DELETION",
+        targetUsername: u,
+        zone: target.zone,
+        initiatorUsername: reqUser.username,
+        initiatorRole: reqUser.role,
+        reason: String(reason || "Personnel decommission or transfer out requested by Zonal Controller.").trim(),
+        oldValues: { status: target.status, accountStatus: target.accountStatus || "Active" },
+        newValues: { status: "Deleted", accountStatus: "Deactivated" },
+        workflowType: "ZONAL_TO_NATIONAL"
+      });
+    } catch(e) {
+      console.warn("[Delete User] SQLite createApprovalCase error:", e.message);
+    }
+
+    const reqId = approvalCase ? approvalCase.id : `REQ-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const approvals = loadJsonFile(APPROVALS_FILE, []);
+
+    const approvalReq = {
+      id: reqId,
+      caseId: reqId,
+      type: "DELETION",
+      requestType: "DELETION",
+      riskLevel: "Critical",
+      initiatedBy: { username: reqUser.username, role: reqUser.role, zone: reqUser.zone },
+      targetUsername: u,
+      targetName: target.name || u,
+      targetRole: target.role,
+      targetZone: target.zone,
+      zone: target.zone,
+      targetDesignation: target.designation,
+      workflow: "ZONAL_TO_NATIONAL",
+      status: "PENDING_NATIONAL",
+      approvalStatus: "Pending National",
+      oldValues: { status: target.status },
+      newValues: { status: "Deleted" },
+      reason: String(reason || "Personnel decommission or transfer out requested by Zonal Controller.").trim(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    approvals.unshift(approvalReq);
+    saveJsonFile(APPROVALS_FILE, approvals);
+
+    // Lock user in SQLite
+    try {
+      repo.saveUserRecord({
+        ...target,
+        isLocked: 1
+      });
+    } catch(e) {}
+
+    logServerUserAudit(
+      "DELETION_REQUESTED",
+      reqUser,
+      u,
+      target.zone,
+      "PENDING",
+      `Deletion request for user @${u} submitted by Zonal Admin @${reqUser.username} as Docket #${reqId} (Critical Risk).`,
+      { approvalId: reqId }
+    );
+
+    return res.json({
+      success: true,
+      approvalPending: true,
+      caseId: reqId,
+      message: `Deletion request for user @${u} submitted as Docket #${reqId} (Critical Risk). Pending National Admin confirmation.`,
+      approvalRequest: approvalReq,
+      approvalCase: approvalCase || approvalReq
+    });
   }
 
+  // National Admin: Performs Soft-Deletion (Preserves historical audit trails)
   const stored = loadJsonFile(USERS_FILE, {});
-  if (stored[u]) {
-    delete stored[u];
-    saveJsonFile(USERS_FILE, stored);
-  }
+  stored[u] = {
+    ...(stored[u] || target),
+    status: "Deleted",
+    accountStatus: "Deactivated",
+    isLocked: true,
+    deletedAt: new Date().toISOString(),
+    deletedBy: reqUser.username
+  };
+  saveJsonFile(USERS_FILE, stored);
 
-  logServerUserAudit("USER_DELETED", reqUser, u, target ? target.zone : "Unknown", "SUCCESS", `User @${u} deleted from registry by @${reqUser.username}.`);
-  res.json({ success: true, message: `User @${u} removed successfully.` });
+  try {
+    repo.saveUserRecord({
+      ...(target || {}),
+      username: u,
+      status: "Deleted",
+      accountStatus: "Deactivated",
+      isLocked: 1
+    });
+  } catch(e) {}
+
+  logServerUserAudit(
+    "USER_SOFT_DELETED",
+    reqUser,
+    u,
+    target ? target.zone : "Unknown",
+    "SUCCESS",
+    `User @${u} soft-deleted by National Administrator @${reqUser.username}. Historical records and inspection logs preserved.`
+  );
+
+  return res.json({ success: true, message: `User @${u} decommissioned and soft-deleted successfully.` });
 });
 
+// Audit trail with zone isolation
 app.get("/api/users/audit", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
   const logs = loadJsonFile(USER_AUDIT_FILE, []);
   const reqUser = req.user;
+
   if (reqUser && reqUser.role === "zonal") {
-    const reqZoneNorm = (reqUser.zone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
+    const userZoneNorm = normalizeZoneStr(reqUser.zone);
     const filtered = logs.filter(l => {
-      const zNorm = (l.targetZone || l.actorZone || "").trim().toLowerCase().replace(/\bzone\b/g, "").trim();
-      return zNorm === reqZoneNorm || l.actorUsername === reqUser.username;
+      const zNorm = normalizeZoneStr(l.targetZone || l.actorZone || "");
+      return zNorm === userZoneNorm || l.actorUsername === reqUser.username;
     });
     return res.json({ success: true, count: filtered.length, auditLogs: filtered });
   }
-  res.json({ success: true, count: logs.length, auditLogs: logs });
+
+  return res.json({ success: true, count: logs.length, auditLogs: logs });
 });
 
 app.post("/api/users/audit", requireApiAuth(["admin", "national", "zonal"]), (req, res) => {
@@ -1212,7 +2992,15 @@ app.post("/api/users/audit", requireApiAuth(["admin", "national", "zonal"]), (re
   if (!entry || !entry.action) {
     return res.status(400).json({ error: "Audit entry requires action." });
   }
-  const result = logServerUserAudit(entry.action, req.user || { username: entry.actorUsername, role: entry.actorRole, zone: entry.actorZone }, entry.targetUsername, entry.targetZone, entry.outcome, entry.details);
+  const result = logServerUserAudit(
+    entry.action,
+    req.user || { username: entry.actorUsername, role: entry.actorRole, zone: entry.actorZone },
+    entry.targetUsername,
+    entry.targetZone,
+    entry.outcome,
+    entry.details,
+    entry.extra || {}
+  );
   res.json({ success: true, data: result });
 });
 

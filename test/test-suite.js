@@ -91,6 +91,65 @@ try {
   process.exit(1);
 }
 
+// 1d. Legal Notice Findings Preservation Unit Test
+function evaluateNoticeFindingsPreservation(item) {
+  const viols = Array.isArray(item.violations) ? item.violations : [];
+  const itemRules = Array.isArray(item.rules) ? item.rules : (Array.isArray(item.compliance_tests) ? item.compliance_tests : []);
+  const checkedFields = item.checkedFields || item.checked_fields || item.fieldResults || {};
+
+  const hasExplicitViolations = viols.length > 0;
+  const hasFailingRules = itemRules.some(r => r.compliant === false || r.found === false);
+  const hasFailingCheckedFields = Object.values(checkedFields).some(v => v === false);
+  const statusIsNonCompliant = Boolean(
+    item.status && (
+      item.status === "NON_COMPLIANT" ||
+      item.status === "NOTICE_ISSUED" ||
+      item.status === "REJECTED" ||
+      item.status === "FLAGGED"
+    )
+  );
+
+  const isCompliant = !hasExplicitViolations && !hasFailingRules && !hasFailingCheckedFields && !statusIsNonCompliant && (
+    item.isCompliant === true
+  );
+
+  function isParamCompliant(ruleClause, paramName) {
+    for (const v of viols) {
+      const vStr = (typeof v === "object" ? (v.reason || v.rule || v.violation || JSON.stringify(v)) : String(v)).toLowerCase();
+      if (vStr.includes(ruleClause.toLowerCase()) || vStr.includes(paramName.toLowerCase())) return false;
+    }
+    const matchRule = itemRules.find(r => {
+      const c = String(r.clause || "").toLowerCase();
+      const p = String(r.parameter_name || r.name || "").toLowerCase();
+      return c.includes(ruleClause.toLowerCase()) || p.includes(paramName.toLowerCase());
+    });
+    if (matchRule && (matchRule.compliant === false || matchRule.found === false)) return false;
+    return true;
+  }
+
+  return { isCompliant, isParamCompliant };
+}
+
+try {
+  const nonCompliantReport = {
+    id: "INS-20261005-TEST",
+    isCompliant: false,
+    status: "NOTICE_ISSUED",
+    violations: ["Rule 6(1)(c): Net Quantity metric unit declaration missing standard symbol."],
+    rules: [
+      { clause: "Rule 6(1)(c)", parameter_name: "Net Quantity", compliant: false }
+    ]
+  };
+
+  const evalRes = evaluateNoticeFindingsPreservation(nonCompliantReport);
+  assert.strictEqual(evalRes.isCompliant, false, "Notice for non-compliant inspection report must resolve to non-compliant");
+  assert.strictEqual(evalRes.isParamCompliant("Rule 6(1)(c)", "Net Quantity"), false, "Violated parameter Net Quantity MUST NOT be shown as passed");
+  console.log("✅ Unit Test 1d Passed: Legal Notice Inspection Findings Preservation Engine");
+} catch (e) {
+  console.error("❌ Unit Test 1d Failed:", e.message);
+  process.exit(1);
+}
+
 function makeHttpRequest(options, postData) {
   options.headers = Object.assign({ Connection: "close" }, options.headers || {});
   return new Promise((resolve, reject) => {

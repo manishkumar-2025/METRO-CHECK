@@ -4337,8 +4337,11 @@ function downloadOcrReportPdf() {
     return;
   }
 
-  if (typeof generateStatutoryNoticePDF === "function") {
-    generateStatutoryNoticePDF(currentInspectionResult, { isInspectorReport: true });
+  const pdfFn = (typeof generateStatutoryNoticePDF === "function" ? generateStatutoryNoticePDF : null) ||
+                (typeof window !== "undefined" && typeof window.generateStatutoryNoticePDF === "function" ? window.generateStatutoryNoticePDF : null);
+
+  if (typeof pdfFn === "function") {
+    pdfFn(currentInspectionResult, { isInspectorReport: true });
   } else {
     if (typeof showToast === "function") showToast("PDF generation engine not available.", "error");
   }

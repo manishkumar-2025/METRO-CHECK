@@ -269,6 +269,7 @@ function initAdminApp() {
   renderAnalytics();
   renderAdminCommodities();
   renderAdminUsers();
+  loadAdminApprovals();
   initAdminSettings();
   if (typeof NotificationCenter !== "undefined") NotificationCenter.init("admin");
 }
@@ -277,7 +278,7 @@ function initAdminApp() {
    TAB SWITCHER
    -------------------------------------------------------------------------- */
 function switchAdminTab(tabId, updateUrl = true) {
-  const allowed = ["command","ledger","analytics","commodities","settings"];
+  const allowed = ["command","approvals","ledger","analytics","commodities","settings"];
   if (!allowed.includes(tabId)) tabId = "command";
   activeAdminTab = tabId;
 
@@ -325,6 +326,7 @@ function switchAdminTab(tabId, updateUrl = true) {
 
   const titles = {
     command:     { bc: "Command Center",      title: "System Health & Live Inspection Stats" },
+    approvals:   { bc: "Approvals & Verification", title: "Two-Tier Approval Dockets & First-Time 2FA Verification" },
     ledger:      { bc: "Master Ledger",       title: "Immutable Master Inspection Ledger" },
     analytics:   { bc: "Reports & Analytics", title: "System Compliance Trends & Analytics" },
     commodities: { bc: "Commodity Standards", title: "Commodity Categories & Rule Standards" },
@@ -337,6 +339,7 @@ function switchAdminTab(tabId, updateUrl = true) {
   if (tl) tl.textContent = meta.title;
 
   if      (tabId === "command")     initCommandCenter();
+  else if (tabId === "approvals")   loadAdminApprovals();
   else if (tabId === "ledger")      renderMasterLedgerTable();
   else if (tabId === "analytics")   renderAnalytics();
   else if (tabId === "commodities") renderAdminCommodities();
@@ -444,9 +447,95 @@ function initCommandCenter() {
   // System health panel
   renderSystemHealthPanel(inspections);
 
+  // Load National Command Database Overview (Zone Breakdown & Critical Alerts)
+  loadNationalDashboardOverview();
+
   // Start / restart auto-refresh
   _startAutoRefresh();
 }
+
+/**
+ * Fetches SQLite-backed National Administrative metrics:
+ * 6-Zone breakdown matrix, High-Risk alert dockets, and pending approvals.
+ */
+async function loadNationalDashboardOverview() {
+  try {
+    const res = await fetch("/api/admin/dashboard-stats", { credentials: "include" });
+    if (!res.ok) return;
+    const { stats } = await res.json();
+    if (!stats) return;
+
+    // 1. High-Risk / Critical Alerts Banner
+    const banner = document.getElementById("adminCriticalAlertsBanner");
+    const countEl = document.getElementById("adminCriticalAlertsCount");
+    const critCount = stats.overview?.criticalAlertsCount || 0;
+    if (banner) {
+      if (critCount > 0) {
+        banner.classList.remove("hidden");
+        if (countEl) countEl.textContent = `${critCount} Critical/High Risk Docket${critCount > 1 ? 's' : ''}`;
+      } else {
+        banner.classList.add("hidden");
+      }
+    }
+
+    // 2. Zone Breakdown Grid
+    const zoneGrid = document.getElementById("adminZoneBreakdownGrid");
+    if (zoneGrid && Array.isArray(stats.zoneStats)) {
+      zoneGrid.innerHTML = stats.zoneStats.map(z => {
+        const hasAlerts = z.criticalCases > 0;
+        return `
+          <div class="p-3.5 rounded-xl border ${hasAlerts ? 'border-rose-300 bg-rose-50/50 dark:bg-rose-950/20 dark:border-rose-900/60 shadow-2xs' : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40'} space-y-2 text-xs transition-all hover:shadow-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-slate-900 dark:text-slate-100 font-mono text-sm">${z.zone} Zone</span>
+              ${hasAlerts ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-rose-500 text-white animate-pulse">Alert (${z.criticalCases})</span>` : `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Active</span>`}
+            </div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${z.name}</div>
+            <div class="pt-1.5 border-t border-slate-200/80 dark:border-slate-700/60 grid grid-cols-2 gap-1.5 text-[10.5px]">
+              <div>
+                <span class="text-slate-400 block text-[9px]">Officers:</span>
+                <span class="font-bold font-mono text-slate-800 dark:text-slate-200">${z.totalPersonnel} (${z.activePersonnel} Act)</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[9px]">Pending:</span>
+                <span class="font-bold font-mono ${z.pendingCases > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500'}">${z.pendingCases}</span>
+              </div>
+            </div>
+            <div class="text-[9.5px] text-slate-400 truncate">HQ: <span class="font-medium text-slate-600 dark:text-slate-300">${z.hq}</span></div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // 3. Update Pending Approvals Badge in Sidebar and Approvals Header
+    const navBadge = document.getElementById("navPendingApprovalsBadge");
+    const pCount = stats.overview?.pendingApprovals || 0;
+    if (navBadge) {
+      if (pCount > 0) {
+        navBadge.textContent = pCount;
+        navBadge.classList.remove("hidden");
+      } else {
+        navBadge.textContent = "0";
+        navBadge.classList.add("hidden");
+      }
+    }
+    const headerBadge = document.getElementById("approvalsPendingHeaderBadge");
+    const countText = document.getElementById("approvalsPendingCountText");
+    if (headerBadge && countText) {
+      if (pCount > 0) {
+        headerBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase font-mono bg-amber-500 text-white shadow-xs flex items-center gap-1.5 transition-all";
+        countText.textContent = `${pCount} Action${pCount > 1 ? "s" : ""} Required`;
+        headerBadge.classList.remove("hidden");
+      } else {
+        headerBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs flex items-center gap-1.5 transition-all";
+        countText.textContent = "✓ All Clear (0 Pending)";
+        headerBadge.classList.remove("hidden");
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to load dashboard overview stats:", err);
+  }
+}
+window.loadNationalDashboardOverview = loadNationalDashboardOverview;
 
 /* --- Auto-refresh (30-second countdown ring) --- */
 function _startAutoRefresh() {
@@ -1872,13 +1961,224 @@ function handleSaveCommodityForm(event) {
 }
 
 /* ==========================================================================
-   VIEW 5 — PLATFORM SETTINGS
+   VIEW 5 — PLATFORM SETTINGS (USER & ROLE CONFIGURATION MANAGEMENT)
+   Supports dynamic filtering (Search, Role, Zone, Status) and multi-field sorting
    ========================================================================== */
-let _userSearchQuery = "";
+let _userFilterSearch = "";
+let _userFilterRole = "ALL";
+let _userFilterZone = "ALL";
+let _userFilterStatus = "ALL";
+let _userSortBy = "role_hierarchy";
+
+function escapeUserText(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/'/g, "&#39;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
 function onUserSearchInput(val) {
-  _userSearchQuery = (val || "").trim().toLowerCase();
+  _userFilterSearch = (val || "").trim().toLowerCase();
   renderAdminUsers();
+}
+window.onUserSearchInput = onUserSearchInput;
+
+function onUserFilterChange() {
+  const searchInput = document.getElementById("adminUserSearchInput");
+  const roleSelect = document.getElementById("adminUserFilterRole");
+  const zoneSelect = document.getElementById("adminUserFilterZone");
+  const statusSelect = document.getElementById("adminUserFilterStatus");
+  const sortSelect = document.getElementById("adminUserSortBy");
+
+  if (searchInput) _userFilterSearch = searchInput.value.trim().toLowerCase();
+  if (roleSelect) _userFilterRole = roleSelect.value;
+  if (zoneSelect) _userFilterZone = zoneSelect.value;
+  if (statusSelect) _userFilterStatus = statusSelect.value;
+  if (sortSelect) _userSortBy = sortSelect.value;
+
+  updateColumnSortIcons();
+  renderAdminUsers();
+}
+window.onUserFilterChange = onUserFilterChange;
+
+function resetAdminUserFilters() {
+  _userFilterSearch = "";
+  _userFilterRole = "ALL";
+  _userFilterZone = "ALL";
+  _userFilterStatus = "ALL";
+  _userSortBy = "role_hierarchy";
+
+  const searchInput = document.getElementById("adminUserSearchInput");
+  const roleSelect = document.getElementById("adminUserFilterRole");
+  const zoneSelect = document.getElementById("adminUserFilterZone");
+  const statusSelect = document.getElementById("adminUserFilterStatus");
+  const sortSelect = document.getElementById("adminUserSortBy");
+
+  if (searchInput) searchInput.value = "";
+  if (roleSelect) roleSelect.value = "ALL";
+  if (zoneSelect) zoneSelect.value = "ALL";
+  if (statusSelect) statusSelect.value = "ALL";
+  if (sortSelect) sortSelect.value = "role_hierarchy";
+
+  updateColumnSortIcons();
+  renderAdminUsers();
+}
+window.resetAdminUserFilters = resetAdminUserFilters;
+
+function toggleUserColumnSort(column) {
+  if (column === "role") {
+    _userSortBy = (_userSortBy === "role_hierarchy") ? "role_desc" : "role_hierarchy";
+  } else if (column === "username") {
+    _userSortBy = (_userSortBy === "username_asc") ? "username_desc" : "username_asc";
+  } else if (column === "name") {
+    _userSortBy = (_userSortBy === "name_asc") ? "name_desc" : "name_asc";
+  } else if (column === "zone") {
+    _userSortBy = (_userSortBy === "zone_asc") ? "zone_desc" : "zone_asc";
+  } else if (column === "status") {
+    _userSortBy = (_userSortBy === "status_asc") ? "status_desc" : "status_asc";
+  }
+
+  const sortSelect = document.getElementById("adminUserSortBy");
+  if (sortSelect && Array.from(sortSelect.options).some(o => o.value === _userSortBy)) {
+    sortSelect.value = _userSortBy;
+  }
+
+  updateColumnSortIcons();
+  renderAdminUsers();
+}
+window.toggleUserColumnSort = toggleUserColumnSort;
+
+function updateColumnSortIcons() {
+  const cols = ["username", "name", "role", "zone", "status"];
+  cols.forEach(col => {
+    const iconEl = document.getElementById(`sortIcon-${col}`);
+    if (!iconEl) return;
+    if (_userSortBy.startsWith(col)) {
+      if (_userSortBy.endsWith("_asc") || _userSortBy === "role_hierarchy") {
+        iconEl.textContent = "▲";
+        iconEl.className = "text-[10px] text-emerald-600 dark:text-emerald-400 font-bold";
+      } else {
+        iconEl.textContent = "▼";
+        iconEl.className = "text-[10px] text-emerald-600 dark:text-emerald-400 font-bold";
+      }
+    } else {
+      iconEl.textContent = "↕";
+      iconEl.className = "text-[10px] text-slate-400 font-normal";
+    }
+  });
+}
+
+function clearSingleUserFilter(filterKey) {
+  if (filterKey === "search") {
+    _userFilterSearch = "";
+    const el = document.getElementById("adminUserSearchInput");
+    if (el) el.value = "";
+  } else if (filterKey === "role") {
+    _userFilterRole = "ALL";
+    const el = document.getElementById("adminUserFilterRole");
+    if (el) el.value = "ALL";
+  } else if (filterKey === "zone") {
+    _userFilterZone = "ALL";
+    const el = document.getElementById("adminUserFilterZone");
+    if (el) el.value = "ALL";
+  } else if (filterKey === "status") {
+    _userFilterStatus = "ALL";
+    const el = document.getElementById("adminUserFilterStatus");
+    if (el) el.value = "ALL";
+  } else if (filterKey === "sort") {
+    _userSortBy = "role_hierarchy";
+    const el = document.getElementById("adminUserSortBy");
+    if (el) el.value = "role_hierarchy";
+    updateColumnSortIcons();
+  }
+  renderAdminUsers();
+}
+window.clearSingleUserFilter = clearSingleUserFilter;
+
+function renderUserActiveFilterTags(totalCount, filteredCount) {
+  const container = document.getElementById("adminUserActiveFilterTags");
+  if (!container) return;
+
+  const tags = [];
+  if (_userFilterSearch) {
+    tags.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[10.5px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Search: "${escapeUserText(_userFilterSearch)}" <button type="button" onclick="clearSingleUserFilter('search')" class="hover:text-red-500 font-bold ml-0.5">✕</button></span>`);
+  }
+  if (_userFilterRole !== "ALL") {
+    const roleLabels = { national: "National Admin", zonal: "Zonal Controller", officer: "Adjudication Officer", inspector: "Field Inspector" };
+    tags.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[10.5px] bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Role: ${roleLabels[_userFilterRole] || _userFilterRole} <button type="button" onclick="clearSingleUserFilter('role')" class="hover:text-red-500 font-bold ml-0.5">✕</button></span>`);
+  }
+  if (_userFilterZone !== "ALL") {
+    tags.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[10.5px] bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Zone: ${_userFilterZone} Zone <button type="button" onclick="clearSingleUserFilter('zone')" class="hover:text-red-500 font-bold ml-0.5">✕</button></span>`);
+  }
+  if (_userFilterStatus !== "ALL") {
+    const statusLabels = { Active: "Active & Operational", Inactive: "Inactive", Suspended: "Suspended", LOCKED: "Locked / Pending" };
+    tags.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[10.5px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Status: ${statusLabels[_userFilterStatus] || _userFilterStatus} <button type="button" onclick="clearSingleUserFilter('status')" class="hover:text-red-500 font-bold ml-0.5">✕</button></span>`);
+  }
+  if (_userSortBy !== "role_hierarchy") {
+    const sortLabels = { name_asc: "Name (A-Z)", name_desc: "Name (Z-A)", username_asc: "Username (A-Z)", username_desc: "Username (Z-A)", zone_asc: "Zone (A-Z)", status_asc: "Status (Active First)", role_desc: "Role (Field First)" };
+    tags.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[10.5px] bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">Sorted: ${sortLabels[_userSortBy] || _userSortBy} <button type="button" onclick="clearSingleUserFilter('sort')" class="hover:text-red-500 font-bold ml-0.5">✕</button></span>`);
+  }
+
+  if (tags.length > 0) {
+    container.classList.remove("hidden");
+    container.innerHTML = `<span class="text-[11px] text-slate-400 font-semibold">Active Filters:</span>` + tags.join("") +
+      `<button type="button" onclick="resetAdminUserFilters()" class="text-[10.5px] text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 font-bold underline ml-1 cursor-pointer">Clear All</button>`;
+  } else {
+    container.classList.add("hidden");
+    container.innerHTML = "";
+  }
+}
+
+const ROLE_RANK = {
+  admin: 1,
+  national: 1,
+  zonal: 2,
+  officer: 3,
+  inspector: 4
+};
+
+function sortAdminUsers(users, sortBy) {
+  return [...users].sort((a, b) => {
+    switch (sortBy) {
+      case "name_asc":
+        return (a.name || a.username || "").localeCompare(b.name || b.username || "");
+      case "name_desc":
+        return (b.name || b.username || "").localeCompare(a.name || a.username || "");
+      case "username_asc":
+        return (a.username || "").localeCompare(b.username || "");
+      case "username_desc":
+        return (b.username || "").localeCompare(a.username || "");
+      case "role_hierarchy": {
+        const rA = ROLE_RANK[a.role] || 99;
+        const rB = ROLE_RANK[b.role] || 99;
+        if (rA !== rB) return rA - rB;
+        return (a.name || a.username || "").localeCompare(b.name || b.username || "");
+      }
+      case "role_desc": {
+        const rA = ROLE_RANK[a.role] || 99;
+        const rB = ROLE_RANK[b.role] || 99;
+        if (rA !== rB) return rB - rA;
+        return (a.name || a.username || "").localeCompare(b.name || b.username || "");
+      }
+      case "zone_asc":
+        return (a.zone || "All").localeCompare(b.zone || "All");
+      case "zone_desc":
+        return (b.zone || "All").localeCompare(a.zone || "All");
+      case "status_asc": {
+        const score = u => (u.status === "Active" && !u.isLocked) ? 1 : (u.isLocked ? 2 : (u.status === "Inactive" ? 3 : 4));
+        return score(a) - score(b);
+      }
+      case "status_desc": {
+        const score = u => (u.status === "Active" && !u.isLocked) ? 1 : (u.isLocked ? 2 : (u.status === "Inactive" ? 3 : 4));
+        return score(b) - score(a);
+      }
+      default:
+        return 0;
+    }
+  });
 }
 
 function renderAdminUsers() {
@@ -1908,6 +2208,13 @@ function renderAdminUsers() {
     }
   }
 
+  // Configure Zonal Scope in Zone Filter Dropdown
+  const zoneSelect = document.getElementById("adminUserFilterZone");
+  if (zoneSelect && isZonal) {
+    zoneSelect.innerHTML = `<option value="${actor.zone}">🔒 ${actor.zone} Zone (Assigned Scope)</option>`;
+    _userFilterZone = actor.zone;
+  }
+
   const allUsersMap = getUsers();
   const allUsers = Object.values(allUsersMap);
 
@@ -1918,26 +2225,84 @@ function renderAdminUsers() {
   const elZonal = document.getElementById("adminZonalUsers");
 
   if (elTotal) elTotal.textContent = allUsers.length;
-  if (elActive) elActive.textContent = allUsers.filter(u => u.status !== "Inactive" && u.status !== "Suspended").length;
-  if (elInactive) elInactive.textContent = allUsers.filter(u => u.status === "Inactive" || u.status === "Suspended").length;
+  if (elActive) elActive.textContent = allUsers.filter(u => u.status !== "Inactive" && u.status !== "Suspended" && !u.isLocked).length;
+  if (elInactive) elInactive.textContent = allUsers.filter(u => u.status === "Inactive" || u.status === "Suspended" || u.isLocked).length;
   if (elZonal) elZonal.textContent = allUsers.filter(u => typeof canManageUser === "function" ? canManageUser(actor, u) : true).length;
 
-  // Filter Users Table
-  let filtered = allUsers;
-  if (_userSearchQuery) {
-    filtered = allUsers.filter(u => {
-      const q = _userSearchQuery;
-      return (u.username || "").toLowerCase().includes(q) ||
-             (u.name || "").toLowerCase().includes(q) ||
-             (u.zone || "").toLowerCase().includes(q) ||
-             (u.state || "").toLowerCase().includes(q) ||
-             (u.role || "").toLowerCase().includes(q) ||
-             (u.designation || "").toLowerCase().includes(q);
-    });
+  // Filter Users Table based on multi-field criteria
+  let filtered = allUsers.filter(u => {
+    // 1. Text Search Query
+    if (_userFilterSearch) {
+      const q = _userFilterSearch;
+      const match = (u.username || "").toLowerCase().includes(q) ||
+                    (u.name || "").toLowerCase().includes(q) ||
+                    (u.zone || "").toLowerCase().includes(q) ||
+                    (u.state || "").toLowerCase().includes(q) ||
+                    (u.role || "").toLowerCase().includes(q) ||
+                    (u.designation || "").toLowerCase().includes(q) ||
+                    (u.badgeNumber || "").toLowerCase().includes(q);
+      if (!match) return false;
+    }
+
+    // 2. Role Filter
+    if (_userFilterRole !== "ALL") {
+      if (_userFilterRole === "national") {
+        if (u.role !== "national" && u.role !== "admin") return false;
+      } else {
+        if (u.role !== _userFilterRole) return false;
+      }
+    }
+
+    // 3. Zone Filter
+    if (_userFilterZone !== "ALL") {
+      if (!u.zone || u.zone.toLowerCase() !== _userFilterZone.toLowerCase()) {
+        return false;
+      }
+    }
+
+    // 4. Status Filter
+    if (_userFilterStatus !== "ALL") {
+      const isLocked = Boolean(u.isLocked || u.accountStatus === "Locked" || u.status === "Locked" || u.status === "Draft" || u.status === "Pending Verification" || u.status === "Pending Approval");
+      if (_userFilterStatus === "LOCKED") {
+        if (!isLocked) return false;
+      } else if (_userFilterStatus === "Active") {
+        if (isLocked || (u.status !== "Active" && u.accountStatus !== "Active")) return false;
+      } else if (_userFilterStatus === "Inactive") {
+        if (u.status !== "Inactive" && u.accountStatus !== "Inactive") return false;
+      } else if (_userFilterStatus === "Suspended") {
+        if (u.status !== "Suspended" && u.accountStatus !== "Suspended") return false;
+      }
+    }
+
+    return true;
+  });
+
+  // Apply sorting
+  filtered = sortAdminUsers(filtered, _userSortBy);
+
+  // Update Result Count Badge
+  const countEl = document.getElementById("adminUserFilterCount");
+  if (countEl) {
+    countEl.textContent = `Showing ${filtered.length} of ${allUsers.length} users`;
   }
 
+  // Render Active Filter Tags
+  renderUserActiveFilterTags(allUsers.length, filtered.length);
+
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-400 text-xs">${_userSearchQuery ? "No users match search query." : "No users registered."}</td></tr>`;
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="px-4 py-12 text-center">
+          <div class="max-w-sm mx-auto space-y-2">
+            <div class="text-3xl">🔍</div>
+            <div class="text-xs font-bold text-slate-800 dark:text-slate-200">No Matching Users Found</div>
+            <p class="text-[11px] text-slate-500">No user configurations match your active filter criteria.</p>
+            <button type="button" onclick="resetAdminUserFilters()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition cursor-pointer">
+              Reset All Filters
+            </button>
+          </div>
+        </td>
+      </tr>`;
     renderUserAuditLogs();
     return;
   }
@@ -1945,6 +2310,7 @@ function renderAdminUsers() {
   tbody.innerHTML = filtered.map(u => {
     const isAct = u.status === "Active" || (!u.status || u.status === "ACTIVE");
     const isSusp = u.status === "Suspended";
+    const isLocked = !!u.isLocked;
     const statusLabel = isSusp ? "Suspended" : (isAct ? "Active" : "Inactive");
     
     const statusBadgeCls = isSusp
@@ -1960,6 +2326,28 @@ function renderAdminUsers() {
       : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-200";
 
     const isManageable = (typeof canManageUser === "function") ? canManageUser(actor, u) : true;
+
+    // 2FA Identity Verification Badges
+    const vStatus = u.verificationStatus || (isLocked ? "PENDING_OTP" : "VERIFIED");
+    const aStatus = u.approvalStatus || (isLocked ? "PENDING_VERIFICATION" : "APPROVED");
+
+    let vStatusBadge = "";
+    if (vStatus === "VERIFIED" || (!isLocked && vStatus !== "PENDING_OTP")) {
+      vStatusBadge = `<span class="inline-flex items-center gap-1 text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300">✓ 2FA Verified</span>`;
+    } else if (vStatus === "KYC_SUBMITTED") {
+      vStatusBadge = `<span class="inline-flex items-center gap-1 text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950 dark:text-indigo-300">📋 KYC Submitted</span>`;
+    } else {
+      vStatusBadge = `<span class="inline-flex items-center gap-1 text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950 dark:text-amber-300">⏳ OTP Pending</span>`;
+    }
+
+    let lockedBadge = isLocked
+      ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9.5px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950 dark:text-rose-300" title="Account locked until identity verified and approved">🔒 LOCKED</span>`
+      : "";
+
+    let apprvBadge = "";
+    if (aStatus === "Pending National Approval" || aStatus === "PENDING_APPROVAL") {
+      apprvBadge = `<span class="inline-flex items-center gap-1 text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950 dark:text-purple-300 animate-pulse">Pending Review</span>`;
+    }
 
     return `
       <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800 text-xs transition-colors">
@@ -1983,15 +2371,25 @@ function renderAdminUsers() {
           </div>
         </td>
         <td class="px-4 py-3">
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-extrabold border ${statusBadgeCls}">
-            <span class="w-1.5 h-1.5 rounded-full ${isSusp ? "bg-rose-500 animate-pulse" : isAct ? "bg-emerald-500" : "bg-slate-400"}"></span>
-            ${statusLabel}
-          </span>
+          <div class="flex flex-col gap-1 items-start">
+            <div class="flex items-center gap-1.5">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-extrabold border ${statusBadgeCls}">
+                <span class="w-1.5 h-1.5 rounded-full ${isSusp ? "bg-rose-500 animate-pulse" : isAct ? "bg-emerald-500" : "bg-slate-400"}"></span>
+                ${statusLabel}
+              </span>
+              ${lockedBadge}
+            </div>
+            <div class="flex items-center gap-1 flex-wrap">
+              ${vStatusBadge}
+              ${apprvBadge}
+            </div>
+          </div>
         </td>
         <td class="px-4 py-3 text-right space-x-1 whitespace-nowrap">
           ${u.username === "admin" ? `
             <span class="text-slate-400 font-mono text-[10px] font-bold uppercase tracking-wide px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">Primary Superuser</span>
           ` : (isManageable ? `
+            ${isLocked ? `<button onclick="openVerificationLinkForUser('${u.username}')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 rounded text-[11px] font-bold transition border border-emerald-200 dark:border-emerald-800" title="View Single-Use 2FA Verification Link">🔗 2FA Link</button>` : ""}
             <button onclick="openUserModal('${u.username}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded text-[11px] font-bold transition shadow-2xs">Edit</button>
             <button onclick="toggleUserStatusAction('${u.username}')" class="px-2.5 py-1 ${isAct ? "bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300" : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"} rounded text-[11px] font-bold transition">${isAct ? "Deactivate" : "Activate"}</button>
             ${isAct ? `<button onclick="suspendUserAction('${u.username}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 rounded text-[11px] font-bold transition">Suspend</button>` : ""}
@@ -2071,9 +2469,15 @@ function openUserModal(editingUsername = null) {
   const initialZone = isZonal ? actor.zone : (zoneSelect ? zoneSelect.value : "North");
   populateUserFormStates(initialZone);
 
+  const onboardBlock = document.getElementById("userFormOnboardingBlock");
+  const channelEl = document.getElementById("userFormChannel");
+  const mobileEl = document.getElementById("userFormMobile");
+  const emailEl = document.getElementById("userFormEmail");
+
   if (editingUsername) {
     const users = getUsers();
     const target = users[editingUsername];
+    if (onboardBlock) onboardBlock.style.display = "none";
     if (target) {
       if (modalTitle) modalTitle.textContent = `Edit User — @${target.username}`;
       if (modalNotice) modalNotice.textContent = `Updating user credentials and authority in ${target.zone} Zone.`;
@@ -2089,12 +2493,19 @@ function openUserModal(editingUsername = null) {
       if (document.getElementById("userFormDesignation")) document.getElementById("userFormDesignation").value = target.designation || "";
       if (document.getElementById("userFormBadge")) document.getElementById("userFormBadge").value = target.badgeNumber || "";
       if (document.getElementById("userFormOffice")) document.getElementById("userFormOffice").value = target.officeAddress || "";
+      if (mobileEl) mobileEl.value = target.contact?.mobile || "";
+      if (emailEl) emailEl.value = target.contact?.email || "";
+      if (channelEl) channelEl.value = target.contact?.channel || "mobile";
     }
   } else {
+    if (onboardBlock) onboardBlock.style.display = "block";
     if (modalTitle) modalTitle.textContent = isZonal ? `Register User — ${actor.zone} Zone` : "Register New System User";
     if (modalNotice) modalNotice.textContent = isZonal ? `Provisioning user within ${actor.zone} Zone jurisdiction.` : "Configuring user authority and jurisdiction mapping.";
     if (usernameInput) { usernameInput.readOnly = false; usernameInput.placeholder = "e.g. inspector2"; }
     if (pwdInput) pwdInput.placeholder = "••••••••";
+    if (mobileEl) mobileEl.value = "";
+    if (emailEl) emailEl.value = "";
+    if (channelEl) channelEl.value = "mobile";
   }
 
   modal.classList.remove("hidden");
@@ -2107,7 +2518,7 @@ function closeUserModal() {
   document.body.classList.remove("overflow-hidden");
 }
 
-function handleSaveUserForm(event) {
+async function handleSaveUserForm(event) {
   event.preventDefault();
   const editingUsername = document.getElementById("userFormEditingId").value;
   const username = document.getElementById("userFormUsername").value.trim().toLowerCase();
@@ -2122,12 +2533,20 @@ function handleSaveUserForm(event) {
   const badgeNumber = document.getElementById("userFormBadge")?.value.trim() || "";
   const officeAddress = document.getElementById("userFormOffice")?.value.trim() || "";
 
+  const channel = document.getElementById("userFormChannel")?.value || "mobile";
+  const mobile = document.getElementById("userFormMobile")?.value?.trim() || "";
+  const email = document.getElementById("userFormEmail")?.value?.trim() || "";
+
   if (!username) {
     if (typeof showToast === "function") showToast("Please provide a valid username handle.", "warning");
     return;
   }
   if (!editingUsername && !password) {
     if (typeof showToast === "function") showToast("Please specify a password for new user registration.", "warning");
+    return;
+  }
+  if (!editingUsername && !mobile && !email) {
+    if (typeof showToast === "function") showToast("Please provide mobile number or email for 2FA verification.", "warning");
     return;
   }
 
@@ -2140,44 +2559,163 @@ function handleSaveUserForm(event) {
     status,
     designation,
     badgeNumber,
-    officeAddress
+    officeAddress,
+    contact: {
+      channel,
+      mobile,
+      email
+    }
   };
   if (password) payload.password = password;
 
-  const result = (typeof saveUser === "function") ? saveUser(payload) : null;
+  try {
+    const res = await fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      if (typeof showToast === "function") showToast(data.error || "Failed to save user.", "error");
+      return;
+    }
 
-  if (result) {
+    // Update local storage representation
+    if (typeof saveUser === "function") saveUser({ ...payload, isLocked: data.user?.isLocked, verificationStatus: data.user?.verificationStatus });
+
+    // Notify Quick Access Console in real-time
+    try {
+      localStorage.setItem("metro_users_last_update", Date.now().toString());
+      window.dispatchEvent(new CustomEvent("metro_users_updated"));
+    } catch (e) {}
+
     closeUserModal();
     renderAdminUsers();
-    if (typeof showToast === "function") {
-      showToast(editingUsername ? `User @${username} updated successfully!` : `User @${username} registered under ${result.zone} Zone!`, "success");
+    loadAdminApprovals();
+
+    if (data.verificationToken) {
+      openVerificationLinkModal(data.user || payload, data.verificationUrl, data.verificationToken, data.otp);
+      if (typeof showToast === "function") {
+        showToast(`User @${username} registered in LOCKED state! Single-use 2FA link generated.`, "success");
+      }
+    } else if (data.requiresApproval) {
+      if (typeof showToast === "function") {
+        showToast("Modification request submitted to National Admin Approval Queue!", "info");
+      }
+    } else {
+      if (typeof showToast === "function") {
+        showToast(editingUsername ? `User @${username} updated successfully!` : `User @${username} registered under ${zone} Zone!`, "success");
+      }
+    }
+  } catch (err) {
+    console.warn("Server API sync failed, falling back to local handler:", err);
+    const result = (typeof saveUser === "function") ? saveUser(payload) : null;
+    if (result) {
+      closeUserModal();
+      renderAdminUsers();
+      if (typeof showToast === "function") {
+        showToast(editingUsername ? `User @${username} updated!` : `User @${username} registered!`, "success");
+      }
     }
   }
 }
 
-function toggleUserStatusAction(uname) {
-  if (typeof toggleUserStatus === "function") {
-    const success = toggleUserStatus(uname);
-    if (success) {
-      renderAdminUsers();
+async function toggleUserStatusAction(uname) {
+  const users = getUsers();
+  const target = users[uname];
+  const nextStatus = (target && target.status === "Inactive") ? "Active" : "Inactive";
+
+  try {
+    const res = await fetch(`/api/users/${encodeURIComponent(uname)}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ status: nextStatus })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      if (typeof showToast === "function") showToast(data.error || "Failed to change user status.", "error");
+      return;
+    }
+
+    if (data.requiresApproval) {
+      if (typeof showToast === "function") showToast(`Status change request for @${uname} submitted to National Admin approval queue.`, "info");
+    } else {
+      if (typeof showToast === "function") showToast(`User @${uname} status updated to ${nextStatus}.`, "success");
+    }
+    renderAdminUsers();
+    loadAdminApprovals();
+    try {
+      localStorage.setItem("metro_users_last_update", Date.now().toString());
+      window.dispatchEvent(new CustomEvent("metro_users_updated"));
+    } catch (e) {}
+  } catch (err) {
+    if (typeof toggleUserStatus === "function") {
+      const success = toggleUserStatus(uname);
+      if (success) renderAdminUsers();
     }
   }
 }
 window.toggleUserStatusAction = toggleUserStatusAction;
 
-function suspendUserAction(uname) {
-  if (typeof toggleUserStatus === "function") {
-    const success = toggleUserStatus(uname, "Suspended");
-    if (success) {
-      renderAdminUsers();
+async function suspendUserAction(uname) {
+  try {
+    const res = await fetch(`/api/users/${encodeURIComponent(uname)}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ status: "Suspended" })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      if (typeof showToast === "function") showToast(data.error || "Failed to suspend user.", "error");
+      return;
+    }
+
+    if (data.requiresApproval) {
+      if (typeof showToast === "function") showToast(`Suspension docket for @${uname} forwarded to National Admin.`, "warning");
+    } else {
       if (typeof showToast === "function") showToast(`User @${uname} account is now SUSPENDED.`, "warning");
+    }
+    renderAdminUsers();
+    loadAdminApprovals();
+  } catch (err) {
+    if (typeof toggleUserStatus === "function") {
+      const success = toggleUserStatus(uname, "Suspended");
+      if (success) {
+        renderAdminUsers();
+        if (typeof showToast === "function") showToast(`User @${uname} account is now SUSPENDED.`, "warning");
+      }
     }
   }
 }
 window.suspendUserAction = suspendUserAction;
 
-function deleteUserAction(uname) {
-  if (confirm(`Remove user @${uname} permanently from legal metrology registry?`)) {
+async function deleteUserAction(uname) {
+  if (!confirm(`Are you sure you want to remove user @${uname}? Sensitive actions require statutory administrative approval.`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/users/${encodeURIComponent(uname)}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      if (typeof showToast === "function") showToast(data.error || "Failed to remove user.", "error");
+      return;
+    }
+
+    if (data.requiresApproval) {
+      if (typeof showToast === "function") showToast(`User removal request for @${uname} submitted to National Admin approval docket.`, "warning");
+    } else {
+      if (typeof showToast === "function") showToast(`User @${uname} removed from registry.`, "info");
+    }
+    renderAdminUsers();
+    loadAdminApprovals();
+  } catch (err) {
     if (typeof deleteUser === "function") {
       const success = deleteUser(uname);
       if (success) {
@@ -2344,3 +2882,722 @@ if (typeof document !== "undefined") {
     });
   }
 }
+
+/* ==========================================================================
+   VIEW: ADMINISTRATIVE APPROVALS & 2FA VERIFICATION QUEUE
+   ========================================================================== */
+let _adminApprovals = [];
+let _approvalFilterStatus = "PENDING";
+let _approvalFilterZone = "All";
+let _approvalSearchQuery = "";
+let _activeReviewDocket = null;
+
+function isPendingApprovalDocket(r) {
+  if (!r) return false;
+  const s = String(r.status || "").toUpperCase();
+  const a = String(r.approvalStatus || "").toUpperCase();
+  return s.includes("PENDING") || a.includes("PENDING");
+}
+
+function isApprovedDocket(r) {
+  if (!r) return false;
+  const s = String(r.status || "").toUpperCase();
+  const a = String(r.approvalStatus || "").toUpperCase();
+  return s === "APPROVED" || a === "APPROVED";
+}
+
+function isRejectedDocket(r) {
+  if (!r) return false;
+  const s = String(r.status || "").toUpperCase();
+  const a = String(r.approvalStatus || "").toUpperCase();
+  return s === "REJECTED" || a === "REJECTED";
+}
+
+function isCorrectionDocket(r) {
+  if (!r) return false;
+  const s = String(r.status || "").toUpperCase();
+  const a = String(r.approvalStatus || "").toUpperCase();
+  return s.includes("CORRECTION") || a.includes("CORRECTION");
+}
+
+function updateApprovalsBadges(total, pending, approved, rejected, correction) {
+  // 1. Sidebar Nav Badge
+  const navBadge = document.getElementById("navPendingApprovalsBadge");
+  if (navBadge) {
+    if (pending > 0) {
+      navBadge.textContent = pending;
+      navBadge.classList.remove("hidden");
+    } else {
+      navBadge.textContent = "0";
+      navBadge.classList.add("hidden");
+    }
+  }
+
+  // 2. View Header Dynamic Notification Badge
+  const headerBadge = document.getElementById("approvalsPendingHeaderBadge");
+  const countText = document.getElementById("approvalsPendingCountText");
+  if (headerBadge && countText) {
+    if (pending > 0) {
+      headerBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase font-mono bg-amber-500 text-white shadow-xs flex items-center gap-1.5 transition-all";
+      countText.textContent = `${pending} Action${pending > 1 ? "s" : ""} Required`;
+      headerBadge.classList.remove("hidden");
+    } else {
+      headerBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs flex items-center gap-1.5 transition-all";
+      countText.textContent = "✓ All Clear (0 Pending)";
+      headerBadge.classList.remove("hidden");
+    }
+  }
+
+  // 3. Stats Cards
+  const elTotal = document.getElementById("approvalsMetricTotal");
+  const elPending = document.getElementById("approvalsMetricPending");
+  const elApproved = document.getElementById("approvalsMetricApproved");
+  const elRejected = document.getElementById("approvalsMetricRejected");
+
+  if (elTotal) elTotal.textContent = total;
+  if (elPending) elPending.textContent = pending;
+  if (elApproved) elApproved.textContent = approved;
+  if (elRejected) elRejected.textContent = rejected;
+
+  // 4. Live Count Pills in Filter Toolbar
+  const countPending = document.getElementById("filterCount-PENDING");
+  const countAll = document.getElementById("filterCount-ALL");
+  const countApproved = document.getElementById("filterCount-APPROVED");
+  const countRejected = document.getElementById("filterCount-REJECTED");
+  const countCorrection = document.getElementById("filterCount-CORRECTION");
+
+  if (countPending) countPending.textContent = pending;
+  if (countAll) countAll.textContent = total;
+  if (countApproved) countApproved.textContent = approved;
+  if (countRejected) countRejected.textContent = rejected;
+  if (countCorrection) countCorrection.textContent = correction;
+}
+
+async function loadAdminApprovals(forceRefresh = false) {
+  const tbody = document.getElementById("adminApprovalsTableBody");
+  if (!tbody && !document.getElementById("adminView-approvals")) return;
+
+  const actor = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { role: "national", zone: "All", username: "admin" };
+  const isNational = actor.role === "national" || actor.role === "admin";
+
+  // Configure scope badge & zone filter
+  const scopeBadge = document.getElementById("approvalsScopeBadge");
+  const zoneFilterContainer = document.getElementById("approvalsZoneFilterContainer");
+
+  if (scopeBadge) {
+    if (isNational) {
+      scopeBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs";
+      scopeBadge.textContent = "🇮🇳 National Scope — All Zones";
+      if (zoneFilterContainer) zoneFilterContainer.classList.remove("hidden");
+    } else {
+      scopeBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase font-mono bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-xs";
+      scopeBadge.textContent = `🛡️ Zonal Scope — ${actor.zone} Zone`;
+      if (zoneFilterContainer) zoneFilterContainer.classList.add("hidden");
+      _approvalFilterZone = actor.zone;
+    }
+  }
+
+  try {
+    const res = await fetch("/api/admin/approvals", { credentials: "include" });
+    if (res.ok) {
+      const data = await res.json();
+      _adminApprovals = data.approvals || data.requests || [];
+    } else {
+      console.warn("Failed to fetch approvals from server, status:", res.status);
+    }
+  } catch (err) {
+    console.warn("Error loading approvals:", err);
+  }
+
+  // Update Summary Metrics using robust status normalizers
+  const total = _adminApprovals.length;
+  const pending = _adminApprovals.filter(isPendingApprovalDocket).length;
+  const approved = _adminApprovals.filter(isApprovedDocket).length;
+  const rejected = _adminApprovals.filter(isRejectedDocket).length;
+  const correction = _adminApprovals.filter(isCorrectionDocket).length;
+
+  updateApprovalsBadges(total, pending, approved, rejected, correction);
+  renderAdminApprovals();
+
+  if (forceRefresh && typeof showToast === "function") {
+    showToast("Approvals queue synchronized.", "info");
+  }
+}
+window.loadAdminApprovals = loadAdminApprovals;
+
+function setApprovalsStatusFilter(status) {
+  _approvalFilterStatus = status;
+  ["PENDING", "ALL", "APPROVED", "REJECTED", "CORRECTION"].forEach(key => {
+    const btn = document.getElementById(`btnApprvFilter-${key}`);
+    if (!btn) return;
+    const isAct = (key === status) || (key === "CORRECTION" && status === "CORRECTION_REQUIRED");
+    if (isAct) {
+      btn.className = "px-3 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-xs transition cursor-pointer flex items-center gap-1";
+    } else {
+      btn.className = "px-3 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer flex items-center gap-1";
+    }
+  });
+  renderAdminApprovals();
+}
+window.setApprovalsStatusFilter = setApprovalsStatusFilter;
+
+function onApprovalsZoneFilterChange(zone) {
+  _approvalFilterZone = zone;
+  renderAdminApprovals();
+}
+window.onApprovalsZoneFilterChange = onApprovalsZoneFilterChange;
+
+function filterApprovalsTable(query) {
+  _approvalSearchQuery = (query || "").trim().toLowerCase();
+  renderAdminApprovals();
+}
+window.filterApprovalsTable = filterApprovalsTable;
+
+function renderAdminApprovals() {
+  const tbody = document.getElementById("adminApprovalsTableBody");
+  if (!tbody) return;
+
+  const actor = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { role: "national", zone: "All", username: "admin" };
+  const isNational = actor.role === "national" || actor.role === "admin";
+
+  let list = [..._adminApprovals];
+
+  // Apply Zone filter
+  if (_approvalFilterZone && _approvalFilterZone !== "All") {
+    list = list.filter(r => (r.zone || r.targetZone || "").toLowerCase() === _approvalFilterZone.toLowerCase());
+  }
+
+  // Apply Status filter with robust normalizers
+  if (_approvalFilterStatus === "PENDING") {
+    list = list.filter(isPendingApprovalDocket);
+  } else if (_approvalFilterStatus === "APPROVED") {
+    list = list.filter(isApprovedDocket);
+  } else if (_approvalFilterStatus === "REJECTED") {
+    list = list.filter(isRejectedDocket);
+  } else if (_approvalFilterStatus === "CORRECTION_REQUIRED") {
+    list = list.filter(isCorrectionDocket);
+  }
+
+  // Apply search query
+  if (_approvalSearchQuery) {
+    const q = _approvalSearchQuery;
+    list = list.filter(r => {
+      return (r.id || "").toLowerCase().includes(q) ||
+             (r.type || "").toLowerCase().includes(q) ||
+             (r.targetUsername || "").toLowerCase().includes(q) ||
+             (r.zone || r.targetZone || "").toLowerCase().includes(q) ||
+             (r.initiatorUsername || (r.initiatedBy?.username) || "").toLowerCase().includes(q);
+    });
+  }
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-slate-400 text-xs font-sans">No approval dockets match current filter criteria.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(r => {
+    const typeIcons = {
+      OFFICER_REGISTRATION: "👤 Registration",
+      DESIGNATION_EDIT: "✏️ Designation Edit",
+      PROFILE_EDIT: "📝 Profile Update",
+      SUSPENSION: "⏸️ Account Suspension",
+      DEACTIVATION: "🔒 Deactivation",
+      REACTIVATION: "▶️ Reactivation",
+      DELETION: "🗑️ Account Deletion",
+      ZONE_TRANSFER: "🔄 Zone Transfer"
+    };
+    const typeLabel = typeIcons[r.type] || r.type;
+    const caseId = r.caseId || r.id;
+
+    // Risk Level Badge
+    const riskLevel = r.riskLevel || (r.type === "DELETION" || r.type === "ZONE_TRANSFER" ? "Critical" : (r.type === "SUSPENSION" || r.type === "DEACTIVATION" || r.type === "DESIGNATION_EDIT" ? "High" : "Medium"));
+    let riskBadge = "";
+    if (riskLevel === "Critical") {
+      riskBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/70 dark:text-rose-300 shadow-2xs">
+        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> CRITICAL
+      </span>`;
+    } else if (riskLevel === "High") {
+      riskBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-orange-100 text-orange-800 border border-orange-300 dark:bg-orange-950/70 dark:text-orange-300">
+        HIGH
+      </span>`;
+    } else if (riskLevel === "Medium") {
+      riskBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300">
+        MEDIUM
+      </span>`;
+    } else {
+      riskBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300">
+        LOW
+      </span>`;
+    }
+
+    // 2FA Verification Badge & Quick Link
+    const isVerified2FA = r.verificationStatus === "Verified" || r.verificationStatus === "VERIFIED" || r.verificationStatus === "Verification Completed";
+    const isKycSubmitted = r.verificationStatus === "KYC_SUBMITTED" || r.verificationStatus === "KYC Submitted";
+    let verificationBadge = "";
+    if (isVerified2FA) {
+      verificationBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10.5px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300" title="2FA OTP & KYC fully verified">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ✓ 2FA Verified
+      </span>`;
+    } else if (isKycSubmitted) {
+      verificationBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10.5px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300" title="KYC documents submitted, pending approval">
+        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> 🪪 KYC Submitted
+      </span>`;
+    } else {
+      verificationBadge = `<div class="flex items-center gap-1 flex-wrap">
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10.5px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300" title="2FA OTP and KYC verification required">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> ⏳ 2FA Pending
+        </span>
+        <button type="button" onclick="openVerificationLinkForUser('${r.targetUsername}')" class="px-1.5 py-0.5 rounded bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-[10px] font-bold transition cursor-pointer" title="Open verification link modal">🔗 Link</button>
+      </div>`;
+    }
+
+    let statusBadge = "";
+    const sUpper = String(r.status || r.approvalStatus || "").toUpperCase();
+    if (sUpper.includes("PENDING_VERIFICATION") || sUpper === "PENDING VERIFICATION") {
+      statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> ⏳ 2FA & KYC In Progress
+      </span>`;
+    } else if (sUpper.includes("NATIONAL") || sUpper === "PENDING_APPROVAL") {
+      statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-purple-50 text-purple-800 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300">
+        <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span> 🛡️ Pending National Review
+      </span>`;
+    } else if (sUpper.includes("ZONAL")) {
+      statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300">
+        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> 🏛️ Pending Zonal Review
+      </span>`;
+    } else if (sUpper === "APPROVED") {
+      statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ✓ Approved & Active
+      </span>`;
+    } else if (sUpper === "REJECTED") {
+      statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-rose-50 text-rose-800 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-300">
+        ✕ Rejected
+      </span>`;
+    } else {
+      statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300">
+        ✎ ${r.approvalStatus || r.status}
+      </span>`;
+    }
+
+    const timeStr = r.createdAt ? (typeof relativeTime === "function" ? relativeTime(r.createdAt) : r.createdAt.slice(0, 10)) : "—";
+    const zoneStr = r.zone || r.targetZone || "National";
+    const initUser = r.initiatorUsername || r.initiatedBy?.username || "system";
+    const initRole = r.initiatorRole || r.initiatedBy?.role || "Admin";
+
+    const isPendingReview = isPendingApprovalDocket(r);
+
+    let actionBtn = "";
+    if (isPendingReview) {
+      actionBtn = `<button type="button" onclick="openApprovalReviewModal('${r.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm active:scale-95 transition cursor-pointer">
+        Review & Decide ⚖️
+      </button>`;
+    } else {
+      actionBtn = `<button type="button" onclick="openApprovalReviewModal('${r.id}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium text-xs transition">
+        View Docket 📜
+      </button>`;
+    }
+
+    return `
+      <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 transition-colors">
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-900 dark:text-slate-100 font-mono text-[11px]">${caseId}</span>
+            ${riskBadge}
+          </div>
+          <div class="text-[10px] text-slate-500 font-sans font-medium mt-0.5">${typeLabel}</div>
+        </td>
+        <td class="px-4 py-3">
+          <div class="font-bold text-slate-900 dark:text-slate-100 font-sans">@${r.targetUsername}</div>
+          <div class="text-[10px] text-slate-500 font-sans">${r.newValues?.name || r.newValues?.designation || r.targetDesignation || "Officer"}</div>
+        </td>
+        <td class="px-4 py-3">
+          <span class="px-2 py-0.5 rounded text-[10.5px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-mono">${zoneStr} Zone</span>
+        </td>
+        <td class="px-4 py-3 font-sans">
+          ${verificationBadge}
+        </td>
+        <td class="px-4 py-3">
+          <div class="font-bold text-slate-800 dark:text-slate-200 font-mono text-[11px]">@${initUser}</div>
+          <div class="text-[9.5px] text-slate-400 font-sans uppercase">${initRole}</div>
+        </td>
+        <td class="px-4 py-3 text-slate-500 text-[11px] font-sans" title="${r.createdAt}">${timeStr}</td>
+        <td class="px-4 py-3 font-sans">${statusBadge}</td>
+        <td class="px-4 py-3 text-right font-sans whitespace-nowrap">${actionBtn}</td>
+      </tr>
+    `;
+  }).join("");
+}
+window.renderAdminApprovals = renderAdminApprovals;
+
+async function adminFastTrack2FA(username, token, caseId) {
+  if (!confirm(`Are you sure you want to fast-track and verify 2FA identity credentials for @${username}?`)) return;
+
+  try {
+    const res = await fetch("/api/verify/admin-verify-2fa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ username, token, caseId })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      if (typeof showToast === "function") showToast(data.error || "2FA verification failed.", "error");
+      return;
+    }
+
+    if (typeof showToast === "function") showToast(data.message || `2FA verified for @${username}!`, "success");
+    loadAdminApprovals(true);
+    renderAdminUsers();
+    closeApprovalReviewModal();
+  } catch(e) {
+    if (typeof showToast === "function") showToast("Server error during 2FA verification.", "error");
+  }
+}
+window.adminFastTrack2FA = adminFastTrack2FA;
+
+function openApprovalReviewModal(docketId) {
+  const req = _adminApprovals.find(r => r.id === docketId || r.caseId === docketId);
+  if (!req) return;
+  _activeReviewDocket = req;
+
+  const modal = document.getElementById("approvalReviewModal");
+  if (!modal) return;
+
+  const actor = (typeof getCurrentUser === "function" ? getCurrentUser() : null) || { role: "national", zone: "All", username: "admin" };
+  const isNational = actor.role === "national" || actor.role === "admin";
+
+  const docketIdEl = document.getElementById("reviewModalDocketId");
+  const typeEl = document.getElementById("reviewMetaType");
+  const zoneEl = document.getElementById("reviewMetaZone");
+  const initEl = document.getElementById("reviewMetaInitiator");
+  const timeEl = document.getElementById("reviewMetaTimestamp");
+
+  if (docketIdEl) docketIdEl.textContent = req.caseId || req.id;
+  if (typeEl) typeEl.textContent = req.requestType || req.type;
+  if (zoneEl) zoneEl.textContent = `${req.zone || req.targetZone || "National"} Zone`;
+  if (initEl) initEl.textContent = `@${req.initiatorUsername || req.initiatedBy?.username || "admin"} (${req.initiatorRole || req.initiatedBy?.role || "admin"})`;
+  if (timeEl) timeEl.textContent = (req.createdAt || "").slice(0, 19).replace("T", " ");
+
+  // Risk Badge in Review Modal
+  const riskLevel = req.riskLevel || (req.type === "DELETION" ? "Critical" : "Medium");
+  const riskBadgeEl = document.getElementById("reviewModalRiskBadge");
+  if (riskBadgeEl) {
+    riskBadgeEl.textContent = `${riskLevel.toUpperCase()} RISK`;
+    if (riskLevel === "Critical") {
+      riskBadgeEl.className = "text-[10px] font-mono font-black uppercase px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 animate-pulse";
+    } else if (riskLevel === "High") {
+      riskBadgeEl.className = "text-[10px] font-mono font-black uppercase px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-300";
+    } else if (riskLevel === "Medium") {
+      riskBadgeEl.className = "text-[10px] font-mono font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
+    } else {
+      riskBadgeEl.className = "text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-300";
+    }
+  }
+
+  // Render Diff: Old Values vs Proposed New Values
+  const oldContainer = document.getElementById("reviewOldValuesContainer");
+  const newContainer = document.getElementById("reviewNewValuesContainer");
+
+  const oldKeys = Object.keys(req.oldValues || {});
+  const newKeys = Object.keys(req.newValues || {});
+  const allKeys = Array.from(new Set([...oldKeys, ...newKeys])).filter(k => k !== "password" && k !== "otpHash");
+
+  if (allKeys.length === 0) {
+    if (oldContainer) oldContainer.innerHTML = `<div class="text-slate-400 italic">No previous state recorded.</div>`;
+    if (newContainer) newContainer.innerHTML = `<div class="text-slate-400 italic">Standard statutory action.</div>`;
+  } else {
+    if (oldContainer) {
+      oldContainer.innerHTML = allKeys.map(k => {
+        const val = req.oldValues ? req.oldValues[k] : "—";
+        const valStr = typeof val === "object" ? JSON.stringify(val) : String(val ?? "—");
+        return `<div class="flex justify-between gap-2 border-b border-rose-200/50 pb-1">
+          <span class="text-slate-500 font-semibold">${k}:</span>
+          <span class="text-rose-700 dark:text-rose-300 break-all text-right">${valStr || "—"}</span>
+        </div>`;
+      }).join("");
+    }
+
+    if (newContainer) {
+      newContainer.innerHTML = allKeys.map(k => {
+        const oldVal = req.oldValues ? req.oldValues[k] : undefined;
+        const val = req.newValues ? req.newValues[k] : "—";
+        const isChanged = oldVal !== undefined && oldVal !== val;
+        const valStr = typeof val === "object" ? JSON.stringify(val) : String(val ?? "—");
+        return `<div class="flex justify-between gap-2 border-b border-emerald-200/50 pb-1 ${isChanged ? "bg-emerald-100/50 px-1 rounded font-bold" : ""}">
+          <span class="text-slate-500 font-semibold">${k}:</span>
+          <span class="text-emerald-700 dark:text-emerald-300 break-all text-right">${valStr || "—"}</span>
+        </div>`;
+      }).join("");
+    }
+  }
+
+  // Render KYC Info if present or show pending 2FA verification prompt
+  const kycGrid = document.getElementById("reviewKycDetailsGrid");
+  const kyc = req.kyc || req.newValues?.kyc || {};
+  const is2FAPending = req.verificationStatus !== "Verified" && req.type === "OFFICER_REGISTRATION";
+
+  if (kycGrid) {
+    kycGrid.innerHTML = `
+      <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+        <span class="text-slate-400 text-[10px] block">Aadhaar (Govt ID)</span>
+        <span class="font-mono font-bold text-slate-800 dark:text-slate-100">${kyc.aadhaarMasked || kyc.identity?.idNumberMasked || "XXXX-XXXX-••••"}</span>
+      </div>
+      <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+        <span class="text-slate-400 text-[10px] block">PAN Number</span>
+        <span class="font-mono font-bold text-slate-800 dark:text-slate-100">${kyc.panMasked || kyc.panNumber || "ABCDE••••F"}</span>
+      </div>
+      <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+        <span class="text-slate-400 text-[10px] block">Appointment Order</span>
+        <span class="font-mono font-bold text-slate-800 dark:text-slate-100">${kyc.appointmentLetterDoc || kyc.employment?.appointmentLetterDoc || "APPT-ORDER-2026.pdf"}</span>
+      </div>
+      <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+        <span class="text-slate-400 text-[10px] block">2FA Status</span>
+        <span class="font-mono font-bold ${req.verificationStatus === 'Verified' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}">
+          ${req.verificationStatus === 'Verified' ? '✓ Verified' : '⏳ Pending OTP/KYC'}
+        </span>
+      </div>
+    `;
+
+    if (is2FAPending) {
+      kycGrid.innerHTML += `
+        <div class="col-span-1 sm:col-span-2 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-between gap-2 flex-wrap">
+          <span class="text-xs text-amber-800 dark:text-amber-300 font-medium">Officer has not completed 2FA verification.</span>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="openVerificationLinkForUser('${req.targetUsername}')" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-2xs">
+              🔗 Open 2FA Link
+            </button>
+            <button type="button" onclick="adminFastTrack2FA('${req.targetUsername}', '${req.verificationToken || ''}', '${req.id}')" class="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-2xs">
+              ⚡ Fast-Track 2FA
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Load and Render Chronological Action Timeline
+  const timelineContainer = document.getElementById("reviewActionTimelineContainer");
+  if (timelineContainer) {
+    timelineContainer.innerHTML = `<div class="text-slate-400 text-xs italic">Loading chronological case timeline...</div>`;
+    fetch(`/api/admin/approvals/${encodeURIComponent(req.id)}/timeline`, { credentials: "include" })
+      .then(r => r.json())
+      .then(d => {
+        if (!d.success || !Array.isArray(d.timeline) || d.timeline.length === 0) {
+          timelineContainer.innerHTML = `<div class="text-slate-400 text-xs italic">No timeline events recorded for this case.</div>`;
+          return;
+        }
+        timelineContainer.innerHTML = d.timeline.map((step, idx) => {
+          const isLast = idx === d.timeline.length - 1;
+          const statusColors = {
+            Completed: "bg-emerald-500",
+            Verified: "bg-emerald-500",
+            Approved: "bg-emerald-500",
+            Dispatched: "bg-blue-500",
+            Rejected: "bg-rose-500",
+            Correction_Required: "bg-amber-500",
+            Pending: "bg-slate-400"
+          };
+          const dotColor = statusColors[step.status] || "bg-emerald-500";
+          const time = step.timestamp ? step.timestamp.slice(0, 19).replace("T", " ") : "—";
+          return `
+            <div class="flex items-start gap-2.5 relative">
+              <div class="flex flex-col items-center">
+                <span class="w-3 h-3 rounded-full ${dotColor} flex-shrink-0 mt-0.5 ring-2 ring-white dark:ring-slate-900"></span>
+                ${!isLast ? '<span class="w-0.5 h-6 bg-slate-200 dark:bg-slate-700 my-0.5"></span>' : ''}
+              </div>
+              <div class="flex-1 pb-1">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">${step.stage}</span>
+                  <span class="text-[10px] font-mono text-slate-400">${time}</span>
+                </div>
+                <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">${step.description}</div>
+                <div class="text-[9.5px] font-mono text-slate-400 mt-0.5">Actor: @${step.actor} (${step.role}) &bull; Status: <strong class="text-slate-700 dark:text-slate-300">${step.status}</strong></div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      })
+      .catch(() => {
+        timelineContainer.innerHTML = `<div class="text-slate-400 text-xs italic">Timeline stream unavailable.</div>`;
+      });
+  }
+
+  const reasonEl = document.getElementById("reviewRequestReason");
+  if (reasonEl) reasonEl.textContent = req.reason || "Statutory personnel management action submitted.";
+
+  const remarksInput = document.getElementById("reviewActionRemarks");
+  if (remarksInput) remarksInput.value = "";
+
+  // Enable/disable review buttons
+  const isPendingReview = isPendingApprovalDocket(req);
+  const btnApprove = modal.querySelector("button[onclick*='APPROVE']");
+  const btnReject = modal.querySelector("button[onclick*='REJECT']");
+  const btnCorrect = modal.querySelector("button[onclick*='REQUEST_CORRECTION']");
+
+  if (btnApprove) btnApprove.style.display = isPendingReview ? "inline-flex" : "none";
+  if (btnReject) btnReject.style.display = isPendingReview ? "inline-flex" : "none";
+  if (btnCorrect) btnCorrect.style.display = isPendingReview ? "inline-flex" : "none";
+
+  modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+}
+window.openApprovalReviewModal = openApprovalReviewModal;
+
+function closeApprovalReviewModal() {
+  const modal = document.getElementById("approvalReviewModal");
+  if (modal) modal.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+  _activeReviewDocket = null;
+}
+window.closeApprovalReviewModal = closeApprovalReviewModal;
+
+async function submitApprovalReview(action) {
+  if (!_activeReviewDocket) return;
+  const remarks = document.getElementById("reviewActionRemarks")?.value?.trim() || "";
+
+  if ((action === "REJECT" || action === "REQUEST_CORRECTION") && !remarks) {
+    if (typeof showToast === "function") showToast("Please provide mandatory statutory justification / reason for this action.", "warning");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/admin/approvals/${encodeURIComponent(_activeReviewDocket.id)}/review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ action, remarks })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      const errText = data.error || "Review submission failed.";
+      if (errText.includes("Four-Eyes")) {
+        if (typeof showToast === "function") showToast("🚨 Security Alert: Four-Eyes Principle prevents self-approval of your own request!", "error");
+      } else {
+        if (typeof showToast === "function") showToast(errText, "error");
+      }
+      return;
+    }
+
+    if (typeof showToast === "function") {
+      const msg = action === "APPROVE" ? `Docket ${_activeReviewDocket.id} APPROVED! Account unlocked and activated.` :
+                  action === "REJECT" ? `Docket ${_activeReviewDocket.id} REJECTED.` : `Correction request returned for Docket ${_activeReviewDocket.id}.`;
+      showToast(msg, action === "APPROVE" ? "success" : "info");
+    }
+
+    closeApprovalReviewModal();
+    loadAdminApprovals(true);
+    renderAdminUsers();
+    if (typeof initCommandCenter === "function") initCommandCenter();
+
+    // Broadcast update to Quick Access Console & other tabs
+    try {
+      localStorage.setItem("metro_users_last_update", Date.now().toString());
+      localStorage.setItem("metro_approvals_last_update", Date.now().toString());
+      window.dispatchEvent(new CustomEvent("metro_users_updated"));
+      window.dispatchEvent(new CustomEvent("metro_approvals_updated"));
+    } catch (e) {}
+  } catch (err) {
+    console.error("Submit approval review error:", err);
+    if (typeof showToast === "function") showToast("Server error during approval review.", "error");
+  }
+}
+window.submitApprovalReview = submitApprovalReview;
+
+function openVerificationLinkModal(user, url, token, otp) {
+  const modal = document.getElementById("verificationLinkModal");
+  if (!modal) return;
+
+  const officerName = user ? (user.name || user.username) : "Officer";
+  const officerZone = user ? user.zone : "Assigned";
+  const contact = user?.contact || {};
+  const contactStr = contact.mobile ? `+91 ${contact.mobile.slice(0, 2)}••• ••${contact.mobile.slice(-2)} (${contact.channel || "SMS"})` : (contact.email || "Registered Channel");
+
+  const fullUrl = url
+    ? (url.startsWith("http") ? url : window.location.origin + url)
+    : (window.location.origin + "/verify.html?token=" + token);
+
+  const nameEl = document.getElementById("vlinkOfficerName");
+  const zoneEl = document.getElementById("vlinkOfficerZone");
+  const contactEl = document.getElementById("vlinkMaskedContact");
+  const urlEl = document.getElementById("vlinkGeneratedUrl");
+
+  if (nameEl) nameEl.textContent = officerName;
+  if (zoneEl) zoneEl.textContent = `${officerZone} Zone`;
+  if (contactEl) contactEl.textContent = contactStr;
+  if (urlEl) urlEl.value = fullUrl;
+
+  modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+}
+window.openVerificationLinkModal = openVerificationLinkModal;
+
+function closeVerificationLinkModal() {
+  const modal = document.getElementById("verificationLinkModal");
+  if (modal) modal.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+}
+window.closeVerificationLinkModal = closeVerificationLinkModal;
+
+function copyVerificationLink() {
+  const urlEl = document.getElementById("vlinkGeneratedUrl");
+  if (!urlEl) return;
+  navigator.clipboard.writeText(urlEl.value).then(() => {
+    if (typeof showToast === "function") showToast("Single-use verification link copied to clipboard!", "success");
+  }).catch(() => {
+    urlEl.select();
+    document.execCommand("copy");
+    if (typeof showToast === "function") showToast("Link copied!", "success");
+  });
+}
+window.copyVerificationLink = copyVerificationLink;
+
+function openVerificationPortalLink() {
+  const urlEl = document.getElementById("vlinkGeneratedUrl");
+  if (urlEl && urlEl.value) {
+    window.open(urlEl.value, "_blank");
+  }
+}
+window.openVerificationPortalLink = openVerificationPortalLink;
+
+async function openVerificationLinkForUser(uname) {
+  try {
+    const res = await fetch(`/api/verify/link/${encodeURIComponent(uname)}`, { credentials: "include" });
+    if (res.ok) {
+      const data = await res.json();
+      openVerificationLinkModal(data.user, data.verificationUrl, data.token);
+      return;
+    }
+  } catch(e) {}
+
+  const apprv = _adminApprovals.find(r => r.targetUsername === uname && r.verificationToken);
+  if (apprv) {
+    const vUrl = `/verify.html?token=${apprv.verificationToken}`;
+    openVerificationLinkModal({ username: uname, name: uname, zone: apprv.zone || apprv.targetZone }, vUrl, apprv.verificationToken);
+  } else {
+    if (typeof showToast === "function") showToast(`No active pending verification token for @${uname}.`, "info");
+  }
+}
+window.openVerificationLinkForUser = openVerificationLinkForUser;
+
+// Keyboard escape handler for modals
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" || e.keyCode === 27) {
+    if (typeof closeVerificationLinkModal === "function") closeVerificationLinkModal();
+    if (typeof closeApprovalReviewModal === "function") closeApprovalReviewModal();
+  }
+});
+
+// Real-time synchronization event listeners across tabs and modules
+window.addEventListener("metro_approvals_updated", () => {
+  loadAdminApprovals();
+  loadNationalDashboardOverview();
+});
+
+window.addEventListener("storage", e => {
+  if (e.key === "metro_approvals_last_update" || e.key === "metro_users_last_update") {
+    loadAdminApprovals();
+    loadNationalDashboardOverview();
+  }
+});
+
+

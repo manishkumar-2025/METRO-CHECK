@@ -190,28 +190,91 @@ function renderReportData(record) {
   }
 
   // 3. AI Extracted Declarations Table
+  const viols = Array.isArray(record.violations) ? record.violations : [];
+  const recordRules = Array.isArray(record.rules) ? record.rules : (Array.isArray(record.compliance_tests) ? record.compliance_tests : []);
+  const checkedFields = record.checkedFields || record.checked_fields || record.fieldResults || {};
+
+  const hasExplicitViolations = viols.length > 0;
+  const hasFailingRules = recordRules.some(r => r.compliant === false || r.found === false);
+  const hasFailingCheckedFields = Object.values(checkedFields).some(v => v === false);
+  const statusIsNonCompliant = Boolean(
+    record.status && (
+      record.status === "NON_COMPLIANT" ||
+      record.status === "NOTICE_ISSUED" ||
+      record.status === "REJECTED" ||
+      record.status === "FLAGGED"
+    )
+  );
+
+  const isRecordCompliant = !hasExplicitViolations && !hasFailingRules && !hasFailingCheckedFields && !statusIsNonCompliant && (
+    record.isCompliant === true ||
+    (record.isCompliant !== false && (
+      String(record.overall_verdict || "").toLowerCase().includes("pass") ||
+      String(record.status || "").toLowerCase() === "approved" ||
+      String(record.status || "").toLowerCase() === "compliant"
+    ))
+  );
+
+  function isFieldCompliant(key, ruleClause, paramName, valStr) {
+    const valLower = String(valStr || "").toLowerCase();
+    if (!valStr || valLower === "missing" || valLower === "not declared" || valLower === "n/a" || valLower.includes("unregistered")) {
+      return false;
+    }
+
+    for (const v of viols) {
+      const vStr = (typeof v === "object" ? (v.reason || v.rule || v.violation || JSON.stringify(v)) : String(v)).toLowerCase();
+      if (vStr.includes(ruleClause.toLowerCase())) return false;
+      if (key === "mfg" && (vStr.includes("manufacturer") || vStr.includes("packer") || vStr.includes("importer") || vStr.includes("6(1)(a)"))) return false;
+      if (key === "generic" && (vStr.includes("generic") || vStr.includes("commodity") || vStr.includes("6(1)(b)"))) return false;
+      if (key === "netQty" && (vStr.includes("net quantity") || vStr.includes("metric unit") || vStr.includes("rule 13") || vStr.includes("symbol") || vStr.includes("6(1)(c)"))) return false;
+      if (key === "mfgDate" && (vStr.includes("month") || vStr.includes("year of pkg") || vStr.includes("manufacture") || vStr.includes("mfg date") || vStr.includes("6(1)(d)"))) return false;
+      if (key === "mrp" && (vStr.includes("mrp") || vStr.includes("retail sale price") || vStr.includes("inclusive of all taxes") || vStr.includes("overcharg") || vStr.includes("6(1)(e)"))) return false;
+      if (key === "usp" && (vStr.includes("unit sale price") || vStr.includes("usp") || vStr.includes("6(11)") || vStr.includes("6(1)(da)"))) return false;
+      if (key === "consumerCare" && (vStr.includes("consumer care") || vStr.includes("helpline") || vStr.includes("email") || vStr.includes("phone") || vStr.includes("6(1)(f)") || vStr.includes("6(1)(n)"))) return false;
+    }
+
+    const matchRule = recordRules.find(r => {
+      const c = String(r.clause || "").toLowerCase();
+      const p = String(r.parameter_name || r.name || "").toLowerCase();
+      return c.includes(ruleClause.toLowerCase()) || p.includes(paramName.toLowerCase());
+    });
+    if (matchRule && (matchRule.compliant === false || matchRule.found === false)) {
+      return false;
+    }
+
+    if (key === "mfg" && (checkedFields.manufacturer_name_address === false || checkedFields.manufacturer === false)) return false;
+    if (key === "generic" && (checkedFields.generic_name === false || checkedFields.commodity_name === false)) return false;
+    if (key === "netQty" && checkedFields.net_quantity === false) return false;
+    if (key === "mfgDate" && (checkedFields.mfg_month_year === false || checkedFields.mfg_date === false)) return false;
+    if (key === "mrp" && (checkedFields.mrp_tax_inclusive === false || checkedFields.mrp === false)) return false;
+    if (key === "usp" && checkedFields.unit_sale_price === false) return false;
+    if (key === "consumerCare" && (checkedFields.consumer_care_contact === false || checkedFields.consumer_care === false)) return false;
+
+    return true;
+  }
+
   const tbody = document.getElementById("reportDeclarationsTableBody");
   if (tbody) {
     const fields = [
-      { name: "Manufacturer Name & Address", value: extracted.manufacturer_name_address || extracted.manufacturer || [extracted.manufacturer_name, extracted.manufacturer_address].filter(Boolean).join(", "), rule: "Rule 6(1)(a)" },
-      { name: "Commodity / Generic Name", value: extracted.generic_name || extracted.commodity_name, rule: "Rule 6(1)(b)" },
-      { name: "Net Quantity & Metric Unit", value: extracted.net_quantity, rule: "Rule 6(1)(c)" },
-      { name: "Month & Year of Mfg", value: extracted.mfg_month_year || extracted.mfg_date, rule: "Rule 6(1)(d)" },
-      { name: "Unit Sale Price (USP)", value: extracted.unit_sale_price || "N/A", rule: "Rule 6(1)(da)" },
-      { name: "Retail Sale Price (MRP)", value: extracted.mrp_tax_inclusive || extracted.mrp, rule: "Rule 6(1)(e)" },
-      { name: "Consumer Care Contact", value: extracted.consumer_care_contact || extracted.consumer_care, rule: "Rule 6(1)(n)" }
+      { key: "mfg", name: "Manufacturer Name & Address", value: extracted.manufacturer_name_address || extracted.manufacturer || [extracted.manufacturer_name, extracted.manufacturer_address].filter(Boolean).join(", "), rule: "Rule 6(1)(a)" },
+      { key: "generic", name: "Commodity / Generic Name", value: extracted.generic_name || extracted.commodity_name, rule: "Rule 6(1)(b)" },
+      { key: "netQty", name: "Net Quantity & Metric Unit", value: extracted.net_quantity, rule: "Rule 6(1)(c)" },
+      { key: "mfgDate", name: "Month & Year of Mfg", value: extracted.mfg_month_year || extracted.mfg_date, rule: "Rule 6(1)(d)" },
+      { key: "usp", name: "Unit Sale Price (USP)", value: extracted.unit_sale_price || "N/A", rule: "Rule 6(1)(da)" },
+      { key: "mrp", name: "Retail Sale Price (MRP)", value: extracted.mrp_tax_inclusive || extracted.mrp, rule: "Rule 6(1)(e)" },
+      { key: "consumerCare", name: "Consumer Care Contact", value: extracted.consumer_care_contact || extracted.consumer_care, rule: "Rule 6(1)(n)" }
     ];
 
     tbody.innerHTML = fields.map(function(item) {
-      const isMissing = !item.value || item.value === "MISSING";
-      const statusIcon = isMissing ? "❌ Non-Compliant" : "✅ Compliant";
-      const statusClass = isMissing
+      const isParamCompliant = isFieldCompliant(item.key, item.rule, item.name, item.value);
+      const statusIcon = isParamCompliant ? "✅ Compliant" : "❌ Non-Compliant";
+      const statusClass = !isParamCompliant
         ? "text-red-700 bg-red-50 dark:text-red-300 dark:bg-red-950/60 border border-red-200 dark:border-red-800"
         : "text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800";
       return `
         <tr class="border-b border-slate-200 dark:border-slate-800 text-xs">
           <td class="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-200">${escapeHtml(item.name)}</td>
-          <td class="py-2.5 px-3 font-mono ${isMissing ? 'text-red-600 dark:text-red-400 font-bold' : 'text-slate-700 dark:text-slate-300'}">${escapeHtml(item.value || "MISSING")}</td>
+          <td class="py-2.5 px-3 font-mono ${!isParamCompliant ? 'text-red-600 dark:text-red-400 font-bold' : 'text-slate-700 dark:text-slate-300'}">${escapeHtml(item.value || "MISSING")}</td>
           <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 font-mono text-[11px]">${escapeHtml(item.rule)}</td>
           <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded-md font-bold text-[11px] ${statusClass}">${statusIcon}</span></td>
         </tr>
@@ -222,7 +285,7 @@ function renderReportData(record) {
   // 4. Official Digital Verification Seal
   const stampEl = document.getElementById("reportComplianceStamp");
   if (stampEl) {
-    if (record.isCompliant) {
+    if (isRecordCompliant) {
       stampEl.className = "official-gov-seal seal-compliant p-3 w-32 h-32";
       stampEl.innerHTML = `
         <div class="text-[8px] font-black tracking-widest text-emerald-800 dark:text-emerald-300 border-b border-emerald-500/40 pb-0.5">GOVT. OF INDIA</div>
@@ -244,12 +307,43 @@ function renderReportData(record) {
   // 5. Violations Found
   const violationsList = document.getElementById("reportViolationsList");
   if (violationsList) {
-    const viols = record.violations || [];
-    if (viols.length === 0) {
+    const activeViols = [];
+    viols.forEach(v => {
+      const vText = typeof v === "object" ? (v?.reason || v?.rule || v?.violation || JSON.stringify(v)) : String(v || "Statutory Violation");
+      if (vText && !activeViols.includes(vText)) activeViols.push(vText);
+    });
+
+    recordRules.forEach(r => {
+      if (r.compliant === false || r.found === false) {
+        const clauseStr = r.clause ? `${r.clause}: ` : "";
+        const paramStr = r.parameter_name || r.name || "Declaration";
+        const reasonStr = r.violation_reason || r.reason || "Non-compliant declaration";
+        const combined = `${clauseStr}${paramStr} - ${reasonStr}`;
+        if (!activeViols.some(existing => existing.includes(paramStr) || (r.clause && existing.includes(r.clause)))) {
+          activeViols.push(combined);
+        }
+      }
+    });
+
+    const addlFindings = record.inspectionFindings || record.findings || record.observations;
+    if (addlFindings && typeof addlFindings === "string" && addlFindings.trim().length > 0) {
+      if (!activeViols.includes(addlFindings.trim())) {
+        activeViols.push(`Inspection Observation: ${addlFindings.trim()}`);
+      }
+    }
+
+    if (activeViols.length === 0 && !isRecordCompliant) {
+      if (record.reviewComments && record.reviewComments.trim().length > 0) {
+        activeViols.push(`Officer Docket Comment: ${record.reviewComments}`);
+      } else {
+        activeViols.push("Statutory Non-Compliance: Label declaration contraventions established during physical inspection.");
+      }
+    }
+
+    if (activeViols.length === 0 && isRecordCompliant) {
       violationsList.innerHTML = "<li class='text-xs text-emerald-700 dark:text-emerald-400 font-medium'>Zero violations found. All mandatory declarations comply with Rules, 2011.</li>";
     } else {
-      violationsList.innerHTML = viols.map(function(v, index) {
-        const vText = typeof v === "object" ? (v?.reason || v?.rule || v?.violation || JSON.stringify(v)) : String(v || "Statutory Violation");
+      violationsList.innerHTML = activeViols.map(function(vText, index) {
         return `<li class="text-xs text-red-700 dark:text-red-400 font-medium flex items-start gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5"></span><span>${index + 1}. ${escapeHtml(vText)} — (Per Legal Metrology Packaged Commodities Rules)</span></li>`;
       }).join("");
     }
@@ -358,16 +452,44 @@ function addWatermark(doc) {
 /**
  * Generates and downloads an official PDF using the unified generateStatutoryNoticePDF helper.
  */
-function generatePDF() {
+async function generatePDF() {
   const downloadBtn = document.getElementById("downloadPdfButton");
   if (downloadBtn) { downloadBtn.disabled = true; downloadBtn.textContent = "Generating PDF..."; }
 
   try {
-    if (typeof generateStatutoryNoticePDF === "function") {
-      generateStatutoryNoticePDF(activeReportId);
-    } else {
+    let pdfFn = (typeof generateStatutoryNoticePDF === "function" ? generateStatutoryNoticePDF : null) ||
+                 (typeof window !== "undefined" && typeof window.generateStatutoryNoticePDF === "function" ? window.generateStatutoryNoticePDF : null);
+
+    if (!pdfFn && typeof document !== "undefined") {
+      await new Promise((resolve) => {
+        const script = document.createElement("script");
+        script.src = "js/pdfService.js";
+        script.onload = () => resolve();
+        script.onerror = () => resolve();
+        document.head.appendChild(script);
+      });
+      pdfFn = (typeof generateStatutoryNoticePDF === "function" ? generateStatutoryNoticePDF : null) ||
+              (typeof window !== "undefined" && typeof window.generateStatutoryNoticePDF === "function" ? window.generateStatutoryNoticePDF : null);
+    }
+
+    if (!pdfFn) {
       throw new Error("generateStatutoryNoticePDF helper is not defined.");
     }
+
+    let target = currentReportRecord || activeReportId;
+    if (!target && typeof window !== "undefined" && window.location) {
+      const urlParams = new URLSearchParams(window.location.search);
+      target = urlParams.get("id");
+    }
+    if (!target && typeof getInspections === "function") {
+      const all = getInspections();
+      if (all && all.length > 0) target = all[0];
+    }
+    if (!target) {
+      target = "LM/NZ/20260923/00246-KRBU";
+    }
+
+    await pdfFn(target);
   } catch (error) {
     console.error("PDF generation failed:", error);
     if (typeof showToast === "function") showToast("Failed to generate PDF: " + (error.message || ""), "error");
@@ -582,3 +704,8 @@ async function openForensicIntegrityModal(recordId) {
 }
 
 window.openForensicIntegrityModal = openForensicIntegrityModal;
+window.generatePDF = generatePDF;
+window.printReport = printReport;
+window.handleReportBack = handleReportBack;
+window.initReportView = initReportView;
+window.renderReportData = renderReportData;

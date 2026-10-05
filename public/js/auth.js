@@ -748,42 +748,26 @@ function toggle2faDemoMode() {
 function update2faToggleUI() {
   const enabled = is2faEnabled();
   const toggleBtn = document.getElementById("sih2faToggleBtn");
-  const toggleThumb = document.getElementById("sih2faToggleThumb");
   const statusText = document.getElementById("sih2faStatusText");
-
-  const track = document.getElementById("sih2faTrack") || toggleBtn;
+  const dot = document.getElementById("sih2faDot");
 
   if (toggleBtn) {
     toggleBtn.setAttribute("aria-checked", enabled ? "true" : "false");
-  }
-  if (track) {
     if (enabled) {
-      track.classList.remove("bg-slate-300", "dark:bg-slate-700");
-      track.classList.add("bg-emerald-600", "dark:bg-emerald-500");
+      toggleBtn.className = "px-3 py-2 rounded-xl border border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center gap-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex-shrink-0 shadow-xs";
     } else {
-      track.classList.remove("bg-emerald-600", "dark:bg-emerald-500");
-      track.classList.add("bg-slate-300", "dark:bg-slate-700");
+      toggleBtn.className = "px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-xs flex items-center gap-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer flex-shrink-0 shadow-xs";
     }
   }
 
-  if (toggleThumb) {
-    if (enabled) {
-      toggleThumb.classList.remove("translate-x-0");
-      toggleThumb.classList.add("translate-x-5");
-    } else {
-      toggleThumb.classList.remove("translate-x-5");
-      toggleThumb.classList.add("translate-x-0");
-    }
+  if (dot) {
+    dot.className = enabled
+      ? "w-2 h-2 rounded-full bg-emerald-500 animate-pulse"
+      : "w-2 h-2 rounded-full bg-slate-400";
   }
 
   if (statusText) {
-    if (enabled) {
-      statusText.textContent = "2FA ACTIVE";
-      statusText.className = "text-[10px] sm:text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400 whitespace-nowrap";
-    } else {
-      statusText.textContent = "DIRECT JUMP";
-      statusText.className = "text-[10px] sm:text-[11px] font-mono font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap";
-    }
+    statusText.textContent = enabled ? "2FA: ON 🔒" : "2FA: DIRECT ⚡";
   }
 }
 
@@ -1353,7 +1337,7 @@ function quickLogin(u, p, btnElement, directBypass = false) {
 
   // Pre-seed local storage immediately with system user so there's zero chance of desync
   const users = (typeof getUsers === "function") ? getUsers() : (window.USERS || {});
-  const preUser = users[u];
+  const preUser = users[u] || (window._quickAccessRolesMap && window._quickAccessRolesMap[u]);
   if (preUser) {
     const tempSession = {
       username: u,
@@ -1488,6 +1472,11 @@ function openSihEvaluationModal() {
   document.body.classList.add('sih-modal-locked');
   document.body.style.overflow = 'hidden';
 
+  // Automatically refresh quick access console with live registered & active personnel
+  if (typeof refreshQuickAccessConsole === "function") {
+    refreshQuickAccessConsole();
+  }
+
   // Reset scroll positions on mobile to top
   var grid = document.getElementById('sihConsoleGrid');
   if (grid) grid.scrollTop = 0;
@@ -1569,11 +1558,428 @@ function filterSihRoleCategory(category, buttonElement) {
   if (grid) grid.scrollTop = 0;
 }
 
+/* ==========================================================================
+   DYNAMIC QUICK ACCESS MODE — LIVE ROLE REFLECTION ENGINE
+   Automatically syncs newly registered & approved Inspectors, Officers, and Zonal Admins
+   ========================================================================== */
+
+window._quickAccessRolesMap = window._quickAccessRolesMap || {};
+
+function escapeQuickAttr(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/'/g, '&#39;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function escapeQuickText(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+async function fetchQuickAccessRoles() {
+  try {
+    const res = await fetch("/api/auth/quick-access-roles", { credentials: "same-origin" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.success && Array.isArray(data.roles)) {
+        return data.roles;
+      }
+    }
+  } catch (err) {
+    console.warn("[Quick Access] Server API unavailable, using local registry fallback:", err);
+  }
+
+  // Graceful client-side fallback from localStorage / window.USERS
+  const localUsers = (typeof getUsers === "function") ? getUsers() : (window.USERS || {});
+  const list = [];
+  const DEFAULT_ORDER = [
+    "admin",
+    "north_admin", "south_admin", "northeast_admin",
+    "officer", "officer_south", "officer_ne",
+    "inspector", "inspector_pb", "inspector_south", "inspector_ne"
+  ];
+  const defaultKeys = new Set(DEFAULT_ORDER);
+
+  for (const uname of DEFAULT_ORDER) {
+    const u = localUsers[uname];
+    if (u && u.status !== "Deleted") {
+      list.push({
+        ...u,
+        username: uname,
+        isDefault: true,
+        password: u.password || "Password@123",
+        accountStatus: u.accountStatus || u.status || "Active",
+        isLocked: Boolean(u.isLocked)
+      });
+    }
+  }
+
+  const SYSTEM_ALIASES = new Set(["ne_admin", "south_officer", "officer_northeast", "inspector_northeast"]);
+  for (const [uname, u] of Object.entries(localUsers)) {
+    if (defaultKeys.has(uname)) continue;
+    if (SYSTEM_ALIASES.has(uname)) continue;
+    if (u.status === "Deleted" || u.accountStatus === "Deleted") continue;
+    list.push({
+      ...u,
+      username: uname,
+      isDefault: false,
+      password: u.password || "Password@123",
+      accountStatus: u.accountStatus || u.status || "Active",
+      isLocked: Boolean(u.isLocked)
+    });
+  }
+
+  return list;
+}
+
+function buildQuickAccessCardHtml(user) {
+  const role = String(user.role || "").toLowerCase();
+  const uname = escapeQuickText(user.username);
+  const rawUname = escapeQuickAttr(user.username);
+  const rawPwd = escapeQuickAttr(user.password || "");
+  const name = escapeQuickText(user.name || user.username);
+  const zone = escapeQuickText(user.zone || "All");
+  const state = escapeQuickText(user.state || "All");
+  const designation = escapeQuickText(user.designation || "");
+  const office = escapeQuickText(user.officeAddress || "");
+  const isLocked = Boolean(user.isLocked || user.accountStatus === "Locked" || user.status === "Locked" || user.status === "Pending Verification" || user.status === "Pending Approval");
+
+  // Status badges for newly added accounts
+  let statusBadge = "";
+  if (!user.isDefault) {
+    if (isLocked) {
+      statusBadge = `<span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 whitespace-nowrap">🔒 LOCKED (PENDING)</span>`;
+    } else {
+      statusBadge = `<span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 whitespace-nowrap">✨ NEW • ACTIVE</span>`;
+    }
+  }
+
+  // Tier 1: National Command
+  if (role === "admin" || role === "national") {
+    const subtitle = designation || "Director General (Legal Metrology)";
+    return `
+      <div data-name="${rawUname} ${escapeQuickAttr(name)}" data-username="${rawUname}" data-role="national admin apex" data-zone="all" data-state="all" data-desig="${escapeQuickAttr(subtitle)}"
+        class="sih-role-btn role-card-btn w-full p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50/90 via-teal-50/40 to-transparent dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-transparent border border-emerald-300/80 dark:border-emerald-700/60 hover:border-emerald-500 dark:hover:border-emerald-400 transition-all duration-150 group text-left shadow-xs flex items-center justify-between cursor-pointer"
+        onclick="quickLogin('${rawUname}', '${rawPwd}', this)">
+        <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-lg sm:text-xl font-bold flex-shrink-0 border border-emerald-300 dark:border-emerald-700 shadow-xs">
+            🏛️
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-wrap">
+              <span class="text-xs sm:text-[13.5px] font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 truncate">
+                ${name}
+              </span>
+              <span class="px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-emerald-200/80 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200 whitespace-nowrap flex-shrink-0">
+                Apex Command
+              </span>
+              ${statusBadge}
+            </div>
+            <div class="text-[10.5px] text-slate-600 dark:text-slate-300 truncate mt-0.5 font-medium">
+              ${subtitle} • <span class="text-emerald-700 dark:text-emerald-400 font-semibold">Jurisdiction: All 6 Zones (Master Ledger)</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+          <span class="font-mono text-[9.5px] sm:text-[10px] font-bold text-slate-800 dark:text-slate-200 bg-white/90 dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-700 shadow-xs whitespace-nowrap">@${uname}</span>
+          <div class="sih-arrow-icon w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+            →
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Tier 2: Zonal Controllers
+  if (role === "zonal") {
+    let displayTitle = name;
+    if (user.username === "north_admin") displayTitle = "Northern Zone Controller";
+    else if (user.username === "south_admin") displayTitle = "Southern Zone Controller";
+    else if (user.username === "northeast_admin") displayTitle = "Northeast Zone Controller";
+    else if (!displayTitle.toLowerCase().includes("zone")) displayTitle = `${name} (${zone} Zone)`;
+
+    let subtitle = "Regional Controller • Personnel Management & Zonal Approvals";
+    if (user.username === "north_admin") subtitle = "Delhi, Punjab, Haryana, Rajasthan, HP";
+    else if (user.username === "south_admin") subtitle = "Tamil Nadu, Kerala, Karnataka, AP";
+    else if (user.username === "northeast_admin") subtitle = "Assam, Meghalaya, Manipur, Tripura";
+    else if (office || state) subtitle = `${state || zone} • ${office || "Regional Controller"}`;
+
+    return `
+      <div data-name="${rawUname} ${escapeQuickAttr(name)} ${escapeQuickAttr(displayTitle)}" data-username="${rawUname}" data-role="zonal admin controller" data-zone="${escapeQuickAttr(zone)}" data-state="${escapeQuickAttr(state)}" data-desig="${escapeQuickAttr(subtitle)}"
+        class="sih-role-btn role-card-btn w-full p-2.5 sm:p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 hover:bg-indigo-100/70 dark:hover:bg-indigo-950/60 border border-indigo-200/90 dark:border-indigo-800/60 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-150 group text-left shadow-xs flex items-center justify-between cursor-pointer"
+        onclick="quickLogin('${rawUname}', '${rawPwd}', this)">
+        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-base flex-shrink-0 border border-indigo-200 dark:border-indigo-800 shadow-xs">
+            🛡️
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+              <span class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 truncate">
+                ${displayTitle}
+              </span>
+              <span class="px-1.5 py-0.2 rounded text-[8.5px] font-mono font-bold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700 whitespace-nowrap">
+                ${zone} Zone
+              </span>
+              ${statusBadge}
+            </div>
+            <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+              ${subtitle} • <span class="text-indigo-600 dark:text-indigo-400 font-medium">Zone-Isolated Governance</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
+          <span class="font-mono text-[9.5px] sm:text-[10px] bg-white/90 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg font-bold border border-indigo-200 dark:border-indigo-700 shadow-xs whitespace-nowrap">@${uname}</span>
+          <div class="sih-arrow-icon w-7 h-7 rounded-xl bg-indigo-600 group-hover:bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+            ${isLocked ? '🔒' : '→'}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Tier 3: Adjudication Officers
+  if (role === "officer") {
+    let subtitle = "Asst. Controller • Statutory Compounding & Case Adjudication";
+    if (user.username === "officer") subtitle = "Asst. Controller • CGO Complex, Delhi";
+    else if (user.username === "officer_south") subtitle = "Asst. Controller • Shastri Bhawan, TN";
+    else if (user.username === "officer_ne") subtitle = "Asst. Controller • R.G. Baruah Rd, Assam";
+    else if (designation || office) subtitle = `${designation || "Asst. Controller"} • ${office || state}`;
+
+    return `
+      <div data-name="${rawUname} ${escapeQuickAttr(name)}" data-username="${rawUname}" data-role="officer adjudication controller" data-zone="${escapeQuickAttr(zone)}" data-state="${escapeQuickAttr(state)}" data-desig="${escapeQuickAttr(subtitle)}"
+        class="sih-role-btn role-card-btn w-full p-2.5 sm:p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100/70 dark:hover:bg-amber-950/60 border border-amber-200/90 dark:border-amber-800/60 hover:border-amber-500 dark:hover:border-amber-400 transition-all duration-150 group text-left shadow-xs flex items-center justify-between cursor-pointer"
+        onclick="quickLogin('${rawUname}', '${rawPwd}', this)">
+        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 flex items-center justify-center text-base font-bold flex-shrink-0 border border-amber-200 dark:border-amber-800 shadow-xs">
+            ⚖️
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+              <span class="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate">
+                ${name}
+              </span>
+              <span class="px-1.5 py-0.2 rounded text-[8.5px] font-mono font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 whitespace-nowrap">
+                ${zone} Zone
+              </span>
+              ${statusBadge}
+            </div>
+            <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+              ${subtitle} • <span class="text-amber-700 dark:text-amber-400 font-medium">Form-V Penalty Orders</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
+          <span class="font-mono text-[9.5px] sm:text-[10px] bg-white/90 dark:bg-slate-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-lg font-bold border border-amber-200 dark:border-amber-700 shadow-xs whitespace-nowrap">@${uname}</span>
+          <div class="sih-arrow-icon w-7 h-7 rounded-xl bg-amber-600 group-hover:bg-amber-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+            ${isLocked ? '🔒' : '→'}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Tier 4: Field Inspectors
+  let subtitle = `${state} (${zone} Zone)`;
+  if (user.username === "inspector") subtitle = "Delhi UT (North Zone)";
+  else if (user.username === "inspector_pb") subtitle = "Punjab (North Zone)";
+  else if (user.username === "inspector_south") subtitle = "Kerala (South Zone)";
+  else if (user.username === "inspector_ne") subtitle = "Assam (Northeast Zone)";
+  else if (designation) subtitle = `${designation} • ${state} (${zone})`;
+
+  return `
+    <div data-name="${rawUname} ${escapeQuickAttr(name)}" data-username="${rawUname}" data-role="inspector field enforcement" data-zone="${escapeQuickAttr(zone)}" data-state="${escapeQuickAttr(state)}" data-desig="${escapeQuickAttr(subtitle)}"
+      class="sih-role-btn role-card-btn w-full p-2.5 sm:p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-950/60 border border-teal-200/90 dark:border-teal-800/60 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-150 group text-left shadow-xs flex items-center justify-between cursor-pointer"
+      onclick="quickLogin('${rawUname}', '${rawPwd}', this)">
+      <div class="flex items-center gap-2.5 min-w-0 flex-1">
+        <div class="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 flex items-center justify-center text-sm font-bold flex-shrink-0 border border-teal-200 dark:border-teal-800 shadow-xs">
+          📸
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+            <span class="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 truncate">
+              ${name}
+            </span>
+            <span class="px-1.5 py-0.2 rounded text-[8.5px] font-mono font-bold bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-700 whitespace-nowrap">
+              ${zone}
+            </span>
+            ${statusBadge}
+          </div>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+            ${subtitle} • <span class="text-teal-700 dark:text-teal-400 font-medium">Field AI Scan &amp; Seizures</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-1.5">
+        <span class="font-mono text-[9.5px] bg-white/90 dark:bg-slate-800 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-lg font-bold border border-teal-200 dark:border-teal-700 shadow-xs whitespace-nowrap">@${uname}</span>
+        <div class="sih-arrow-icon w-7 h-7 rounded-xl bg-teal-600 group-hover:bg-teal-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+          ${isLocked ? '🔒' : '→'}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function filterSihRolesSearch(query) {
+  const q = String(query || "").trim().toLowerCase();
+  const cards = document.querySelectorAll("#sihConsoleGrid .sih-role-btn");
+  let visibleCount = 0;
+
+  cards.forEach(card => {
+    if (!q) {
+      card.style.display = "";
+      visibleCount++;
+      return;
+    }
+    const name = (card.getAttribute("data-name") || "").toLowerCase();
+    const uname = (card.getAttribute("data-username") || "").toLowerCase();
+    const role = (card.getAttribute("data-role") || "").toLowerCase();
+    const zone = (card.getAttribute("data-zone") || "").toLowerCase();
+    const state = (card.getAttribute("data-state") || "").toLowerCase();
+    const desig = (card.getAttribute("data-desig") || "").toLowerCase();
+    const fullText = (card.textContent || "").toLowerCase();
+
+    const match = name.includes(q) || uname.includes(q) || role.includes(q) || zone.includes(q) || state.includes(q) || desig.includes(q) || fullText.includes(q);
+    if (match) {
+      card.style.display = "";
+      visibleCount++;
+    } else {
+      card.style.display = "none";
+    }
+  });
+
+  // Check section visibility
+  ["sihSectionNational", "sihSectionZonal", "sihSectionOfficer", "sihSectionInspector"].forEach(secId => {
+    const sec = document.getElementById(secId);
+    if (!sec) return;
+    const secCards = sec.querySelectorAll(".sih-role-btn");
+    const anyVisible = Array.from(secCards).some(c => c.style.display !== "none");
+    sec.style.display = (q && !anyVisible) ? "none" : "";
+  });
+
+  const noRes = document.getElementById("sihNoSearchResults");
+  const qText = document.getElementById("sihSearchQueryText");
+  if (noRes) {
+    if (visibleCount === 0 && q) {
+      noRes.classList.remove("hidden");
+      if (qText) qText.textContent = q;
+    } else {
+      noRes.classList.add("hidden");
+    }
+  }
+}
+
+async function refreshQuickAccessConsole() {
+  const roles = await fetchQuickAccessRoles();
+  if (!roles || !roles.length) return;
+
+  // Cache to window map for instant pre-login session resolution
+  window._quickAccessRolesMap = window._quickAccessRolesMap || {};
+  roles.forEach(r => {
+    window._quickAccessRolesMap[r.username] = r;
+  });
+
+  const nationalRoles = roles.filter(r => r.role === 'admin' || r.role === 'national');
+  const zonalRoles = roles.filter(r => r.role === 'zonal');
+  const officerRoles = roles.filter(r => r.role === 'officer');
+  const inspectorRoles = roles.filter(r => r.role === 'inspector');
+
+  const totalCount = roles.length;
+  const nationalCount = nationalRoles.length;
+  const zonalCount = zonalRoles.length;
+  const officerCount = officerRoles.length;
+  const inspectorCount = inspectorRoles.length;
+
+  // 1. Update Trigger Badge in main login page
+  const trigBadge = document.getElementById("sihQuickTriggerBadge");
+  if (trigBadge) {
+    trigBadge.textContent = `${totalCount} Roles`;
+  }
+
+  // 2. Update Modal Header Badge & Text
+  const headerCountText = document.getElementById("sihModalRoleCountText");
+  if (headerCountText) {
+    headerCountText.textContent = `${totalCount} Roles`;
+  }
+
+  // 3. Update Filter Tab Counts
+  document.querySelectorAll(".sih-cnt-all").forEach(el => { el.textContent = totalCount; });
+  document.querySelectorAll(".sih-cnt-national").forEach(el => { el.textContent = nationalCount; });
+  document.querySelectorAll(".sih-cnt-zonal").forEach(el => { el.textContent = zonalCount; });
+  document.querySelectorAll(".sih-cnt-officer").forEach(el => { el.textContent = officerCount; });
+  document.querySelectorAll(".sih-cnt-inspector").forEach(el => { el.textContent = inspectorCount; });
+
+  // 4. Update Footer Text
+  const footerCount = document.getElementById("sihModalFooterCount");
+  if (footerCount) {
+    footerCount.textContent = `• ${totalCount} Statutory Roles`;
+  }
+
+  // 5. Render Grids
+  const gridNational = document.getElementById("sihGridNational");
+  if (gridNational) {
+    gridNational.innerHTML = nationalRoles.map(buildQuickAccessCardHtml).join("");
+  }
+
+  const gridZonal = document.getElementById("sihGridZonal");
+  if (gridZonal) {
+    gridZonal.innerHTML = zonalRoles.map(buildQuickAccessCardHtml).join("");
+  }
+
+  const gridOfficer = document.getElementById("sihGridOfficer");
+  if (gridOfficer) {
+    gridOfficer.innerHTML = officerRoles.map(buildQuickAccessCardHtml).join("");
+  }
+
+  const gridInspector = document.getElementById("sihGridInspector");
+  if (gridInspector) {
+    gridInspector.innerHTML = inspectorRoles.map(buildQuickAccessCardHtml).join("");
+  }
+
+  // Re-apply search filter if user currently has search text typed
+  const searchInput = document.getElementById("sihRoleSearchInput");
+  if (searchInput && searchInput.value) {
+    filterSihRolesSearch(searchInput.value);
+  }
+}
+
 if (typeof window !== "undefined") {
   window.openSihEvaluationModal = openSihEvaluationModal;
   window.closeSihEvaluationModal = closeSihEvaluationModal;
   window.filterSihRoleCategory = filterSihRoleCategory;
+  window.filterSihRolesSearch = filterSihRolesSearch;
   window.quickLogin = quickLogin;
+  window.refreshQuickAccessConsole = refreshQuickAccessConsole;
+
+  // Real-time synchronization listeners for newly added Inspector, Officer, or Zonal Admin
+  window.addEventListener("storage", function (e) {
+    if (e.key === "metro_users_last_update" || e.key === "metro_users") {
+      refreshQuickAccessConsole();
+    }
+  });
+
+  window.addEventListener("metro_users_updated", function () {
+    refreshQuickAccessConsole();
+  });
+
+  // Initial load if modal exists on page
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      if (document.getElementById("sihEvaluationModal")) {
+        refreshQuickAccessConsole();
+      }
+    });
+  } else {
+    if (document.getElementById("sihEvaluationModal")) {
+      refreshQuickAccessConsole();
+    }
+  }
 }
 
 function switchRole(targetRole) {

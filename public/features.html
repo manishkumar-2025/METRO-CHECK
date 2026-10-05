@@ -183,31 +183,211 @@
     </div>
   </header>
 
-  <!-- Quick Navigation Bar (Sticky beneath the fixed Masthead) -->
-  <nav
-    class="sticky top-[48px] sm:top-[56px] z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-xs hidden md:block">
-    <div
-      class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-300">
-      <div class="flex items-center gap-6">
-        <a href="#overview" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Platform
-          Overview</a>
-        <a href="#rule6-matrix" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">PCR Rule
-          6
-          Declarations</a>
-        <a href="#core-modules" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">6 Core
-          Modules</a>
-        <a href="#penalties" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Statutory
-          Penalty Schedule</a>
-        <a href="#pipeline" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Enforcement
-          Workflow</a>
-        <a href="#security" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Security &amp;
-          Governance</a>
+  <!-- Fixed & Sticky Navigation Bar (Permanently pinned beneath the fixed Sovereign Masthead across all screens) -->
+  <nav id="featuresStickyNav" aria-label="Features and Statutory Navigation"
+    class="fixed left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800/90 shadow-xs select-none transition-all duration-200"
+    style="top: var(--masthead-actual-height, 54px);">
+    <div class="max-w-7xl mx-auto px-2.5 sm:px-6 py-1.5 sm:py-2 flex items-center justify-between gap-2 sm:gap-4">
+
+      <!-- MODE A: Standard Feature Catalog Nav Group -->
+      <div id="featuresDefaultNavGroup" class="relative flex items-center min-w-0 flex-1 overflow-hidden">
+        <div
+          class="features-nav-scroll-container flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar scroll-smooth py-0.5 px-0.5 w-full">
+          <a href="#overview" data-target="overview"
+            class="features-nav-link px-2.5 sm:px-3 py-1.5 rounded-lg text-[11.5px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50/80 dark:hover:bg-slate-800/80">
+            Platform Overview
+          </a>
+          <a href="#rule6-matrix" data-target="rule6-matrix"
+            class="features-nav-link px-2.5 sm:px-3 py-1.5 rounded-lg text-[11.5px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50/80 dark:hover:bg-slate-800/80">
+            PCR Rule 6 Declarations
+          </a>
+          <a href="#core-modules" data-target="core-modules"
+            class="features-nav-link px-2.5 sm:px-3 py-1.5 rounded-lg text-[11.5px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50/80 dark:hover:bg-slate-800/80">
+            6 Core Modules
+          </a>
+          <a href="#penalties" data-target="penalties"
+            class="features-nav-link px-2.5 sm:px-3 py-1.5 rounded-lg text-[11.5px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50/80 dark:hover:bg-slate-800/80">
+            Statutory Penalty Schedule
+          </a>
+          <a href="#pipeline" data-target="pipeline"
+            class="features-nav-link px-2.5 sm:px-3 py-1.5 rounded-lg text-[11.5px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50/80 dark:hover:bg-slate-800/80">
+            Enforcement Workflow
+          </a>
+          <a href="#security" data-target="security"
+            class="features-nav-link px-2.5 sm:px-3 py-1.5 rounded-lg text-[11.5px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50/80 dark:hover:bg-slate-800/80">
+            Security &amp; Governance
+          </a>
+
+          <span class="w-[1px] h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 flex-shrink-0"
+            aria-hidden="true"></span>
+
+          <!-- Modern Action Button: Current LM Mandates (Replaces static LM Act/PCR links) -->
+          <button type="button" id="btnToggleCurrentLm" onclick="openCurrentLmView()"
+            title="Open Live Legal Metrology (LM) 2026 Mandates & Governance Dashboard"
+            class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 shadow-xs cursor-pointer bg-gradient-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 hover:from-emerald-600 hover:to-teal-600 text-emerald-800 dark:text-emerald-300 hover:text-white dark:hover:text-white border border-emerald-300/80 dark:border-emerald-700 hover:border-emerald-600 active:scale-95 whitespace-nowrap flex-shrink-0">
+            <span
+              class="w-2 h-2 rounded-full bg-emerald-500 group-hover:bg-white animate-pulse transition-colors"></span>
+            <span class="font-heading font-extrabold tracking-tight">Current LM</span>
+            <span
+              class="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-900/80 text-emerald-800 dark:text-emerald-200 group-hover:bg-emerald-700 group-hover:text-white font-mono font-bold transition-colors">2026</span>
+          </button>
+        </div>
       </div>
-      <div class="flex items-center gap-3">
-        <div class="text-[11px] text-slate-400 font-mono hidden lg:block">LM Act 2009 • PCR 2011 Standards</div>
-        <a href="index.html"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs transition active:scale-95">
-          <span>Sign In to Portal</span>
+
+      <!-- MODE B: Current LM Dashboard Nav Group (Active when Current LM view is open) -->
+      <div id="featuresCurrentLmNavGroup" class="hidden relative flex items-center min-w-0 flex-1 overflow-hidden">
+        <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth py-0.5 px-0.5 w-full">
+          <!-- Back to Feature Catalog Button -->
+          <button type="button" onclick="closeCurrentLmView()" title="Return to standard Feature Catalog overview"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all duration-150 shadow-xs active:scale-95 whitespace-nowrap flex-shrink-0 cursor-pointer">
+            <span class="text-sm font-bold">←</span>
+            <span>Back to Feature Catalog</span>
+          </button>
+
+          <span class="w-[1px] h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 flex-shrink-0" aria-hidden="true"></span>
+
+          <!-- Quick Jump Tabs within Current LM -->
+          <button type="button" onclick="switchCurrentLmTab('pcr-rules')"
+            class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap flex-shrink-0">
+            📜 34 PCR Rules
+          </button>
+          <button type="button" onclick="switchCurrentLmTab('act-sections')"
+            class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap flex-shrink-0">
+            ⚖️ 57 Act Sections
+          </button>
+          <button type="button" onclick="switchCurrentLmTab('jan-vishwas')"
+            class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap flex-shrink-0">
+            🛡️ Jan Vishwas 2023
+          </button>
+          <button type="button" onclick="switchCurrentLmTab('workflows')"
+            class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap flex-shrink-0">
+            🔄 Active Workflows
+          </button>
+          <button type="button" onclick="switchCurrentLmTab('zonal-stats')"
+            class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap flex-shrink-0">
+            🗺️ 6 Zonal Commands
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: Action Button (Sign In) & Mobile Drawer Toggle - Pinned and accessible at ALL times -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+        <!-- Action Button: Sign in to Portal → -->
+        <a href="index.html#segment-officer-auth" id="featuresNavSignInBtn" title="Sign in to e-LMCEP Governance Portal"
+          class="group inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-xs hover:shadow-emerald-500/25 active:scale-95 transition-all duration-150 whitespace-nowrap cursor-pointer">
+          <span>Sign in to Portal</span>
+          <span class="transition-transform group-hover:translate-x-0.5">→</span>
+        </a>
+
+        <!-- Mobile Drawer Toggle Button -->
+        <button type="button" id="featuresMobileMenuToggle" onclick="toggleFeaturesMobileMenu()" aria-expanded="false"
+          aria-controls="featuresMobileMenuDrawer" title="Toggle Navigation Menu"
+          class="lg:hidden p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center justify-center">
+          <svg id="featuresMobileMenuIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Navigation Drawer Dropdown -->
+    <div id="featuresMobileMenuDrawer"
+      class="hidden lg:hidden border-t border-slate-200/90 dark:border-slate-800/90 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl px-3.5 py-3 space-y-1 shadow-xl max-h-[calc(100vh-110px)] overflow-y-auto">
+
+      <!-- Drawer Group A: Default Features Navigation -->
+      <div id="featuresMobileDrawerDefault" class="space-y-1">
+        <div class="text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 px-2 py-0.5">
+          Statutory Navigation
+        </div>
+        <a href="#overview" onclick="closeFeaturesMobileMenu()"
+          class="features-mobile-link flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+          <span>Platform Overview</span>
+          <span class="text-[10px] font-mono text-slate-400">§ 01</span>
+        </a>
+        <a href="#rule6-matrix" onclick="closeFeaturesMobileMenu()"
+          class="features-mobile-link flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+          <span>PCR Rule 6 Declarations</span>
+          <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">Rule 6</span>
+        </a>
+        <a href="#core-modules" onclick="closeFeaturesMobileMenu()"
+          class="features-mobile-link flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+          <span>6 Core Modules</span>
+          <span class="text-[10px] font-mono text-slate-400">§ 03</span>
+        </a>
+        <a href="#penalties" onclick="closeFeaturesMobileMenu()"
+          class="features-mobile-link flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+          <span>Statutory Penalty Schedule</span>
+          <span class="text-[10px] font-mono text-rose-500 font-bold">§ 18/36</span>
+        </a>
+        <a href="#pipeline" onclick="closeFeaturesMobileMenu()"
+          class="features-mobile-link flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+          <span>Enforcement Workflow</span>
+          <span class="text-[10px] font-mono text-slate-400">6-Step</span>
+        </a>
+        <a href="#security" onclick="closeFeaturesMobileMenu()"
+          class="features-mobile-link flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+          <span>Security &amp; Governance</span>
+          <span class="text-[10px] font-mono text-emerald-500">RBAC</span>
+        </a>
+
+        <div class="h-[1px] bg-slate-200 dark:bg-slate-800 my-1.5"></div>
+
+        <!-- Action Button inside Mobile Drawer: Current LM Dashboard -->
+        <button type="button" onclick="openCurrentLmView(); closeFeaturesMobileMenu();"
+          class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/10 hover:from-emerald-600 hover:to-teal-600 text-emerald-800 dark:text-emerald-300 hover:text-white dark:hover:text-white border border-emerald-300/80 dark:border-emerald-700 transition">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Current LM Mandates Dashboard</span>
+          </span>
+          <span
+            class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-200/80 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100 font-bold">Live
+            2026</span>
+        </button>
+      </div>
+
+      <!-- Drawer Group B: Current LM Mobile Quick Actions -->
+      <div id="featuresMobileDrawerCurrentLm" class="hidden space-y-1">
+        <div class="text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 px-2 py-0.5">
+          Current LM Navigation
+        </div>
+        <button type="button" onclick="closeCurrentLmView(); closeFeaturesMobileMenu();"
+          class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition text-left">
+          <span>←</span>
+          <span>Back to Feature Catalog</span>
+        </button>
+        <button type="button" onclick="switchCurrentLmTab('pcr-rules'); closeFeaturesMobileMenu();"
+          class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left">
+          <span>📜 34 PCR 2011 Rules</span>
+          <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">Chapters I-VII</span>
+        </button>
+        <button type="button" onclick="switchCurrentLmTab('act-sections'); closeFeaturesMobileMenu();"
+          class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left">
+          <span>⚖️ 57 LM Act 2009 Sections</span>
+          <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">Core Act</span>
+        </button>
+        <button type="button" onclick="switchCurrentLmTab('jan-vishwas'); closeFeaturesMobileMenu();"
+          class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left">
+          <span>🛡️ Jan Vishwas 2023 Decrim</span>
+          <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">Compounding</span>
+        </button>
+        <button type="button" onclick="switchCurrentLmTab('workflows'); closeFeaturesMobileMenu();"
+          class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left">
+          <span>🔄 Active Workflows</span>
+          <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">4 Workflows</span>
+        </button>
+        <button type="button" onclick="switchCurrentLmTab('zonal-stats'); closeFeaturesMobileMenu();"
+          class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left">
+          <span>🗺️ 6 Zonal Commands</span>
+          <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">Pan-India</span>
+        </button>
+      </div>
+
+      <!-- Persistent Sign-In Button on Mobile Drawer -->
+      <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+        <a href="index.html#segment-officer-auth"
+          class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs shadow-md active:scale-95 transition">
+          <span>Sign in to Portal</span>
           <span>→</span>
         </a>
       </div>
@@ -216,564 +396,798 @@
 
   <!-- Main Content Area -->
   <main id="mainContent"
-    class="w-full max-w-7xl mx-auto flex-1 px-4 sm:px-6 pt-16 md:pt-24 pb-8 sm:pb-12 space-y-8 sm:space-y-12">
+    class="w-full max-w-7xl mx-auto flex-1 px-4 sm:px-6 pt-28 md:pt-32 pb-8 sm:pb-12 space-y-8 sm:space-y-12"
+    style="padding-top: calc(var(--features-header-total-height, 106px) + 1.25rem);">
+    <!-- View 1: Default Features Catalog View (All original content 100% preserved) -->
+    <div id="featuresDefaultView" class="features-view-wrapper space-y-8 sm:space-y-12">
+      <!-- 1. HERO & STATUTORY FOUNDATION -->
+      <section id="overview"
+        class="relative overflow-hidden p-4 sm:p-6 lg:p-10 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 sm:space-y-6 border-t-[3px] border-t-[#059669] bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.08),transparent_50%)] scroll-mt-28 md:scroll-mt-32">
 
-    <!-- 1. HERO & STATUTORY FOUNDATION -->
-    <section id="overview"
-      class="relative overflow-hidden p-4 sm:p-6 lg:p-10 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 sm:space-y-6 border-t-[3px] border-t-[#059669] bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.08),transparent_50%)]">
-
-      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-        <div class="space-y-4 max-w-3xl">
-          <div
-            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse status-dot"></span>
-            <span>Official Technical Specification • e-LMCEP Governance Portal</span>
-          </div>
-
-          <h1
-            class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-heading leading-tight">
-            Comprehensive Statutory Inspection &amp; Enforcement Ecosystem
-          </h1>
-
-          <p class="text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-            The <strong>e-Legal Metrology Compliance & Enforcement Platform (e-LMCEP / METRO-CHECK)</strong> is India’s
-            enterprise digital solution built for field inspectors, zonal officers, and consumer protection controllers.
-            It digitizes enforcement of the <strong>Legal Metrology Act, 2009</strong> and the <strong>Legal Metrology
-              (Pre-Packaged Commodities) Rules, 2011 (PCR 2011)</strong> across all 6 national zonal jurisdictions.
-          </p>
-        </div>
-
-        <!-- Project Emblem Logo Badge -->
-        <div
-          class="flex-shrink-0 p-5 rounded-2xl backdrop-blur-md bg-white/70 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 shadow-xl text-center space-y-2 w-full lg:w-64 relative overflow-hidden group">
-          <div class="absolute inset-0 rounded-2xl pointer-events-none border border-emerald-500/30 animate-pulse">
-          </div>
-          <img src="logo/logo.png" alt="METRO-CHECK Logo"
-            class="h-20 w-auto mx-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300 relative z-10" />
-          <div class="font-heading font-bold text-slate-900 dark:text-slate-100 text-sm relative z-10">METRO-CHECK</div>
-          <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium relative z-10">e-LMCEP Enforcement
-            System</div>
-        </div>
-      </div>
-
-      <!-- Key Quantitative Metrics Grid -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800/80">
-        <div
-          class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-          <div class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading">6 Mandatory</div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Rule 6 PCR Declarations Verified</div>
-        </div>
-        <div
-          class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-          <div class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-heading">Section 18/36</div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Statutory Compounding Rules</div>
-        </div>
-        <div
-          class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-          <div class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading">Schedule II</div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">MAV Tolerance Breach Engine</div>
-        </div>
-        <div
-          class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-          <div class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-heading">Form-V PDF</div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Official Court Seizure Memos</div>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- 2. MANDATORY RULE 6 DECLARATION MATRIX -->
-    <section id="rule6-matrix" class="space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div>
-          <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-mono">PCR
-            2011 Compliance Framework</div>
-          <h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight">
-            Mandatory Rule 6 Statutory Declarations
-          </h2>
-        </div>
-        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md">
-          Every pre-packaged commodity sold in India must display these 6 mandatory declarations legibly under Rule 6(1)
-          of the Legal Metrology (Pre-Packaged Commodities) Rules, 2011.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-        <!-- Rule 6(1)(a) -->
-        <div
-          class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <span
-              class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
-              6(1)(a)</span>
-          </div>
-          <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">Manufacturer / Packer / Importer
-            Details</h3>
-          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Name and complete legal address of the manufacturer, packer, or importer. Missing address or vague P.O. Box
-            numbers constitute a non-compoundable statutory breach under Section 36.
-          </p>
-        </div>
-
-        <!-- Rule 6(1)(aa) -->
-        <div
-          class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <span
-              class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
-              6(1)(aa)</span>
-          </div>
-          <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">Country of Origin</h3>
-          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Explicit declaration of the country of origin for imported pre-packaged commodities. Mandatory for
-            transparency under foreign trade & consumer welfare mandates.
-          </p>
-        </div>
-
-        <!-- Rule 6(1)(b) -->
-        <div
-          class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <span
-              class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
-              6(1)(b)</span>
-          </div>
-          <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">Common or Generic Commodity Name
-          </h3>
-          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            The generic or common trade name of the commodity contained within the package to prevent misleading brand
-            terminology or consumer deception.
-          </p>
-        </div>
-
-        <!-- Rule 6(1)(c) -->
-        <div
-          class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <span
-              class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
-              6(1)(c)</span>
-          </div>
-          <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">Net Quantity & Standard Units
-          </h3>
-          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Net weight or volume expressed in standard SI units (g, kg, ml, L, N). Any shortfall exceeding Schedule II
-            Maximum Allowable Variation (MAV) triggers short-quantity seizure under Section 36.
-          </p>
-        </div>
-
-        <!-- Rule 6(1)(d) -->
-        <div
-          class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <span
-              class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
-              6(1)(d)</span>
-          </div>
-          <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">Date of Manufacture / Packing /
-            Import</h3>
-          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Month and year of manufacture or pre-packing. Crucial for perishable commodities and shelf-life verification
-            under consumer safety guidelines.
-          </p>
-        </div>
-
-        <!-- Rule 6(1)(e) & (f) -->
-        <div
-          class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <span
-              class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
-              6(1)(e) & (f)</span>
-          </div>
-          <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">MRP (Incl. of All Taxes) &
-            Helpline</h3>
-          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Maximum Retail Price in mandatory format: <code>MRP ₹ xx.xx (incl. of all taxes)</code> alongside a
-            functioning consumer care telephone number and email address.
-          </p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- 3. IN-DEPTH 6 CORE PLATFORM MODULES -->
-    <section id="core-modules" class="space-y-6">
-      <div>
-        <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-mono">System
-          Capabilities</div>
-        <h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight">
-          6 Core Operational Modules
-        </h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-        <!-- Module 1 -->
-        <div
-          class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
-          <div class="space-y-3">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-4 max-w-3xl">
             <div
-              class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-              Module 01
+              class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse status-dot"></span>
+              <span>Official Technical Specification • e-LMCEP Governance Portal</span>
             </div>
-            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Gemini AI Optical Vision
-              Capture</h3>
-            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Integrates Google Gemini AI Vision Engine for real-time extraction of curved, reflective, or distorted
-              label text on field inspections. Extracts all mandatory Rule 6 attributes in real time.
+
+            <h1
+              class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-heading leading-tight">
+              Comprehensive Statutory Inspection &amp; Enforcement Ecosystem
+            </h1>
+
+            <p class="text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+              The <strong>e-Legal Metrology Compliance & Enforcement Platform (e-LMCEP / METRO-CHECK)</strong> is
+              India’s
+              enterprise digital solution built for field inspectors, zonal officers, and consumer protection
+              controllers.
+              It digitizes enforcement of the <strong>Legal Metrology Act, 2009</strong> and the <strong>Legal Metrology
+                (Pre-Packaged Commodities) Rules, 2011 (PCR 2011)</strong> across all 6 national zonal jurisdictions.
             </p>
           </div>
-          <ul
-            class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <li class="flex items-center gap-1.5">✓ Auto-rectification of packaging glare</li>
-            <li class="flex items-center gap-1.5">✓ Dual-photo front & back verification</li>
-          </ul>
+
+          <!-- Project Emblem Logo Badge -->
+          <div
+            class="flex-shrink-0 p-5 rounded-2xl backdrop-blur-md bg-white/70 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 shadow-xl text-center space-y-2 w-full lg:w-64 relative overflow-hidden group">
+            <div class="absolute inset-0 rounded-2xl pointer-events-none border border-emerald-500/30 animate-pulse">
+            </div>
+            <img src="logo/logo.png" alt="METRO-CHECK Logo"
+              class="h-20 w-auto mx-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300 relative z-10" />
+            <div class="font-heading font-bold text-slate-900 dark:text-slate-100 text-sm relative z-10">METRO-CHECK
+            </div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium relative z-10">e-LMCEP Enforcement
+              System</div>
+          </div>
         </div>
 
-        <!-- Module 2 -->
-        <div
-          class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
-          <div class="space-y-3">
-            <div
-              class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-              Module 02
+        <!-- Key Quantitative Metrics Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+          <div
+            class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
+            <div class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading">6 Mandatory</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Rule 6 PCR Declarations Verified</div>
+          </div>
+          <div
+            class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
+            <div class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-heading">Section 18/36</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Statutory Compounding Rules</div>
+          </div>
+          <div
+            class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
+            <div class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading">Schedule II</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">MAV Tolerance Breach Engine</div>
+          </div>
+          <div
+            class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
+            <div class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-heading">Form-V PDF</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Official Court Seizure Memos</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 2. MANDATORY RULE 6 DECLARATION MATRIX -->
+      <div id="pcr-standards" class="scroll-mt-28 md:scroll-mt-32"></div>
+      <section id="rule6-matrix" class="space-y-6 scroll-mt-28 md:scroll-mt-32">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-mono">PCR
+              2011 Compliance Framework</div>
+            <h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight">
+              Mandatory Rule 6 Statutory Declarations
+            </h2>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md">
+            Every pre-packaged commodity sold in India must display these 6 mandatory declarations legibly under Rule
+            6(1)
+            of the Legal Metrology (Pre-Packaged Commodities) Rules, 2011.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+          <!-- Rule 6(1)(a) -->
+          <div
+            class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <span
+                class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
+                6(1)(a)</span>
             </div>
-            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Automated Infraction Engine
+            <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">Manufacturer / Packer /
+              Importer
+              Details</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Name and complete legal address of the manufacturer, packer, or importer. Missing address or vague P.O.
+              Box
+              numbers constitute a non-compoundable statutory breach under Section 36.
+            </p>
+          </div>
+
+          <!-- Rule 6(1)(aa) -->
+          <div
+            class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <span
+                class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
+                6(1)(aa)</span>
+            </div>
+            <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">Country of Origin</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Explicit declaration of the country of origin for imported pre-packaged commodities. Mandatory for
+              transparency under foreign trade & consumer welfare mandates.
+            </p>
+          </div>
+
+          <!-- Rule 6(1)(b) -->
+          <div
+            class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <span
+                class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
+                6(1)(b)</span>
+            </div>
+            <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">Common or Generic Commodity
+              Name
             </h3>
             <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Rules-based compounding calculator cross-checks net quantity declared against physical weight readings.
-              Automatically determines Maximum Allowable Variation (MAV) tolerances under Schedule II.
+              The generic or common trade name of the commodity contained within the package to prevent misleading brand
+              terminology or consumer deception.
             </p>
           </div>
-          <ul
-            class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <li class="flex items-center gap-1.5">✓ Section 18 declaration breach logic</li>
-            <li class="flex items-center gap-1.5">✓ Section 36 short-weight compounding</li>
-          </ul>
-        </div>
 
-        <!-- Module 3 -->
-        <div
-          class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
-          <div class="space-y-3">
-            <div
-              class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-              Module 03
+          <!-- Rule 6(1)(c) -->
+          <div
+            class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <span
+                class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
+                6(1)(c)</span>
             </div>
-            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Zonal Adjudication Portal
+            <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">Net Quantity & Standard Units
             </h3>
             <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Provides Metrology Officers (LMOs) with a 3-pane adjudication console to review field photos, verify legal
-              violation formulas, approve compounding fees, or escalate repeat offenses to judicial court.
+              Net weight or volume expressed in standard SI units (g, kg, ml, L, N). Any shortfall exceeding Schedule II
+              Maximum Allowable Variation (MAV) triggers short-quantity seizure under Section 36.
             </p>
           </div>
-          <ul
-            class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <li class="flex items-center gap-1.5">✓ 3-Pane responsive mobile/tablet layout</li>
-            <li class="flex items-center gap-1.5">✓ 1-Click Form-V compounding approval</li>
-          </ul>
-        </div>
 
-        <!-- Module 4 -->
-        <div
-          class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
-          <div class="space-y-3">
-            <div
-              class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-              Module 04
+          <!-- Rule 6(1)(d) -->
+          <div
+            class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <span
+                class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
+                6(1)(d)</span>
             </div>
-            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Statutory Form-V PDF
-              Generator</h3>
+            <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">Date of Manufacture / Packing
+              /
+              Import</h3>
             <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Generates official, court-admissible PDF seizure receipts, inspection reports, and compounding notices
-              complete with digital signature placeholders, QR verification hashes, and offline print fallbacks.
+              Month and year of manufacture or pre-packing. Crucial for perishable commodities and shelf-life
+              verification
+              under consumer safety guidelines.
             </p>
           </div>
-          <ul
-            class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <li class="flex items-center gap-1.5">✓ Native PDF engine with jsPDF fallback</li>
-            <li class="flex items-center gap-1.5">✓ Cryptographic verification QR embedding</li>
-          </ul>
-        </div>
 
-        <!-- Module 5 -->
-        <div
-          class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
-          <div class="space-y-3">
-            <div
-              class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-              Module 05
+          <!-- Rule 6(1)(e) & (f) -->
+          <div
+            class="card card-item p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <span
+                class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800">Rule
+                6(1)(e) & (f)</span>
             </div>
-            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Pan-India Master Audit
-              Ledger</h3>
+            <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm font-heading">MRP (Incl. of All Taxes) &
+              Helpline</h3>
             <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Real-time zonal dashboard for central controllers. Tracks inspections across North, South, East, West,
-              Central, and North East zones, flagging non-compliant manufacturers and repeat offenders.
+              Maximum Retail Price in mandatory format: <code>MRP ₹ xx.xx (incl. of all taxes)</code> alongside a
+              functioning consumer care telephone number and email address.
             </p>
           </div>
-          <ul
-            class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <li class="flex items-center gap-1.5">✓ 6 Zonal jurisdiction metrics</li>
-            <li class="flex items-center gap-1.5">✓ Horizontal tablet scroll protection</li>
-          </ul>
+
         </div>
+      </section>
 
-        <!-- Module 6 -->
-        <div
-          class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
-          <div class="space-y-3">
-            <div
-              class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-              Module 06
-            </div>
-            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Offline Sync & Quota
-              Protection</h3>
-            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Built for remote field operations with spotty connectivity. Features automatic Local Storage quota
-              management, client-side canvas image compression, and central background synchronization.
-            </p>
-          </div>
-          <ul
-            class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <li class="flex items-center gap-1.5">✓ Storage quota overflow protection</li>
-            <li class="flex items-center gap-1.5">✓ Offline queueing with background sync</li>
-          </ul>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- 4. STATUTORY PENALTY REFERENCE TABLE -->
-    <section id="penalties"
-      class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-5">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <!-- 3. IN-DEPTH 6 CORE PLATFORM MODULES -->
+      <section id="core-modules" class="space-y-6 scroll-mt-28 md:scroll-mt-32">
         <div>
-          <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-mono">Legal
-            Metrology Act, 2009</div>
+          <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-mono">
+            System
+            Capabilities</div>
           <h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight">
-            Statutory Infraction & Compounding Schedule
+            6 Core Operational Modules
           </h2>
         </div>
-        <div class="text-xs text-slate-500 dark:text-slate-400">
-          Official statutory compounding limits as configured in e-LMCEP Rule Engine
-        </div>
-      </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr
-              class="bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 font-heading font-bold border-b border-slate-200 dark:border-slate-700">
-              <th class="px-4 py-3 font-mono w-[18%]">Statutory Provision</th>
-              <th class="px-4 py-3 w-[30%]">Infraction Description</th>
-              <th class="px-4 py-3 w-[18%]">First Offense Penalty</th>
-              <th class="px-4 py-3 w-[20%]">Second / Repeat Offense</th>
-              <th class="px-4 py-3 w-[14%]">Compounding Option</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-600 dark:text-slate-300">
-            <tr
-              class="schedule-row hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 cursor-pointer transition-colors duration-150">
-              <td class="px-4 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">Section 18 / Rule 6</td>
-              <td class="px-4 py-3.5 leading-relaxed">Non-declaration of mandatory attributes (MRP, Net Qty, Mfg Date,
-                Origin, Address)</td>
-              <td class="px-4 py-3.5">₹25,000 fine per breach</td>
-              <td class="px-4 py-3.5 font-semibold text-rose-600 dark:text-rose-400">Up to ₹50,000 fine</td>
-              <td class="px-4 py-3.5"><span
-                  class="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold whitespace-nowrap">Compoundable
-                  (Form-V)</span></td>
-            </tr>
-            <tr
-              class="schedule-row hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 cursor-pointer transition-colors duration-150">
-              <td class="px-4 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">Section 36(1)</td>
-              <td class="px-4 py-3.5 leading-relaxed">Manufacture, packing, or sale of non-conforming pre-packaged
-                commodities</td>
-              <td class="px-4 py-3.5">₹25,000 fine</td>
-              <td class="px-4 py-3.5 font-semibold text-rose-600 dark:text-rose-400">Up to ₹1,000,000 + Imprisonment
-              </td>
-              <td class="px-4 py-3.5"><span
-                  class="inline-flex items-center px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-semibold whitespace-nowrap">Strict
-                  Review</span></td>
-            </tr>
-            <tr
-              class="schedule-row hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 cursor-pointer transition-colors duration-150">
-              <td class="px-4 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">Section 36(2)</td>
-              <td class="px-4 py-3.5 leading-relaxed">Short-weight or short-volume package delivery exceeding MAV
-                Schedule II limits</td>
-              <td class="px-4 py-3.5">₹10,000 to ₹50,000 fine</td>
-              <td class="px-4 py-3.5 font-semibold text-rose-600 dark:text-rose-400">Imprisonment up to 1 Year</td>
-              <td class="px-4 py-3.5"><span
-                  class="inline-flex items-center px-2.5 py-1 rounded-md bg-rose-50 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-semibold whitespace-nowrap">Judicial
-                  Escalation</span></td>
-            </tr>
-            <tr
-              class="schedule-row hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 cursor-pointer transition-colors duration-150">
-              <td class="px-4 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">Rule 18(2) PCR</td>
-              <td class="px-4 py-3.5 leading-relaxed">Overcharging above declared Maximum Retail Price (MRP)</td>
-              <td class="px-4 py-3.5">₹2,000 to ₹25,000 fine</td>
-              <td class="px-4 py-3.5 font-semibold text-rose-600 dark:text-rose-400">Up to ₹50,000 fine</td>
-              <td class="px-4 py-3.5"><span
-                  class="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold whitespace-nowrap">Compoundable
-                  (Form-V)</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-    <!-- 5. END-TO-END WORKFLOW PIPELINE -->
-    <section id="pipeline"
-      class="p-6 sm:p-8 rounded-3xl bg-[#F8FAFC] dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-xs space-y-6">
-      <div>
-        <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-mono">
-          Enforcement Operations</div>
-        <h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight">
-          6-Step Field-to-Court Workflow Lifecycle
-        </h2>
-      </div>
-
-      <div class="relative">
-        <!-- Dashed connecting line across step cards -->
-        <div
-          class="hidden sm:block absolute top-1/2 left-4 right-4 h-0 border-t-2 border-dashed border-emerald-300/70 dark:border-emerald-700/50 -translate-y-1/2 pointer-events-none z-0">
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs relative z-10">
-
+          <!-- Module 1 -->
           <div
-            class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
-            <div class="flex items-center justify-between">
-              <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 01 <span
-                  class="text-slate-300 dark:text-slate-600 ml-1 font-sans font-normal">→</span></span>
-              <span class="text-[10px] text-slate-400 font-semibold">Inspector Portal</span>
+            class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div
+                class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                Module 01
+              </div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Gemini AI Optical Vision
+                Capture</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Integrates Google Gemini AI Vision Engine for real-time extraction of curved, reflective, or distorted
+                label text on field inspections. Extracts all mandatory Rule 6 attributes in real time.
+              </p>
             </div>
-            <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">Optical Capture</div>
-            <p class="text-slate-500 dark:text-slate-400 leading-snug">Field Inspector captures commodity label photo
-              via
-              mobile or desktop camera interface.</p>
+            <ul
+              class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <li class="flex items-center gap-1.5">✓ Auto-rectification of packaging glare</li>
+              <li class="flex items-center gap-1.5">✓ Dual-photo front & back verification</li>
+            </ul>
           </div>
 
+          <!-- Module 2 -->
           <div
-            class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
-            <div class="flex items-center justify-between">
-              <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 02 <span
-                  class="text-slate-300 dark:text-slate-600 ml-1 font-sans font-normal">→</span></span>
-              <span class="text-[10px] text-slate-400 font-semibold">Gemini Vision</span>
+            class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div
+                class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                Module 02
+              </div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Automated Infraction
+                Engine
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Rules-based compounding calculator cross-checks net quantity declared against physical weight readings.
+                Automatically determines Maximum Allowable Variation (MAV) tolerances under Schedule II.
+              </p>
             </div>
-            <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">AI OCR Extraction</div>
-            <p class="text-slate-500 dark:text-slate-400 leading-snug">Gemini AI Vision Engine extracts mandatory
-              declarations, MRP, Net Weight, and Manufacturer info.</p>
+            <ul
+              class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <li class="flex items-center gap-1.5">✓ Section 18 declaration breach logic</li>
+              <li class="flex items-center gap-1.5">✓ Section 36 short-weight compounding</li>
+            </ul>
           </div>
 
+          <!-- Module 3 -->
           <div
-            class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
-            <div class="flex items-center justify-between">
-              <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 03 <span
-                  class="text-slate-300 dark:text-slate-600 ml-1 font-sans font-normal">→</span></span>
-              <span class="text-[10px] text-slate-400 font-semibold">Rules Engine</span>
+            class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div
+                class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                Module 03
+              </div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Zonal Adjudication Portal
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Provides Metrology Officers (LMOs) with a 3-pane adjudication console to review field photos, verify
+                legal
+                violation formulas, approve compounding fees, or escalate repeat offenses to judicial court.
+              </p>
             </div>
-            <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">Violation Assessment</div>
-            <p class="text-slate-500 dark:text-slate-400 leading-snug">System compares extracted text against Rule 6
-              requirements and MAV Schedule II limits.</p>
+            <ul
+              class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <li class="flex items-center gap-1.5">✓ 3-Pane responsive mobile/tablet layout</li>
+              <li class="flex items-center gap-1.5">✓ 1-Click Form-V compounding approval</li>
+            </ul>
           </div>
 
+          <!-- Module 4 -->
           <div
-            class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
-            <div class="flex items-center justify-between">
-              <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 04 <span
-                  class="text-slate-300 dark:text-slate-600 ml-1 font-sans font-normal">→</span></span>
-              <span class="text-[10px] text-slate-400 font-semibold">Inspector Signoff</span>
+            class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div
+                class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                Module 04
+              </div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Statutory Form-V PDF
+                Generator</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Generates official, court-admissible PDF seizure receipts, inspection reports, and compounding notices
+                complete with digital signature placeholders, QR verification hashes, and offline print fallbacks.
+              </p>
             </div>
-            <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">Report Submission</div>
-            <p class="text-slate-500 dark:text-slate-400 leading-snug">Inspector verifies extracted fields, attaches
-              physical scale reading, and submits inspection docket.</p>
+            <ul
+              class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <li class="flex items-center gap-1.5">✓ Native PDF engine with jsPDF fallback</li>
+              <li class="flex items-center gap-1.5">✓ Cryptographic verification QR embedding</li>
+            </ul>
           </div>
 
+          <!-- Module 5 -->
           <div
-            class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
-            <div class="flex items-center justify-between">
-              <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 05 <span
-                  class="text-slate-300 dark:text-slate-600 ml-1 font-sans font-normal">→</span></span>
-              <span class="text-[10px] text-slate-400 font-semibold">Officer Console</span>
+            class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div
+                class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                Module 05
+              </div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Pan-India Master Audit
+                Ledger</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Real-time zonal dashboard for central controllers. Tracks inspections across North, South, East, West,
+                Central, and North East zones, flagging non-compliant manufacturers and repeat offenders.
+              </p>
             </div>
-            <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">Judicial Adjudication</div>
-            <p class="text-slate-500 dark:text-slate-400 leading-snug">Metrology Officer evaluates offense compounding,
-              signs Form-V notice, or forwards to judicial magistrate.</p>
+            <ul
+              class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <li class="flex items-center gap-1.5">✓ 6 Zonal jurisdiction metrics</li>
+              <li class="flex items-center gap-1.5">✓ Horizontal tablet scroll protection</li>
+            </ul>
           </div>
 
+          <!-- Module 6 -->
           <div
-            class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
-            <div class="flex items-center justify-between">
-              <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 06</span>
-              <span class="text-[10px] text-slate-400 font-semibold">Central Master Ledger</span>
+            class="card card-item p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div
+                class="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                Module 06
+              </div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Offline Sync & Quota
+                Protection</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Built for remote field operations with spotty connectivity. Features automatic Local Storage quota
+                management, client-side canvas image compression, and central background synchronization.
+              </p>
             </div>
-            <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">Audit & PDF Docket</div>
-            <p class="text-slate-500 dark:text-slate-400 leading-snug">Case syncs to central Master Ledger, issuing
-              tamper-proof PDF seizure memos with QR hashes.</p>
+            <ul
+              class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <li class="flex items-center gap-1.5">✓ Storage quota overflow protection</li>
+              <li class="flex items-center gap-1.5">✓ Offline queueing with background sync</li>
+            </ul>
           </div>
 
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 6. SECURITY & GOVERNANCE ARCHITECTURE -->
-    <section id="security"
-      class="p-6 sm:p-8 rounded-3xl glow-accent-security bg-gradient-to-br from-[#0F172A] via-slate-900 to-[#022C22] text-slate-100 space-y-6 shadow-[0_0_20px_rgba(16,185,129,0.2)] border border-emerald-500/30 border-t-[3px] border-t-[#059669]">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <!-- 4. STATUTORY PENALTY REFERENCE TABLE -->
+      <div id="lm-act-2009" class="scroll-mt-28 md:scroll-mt-32"></div>
+      <section id="penalties"
+        class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-5 scroll-mt-28 md:scroll-mt-32">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-mono">
+              Legal
+              Metrology Act, 2009</div>
+            <h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight">
+              Statutory Infraction & Compounding Schedule
+            </h2>
+          </div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">
+            Official statutory compounding limits as configured in e-LMCEP Rule Engine
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr
+                class="bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 font-heading font-bold border-b border-slate-200 dark:border-slate-700">
+                <th class="px-4 py-3 font-mono w-[18%]">Statutory Provision</th>
+                <th class="px-4 py-3 w-[30%]">Infraction Description</th>
+                <th class="px-4 py-3 w-[18%]">First Offense Penalty</th>
+                <th class="px-4 py-3 w-[20%]">Second / Repeat Offense</th>
+                <th class="px-4 py-3 w-[14%]">Compounding Option</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-600 dark:text-slate-300">
+              <tr
+                class="schedule-row hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 cursor-pointer transition-colors duration-150">
+                <td class="px-4 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">Section 18 / Rule 6</td>
+                <td class="px-4 py-3.5 leading-relaxed">Non-declaration of mandatory attributes (MRP, Net Qty, Mfg Date,
+                  Origin, Address)</td>
+                <td class="px-4 py-3.5">₹25,000 fine per breach</td>
+                <td class="px-4 py-3.5 font-semibold text-rose-600 dark:text-rose-400">Up to ₹50,000 fine</td>
+                <td class="px-4 py-3.5"><span
+                    class="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold whitespace-nowrap">Compoundable
+                    (Form-V)</span></td>
+              </tr>
+              <tr
+                class="schedule-row hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 cursor-pointer transition-colors duration-150">
+                <td class="px-4 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">Section 36(1)</td>
+                <td class="px-4 py-3.5 leading-relaxed">Manufacture, packing, or sale of non-conforming pre-packaged
+                  commodities</td>
+                <td class="px-4 py-3.5">₹25,000 fine</td>
+                <td class="px-4 py-3.5 font-semibold text-rose-600 dark:text-rose-400">Up to ₹1,000,000 + Imprisonment
+                </td>
+                <td class="px-4 py-3.5"><span
+                    class="inline-flex items-center px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-semibold whitespace-nowrap">Strict
+                    Review</span></td>
+              </tr>
+              <tr
+                class="schedule-row hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 cursor-pointer transition-colors duration-150">
+                <td class="px-4 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">Section 36(2)</td>
+                <td class="px-4 py-3.5 leading-relaxed">Short-weight or short-volume package delivery exceeding MAV
+                  Schedule II limits</td>
+                <td class="px-4 py-3.5">₹10,000 to ₹50,000 fine</td>
+                <td class="px-4 py-3.5 font-semibold text-rose-600 dark:text-rose-400">Imprisonment up to 1 Year</td>
+                <td class="px-4 py-3.5"><span
+                    class="inline-flex items-center px-2.5 py-1 rounded-md bg-rose-50 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-semibold whitespace-nowrap">Judicial
+                    Escalation</span></td>
+              </tr>
+              <tr
+                class="schedule-row hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 cursor-pointer transition-colors duration-150">
+                <td class="px-4 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">Rule 18(2) PCR</td>
+                <td class="px-4 py-3.5 leading-relaxed">Overcharging above declared Maximum Retail Price (MRP)</td>
+                <td class="px-4 py-3.5">₹2,000 to ₹25,000 fine</td>
+                <td class="px-4 py-3.5 font-semibold text-rose-600 dark:text-rose-400">Up to ₹50,000 fine</td>
+                <td class="px-4 py-3.5"><span
+                    class="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold whitespace-nowrap">Compoundable
+                    (Form-V)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. END-TO-END WORKFLOW PIPELINE -->
+      <section id="pipeline"
+        class="p-6 sm:p-8 rounded-3xl bg-[#F8FAFC] dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-xs space-y-6 scroll-mt-28 md:scroll-mt-32">
         <div>
-          <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider font-mono">Enterprise Security
-            Standard</div>
-          <h2 class="text-2xl font-extrabold text-white font-heading tracking-tight">
-            Security, Privacy & Sovereign Integrity
+          <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-mono">
+            Enforcement Operations</div>
+          <h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 font-heading tracking-tight">
+            6-Step Field-to-Court Workflow Lifecycle
           </h2>
         </div>
-        <div
-          class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-emerald-400 text-xs font-mono font-bold border border-slate-700">
-          <span>🛡️ Sovereign Data Protection</span>
-        </div>
-      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs text-slate-300">
-        <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-2">
-          <h3 class="font-bold text-white text-sm font-heading">Role-Based Access Control (RBAC)</h3>
-          <p class="leading-relaxed">
-            Strict isolation between Field Inspector, Legal Metrology Officer (LMO), and Zonal Admin roles prevents
-            unauthorized notice generation or record tampering.
-          </p>
-        </div>
-        <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-2">
-          <h3 class="font-bold text-white text-sm font-heading">Local Storage Quota Defense</h3>
-          <p class="leading-relaxed">
-            Automatic client-side FIFO cache pruner safeguards against browser Local Storage quota overflow crashes
-            during heavy offline field inspections.
-          </p>
-        </div>
-        <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-2">
-          <h3 class="font-bold text-white text-sm font-heading">Cryptographic Hash Verification</h3>
-          <p class="leading-relaxed">
-            Every generated Form-V PDF seizure notice includes embedded SHA-256 hash strings and dynamic QR codes for
-            court verification.
-          </p>
-        </div>
-      </div>
-    </section>
+        <div class="relative">
+          <!-- Dashed connecting line across step cards -->
+          <div
+            class="hidden sm:block absolute top-1/2 left-4 right-4 h-0 border-t-2 border-dashed border-emerald-300/70 dark:border-emerald-700/50 -translate-y-1/2 pointer-events-none z-0">
+          </div>
 
-    <!-- Bottom Action Banner -->
-    <div
-      class="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
-      <div class="space-y-1">
-        <h3 class="text-xl font-extrabold font-heading">Ready for Evaluation & Field Testing?</h3>
-        <p class="text-xs text-emerald-100">Access the e-LMCEP sign-in portal to test Inspector, Officer, and Admin
-          workflows.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs relative z-10">
+
+            <div
+              class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 01 <span
+                    class="text-slate-300 dark:text-slate-600 ml-1 font-sans font-normal">→</span></span>
+                <span class="text-[10px] text-slate-400 font-semibold">Inspector Portal</span>
+              </div>
+              <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">Optical Capture</div>
+              <p class="text-slate-500 dark:text-slate-400 leading-snug">Field Inspector captures commodity label photo
+                via
+                mobile or desktop camera interface.</p>
+            </div>
+
+            <div
+              class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 02 <span
+                    class="text-slate-300 dark:text-slate-600 ml-1 font-sans font-normal">→</span></span>
+                <span class="text-[10px] text-slate-400 font-semibold">Gemini Vision</span>
+              </div>
+              <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">AI OCR Extraction</div>
+              <p class="text-slate-500 dark:text-slate-400 leading-snug">Gemini AI Vision Engine extracts mandatory
+                declarations, MRP, Net Weight, and Manufacturer info.</p>
+            </div>
+
+            <div
+              class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 03 <span
+                    class="text-slate-300 dark:text-slate-600 ml-1 font-sans font-normal">→</span></span>
+                <span class="text-[10px] text-slate-400 font-semibold">Rules Engine</span>
+              </div>
+              <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">Violation Assessment</div>
+              <p class="text-slate-500 dark:text-slate-400 leading-snug">System compares extracted text against Rule 6
+                requirements and MAV Schedule II limits.</p>
+            </div>
+
+            <div
+              class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 04 <span
+                    class="text-slate-300 dark:text-slate-600 ml-1 font-sans font-normal">→</span></span>
+                <span class="text-[10px] text-slate-400 font-semibold">Inspector Signoff</span>
+              </div>
+              <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">Report Submission</div>
+              <p class="text-slate-500 dark:text-slate-400 leading-snug">Inspector verifies extracted fields, attaches
+                physical scale reading, and submits inspection docket.</p>
+            </div>
+
+            <div
+              class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 05 <span
+                    class="text-slate-300 dark:text-slate-600 ml-1 font-sans font-normal">→</span></span>
+                <span class="text-[10px] text-slate-400 font-semibold">Officer Console</span>
+              </div>
+              <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">Judicial Adjudication</div>
+              <p class="text-slate-500 dark:text-slate-400 leading-snug">Metrology Officer evaluates offense
+                compounding,
+                signs Form-V notice, or forwards to judicial magistrate.</p>
+            </div>
+
+            <div
+              class="card card-item p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 relative">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">STEP 06</span>
+                <span class="text-[10px] text-slate-400 font-semibold">Central Master Ledger</span>
+              </div>
+              <div class="font-bold text-slate-900 dark:text-slate-100 font-heading text-sm">Audit & PDF Docket</div>
+              <p class="text-slate-500 dark:text-slate-400 leading-snug">Case syncs to central Master Ledger, issuing
+                tamper-proof PDF seizure memos with QR hashes.</p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. SECURITY & GOVERNANCE ARCHITECTURE -->
+      <section id="security"
+        class="p-6 sm:p-8 rounded-3xl glow-accent-security bg-gradient-to-br from-[#0F172A] via-slate-900 to-[#022C22] text-slate-100 space-y-6 shadow-[0_0_20px_rgba(16,185,129,0.2)] border border-emerald-500/30 border-t-[3px] border-t-[#059669] scroll-mt-28 md:scroll-mt-32">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider font-mono">Enterprise Security
+              Standard</div>
+            <h2 class="text-2xl font-extrabold text-white font-heading tracking-tight">
+              Security, Privacy & Sovereign Integrity
+            </h2>
+          </div>
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-emerald-400 text-xs font-mono font-bold border border-slate-700">
+            <span>🛡️ Sovereign Data Protection</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs text-slate-300">
+          <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-2">
+            <h3 class="font-bold text-white text-sm font-heading">Role-Based Access Control (RBAC)</h3>
+            <p class="leading-relaxed">
+              Strict isolation between Field Inspector, Legal Metrology Officer (LMO), and Zonal Admin roles prevents
+              unauthorized notice generation or record tampering.
+            </p>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-2">
+            <h3 class="font-bold text-white text-sm font-heading">Local Storage Quota Defense</h3>
+            <p class="leading-relaxed">
+              Automatic client-side FIFO cache pruner safeguards against browser Local Storage quota overflow crashes
+              during heavy offline field inspections.
+            </p>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-2">
+            <h3 class="font-bold text-white text-sm font-heading">Cryptographic Hash Verification</h3>
+            <p class="leading-relaxed">
+              Every generated Form-V PDF seizure notice includes embedded SHA-256 hash strings and dynamic QR codes for
+              court verification.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Action Banner -->
+      <div
+        class="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+        <div class="space-y-1">
+          <h3 class="text-xl font-extrabold font-heading">Ready for Evaluation & Field Testing?</h3>
+          <p class="text-xs text-emerald-100">Access the e-LMCEP sign-in portal to test Inspector, Officer, and Admin
+            workflows.</p>
+        </div>
+        <a href="index.html#segment-officer-auth"
+          class="flex-shrink-0 px-6 py-3 min-h-[44px] inline-flex items-center justify-center rounded-2xl bg-white text-emerald-900 hover:bg-emerald-50 text-xs font-extrabold font-heading shadow transition-all hover:scale-105">
+          Launch Sign In Portal →
+        </a>
       </div>
-      <a href="index.html"
-        class="flex-shrink-0 px-6 py-3 min-h-[44px] inline-flex items-center justify-center rounded-2xl bg-white text-emerald-900 hover:bg-emerald-50 text-xs font-extrabold font-heading shadow transition-all hover:scale-105">
-        Launch Sign In Portal →
-      </a>
     </div>
 
+    <!-- =========================================================================
+         CURRENT LM (LEGAL METROLOGY) 2026 STATUTORY INTELLIGENCE DASHBOARD
+         Interactive in-flow view rendered with smooth wipe/slide transition.
+         ========================================================================= -->
+    <div id="currentLMDashboardView" class="features-view-wrapper hidden space-y-8 sm:space-y-10">
+
+      <!-- Executive Command & Breadcrumb Header -->
+      <div
+        class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5 border-t-[3px] border-t-[#059669] bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.08),transparent_50%)]">
+
+        <!-- Breadcrumbs & Quick Return Button -->
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div class="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400">
+            <button type="button" onclick="closeCurrentLmView()"
+              class="hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition">Features</button>
+            <span>/</span>
+            <span class="text-emerald-600 dark:text-emerald-400 font-semibold">Current Legal Metrology (LM)
+              Framework</span>
+          </div>
+
+          <!-- Prominent Back to Original Page Button -->
+          <button type="button" onclick="closeCurrentLmView()"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-700 font-bold text-xs shadow-xs hover:shadow transition-all duration-150 active:scale-95 cursor-pointer self-start sm:self-auto">
+            <span class="text-sm font-bold">←</span>
+            <span>Back to Feature Catalog</span>
+          </button>
+        </div>
+
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3 max-w-3xl">
+            <div
+              class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Official 2026 Statutory Framework • Legal Metrology Division • Govt. of India</span>
+            </div>
+            <h1
+              class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-slate-100 font-heading tracking-tight leading-tight">
+              Current Legal Metrology Framework &amp; Statutory Governance
+            </h1>
+            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              Consolidated statutory reference standard governing pre-packaged commodities across India under the
+              <strong>Legal Metrology Act, 2009</strong> (Act 1 of 2010), the
+              <strong>Legal Metrology (Packaged Commodities) Rules, 2011 (PCR 2011)</strong>, and the decriminalization
+              provisions of the
+              <strong>Jan Vishwas (Amendment of Provisions) Act, 2023</strong>.
+            </p>
+          </div>
+
+          <!-- Project Sovereign Seal Badge -->
+          <div
+            class="flex-shrink-0 p-5 rounded-2xl backdrop-blur-md bg-white/70 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 shadow-md text-center space-y-2 w-full lg:w-64">
+            <div
+              class="text-[11px] font-mono uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">
+              Live Compliance Status</div>
+            <div class="text-xl font-extrabold text-slate-900 dark:text-slate-100 font-heading">Pan-India Active</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">All 6 Zonal Jurisdictions Fully Synchronized
+            </div>
+          </div>
+        </div>
+
+        <!-- 6 Executive KPI Stat Metrics Grid -->
+        <div id="currentLmKpiGrid"
+          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <!-- Dynamically populated from CURRENT_LM_DATA.kpiStats -->
+        </div>
+
+      </div>
+
+      <!-- Real-Time Search & Interactive Category Filter Bar -->
+      <div
+        class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+          <!-- Search Bar -->
+          <div class="relative w-full md:w-96">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              🔍
+            </span>
+            <input type="text" id="currentLmSearchInput" oninput="handleCurrentLmSearch(this.value)"
+              placeholder="Search rule, section, keyword, or fine amount..."
+              class="w-full pl-9 pr-4 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition">
+          </div>
+
+          <!-- Interactive Tab Buttons Bar -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth w-full md:w-auto py-0.5">
+            <button type="button" data-tab="pcr-rules" onclick="switchCurrentLmTab('pcr-rules')"
+              class="current-lm-tab-btn active px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-emerald-600 text-white shadow-xs">
+              📜 34 PCR Rules
+            </button>
+            <button type="button" data-tab="act-sections" onclick="switchCurrentLmTab('act-sections')"
+              class="current-lm-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+              ⚖️ 57 Act Sections
+            </button>
+            <button type="button" data-tab="jan-vishwas" onclick="switchCurrentLmTab('jan-vishwas')"
+              class="current-lm-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+              🛡️ Jan Vishwas 2023
+            </button>
+            <button type="button" data-tab="workflows" onclick="switchCurrentLmTab('workflows')"
+              class="current-lm-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+              🔄 Active Workflows
+            </button>
+            <button type="button" data-tab="zonal-stats" onclick="switchCurrentLmTab('zonal-stats')"
+              class="current-lm-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+              🗺️ 6 Zonal Commands
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Panel 1: Complete 34 PCR 2011 Rules Directory -->
+      <div id="tab-panel-pcr-rules" class="current-lm-tab-panel space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading">Complete 34 Rules
+              Directory • PCR 2011</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Chapters I to VII of the Legal Metrology (Packaged
+              Commodities) Rules, 2011 as notified by DCA</p>
+          </div>
+          <span class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">34 Rules Total</span>
+        </div>
+        <div id="currentLmRulesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated from LM_RULES_CATALOG -->
+        </div>
+      </div>
+
+      <!-- Tab Panel 2: Legal Metrology Act 2009 Core Sections -->
+      <div id="tab-panel-act-sections" class="current-lm-tab-panel hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading">Primary Enforcement
+              Sections • LM Act 2009</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Statutory authority, search/seizure powers, corporate
+              liability, and appellate structure</p>
+          </div>
+          <span class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">57 Sections (Act 1 of
+            2010)</span>
+        </div>
+        <div id="currentLmActSectionsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamically populated from CURRENT_LM_DATA.actSections -->
+        </div>
+      </div>
+
+      <!-- Tab Panel 3: Jan Vishwas 2023 Decriminalization Matrix -->
+      <div id="tab-panel-jan-vishwas" class="current-lm-tab-panel hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading">Jan Vishwas (Amendment of
+              Provisions) Act, 2023</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Comparative regulatory analysis: shift from judicial
+              prosecution to administrative compounding</p>
+          </div>
+          <span
+            class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Gazette
+            Notified</span>
+        </div>
+        <div id="currentLmJanVishwasTable"
+          class="p-4 sm:p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+          <!-- Dynamically populated from CURRENT_LM_DATA.janVishwasMatrix -->
+        </div>
+      </div>
+
+      <!-- Tab Panel 4: Active National Enforcement Workflows -->
+      <div id="tab-panel-workflows" class="current-lm-tab-panel hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading">Active Standardized
+              Enforcement Workflows</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Standard Operating Procedures (SOP) across mobile
+              field inspection, gravimetric testing & court notice issuance</p>
+          </div>
+          <span class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">4 Core National SOPs</span>
+        </div>
+        <div id="currentLmWorkflowsList" class="space-y-4">
+          <!-- Dynamically populated from CURRENT_LM_DATA.activeWorkflows -->
+        </div>
+      </div>
+
+      <!-- Tab Panel 5: 6 Zonal Commands & Statutory Statistics -->
+      <div id="tab-panel-zonal-stats" class="current-lm-tab-panel hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading">Pan-India 6-Zone
+              Statutory Compliance Commands</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">ZBAC enforcement scopes, active inspection dockets,
+              and regional dispute resolution TAT</p>
+          </div>
+          <span class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">All 36 States &amp;
+            UTs</span>
+        </div>
+        <div id="currentLmZonalGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated from CURRENT_LM_DATA.zonalCommands -->
+        </div>
+      </div>
+
+      <!-- Bottom Action Banner for Current LM View -->
+      <div
+        class="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+        <div class="space-y-1">
+          <h3 class="text-xl font-extrabold font-heading">Ready to Access Statutory Enforcement Portals?</h3>
+          <p class="text-xs text-emerald-100">Sign in with official credentials to access Inspector, Officer, or Zonal
+            Admin workflows.</p>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <button type="button" onclick="closeCurrentLmView()"
+            class="px-5 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition">
+            ← Back to Overview
+          </button>
+          <a href="index.html#segment-officer-auth"
+            class="px-6 py-2.5 rounded-xl bg-white text-emerald-900 hover:bg-emerald-50 text-xs font-black shadow transition active:scale-95">
+            Sign In to Portal →
+          </a>
+        </div>
+      </div>
+
+    </div>
   </main>
 
   <!-- =========================================================================
@@ -1089,14 +1503,17 @@
           <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
           <span
             class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[8.5px] sm:text-[10.5px]">Build
-            v8.1.0</span>
-          <span id="metrocheck-footer-install-dot" class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <button id="metrocheck-footer-install-btn" type="button" onclick="if (typeof triggerPwaInstall === 'function') triggerPwaInstall();"
+            v8.4.0</span>
+          <span id="metrocheck-footer-install-dot"
+            class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button id="metrocheck-footer-install-btn" type="button"
+            onclick="if (typeof triggerPwaInstall === 'function') triggerPwaInstall();"
             class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold hover:underline cursor-pointer text-[9px] sm:text-xs lg:text-[11.5px] font-mono transition-colors">
             <span>📥</span><span>Install App</span>
           </button>
           <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <span class="font-medium block sm:inline w-full sm:w-auto text-center mt-0.5 sm:mt-0">© 2026 Government of India</span>
+          <span class="font-medium block sm:inline w-full sm:w-auto text-center mt-0.5 sm:mt-0">© 2026 Government of
+            India</span>
         </div>
       </div>
 
@@ -1245,6 +1662,9 @@
   <script src="js/masthead.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/footer.js"></script>
+
+  <script src="js/rules.js"></script>
+  <script src="js/features-nav.js"></script>
 </body>
 
 </html>

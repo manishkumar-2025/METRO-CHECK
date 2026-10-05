@@ -31,6 +31,7 @@ const STATIC_ASSETS = [
   '/js/rules.js',
   '/js/scanner.js',
   '/js/storage.js',
+  '/js/features-nav.js',
   '/js/pwa.js',
   '/manifest.json',
   '/logo/logo.png',

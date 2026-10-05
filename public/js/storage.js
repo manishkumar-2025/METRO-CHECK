@@ -1070,14 +1070,23 @@ function exportInspectionsToCSV() {
     ].join(",");
   });
 
-  const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows].join("\n");
-  const encodedUri = encodeURI(csvContent);
+  const csvText = "\uFEFF" + [headers.join(","), ...rows].join("\n");
+  const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+  const blobUrl = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", `METRO-CHECK_Master_Ledger_${new Date().toISOString().split("T")[0]}.csv`);
+  link.href = blobUrl;
+  link.download = `METRO-CHECK_Master_Ledger_${new Date().toISOString().split("T")[0]}.csv`;
+  link.style.display = "none";
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  setTimeout(() => {
+    if (link.parentNode) link.parentNode.removeChild(link);
+    URL.revokeObjectURL(blobUrl);
+  }, 30000);
+
+  if (typeof showToast === "function") {
+    showToast("Master ledger CSV exported successfully!", "success");
+  }
 }
 
 /* ==========================================================================

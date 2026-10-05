@@ -4803,6 +4803,166 @@ html.dark .ds-card {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
+/* ==========================================================================
+   Features Page Fixed Navigation Bar & Dynamic Scroll Anchoring
+   ========================================================================== */
+#featuresStickyNav {
+  top: var(--masthead-actual-height, 54px);
+}
+
+.features-nav-link {
+  color: #475569;
+  border: 1px solid transparent;
+}
+
+html.dark .features-nav-link,
+body.theme-dark .features-nav-link {
+  color: #94A3B8;
+}
+
+.features-nav-link:hover {
+  color: #047857;
+  background-color: rgba(16, 185, 129, 0.08);
+}
+
+html.dark .features-nav-link:hover,
+body.theme-dark .features-nav-link:hover {
+  color: #34D399;
+  background-color: rgba(30, 41, 59, 0.7);
+}
+
+.features-nav-link.active {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+  color: #047857 !important;
+  font-weight: 700 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.08);
+}
+
+html.dark .features-nav-link.active,
+body.theme-dark .features-nav-link.active {
+  background-color: rgba(6, 78, 59, 0.45) !important;
+  color: #34D399 !important;
+  border-color: rgba(5, 150, 105, 0.45) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Dynamic scroll margin for section targets on features.html */
+#overview,
+#rule6-matrix,
+#core-modules,
+#penalties,
+#pipeline,
+#security,
+#lm-act-2009,
+#pcr-standards {
+  scroll-margin-top: calc(var(--features-header-total-height, 106px) + 16px);
+}
+
+/* ==========================================================================
+   Current LM View Transitions & Dashboard Styling
+   ========================================================================== */
+.features-view-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.view-wipe-out-left {
+  animation: viewWipeOutLeft 0.36s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.view-wipe-in-right {
+  animation: viewWipeInRight 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.view-wipe-out-right {
+  animation: viewWipeOutRight 0.36s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.view-wipe-in-left {
+  animation: viewWipeInLeft 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes viewWipeOutLeft {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-32px);
+    filter: blur(2px);
+  }
+}
+
+@keyframes viewWipeInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(32px);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0px);
+  }
+}
+
+@keyframes viewWipeOutRight {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(32px);
+    filter: blur(2px);
+  }
+}
+
+@keyframes viewWipeInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-32px);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0px);
+  }
+}
+
+/* Current LM Tab active styles */
+.current-lm-tab-btn.active {
+  background: #10B981 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+  font-weight: 700;
+}
+
+html.dark .current-lm-tab-btn.active,
+body.theme-dark .current-lm-tab-btn.active {
+  background: #059669 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+}
+
+/* High contrast mode adaptations */
+.gov-high-contrast .current-lm-tab-btn.active {
+  background: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+.gov-high-contrast #currentLMDashboardView {
+  border-color: #000000 !important;
+}
+
+
+
 
 
 

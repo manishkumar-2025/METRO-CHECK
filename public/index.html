@@ -18,6 +18,8 @@
   <script src="js/pwa.js" defer></script>
 
   <!-- METRO-CHECK Core Application Engines -->
+  <script src="js/jspdf.umd.min.js"></script>
+  <script src="js/qrcode.min.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/pdfService.js"></script>
@@ -629,7 +631,7 @@
                 <span class="text-xs sm:text-[13px] font-black tracking-tight text-white font-heading truncate">
                   Role Access &amp; Demo Console
                 </span>
-                <span
+                <span id="sihQuickTriggerBadge"
                   class="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
                   11 Roles
                 </span>
@@ -671,79 +673,74 @@
 
       <!-- Modal Header -->
       <div
-        class="sih-modal-header flex items-start sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 sm:pb-3.5">
+        class="sih-modal-header flex items-start sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div class="flex items-center gap-2.5 sm:gap-3">
           <div
-            class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-base sm:text-xl flex-shrink-0 shadow-xs">
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-base sm:text-lg flex-shrink-0 shadow-xs">
             ⚡
           </div>
           <div>
-            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <h3 id="sihEvalTitle"
                 class="text-xs sm:text-base lg:text-lg font-extrabold text-slate-900 dark:text-slate-100 font-heading">
                 Role Access &amp; Demo Console
               </h3>
-              <span
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/80 whitespace-nowrap">
+              <span id="sihModalRoleCountBadge"
+                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/80 whitespace-nowrap">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                11 Sovereign Roles
+                <span id="sihModalRoleCountText">11 Roles</span>
               </span>
             </div>
             <p class="text-[10.5px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 hidden sm:block">
-              Select any statutory account for 1-click instant authentication &amp; automated CAPTCHA completion
+              Statutory RBAC directory with 1-click test authentication and automated access controls
             </p>
           </div>
         </div>
         <button type="button" onclick="closeSihEvaluationModal()"
-          class="modal-close-btn w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer flex-shrink-0"
+          class="modal-close-btn w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer flex-shrink-0"
           title="Close Console (Esc)" aria-label="Close Role Access Console">✕</button>
       </div>
 
-      <!-- 2FA Multi-Factor Authentication Mode Banner & Toggle (GIGW 3.0 Standard) -->
-      <div class="sih-2fa-banner flex items-center justify-between gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/25 text-xs select-none shadow-xs">
-        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
-          <div class="w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">
-            🔐
-          </div>
-          <div class="min-w-0 flex items-center gap-1.5">
-            <span class="whitespace-nowrap text-[11px] sm:text-xs font-extrabold text-slate-800 dark:text-slate-100">Statutory 2FA</span>
-            <span class="px-1.5 py-0.2 rounded text-[8.5px] sm:text-[9px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex-shrink-0 whitespace-nowrap">GIGW 3.0</span>
-          </div>
+      <!-- Quick Search & Compact 2FA Control Toolbar -->
+      <div class="flex items-center gap-2 pt-1 select-none">
+        <div class="relative flex-1 min-w-0">
+          <input type="search" id="sihRoleSearchInput" oninput="filterSihRolesSearch(this.value)"
+            placeholder="Search official by name, handle, role, zone, or state…"
+            class="w-full pl-8 pr-3 py-2 text-xs bg-slate-100/80 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition font-medium">
+          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">🔍</span>
         </div>
-        <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
-          <span id="sih2faStatusText" class="text-[10px] sm:text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400 whitespace-nowrap">2FA ACTIVE</span>
-          <button type="button" id="sih2faToggleBtn" onclick="toggle2faDemoMode()" 
-            class="relative inline-flex items-center justify-center p-1 rounded-full cursor-pointer focus:outline-none min-h-[44px] min-w-[44px] -my-2 -mr-1" role="switch" aria-checked="true" title="Toggle 2FA Demo Mode">
-            <span id="sih2faTrack" class="relative inline-flex h-5 w-10 sm:h-6 sm:w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-emerald-600 dark:bg-emerald-500">
-              <span id="sih2faToggleThumb" class="pointer-events-none inline-block h-4 w-4 sm:h-5 sm:w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out translate-x-5"></span>
-            </span>
-          </button>
-        </div>
+        <button type="button" id="sih2faToggleBtn" onclick="toggle2faDemoMode()"
+          class="px-3 py-2 rounded-xl border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center gap-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex-shrink-0 shadow-xs"
+          role="switch" aria-checked="true"
+          title="Click to toggle between Statutory 2FA Verification and Direct 1-Click Login">
+          <span id="sih2faDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="sih2faStatusText" class="font-mono text-[11px] font-bold">2FA: ON 🔒</span>
+        </button>
       </div>
 
       <!-- Quick Role Tier Filter Tabs -->
       <div
         class="sih-filter-dock flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-none select-none"
         role="tablist">
-        <button type="button" onclick="filterSihRoleCategory('all', this)"
+        <button type="button" id="sihTabAll" onclick="filterSihRoleCategory('all', this)"
           class="sih-cat-pill active px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-xs flex-shrink-0">
-          All Roles (11)
+          All Roles (<span class="sih-cnt-all">11</span>)
         </button>
-        <button type="button" onclick="filterSihRoleCategory('national', this)"
+        <button type="button" id="sihTabNational" onclick="filterSihRoleCategory('national', this)"
           class="sih-cat-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex-shrink-0">
-          🏛️ National (1)
+          🏛️ National (<span class="sih-cnt-national">1</span>)
         </button>
-        <button type="button" onclick="filterSihRoleCategory('zonal', this)"
+        <button type="button" id="sihTabZonal" onclick="filterSihRoleCategory('zonal', this)"
           class="sih-cat-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex-shrink-0">
-          🛡️ Zonal (3)
+          🛡️ Zonal (<span class="sih-cnt-zonal">3</span>)
         </button>
-        <button type="button" onclick="filterSihRoleCategory('officer', this)"
+        <button type="button" id="sihTabOfficer" onclick="filterSihRoleCategory('officer', this)"
           class="sih-cat-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex-shrink-0">
-          ⚖️ Adjudication (3)
+          ⚖️ Adjudication (<span class="sih-cnt-officer">3</span>)
         </button>
-        <button type="button" onclick="filterSihRoleCategory('inspector', this)"
+        <button type="button" id="sihTabInspector" onclick="filterSihRoleCategory('inspector', this)"
           class="sih-cat-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex-shrink-0">
-          📸 Inspectors (4)
+          📸 Inspectors (<span class="sih-cnt-inspector">4</span>)
         </button>
       </div>
 
@@ -758,38 +755,41 @@
             <span>Tier 1 • National Command (Apex Statutory Authority)</span>
           </div>
 
-          <button type="button" onclick="quickLogin('admin', 'admin123', this)"
-            class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50/90 via-teal-50/40 to-transparent dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-transparent hover:from-emerald-100/90 dark:hover:from-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 hover:border-emerald-500 dark:hover:border-emerald-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
-            <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-              <div
-                class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-lg sm:text-xl font-bold flex-shrink-0 border border-emerald-300 dark:border-emerald-700 shadow-xs">
-                🏛️
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                  <span
-                    class="text-xs sm:text-[13.5px] font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 truncate">
-                    Director General <span class="hidden sm:inline">(DoCA)</span>
-                  </span>
-                  <span
-                    class="px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-emerald-200/80 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200 whitespace-nowrap flex-shrink-0">
-                    Apex
-                  </span>
+          <div id="sihGridNational" class="space-y-2">
+            <button type="button" onclick="quickLogin('admin', 'admin123', this)"
+              class="role-card-btn sih-role-btn w-full flex items-center justify-between p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50/90 via-teal-50/40 to-transparent dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-transparent hover:from-emerald-100/90 dark:hover:from-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 hover:border-emerald-500 dark:hover:border-emerald-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
+              <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                <div
+                  class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-lg sm:text-xl font-bold flex-shrink-0 border border-emerald-300 dark:border-emerald-700 shadow-xs">
+                  🏛️
                 </div>
-                <div class="text-[10.5px] sm:text-[11px] text-slate-600 dark:text-slate-300 truncate mt-0.5 font-medium">
-                  National Master Audit Ledger • Real-Time Oversight Across All 6 Zonal Jurisdictions
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                    <span
+                      class="text-xs sm:text-[13.5px] font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 truncate">
+                      Director General <span class="hidden sm:inline">(DoCA)</span>
+                    </span>
+                    <span
+                      class="px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-emerald-200/80 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200 whitespace-nowrap flex-shrink-0">
+                      Apex
+                    </span>
+                  </div>
+                  <div
+                    class="text-[10.5px] sm:text-[11px] text-slate-600 dark:text-slate-300 truncate mt-0.5 font-medium">
+                    National Master Audit Ledger • Real-Time Oversight Across All 6 Zonal Jurisdictions
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="flex items-center gap-2 flex-shrink-0 ml-2">
-              <span
-                class="font-mono text-[9.5px] sm:text-[10px] font-bold text-slate-800 dark:text-slate-200 bg-white/90 dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-700 shadow-xs whitespace-nowrap">admin</span>
-              <div
-                class="sih-arrow-icon w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
-                →
+              <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                <span
+                  class="font-mono text-[9.5px] sm:text-[10px] font-bold text-slate-800 dark:text-slate-200 bg-white/90 dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-700 shadow-xs whitespace-nowrap">admin</span>
+                <div
+                  class="sih-arrow-icon w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs group-hover:translate-x-0.5 transition-all">
+                  →
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
 
         <!-- Group 2: Zonal Controllers (Regional Jurisdiction) -->
@@ -800,7 +800,7 @@
             <span>Tier 2 • Zonal Controllers (Regional Jurisdiction)</span>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-2.5">
+          <div id="sihGridZonal" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5">
             <!-- North Zone Controller -->
             <button type="button" onclick="quickLogin('north_admin', 'north123', this)"
               class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 hover:bg-indigo-100/70 dark:hover:bg-indigo-950/60 border border-indigo-200/90 dark:border-indigo-800/60 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
@@ -895,7 +895,7 @@
             <span>Tier 3 • Adjudication Officers (Form-V Compounding)</span>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-2.5">
+          <div id="sihGridOfficer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5">
             <!-- Officer North -->
             <button type="button" onclick="quickLogin('officer', 'officer123', this)"
               class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100/70 dark:hover:bg-amber-950/60 border border-amber-200/90 dark:border-amber-800/60 hover:border-amber-500 dark:hover:border-amber-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
@@ -990,7 +990,7 @@
             <span>Tier 4 • Field Inspectors (On-Ground Inspection &amp; AI Scan)</span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-2.5">
+          <div id="sihGridInspector" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-2.5">
             <!-- Inspector Delhi -->
             <button type="button" onclick="quickLogin('inspector', 'inspect123', this)"
               class="role-card-btn sih-role-btn w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-950/60 border border-teal-200/90 dark:border-teal-800/60 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-150 cursor-pointer group text-left shadow-xs">
@@ -1105,15 +1105,34 @@
           </div>
         </div>
 
+        <!-- Empty Search Result Indicator -->
+        <div id="sihNoSearchResults"
+          class="hidden py-8 px-4 text-center rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
+          <div class="text-2xl">🔍</div>
+          <div class="text-xs font-bold text-slate-800 dark:text-slate-200">No Matching Officials Found</div>
+          <p class="text-[11px] text-slate-500 max-w-sm mx-auto">
+            No personnel match your search query "<span id="sihSearchQueryText"
+              class="font-bold text-emerald-600"></span>". Try searching by name, username handle, zone, or statutory
+            role.
+          </p>
+          <button type="button"
+            onclick="document.getElementById('sihRoleSearchInput').value=''; filterSihRolesSearch('');"
+            class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition cursor-pointer shadow-xs">
+            Clear Search Filter
+          </button>
+        </div>
+
       </div>
 
       <!-- Modal Footer -->
       <div
         class="sih-modal-footer pt-2.5 sm:pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 sm:gap-3">
-        <div class="text-[10.5px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-semibold flex items-center gap-1.5 min-w-0">
-          <span class="text-amber-500 flex-shrink-0">⚡</span>
-          <span class="whitespace-nowrap">Instant 1-Click Access</span>
-          <span class="hidden sm:inline text-slate-400 dark:text-slate-500 font-normal truncate">• 11 Sovereign Roles</span>
+        <div
+          class="text-[10.5px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-semibold flex items-center gap-1.5 min-w-0">
+          <span class="text-emerald-500 flex-shrink-0">⚡</span>
+          <span class="whitespace-nowrap">Instant 1-Click Authentication</span>
+          <span id="sihModalFooterCount"
+            class="hidden sm:inline text-slate-400 dark:text-slate-500 font-normal truncate">• 11 Statutory Roles</span>
         </div>
         <button type="button" onclick="closeSihEvaluationModal()"
           class="px-3.5 py-2 min-h-[40px] sm:min-h-[44px] rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer flex-shrink-0 shadow-xs"
@@ -1148,15 +1167,18 @@
       <!-- Header with Official GovTech Branding & Close -->
       <div class="flex items-start justify-between border-b border-slate-200 dark:border-slate-800 pb-3 pt-1">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700/80 flex items-center justify-center text-xl flex-shrink-0 shadow-xs">
+          <div
+            class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700/80 flex items-center justify-center text-xl flex-shrink-0 shadow-xs">
             🛡️
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h3 id="otpModalTitle" class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 font-heading">
+              <h3 id="otpModalTitle"
+                class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 font-heading">
                 Statutory Two-Factor Authentication (2FA)
               </h3>
-              <span class="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex-shrink-0">
+              <span
+                class="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex-shrink-0">
                 GIGW 3.0 Standard
               </span>
             </div>
@@ -1174,25 +1196,31 @@
       <div id="otpLiveAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
       <!-- Officer Identity Card -->
-      <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-700/80 space-y-1.5">
+      <div
+        class="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-700/80 space-y-1.5">
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-2 min-w-0 flex-1">
             <span class="text-sm flex-shrink-0">👤</span>
-            <span id="otpOfficerName" class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-slate-100 truncate">
+            <span id="otpOfficerName"
+              class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-slate-100 truncate">
               Director General (DoCA)
             </span>
           </div>
-          <span id="otpSecurityClearance" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex-shrink-0 whitespace-nowrap">
+          <span id="otpSecurityClearance"
+            class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex-shrink-0 whitespace-nowrap">
             Statutory Passkey
           </span>
         </div>
-        <div id="otpOfficerRole" class="text-[10.5px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
+        <div id="otpOfficerRole"
+          class="text-[10.5px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
           Director General (Legal Metrology) • All Zones
         </div>
-        <div class="pt-1.5 border-t border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between gap-2 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400">
+        <div
+          class="pt-1.5 border-t border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between gap-2 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400">
           <div class="flex items-center gap-1 font-mono min-w-0">
             <span class="flex-shrink-0">📱</span>
-            <span class="truncate">SMS: <strong id="otpOfficerMobile" class="text-slate-900 dark:text-slate-200">+91 98••••4210</strong></span>
+            <span class="truncate">SMS: <strong id="otpOfficerMobile" class="text-slate-900 dark:text-slate-200">+91
+                98••••4210</strong></span>
           </div>
           <div class="flex items-center gap-1 font-mono flex-shrink-0">
             <span>📧</span>
@@ -1206,23 +1234,38 @@
         <label for="otpDigit1" class="block text-xs font-bold text-slate-700 dark:text-slate-300">
           Enter 6-Digit Statutory Passkey
         </label>
-        <div class="flex items-center justify-center gap-1 sm:gap-2 flex-nowrap w-full overflow-hidden" id="otpInputsContainer">
-          <input type="text" id="otpDigit1" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 1 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
-          <input type="text" id="otpDigit2" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 2 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
-          <input type="text" id="otpDigit3" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 3 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+        <div class="flex items-center justify-center gap-1 sm:gap-2 flex-nowrap w-full overflow-hidden"
+          id="otpInputsContainer">
+          <input type="text" id="otpDigit1" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+            autocomplete="one-time-code" aria-label="OTP digit 1 of 6"
+            class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+          <input type="text" id="otpDigit2" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+            autocomplete="one-time-code" aria-label="OTP digit 2 of 6"
+            class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+          <input type="text" id="otpDigit3" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+            autocomplete="one-time-code" aria-label="OTP digit 3 of 6"
+            class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
           <span class="text-slate-400 font-bold text-sm sm:text-lg select-none px-0.5">-</span>
-          <input type="text" id="otpDigit4" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 4 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
-          <input type="text" id="otpDigit5" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 5 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
-          <input type="text" id="otpDigit6" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" aria-label="OTP digit 6 of 6" class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+          <input type="text" id="otpDigit4" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+            autocomplete="one-time-code" aria-label="OTP digit 4 of 6"
+            class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+          <input type="text" id="otpDigit5" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+            autocomplete="one-time-code" aria-label="OTP digit 5 of 6"
+            class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
+          <input type="text" id="otpDigit6" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+            autocomplete="one-time-code" aria-label="OTP digit 6 of 6"
+            class="otp-box flex-1 max-w-[48px] min-w-[36px] min-h-[44px] sm:min-w-[44px] sm:min-h-[48px] text-center font-mono font-black text-lg sm:text-xl rounded-xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-900 dark:text-white transition shadow-xs">
         </div>
-        <div id="otpErrorMessage" class="hidden text-xs text-red-600 dark:text-red-400 font-bold text-center pt-1" role="alert" aria-live="assertive"></div>
+        <div id="otpErrorMessage" class="hidden text-xs text-red-600 dark:text-red-400 font-bold text-center pt-1"
+          role="alert" aria-live="assertive"></div>
       </div>
 
       <!-- Ticker & Resend Row -->
       <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium px-1">
         <div class="flex items-center gap-1.5">
           <span>⏱️</span>
-          <span>Valid for: <strong id="otpCountdown" class="font-mono text-slate-800 dark:text-slate-200">00:30s</strong></span>
+          <span>Valid for: <strong id="otpCountdown"
+              class="font-mono text-slate-800 dark:text-slate-200">00:30s</strong></span>
         </div>
         <button type="button" id="otpResendBtn" onclick="resendDemoOtp()"
           class="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-bold transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
@@ -1231,7 +1274,8 @@
       </div>
 
       <!-- ⚡ 1-Tap AutoFill Pill for Evaluators / Hackathon Jury -->
-      <div class="p-3 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-emerald-950/40 border border-emerald-300/80 dark:border-emerald-700/60 shadow-xs">
+      <div
+        class="p-3 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-emerald-950/40 border border-emerald-300/80 dark:border-emerald-700/60 shadow-xs">
         <div class="flex items-center justify-between gap-2">
           <div class="min-w-0">
             <div class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
@@ -1265,7 +1309,8 @@
       </div>
 
       <!-- Footer Info -->
-      <div class="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+      <div
+        class="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-medium">
         <span>🇮🇳 NIC National Security Framework</span>
         <span>GIGW 3.0 Standard</span>
       </div>
@@ -1667,14 +1712,17 @@
           <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
           <span
             class="px-1.5 py-0.5 rounded bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[8.5px] sm:text-[10.5px]">Build
-            v8.1.0</span>
-          <span id="metrocheck-footer-install-dot" class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <button id="metrocheck-footer-install-btn" type="button" onclick="if (typeof triggerPwaInstall === 'function') triggerPwaInstall();"
+            v8.4.0</span>
+          <span id="metrocheck-footer-install-dot"
+            class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
+          <button id="metrocheck-footer-install-btn" type="button"
+            onclick="if (typeof triggerPwaInstall === 'function') triggerPwaInstall();"
             class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold hover:underline cursor-pointer text-[9px] sm:text-xs lg:text-[11.5px] font-mono transition-colors">
             <span>📥</span><span>Install App</span>
           </button>
           <span class="hidden sm:inline text-slate-300 dark:text-slate-700 select-none">•</span>
-          <span class="font-medium block sm:inline w-full sm:w-auto text-center mt-0.5 sm:mt-0">© 2026 Government of India</span>
+          <span class="font-medium block sm:inline w-full sm:w-auto text-center mt-0.5 sm:mt-0">© 2026 Government of
+            India</span>
         </div>
       </div>
 

@@ -770,17 +770,34 @@ window.goToReportsPage = goToReportsPage;
 /**
  * Generates an official, structured PDF compliance report on client-side using jsPDF.
  */
-function downloadInspectionPDF(inspectionId) {
-  if (typeof generateStatutoryNoticePDF === "function") {
-    generateStatutoryNoticePDF(inspectionId);
-    return;
+async function downloadInspectionPDF(inspectionId) {
+  let pdfFn = (typeof generateStatutoryNoticePDF === "function" ? generateStatutoryNoticePDF : null) ||
+              (typeof window !== "undefined" && typeof window.generateStatutoryNoticePDF === "function" ? window.generateStatutoryNoticePDF : null);
+
+  if (!pdfFn && typeof document !== "undefined") {
+    try {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "js/pdfService.js";
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+      pdfFn = (typeof generateStatutoryNoticePDF === "function" ? generateStatutoryNoticePDF : null) ||
+              (typeof window !== "undefined" && typeof window.generateStatutoryNoticePDF === "function" ? window.generateStatutoryNoticePDF : null);
+    } catch (_) {}
   }
-  const item = getInspectionById(inspectionId);
+
+  if (typeof pdfFn === "function") {
+    return await pdfFn(inspectionId);
+  }
+
+  const item = typeof getInspectionById === "function" ? getInspectionById(inspectionId) : null;
   if (!item) {
     if (typeof showToast === "function") showToast("Record not found.", "warning");
     return;
   }
-  window.print();
+  if (typeof showToast === "function") showToast("PDF engine unavailable.", "error");
 }
 
 /**
@@ -3060,11 +3077,49 @@ function updateOfficialReportPreview() {
   document.getElementById("previewNoticeDesignation").textContent = desig;
 
   const violListEl = document.getElementById("previewNoticeViolations");
-  const viols = item.violations || [];
-  if (viols.length === 0) {
+  
+  const viols = Array.isArray(item.violations) ? item.violations : [];
+  const itemRules = Array.isArray(item.rules) ? item.rules : (Array.isArray(item.compliance_tests) ? item.compliance_tests : []);
+  const checkedFields = item.checkedFields || item.checked_fields || item.fieldResults || {};
+  const hasFailingRules = itemRules.some(r => r.compliant === false || r.found === false);
+  const hasFailingFields = Object.values(checkedFields).some(v => v === false);
+  const isNonCompliant = item.isCompliant === false || viols.length > 0 || hasFailingRules || hasFailingFields || String(item.status || "").includes("NOTICE") || String(item.status || "").includes("NON_COMPLIANT");
+
+  const activeViols = [];
+  viols.forEach(v => {
+    const vText = typeof v === "object" ? (v?.reason || v?.rule || v?.violation || JSON.stringify(v)) : String(v || "Statutory Violation");
+    if (vText && !activeViols.includes(vText)) activeViols.push(vText);
+  });
+
+  itemRules.forEach(r => {
+    if (r.compliant === false || r.found === false) {
+      const clauseStr = r.clause ? `${r.clause}: ` : "";
+      const paramStr = r.parameter_name || r.name || "Declaration";
+      const reasonStr = r.violation_reason || r.reason || "Non-compliant declaration";
+      const combined = `${clauseStr}${paramStr} - ${reasonStr}`;
+      if (!activeViols.some(existing => existing.includes(paramStr) || (r.clause && existing.includes(r.clause)))) {
+        activeViols.push(combined);
+      }
+    }
+  });
+
+  const addl = item.inspectionFindings || item.findings || item.observations;
+  if (addl && typeof addl === "string" && addl.trim().length > 0) {
+    if (!activeViols.includes(addl.trim())) activeViols.push(`Inspection Observation: ${addl.trim()}`);
+  }
+
+  if (activeViols.length === 0 && isNonCompliant) {
+    if (item.reviewComments && item.reviewComments.trim().length > 0) {
+      activeViols.push(`Officer Docket Comment: ${item.reviewComments}`);
+    } else {
+      activeViols.push("Statutory Non-Compliance: Label declaration contraventions established during physical inspection.");
+    }
+  }
+
+  if (activeViols.length === 0 && !isNonCompliant) {
     violListEl.innerHTML = `<li class="text-emerald-700 font-semibold">Zero statutory contraventions found. Package satisfies Section 18 & Rule 6.</li>`;
   } else {
-    violListEl.innerHTML = viols.map((v, i) => `
+    violListEl.innerHTML = activeViols.map((v, i) => `
       <li class="text-red-700 font-semibold">${i + 1}. Contravention of Rule 6/9: ${v}</li>
     `).join("");
   }
@@ -3089,10 +3144,13 @@ function generateOfficialNoticePDF() {
   const sig = document.getElementById("officerSignatureInput")?.value || "A. K. Sharma";
   const desig = document.getElementById("officerDesignationInput")?.value || "Assistant Controller of Legal Metrology";
 
-  if (typeof generateStatutoryNoticePDF === "function") {
-    generateStatutoryNoticePDF(item, { signatoryName: sig, signatoryDesignation: desig });
+  let pdfFn = (typeof generateStatutoryNoticePDF === "function" ? generateStatutoryNoticePDF : null) ||
+              (typeof window !== "undefined" && typeof window.generateStatutoryNoticePDF === "function" ? window.generateStatutoryNoticePDF : null);
+
+  if (typeof pdfFn === "function") {
+    pdfFn(item, { signatoryName: sig, signatoryDesignation: desig });
   } else {
-    window.print();
+    if (typeof showToast === "function") showToast("PDF engine not initialized.", "error");
   }
 }
 
