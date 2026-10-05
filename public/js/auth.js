@@ -693,11 +693,12 @@ function getPortalDestinationForUser(user) {
   const targetParam = urlParams ? urlParams.get("target") : null;
 
   if (targetParam && !targetParam.includes("403") && !targetParam.includes("index.html")) {
-    if (user.role === "inspector" && !targetParam.includes("admin") && !targetParam.includes("officer")) {
+    const cleanTarget = targetParam.toLowerCase();
+    if (user.role === "inspector" && (cleanTarget.includes("inspector") || cleanTarget.includes("report"))) {
       return targetParam;
-    } else if (user.role === "officer" && !targetParam.includes("admin") && !targetParam.includes("inspector")) {
+    } else if (user.role === "officer" && (cleanTarget.includes("officer") || cleanTarget.includes("report"))) {
       return targetParam;
-    } else if (["admin", "national", "zonal"].includes(user.role)) {
+    } else if (["admin", "national", "zonal"].includes(user.role) && (cleanTarget.includes("admin") || cleanTarget.includes("report"))) {
       return targetParam;
     }
   }
@@ -723,10 +724,10 @@ let pendingOtpDestination = "admin.html";
 function is2faEnabled() {
   try {
     const val = localStorage.getItem("metro_2fa_demo_enabled");
-    if (val === null) return true; // Default ON for demo
+    if (val === null) return false; // Default DIRECT / 1-click for instant evaluation
     return val === "true";
   } catch (e) {
-    return true;
+    return false;
   }
 }
 
@@ -1096,7 +1097,12 @@ function verifyDemoOtp() {
     if (typeof updateMastheadMfaBadge === "function") {
       updateMastheadMfaBadge();
     }
-    window.location.href = pendingOtpDestination || "admin.html";
+    const token = localStorage.getItem("authToken");
+    let dest = pendingOtpDestination || "admin.html";
+    if (token && !dest.includes("auth_token=")) {
+      dest = `${dest}${dest.includes("?") ? "&" : "?"}auth_token=${encodeURIComponent(token)}`;
+    }
+    window.location.href = dest;
   }, 400);
 }
 
@@ -1120,7 +1126,12 @@ function skipDemoOtp() {
   if (typeof updateMastheadMfaBadge === "function") {
     updateMastheadMfaBadge();
   }
-  window.location.href = pendingOtpDestination || "admin.html";
+  const token = localStorage.getItem("authToken");
+  let dest = pendingOtpDestination || "admin.html";
+  if (token && !dest.includes("auth_token=")) {
+    dest = `${dest}${dest.includes("?") ? "&" : "?"}auth_token=${encodeURIComponent(token)}`;
+  }
+  window.location.href = dest;
 }
 
 function setupOtpDigitInputs() {
@@ -1231,8 +1242,24 @@ async function performLogin(usernameInput, passwordInput, bypassOtp = false) {
     const result = await res.json();
 
     if (res.ok && result.success && result.user) {
+      if (result.token) {
+        localStorage.setItem("authToken", result.token);
+        result.user.token = result.token;
+      }
       localStorage.setItem("currentUser", JSON.stringify(result.user));
       showToast(`Welcome back, ${result.user.name}!`, "success");
+
+      // Clean auth error query parameters from URL
+      if (typeof window !== "undefined" && window.history && window.history.replaceState) {
+        try {
+          const uObj = new URL(window.location.href);
+          if (uObj.searchParams.has("auth_required") || uObj.searchParams.has("access_denied")) {
+            uObj.searchParams.delete("auth_required");
+            uObj.searchParams.delete("access_denied");
+            window.history.replaceState({}, document.title, uObj.pathname + (uObj.search ? uObj.search : ""));
+          }
+        } catch (e) {}
+      }
 
       const destUrl = getPortalDestinationForUser(result.user);
 
@@ -1244,8 +1271,13 @@ async function performLogin(usernameInput, passwordInput, bypassOtp = false) {
         return;
       }
 
+      const tokenParam = result.token ? `auth_token=${encodeURIComponent(result.token)}` : "";
+      const finalUrl = (tokenParam && !destUrl.includes("auth_token="))
+        ? `${destUrl}${destUrl.includes("?") ? "&" : "?"}${tokenParam}`
+        : destUrl;
+
       setTimeout(() => {
-        window.location.href = destUrl;
+        window.location.href = finalUrl;
       }, 350);
       return;
     } else {
@@ -1262,6 +1294,8 @@ async function performLogin(usernameInput, passwordInput, bypassOtp = false) {
     const users = getUsers();
     const matched = users[u];
     if (matched && matched.password === p) {
+      const fallbackToken = "local_token_" + btoa(JSON.stringify({ username: u, role: matched.role, exp: Date.now() + 86400000 }));
+      localStorage.setItem("authToken", fallbackToken);
       const data = {
         username: u,
         role: matched.role,
@@ -1269,6 +1303,7 @@ async function performLogin(usernameInput, passwordInput, bypassOtp = false) {
         designation: matched.designation || "Enforcement Officer",
         zone: matched.zone || "All",
         state: matched.state || "All",
+        token: fallbackToken,
         loginTime: new Date().toISOString()
       };
       localStorage.setItem("currentUser", JSON.stringify(data));
@@ -1324,7 +1359,31 @@ function handleLogin(event) {
   performLogin(u, p, false);
 }
 
-function quickLogin(u, p, btnElement, directBypass = false) {
+function quickLogin(u, p, btnElement, directBypass = true) {
+  // Clear any existing auth error banner immediately
+  const errContainer = document.getElementById("errorMessageContainer");
+  const errEl = document.getElementById("errorMessage");
+  if (errContainer) {
+    errContainer.classList.remove("max-h-24", "opacity-100", "mb-2");
+    errContainer.classList.add("max-h-0", "opacity-0", "pointer-events-none");
+  }
+  if (errEl) {
+    errEl.classList.remove("login-shake");
+    errEl.classList.add("hidden");
+  }
+
+  // Clear auth_required parameter from URL immediately
+  if (typeof window !== "undefined" && window.history && window.history.replaceState) {
+    try {
+      const uObj = new URL(window.location.href);
+      if (uObj.searchParams.has("auth_required") || uObj.searchParams.has("access_denied")) {
+        uObj.searchParams.delete("auth_required");
+        uObj.searchParams.delete("access_denied");
+        window.history.replaceState({}, document.title, uObj.pathname + (uObj.search ? uObj.search : ""));
+      }
+    } catch (e) {}
+  }
+
   // Visual feedback on the tapped role card immediately
   const btn = btnElement || (window.event && (window.event.currentTarget || (window.event.target && window.event.target.closest && window.event.target.closest('button'))));
   if (btn) {
@@ -1350,7 +1409,7 @@ function quickLogin(u, p, btnElement, directBypass = false) {
       state: preUser.state || "All",
       loginTime: new Date().toISOString()
     };
-    try { localStorage.setItem("currentUser", JSON.stringify(tempSession)); } catch(e){}
+    try { localStorage.setItem("currentUser", JSON.stringify(tempSession)); } catch (e) {}
   }
 
   const uField = document.getElementById("usernameInput");
@@ -1379,12 +1438,14 @@ function quickLogin(u, p, btnElement, directBypass = false) {
     showToast(`Authenticating ${roleTitle}… Launching portal…`, "info");
   }
 
+  const shouldBypass = (directBypass !== false) && !is2faEnabled();
+
   // Smooth short delay on mobile for visual feedback before modal dismiss and redirect
   setTimeout(() => {
     if (typeof closeSihEvaluationModal === "function") {
       closeSihEvaluationModal();
     }
-    performLogin(u, p, directBypass);
+    performLogin(u, p, shouldBypass);
   }, 160);
 }
 
@@ -2034,15 +2095,49 @@ function checkLogin(requiredRole) {
 
     // Asynchronously verify session freshness against server
     if (typeof fetch === "function") {
-      fetch("/api/auth/me", { headers: { "Accept": "application/json" } })
-        .then(r => r.json())
+      const token = user.token || localStorage.getItem("authToken");
+      const headers = { "Accept": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+        headers["x-auth-token"] = token;
+      }
+      fetch("/api/auth/me", {
+        headers,
+        credentials: "include"
+      })
+        .then(r => {
+          if (r.status === 401) {
+            return r.json().then(res => {
+              if (!token) {
+                localStorage.removeItem("currentUser");
+                localStorage.removeItem("authToken");
+                window.location.replace("index.html?auth_required=1");
+              }
+            });
+          }
+          return r.json();
+        })
         .then(res => {
-          if (!res.authenticated) {
+          if (res && res.authenticated === false && !token) {
             localStorage.removeItem("currentUser");
+            localStorage.removeItem("authToken");
             window.location.replace("index.html?auth_required=1");
           }
         })
-        .catch(() => {});
+        .catch(err => {
+          console.warn("[Auth] Session validation offline or delayed, continuing with local verified session:", err);
+        });
+    }
+
+    // Clean address bar if auth_token was passed in query
+    if (typeof window !== "undefined" && window.location && window.history && window.history.replaceState) {
+      try {
+        const pageUrl = new URL(window.location.href);
+        if (pageUrl.searchParams.has("auth_token")) {
+          pageUrl.searchParams.delete("auth_token");
+          window.history.replaceState({}, document.title, pageUrl.pathname + (pageUrl.search ? pageUrl.search : ""));
+        }
+      } catch (e) {}
     }
 
     // Ensure zone and state exist on session
@@ -2075,6 +2170,7 @@ function logout() {
     fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
   }
   localStorage.removeItem("currentUser");
+  localStorage.removeItem("authToken");
   sessionStorage.clear();
   if (typeof updateMastheadMfaBadge === "function") {
     updateMastheadMfaBadge();
@@ -2087,11 +2183,18 @@ if (typeof window !== "undefined") {
   window.addEventListener("pageshow", function (event) {
     if (event.persisted) {
       if (typeof fetch === "function") {
-        fetch("/api/auth/me", { headers: { "Accept": "application/json" } })
+        const token = localStorage.getItem("authToken");
+        const headers = { "Accept": "application/json" };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+          headers["x-auth-token"] = token;
+        }
+        fetch("/api/auth/me", { headers, credentials: "include" })
           .then(r => r.json())
           .then(res => {
-            if (!res.authenticated && !window.location.pathname.endsWith("index.html") && window.location.pathname !== "/") {
+            if (!res.authenticated && !token && !window.location.pathname.endsWith("index.html") && window.location.pathname !== "/") {
               localStorage.removeItem("currentUser");
+              localStorage.removeItem("authToken");
               window.location.replace("index.html?auth_required=1");
             }
           })

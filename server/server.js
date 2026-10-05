@@ -667,6 +667,17 @@ app.use((req, res, next) => {
       if (!allowedRoles.includes(user.role)) {
         return res.status(403).sendFile(path.join(PUBLIC_DIR, "403.html"));
       }
+
+      // If session cookie is not present, set it now from validated query or header token
+      const cookies = parseCookies(req);
+      if (!cookies.metro_session) {
+        const token = req.query.auth_token || (req.headers.authorization && req.headers.authorization.startsWith("Bearer ") ? req.headers.authorization.slice(7).trim() : req.headers["x-auth-token"]);
+        if (token) {
+          const isSecure = req.secure || req.headers["x-forwarded-proto"] === "https";
+          res.setHeader("Set-Cookie", `metro_session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${isSecure ? "; Secure" : ""}`);
+        }
+      }
+
       const actualFile = routeKey.endsWith(".html") ? routeKey.slice(1) : `${routeKey.slice(1)}.html`;
       return res.sendFile(path.join(PUBLIC_DIR, actualFile));
     }
