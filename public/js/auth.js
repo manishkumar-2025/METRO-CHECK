@@ -2050,6 +2050,40 @@ function switchRole(targetRole) {
   }
 }
 
+// Global Authenticated Fetch Interceptor
+// Automatically attaches Bearer token, x-auth-token, and credentials: "include" to all API requests
+if (typeof window !== "undefined" && window.fetch && !window._hasAuthFetchInterceptor) {
+  window._hasAuthFetchInterceptor = true;
+  const originalFetch = window.fetch;
+  window.fetch = function (input, init = {}) {
+    const url = typeof input === "string" ? input : (input && input.url ? input.url : "");
+    const token = localStorage.getItem("authToken");
+
+    if (token && url.includes("/api/") && !url.includes("/api/auth/login") && !url.includes("/api/auth/quick-access-roles")) {
+      const options = { ...init };
+      options.credentials = options.credentials || "include";
+      
+      let headers = options.headers || {};
+      if (typeof Headers !== "undefined" && headers instanceof Headers) {
+        if (!headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
+        if (!headers.has("x-auth-token")) headers.set("x-auth-token", token);
+      } else if (Array.isArray(headers)) {
+        headers.push(["Authorization", `Bearer ${token}`]);
+        headers.push(["x-auth-token", token]);
+      } else {
+        headers = {
+          ...headers,
+          "Authorization": headers["Authorization"] || `Bearer ${token}`,
+          "x-auth-token": headers["x-auth-token"] || token
+        };
+      }
+      options.headers = headers;
+      return originalFetch.call(this, input, options);
+    }
+    return originalFetch.call(this, input, init);
+  };
+}
+
 function checkLogin(requiredRole) {
   let raw = localStorage.getItem("currentUser");
   if (!raw) {

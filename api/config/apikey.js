@@ -3,6 +3,10 @@
  * Lightweight status check for configured Gemini credentials.
  */
 module.exports = (req, res) => {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed. Configure GEMINI_API_KEY via Vercel dashboard environment variables." });
+  }
   const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
   const configured = Boolean(key && key.length > 10);
   const credType = configured ? (key.startsWith("AIza") ? "api_key" : "service_account") : "missing";
