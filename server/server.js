@@ -708,9 +708,8 @@ const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 }
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const CANDIDATE_MODELS = [
-  "gemini-3.5-flash-lite", // normal scans
-  "gemini-3.8-flash",      // accuracy escalation
-  "gemini-3.7-flash"       // reliability fallback
+  "gemini-3.5-flash-lite", // Primary rapid multimodal scan
+  "gemini-3.8-flash"       // High-precision accuracy escalation & fallback
 ];
 const PRIMARY_MODEL = CANDIDATE_MODELS[0];
 const FALLBACK_MODEL = CANDIDATE_MODELS[1];

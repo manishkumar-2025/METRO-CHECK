@@ -2,6 +2,14 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/api/health",
+      "destination": "/api/health.js"
+    },
+    {
+      "source": "/api/config/apikey",
+      "destination": "/api/config/apikey.js"
+    },
+    {
       "source": "/inspector.html",
       "destination": "/api/index.js"
     },

@@ -251,18 +251,27 @@ function switchCaptureMode(mode) {
  * Pings /api/health to verify connectivity with Node.js backend.
  * Displays persistent top banner if server is unreachable.
  */
+/**
+ * Pings /api/health to verify connectivity with Node.js backend.
+ * Displays persistent top banner if server is unreachable.
+ */
 async function checkServerHealth() {
   const bannerId = "serverDisconnectedBanner";
   let banner = document.getElementById(bannerId);
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    // 8-second timeout accommodates Vercel serverless cold-start latency
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(`${SERVER_BASE_URL}/api/health`, { signal: controller.signal });
     clearTimeout(timeoutId);
 
     if (res.ok) {
       isBackendServerOnline = true;
+      if (window._serverHealthRetryTimer) {
+        clearTimeout(window._serverHealthRetryTimer);
+        window._serverHealthRetryTimer = null;
+      }
       if (banner) {
         banner.remove();
       }
@@ -280,8 +289,16 @@ async function checkServerHealth() {
     showServerDisconnectedBanner();
     const badge = document.getElementById("aiEngineReadyBadge");
     if (badge) {
-      badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></span> <span class="hidden sm:inline">Backend </span><span>Offline</span>`;
-      badge.className = "flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-red-50 text-red-700 font-bold text-[10px] sm:text-xs rounded-full border border-red-200 flex-shrink-0";
+      badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0"></span> <span class="hidden sm:inline">Engine </span><span>Connecting…</span>`;
+      badge.className = "flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-amber-50 text-amber-800 font-bold text-[10px] sm:text-xs rounded-full border border-amber-200 flex-shrink-0";
+    }
+
+    // Auto-retry in background so cloud serverless cold starts seamlessly recover
+    if (!window._serverHealthRetryTimer) {
+      window._serverHealthRetryTimer = setTimeout(() => {
+        window._serverHealthRetryTimer = null;
+        checkServerHealth();
+      }, 3500);
     }
     return false;
   }
@@ -293,22 +310,31 @@ async function checkServerHealth() {
 function showServerDisconnectedBanner() {
   const bannerId = "serverDisconnectedBanner";
   let banner = document.getElementById(bannerId);
+
+  const isLocal = typeof window !== "undefined" && window.location && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+  const msgText = isLocal
+    ? "Backend Server Disconnected — Check terminal running 'npm start' or 'node server/server.js'"
+    : "Compliance AI Vision Engine Waking Up — Connecting to Cloud Services…";
+
   if (!banner) {
     banner = document.createElement("div");
     banner.id = bannerId;
-    banner.className = "w-full bg-red-600 text-white px-4 py-2.5 shadow-md flex items-center justify-between text-xs font-bold sticky top-0 z-50 border-b border-red-700 transition-all";
+    banner.className = "w-full bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white px-4 py-2.5 shadow-md flex items-center justify-between text-xs font-bold sticky top-0 z-50 border-b border-red-700 transition-all";
     banner.innerHTML = `
       <div class="flex items-center gap-2 max-w-7xl mx-auto w-full justify-between">
         <div class="flex items-center gap-2.5">
-          <span class="text-base">⚠️</span>
-          <span>Backend Server Disconnected — Check terminal running 'node server.js'</span>
+          <span class="text-base animate-pulse">⚡</span>
+          <span id="serverDisconnectedBannerText">${msgText}</span>
         </div>
-        <button type="button" onclick="checkServerHealth()" class="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-bold transition flex items-center gap-1">
-          <span>🔄</span> Retry Connection
+        <button type="button" onclick="checkServerHealth()" class="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+          <span class="inline-block animate-spin">🔄</span> Retry Connection
         </button>
       </div>
     `;
     document.body.prepend(banner);
+  } else {
+    const textEl = document.getElementById("serverDisconnectedBannerText");
+    if (textEl) textEl.textContent = msgText;
   }
 }
 

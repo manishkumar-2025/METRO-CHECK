@@ -637,8 +637,15 @@
         }
       }
     } catch (e) {
-      if (title) title.textContent = 'Backend Offline';
-      if (sub) sub.textContent = 'Start node server.js on port 3000';
+      const isLocal = typeof window !== 'undefined' && window.location && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      if (title) title.textContent = isLocal ? 'Backend Offline' : 'AI Engine Synchronizing…';
+      if (sub) sub.textContent = isLocal ? 'Start server with npm start (port 3000)' : 'Connecting to cloud AI vision services…';
+      if (!window._geminiKeyRetryTimer) {
+        window._geminiKeyRetryTimer = setTimeout(() => {
+          window._geminiKeyRetryTimer = null;
+          fetchGeminiKeyStatus();
+        }, 4000);
+      }
     }
   }
 

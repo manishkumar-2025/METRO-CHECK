@@ -1,5 +1,44 @@
 [
   {
+    "id": "INS-20261005-J34Y",
+    "sequenceNumber": 101,
+    "evidenceId": "EVD-INS-20261005-J34Y",
+    "date": "2026-10-05",
+    "time": "20:45:46",
+    "createdAt": "2026-10-05T15:15:46.115Z",
+    "product": "Test Commodity Package",
+    "status": "NOTICE_ISSUED",
+    "isCompliant": false,
+    "violations": [
+      "Rule 6(1)(a): Missing manufacturer address"
+    ],
+    "zone": "North Zone",
+    "state": "Delhi UT",
+    "inspectorName": "R. K. Sharma",
+    "inspectorBadgeNumber": "LM-DEL-8841",
+    "auditTrail": [
+      {
+        "timestamp": "2026-10-05T15:15:46.115Z",
+        "actor": "R. K. Sharma (LM-DEL-8841)",
+        "action": "DOCKET_SUBMITTED",
+        "notes": "Initial field submission with evidence EVD-INS-20261005-J34Y",
+        "statusTo": "SUBMITTED"
+      }
+    ],
+    "digitalSignature": {
+      "signature": "5726A3F7592897D949322C8F5103B089630E6DD157FE0B262FE937F1A75799B0",
+      "algorithm": "SHA-256 (Canonical Statutory Digest)",
+      "signedAt": "2026-10-05T15:15:47.824Z",
+      "legalStandard": "Section 63, Bharatiya Sakshya Adhiniyam (BSA), 2023",
+      "verified": true
+    },
+    "docketHash": "3F30F8BD5844EF745AC5527B5DEA32F0ABC5A4CB29DC15DAAF4F943C3B3B8198",
+    "hashSealedAt": "2026-10-05T15:15:47.824Z",
+    "reviewComments": "Statutory notice issued under Section 36 of Legal Metrology Act, 2009.",
+    "updatedAt": "2026-10-05T15:15:47.823Z",
+    "reviewedAt": "2026-10-05T15:15:47.824Z"
+  },
+  {
     "id": "INS-20261005-SAOP",
     "sequenceNumber": 101,
     "evidenceId": "EVD-INS-20261005-SAOP",
